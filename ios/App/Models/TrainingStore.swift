@@ -125,12 +125,12 @@ final class TrainingStore {
     guard result(for: draft.workout) == nil else { return false }
     let completed = draft.sets.filter(\.isComplete)
     let run = draft.workout.kind == .run
-    guard run ? (draft.distanceKilometers > 0 && draft.durationMinutes > 0) : !completed.isEmpty else { return false }
+    guard draft.canFinish else { return false }
     let result = WorkoutResult(
       plannedWorkoutID: draft.workout.id, logicalWorkoutID: draft.workout.logicalID,
       kind: draft.workout.kind,
-      status: !run && completed.count < draft.sets.count ? .partial : .completed,
-      durationSeconds: run ? draft.durationMinutes * 60 : max(60, Int(Date().timeIntervalSince(draft.startedAt))),
+      status: !run && !draft.hasAllPrescribedSets ? .partial : .completed,
+      durationSeconds: run ? draft.durationMinutes * 60 : max(1, Int(draft.activeSeconds())),
       distanceMeters: run ? Int(draft.distanceKilometers * 1_000) : nil,
       effort: draft.effort, notes: draft.notes, sets: completed)
     var next = state
@@ -167,6 +167,13 @@ final class TrainingStore {
     next.messages.append(CoachMessage(text: text, isAthlete: true))
     next.messages.append(CoachMessage(text: LocalCoach.reply(to: text, state: state), isAthlete: false))
     persist(next, share: false)
+  }
+
+  func previousSets(for exerciseName: String) -> [LoggedSet] {
+    let previous = state.results.filter { $0.kind == .strength && $0.status != .skipped }
+      .sorted { $0.completedAt > $1.completedAt }
+      .first { result in result.sets.contains { $0.exerciseName == exerciseName } }
+    return previous?.sets.filter { $0.exerciseName == exerciseName } ?? []
   }
 
   func shareWithWatch() {

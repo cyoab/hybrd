@@ -13,7 +13,7 @@ struct CoachView: View {
           VStack(alignment: .leading, spacing: 22) {
             VStack(alignment: .leading, spacing: 14) {
               Image(systemName: "sparkles").font(.largeTitle).foregroundStyle(.tint).accessibilityHidden(true)
-              Text("See the whole picture.").font(.largeTitle.bold()).tracking(-1)
+              Text("Your training, connected.").font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
               Text("Running and lifting, in the same conversation.").foregroundStyle(.secondary)
               Label("On-device guidance", systemImage: "iphone")
                 .font(.caption.weight(.medium))
@@ -64,6 +64,7 @@ struct CoachView: View {
       .background(HybrdStyle.background)
       .navigationTitle("Coach")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .safeAreaInset(edge: .bottom) {
         HStack(alignment: .bottom, spacing: 12) {
           TextField("Ask about your training…", text: $question, axis: .vertical)

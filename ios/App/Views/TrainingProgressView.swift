@@ -13,7 +13,7 @@ struct TrainingProgressView: View {
         VStack(alignment: .leading, spacing: 24) {
           VStack(alignment: .leading, spacing: 8) {
             Eyebrow(text: "Both disciplines. Real work.")
-            Text("Consistency adds up.").font(.largeTitle.bold()).tracking(-1)
+            Text("Consistency adds up.").font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
             Text("Your logged training, together in one place.").foregroundStyle(.secondary)
           }
           LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -75,6 +75,7 @@ struct TrainingProgressView: View {
       .background(HybrdStyle.background)
       .navigationTitle("Progress")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbarBackground(HybrdStyle.surface, for: .tabBar)
     }
   }
 }

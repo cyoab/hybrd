@@ -62,8 +62,8 @@ private struct WatchSessionView: View {
       if workout.kind == .run {
         ForEach(workout.segments) { segment in
           VStack(alignment: .leading, spacing: 4) {
-            Text(segment.title).font(.headline)
-            Text("\(segment.seconds / 60) min").foregroundStyle(.tint)
+            Text(segment.displayTitle).font(.headline)
+            Text(segment.targetSummary).foregroundStyle(.tint)
             Text(segment.cue).font(.footnote).foregroundStyle(.secondary)
           }
         }

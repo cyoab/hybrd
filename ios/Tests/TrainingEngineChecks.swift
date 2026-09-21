@@ -31,7 +31,36 @@ enum TrainingEngineChecks {
     let lift = plan.workouts.first { $0.kind == .strength }!
     let draft = WorkoutDraft(workout: lift)
     precondition(draft.sets.allSatisfy { !$0.isComplete }, "No sets are performed by default")
-    precondition(draft.sets.map(\.prescriptionID) == lift.exercises.flatMap(\.sets).map(\.id))
+    precondition(draft.sets.compactMap(\.prescriptionID) == lift.exercises.flatMap(\.sets).map(\.id))
+
+    var logged = draft
+    logged.resume(at: start)
+    logged.pause(at: start.addingTimeInterval(60))
+    logged.resume(at: start.addingTimeInterval(600))
+    logged.pause(at: start.addingTimeInterval(630))
+    precondition(logged.activeSeconds() == 90, "Paused time must not count as performed work")
+    for index in logged.sets.indices { logged.sets[index].isComplete = true }
+    precondition(logged.canFinish && logged.hasAllPrescribedSets)
+    logged.sets.removeFirst()
+    precondition(logged.canFinish && !logged.hasAllPrescribedSets, "Removed prescribed sets make a session partial")
+    let count = logged.sets.count
+    logged.addSet(for: lift.exercises[0])
+    precondition(logged.sets.count == count + 1 && logged.sets.last?.prescriptionID == nil)
+    precondition(logged.sets.last?.isComplete == false, "Extra sets require explicit completion")
+    logged.sets[0].kilograms = -1
+    precondition(!logged.canFinish, "Negative completed loads must be rejected")
+
+    var runLog = runDraft
+    runLog.distanceKilometers = 0.000001
+    runLog.durationMinutes = 30
+    precondition(!runLog.canFinish, "A run must contain at least one meter of actual distance")
+    runLog.distanceKilometers = 5
+    precondition(runLog.canFinish)
+    var legacyDraft = try JSONSerialization.jsonObject(with: JSONEncoder().encode(draft)) as! [String: Any]
+    legacyDraft.removeValue(forKey: "elapsedSeconds")
+    legacyDraft.removeValue(forKey: "runningSince")
+    let restoredDraft = try JSONDecoder().decode(WorkoutDraft.self, from: JSONSerialization.data(withJSONObject: legacyDraft))
+    precondition(restoredDraft.sets == draft.sets && restoredDraft.activeSeconds() == 0)
 
     let restored = try JSONDecoder().decode(TrainingPlan.self, from: JSONEncoder().encode(moved))
     precondition(restored.id == moved.id && restored.workouts == moved.workouts)
@@ -46,6 +75,6 @@ enum TrainingEngineChecks {
       $0.segments.reduce(0) { $0 + $1.totalSeconds } == $0.minutes * 60
     }, "Displayed interval totals must equal prescribed duration")
     precondition(sample.workouts.contains { $0.isOptional == true })
-    print("PASS: availability, stable identities, immutable snapshots, conflict checks, result separation, and encoding")
+    print("PASS: planning invariants, legacy decoding, interval totals, actual-result validation, partial/extra sets, and pause/resume timing")
   }
 }

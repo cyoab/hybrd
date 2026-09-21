@@ -22,7 +22,7 @@ enum ResultStatus: String, Codable {
 
 struct LoggedSet: Codable, Identifiable, Equatable {
   var id = UUID()
-  var prescriptionID: UUID
+  var prescriptionID: UUID?
   var exerciseName: String
   var reps: Int
   var kilograms: Double
@@ -38,9 +38,56 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
   var effort = 5
   var notes = ""
   var sets: [LoggedSet] = []
+  var elapsedSeconds: TimeInterval?
+  var runningSince: Date?
+
+  var validationMessage: String? {
+    if workout.kind == .run {
+      guard distanceKilometers.isFinite, distanceKilometers >= 0.001, distanceKilometers <= 500,
+        durationMinutes > 0, durationMinutes <= 2_880 else {
+        return "Enter a distance up to 500 km and a duration up to 2,880 minutes. Both must be greater than zero."
+      }
+    } else {
+      let completed = sets.filter(\.isComplete)
+      guard !completed.isEmpty else { return "Check at least one completed set." }
+      guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) }) else {
+        return "Completed sets need 1–100 reps and a load between 0 and 1,000 kg."
+      }
+    }
+    return nil
+  }
+
+  var canFinish: Bool { validationMessage == nil }
+
+  var hasAllPrescribedSets: Bool {
+    let prescribed = Set(workout.exercises.flatMap(\.sets).map(\.id))
+    let performed = Set(sets.filter(\.isComplete).compactMap(\.prescriptionID))
+    return performed.isSuperset(of: prescribed)
+  }
+
+  func activeSeconds(at now: Date = Date()) -> TimeInterval {
+    max(0, elapsedSeconds ?? 0) + (runningSince.map { max(0, now.timeIntervalSince($0)) } ?? 0)
+  }
+
+  mutating func resume(at now: Date = Date()) {
+    if runningSince == nil { runningSince = now }
+  }
+
+  mutating func pause(at now: Date = Date()) {
+    elapsedSeconds = activeSeconds(at: now)
+    runningSince = nil
+  }
+
+  mutating func addSet(for exercise: ExercisePrescription) {
+    let previous = sets.last { $0.exerciseName == exercise.name }
+    sets.append(LoggedSet(prescriptionID: nil, exerciseName: exercise.name,
+      reps: previous?.reps ?? exercise.sets.first?.reps ?? 6,
+      kilograms: previous?.kilograms ?? 0))
+  }
 
   init(workout: TrainingWorkout) {
     self.workout = workout
+    elapsedSeconds = 0
     // Actual run values start empty; prescriptions are never recorded as performed work.
     sets = workout.exercises.flatMap { exercise in
       exercise.sets.map { set in

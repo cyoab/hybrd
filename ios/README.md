@@ -14,7 +14,7 @@ The current Bitrig-managed workspace links its `App`, `Watch`, `Shared`, and `Pr
 
 ## Current scope
 
-This is an early local scaffold, not the complete MVP. It includes sample data, basic editable goals, four-week starter prescriptions, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, basic totals, and a read-only Watch companion.
+This is an early local scaffold, not the complete MVP. It includes sample data, basic editable goals, four-week starter prescriptions and a clearly labeled sample block, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, basic totals, and a read-only Watch companion.
 
 No backend requests, authentication, cloud AI, entitlements, HealthKit import, StoreKit, reminders, WorkoutKit delivery, or production synchronization are implemented. The current local models are not the generated OpenAPI contract. The starter generator is deliberately simple; goal-specific programming, priority weighting, robust scheduling, and adaptive progression are future work.
 
@@ -30,16 +30,16 @@ Follow `../docs/ios-handoff.md` and generate the production API client from `../
 - Require consent, entitlement, proposal review, and explicit acceptance before cloud changes.
 - Keep tokens in Keychain and provider secrets on the server.
 
-## Next design pass
+## Design implementation
 
-The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The current scaffold screens are provisional and should be redesigned against that reference before expanding product features.
+The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The Plan home and workout flows now use this direction. See `DESIGN.md` for tokens, accessibility choices, and the Runna/Hevy references. The iPhone app uses Plan, Progress, and Coach tabs; the previous Today tab has been removed.
 
 ## Local checks
 
 Run the core checks from this directory:
 
 ```sh
-swiftc -module-cache-path /tmp/hybrd-swift-module-cache Shared/TrainingProfile.swift Shared/TrainingWorkout.swift Shared/TrainingPlan.swift Shared/WorkoutResult.swift Shared/TrainingEngine.swift Tests/TrainingEngineChecks.swift -o /tmp/hybrd-core-checks
+swiftc -module-cache-path /tmp/hybrd-swift-module-cache Shared/TrainingProfile.swift Shared/TrainingWorkout.swift Shared/TrainingPlan.swift Shared/WorkoutResult.swift Shared/TrainingEngine.swift Shared/SampleTraining.swift Tests/TrainingEngineChecks.swift -o /tmp/hybrd-core-checks
 /tmp/hybrd-core-checks
 ```
 
@@ -48,5 +48,5 @@ Build and run the iPhone and Watch targets using Bitrig.
 ## Validation at scaffold handoff
 
 - Bitrig build completed successfully for the iPhone app and embedded Watch target.
-- Core executable checks passed for availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, and encoding.
+- Core executable checks passed for availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, encoding, old draft decoding, interval totals, partial and extra sets, actual-result validation, and pause/resume timing.
 - Bitrig reports both simulators running, but its simulator-inspection tool returns that this destination does not support simulator state. Interactive UI behavior and paired Watch delivery have not been verified.
