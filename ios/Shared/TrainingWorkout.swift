@@ -14,6 +14,13 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   var isKey = false
   var exercises: [ExercisePrescription] = []
   var segments: [RunSegment] = []
+  var scheduledMinutes: Int?
+  var isOptional: Bool?
+
+  var scheduledTimeLabel: String? {
+    guard let scheduledMinutes else { return nil }
+    return String(format: "%02d:%02d", scheduledMinutes / 60, scheduledMinutes % 60)
+  }
 
   var summary: String {
     kind == .run ? "\(Double(distanceMeters) / 1_000, specifier: "%.1f") km · \(minutes) min" : "\(exercises.count) exercises · \(minutes) min"
@@ -67,6 +74,25 @@ struct RunSegment: Codable, Identifiable, Equatable {
   var title: String
   var seconds: Int
   var cue: String
+  var phase: RunSegmentPhase?
+  var repetitions: Int?
+  var target: String?
+
+  var displayTitle: String {
+    if let repetitions, repetitions > 1 { return title + " × " + String(repetitions) }
+    return title
+  }
+
+  var targetSummary: String {
+    let duration = seconds.isMultiple(of: 60) ? "\(seconds / 60) min" : "\(seconds / 60):\(String(format: "%02d", seconds % 60)) min"
+    return duration + (target.map { " " + $0 } ?? "")
+  }
+
+  var totalSeconds: Int { seconds * max(1, repetitions ?? 1) }
+}
+
+enum RunSegmentPhase: String, Codable {
+  case warmUp, work, recovery, coolDown, easy
 }
 
 extension String.StringInterpolation {

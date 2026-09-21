@@ -10,7 +10,7 @@ struct TrainingState: Codable {
 
   static func sample() -> TrainingState {
     let profile = TrainingProfile()
-    return TrainingState(profile: profile, plans: [TrainingEngine.makePlan(profile: profile)])
+    return TrainingState(profile: profile, plans: [SampleTraining.makePlan(profile: profile)])
   }
 }
 

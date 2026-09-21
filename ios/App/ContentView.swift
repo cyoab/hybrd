@@ -4,15 +4,14 @@ struct ContentView: View {
   @Environment(TrainingStore.self) private var store
 
   var body: some View {
-    @Bindable var store = store
     Group {
       if store.isLoaded {
         TabView {
-          Tab("Today", systemImage: "sun.max.fill") { TodayView() }
           Tab("Plan", systemImage: "calendar") { PlanView() }
-          Tab("Coach", systemImage: "bubble.left.and.bubble.right.fill") { CoachView() }
-          Tab("Progress", systemImage: "chart.xyaxis.line") { TrainingProgressView() }
+          Tab("Progress", systemImage: "square.3.layers.3d") { TrainingProgressView() }
+          Tab("Coach", systemImage: "sparkles") { CoachView() }
         }
+        .tint(HybrdStyle.ink)
       } else {
         ContentUnavailableView {
           Label("Training data unavailable", systemImage: "externaldrive.badge.exclamationmark")

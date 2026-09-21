@@ -84,6 +84,7 @@ struct WorkoutDetailView: View {
         }
       }
     }
+    .toolbar(.visible, for: .navigationBar)
     .navigationTitle(current.kind.rawValue)
     .navigationBarTitleDisplayMode(.inline)
     .safeAreaInset(edge: .bottom) {

@@ -37,6 +37,15 @@ final class TrainingStore {
         try container.mainContext.save()
         record = saved
       }
+      // Upgrade only an untouched sample, retaining the original snapshot.
+      if state.profile.isSample, state.results.isEmpty, state.drafts.isEmpty,
+         state.plans.count == 1, state.plans[0].workouts.allSatisfy({ $0.scheduledMinutes == nil }) {
+        var sample = SampleTraining.makePlan(profile: state.profile)
+        sample.basePlanID = state.plans[0].id
+        state.plans.append(sample)
+        record?.payload = try JSONEncoder().encode(state)
+        try container.mainContext.save()
+      }
       isLoaded = true
       loadError = nil
       shareWithWatch()

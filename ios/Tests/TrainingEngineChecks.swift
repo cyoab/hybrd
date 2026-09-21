@@ -35,6 +35,17 @@ enum TrainingEngineChecks {
 
     let restored = try JSONDecoder().decode(TrainingPlan.self, from: JSONEncoder().encode(moved))
     precondition(restored.id == moved.id && restored.workouts == moved.workouts)
+    // Optional presentation metadata must not break existing persisted training.
+    var legacy = try JSONSerialization.jsonObject(with: JSONEncoder().encode(original)) as! [String: Any]
+    legacy.removeValue(forKey: "scheduledMinutes")
+    legacy.removeValue(forKey: "isOptional")
+    let legacyWorkout = try JSONDecoder().decode(TrainingWorkout.self, from: JSONSerialization.data(withJSONObject: legacy))
+    precondition(legacyWorkout.id == original.id && legacyWorkout.scheduledMinutes == nil)
+    let sample = SampleTraining.makePlan(profile: profile, start: start)
+    precondition(sample.workouts.filter { $0.kind == .run }.allSatisfy {
+      $0.segments.reduce(0) { $0 + $1.totalSeconds } == $0.minutes * 60
+    }, "Displayed interval totals must equal prescribed duration")
+    precondition(sample.workouts.contains { $0.isOptional == true })
     print("PASS: availability, stable identities, immutable snapshots, conflict checks, result separation, and encoding")
   }
 }
