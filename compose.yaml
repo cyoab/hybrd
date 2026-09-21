@@ -1,0 +1,106 @@
+name: hybrd
+
+x-development: &development
+  build:
+    context: .
+    dockerfile: server/Dockerfile
+    target: development
+  init: true
+  working_dir: /app
+  env_file: .env
+  environment: &development-env
+    NODE_ENV: development
+    HOST: 0.0.0.0
+    PORT: 3000
+    DATABASE_URL: postgres://${POSTGRES_USER:-hybrd}:${POSTGRES_PASSWORD:-hybrd_local}@postgres:5432/${POSTGRES_DB:-hybrd}
+  volumes:
+    - .:/app
+    - bun_modules:/app/node_modules
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hybrd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hybrd_local}
+      POSTGRES_DB: ${POSTGRES_DB:-hybrd}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-54329}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    <<: *development
+    command: ["sh", "-c", "bun install --frozen-lockfile && bun run db:migrate && bun run db:seed"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *development
+    command: ["bun", "run", "dev"]
+    ports:
+      - "127.0.0.1:${API_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+  postgres-test:
+    image: postgres:17-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: hybrd_test
+      POSTGRES_PASSWORD: hybrd_test
+      POSTGRES_DB: hybrd_test
+    # Isolated, disposable DB. Never connects to the development volume.
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hybrd_test -d hybrd_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  test:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: development
+    profiles: ["test"]
+    init: true
+    working_dir: /app
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgres://hybrd_test:hybrd_test@postgres-test:5432/hybrd_test
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: test-only-secret-is-long-enough-and-never-used-in-production
+      DEV_AUTH_ENABLED: "true"
+    volumes:
+      - .:/app
+      - test_bun_modules:/app/node_modules
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    command: ["sh", "-c", "bun install --frozen-lockfile && bun run check && bun run db:migrate && bun run db:seed && bun run test:integration"]
+
+volumes:
+  postgres_data:
+  bun_modules:
+  test_bun_modules:

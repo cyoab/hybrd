@@ -1,0 +1,27 @@
+name: Server
+on:
+  push:
+    paths-ignore: ["ios/**", "**/*.md"]
+  pull_request:
+    paths-ignore: ["ios/**", "**/*.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check server against isolated PostgreSQL
+        run: make check
+      - name: Build production image
+        run: make build
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose --profile test logs --no-color
+      - name: Stop CI containers
+        if: always()
+        run: docker compose --profile test down --volumes --remove-orphans

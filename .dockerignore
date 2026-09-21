@@ -1,0 +1,15 @@
+**/node_modules
+**/.DS_Store
+.git
+.env
+.env.*
+ios
+docs
+coverage
+dist
+*.md
+**/*.p8
+**/*.pem
+**/*.key
+.agents
+.codex

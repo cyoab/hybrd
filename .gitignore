@@ -1,0 +1,28 @@
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+compose.override.yaml
+*.pem
+*.p8
+*.key
+
+# JavaScript / Bun
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+
+# macOS / Xcode (the iOS app is managed separately)
+.DS_Store
+DerivedData/
+.build/
+xcuserdata/
+*.xcuserstate
+
+# Editor state
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
