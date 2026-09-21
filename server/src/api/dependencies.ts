@@ -1,3 +1,7 @@
+import type { billingServices } from "../billing/service";
+import type { readCatalog } from "../catalog/service";
+import type { intelligenceServices } from "../intelligence/service";
+import type { syncServices } from "../sync/service";
 import type {
   Bootstrap,
   DeviceInput,
@@ -8,6 +12,12 @@ import type {
 export type AppEnv = { Variables: { requestId: string; authUserId: string } };
 
 export interface AppDependencies {
+  billing: ReturnType<typeof billingServices>;
+  intelligence: ReturnType<typeof intelligenceServices>;
+  sync: ReturnType<typeof syncServices>;
+  catalog(): ReturnType<typeof readCatalog>;
+  deleteAccount(authUserId: string, headers: Headers): Promise<void>;
+  exportAccount(authUserId: string): Promise<Record<string, unknown>>;
   checkDatabase(): Promise<void>;
   authenticate(headers: Headers): Promise<string | null>;
   handleAuth(request: Request): Promise<Response>;

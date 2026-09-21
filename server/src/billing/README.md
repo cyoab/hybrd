@@ -1,5 +1,5 @@
 # Billing
 
-Reading authenticated entitlement records is implemented. StoreKit transaction submission is an explicit 501 scaffold; submitting a signed string cannot grant access.
+Apple's official SignedDataVerifier checks certificate chains, signatures, bundle/environment and production app identity. The service additionally allowlists products and binds every purchase to the athlete UUID supplied as StoreKit appAccountToken. Restore submissions and signed V2 server notifications share the transactional entitlement updater.
 
-Implement Apple's signed transaction verification, bundle/application/environment checks, account binding, subscription lifecycle handling, and deduplication by verified transaction ID before writing transactions or entitlements. Publish entitlement changes into the sync feed in the same transaction. No Stripe dependency is needed for this StoreKit-first architecture.
+Transactions/notification IDs deduplicate deliveries. Signed dates reject stale state. Renewal chains, grace, expiry, upgrade and revocation are handled; an older overlapping transaction cannot reactivate a revoked latest renewal. Reads and sync expire elapsed grants. Test verifier injection does not bypass verification in production wiring.

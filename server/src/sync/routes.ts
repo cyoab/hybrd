@@ -1,10 +1,17 @@
 import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
-import type { AppEnv } from "../api/dependencies";
-import { notImplemented } from "../api/errors";
+import type { AppDependencies, AppEnv } from "../api/dependencies";
 import { errorResponse, protectedErrors, security } from "../api/schemas";
-import { SyncPullQuerySchema, SyncPushSchema } from "./schemas";
-
-export function registerSyncRoutes(app: OpenAPIHono<AppEnv>) {
+import {
+  SyncAckInput,
+  SyncPullQuerySchema,
+  SyncPullResponse,
+  SyncPushResponse,
+  SyncPushSchema,
+} from "./schemas";
+export function registerSyncRoutes(
+  app: OpenAPIHono<AppEnv>,
+  deps: AppDependencies,
+) {
   app.openapi(
     createRoute({
       method: "post",
@@ -12,16 +19,28 @@ export function registerSyncRoutes(app: OpenAPIHono<AppEnv>) {
       operationId: "pushSync",
       tags: ["Sync"],
       security,
-      summary: "Scaffold: no mutations are accepted or acknowledged yet.",
+      summary: "Apply each mutation atomically; replay identical mutation IDs.",
       request: {
         body: {
           required: true,
           content: { "application/json": { schema: SyncPushSchema } },
         },
       },
-      responses: { 501: errorResponse, ...protectedErrors },
+      responses: {
+        200: {
+          description:
+            "Per-mutation outcomes. Conflicts do not roll back other mutations.",
+          content: { "application/json": { schema: SyncPushResponse } },
+        },
+        ...protectedErrors,
+        403: errorResponse,
+      },
     }),
-    () => notImplemented("Sync push"),
+    async (c) =>
+      c.json(
+        await deps.sync.push(c.get("authUserId"), c.req.valid("json")),
+        200,
+      ),
   );
   app.openapi(
     createRoute({
@@ -30,10 +49,52 @@ export function registerSyncRoutes(app: OpenAPIHono<AppEnv>) {
       operationId: "pullSync",
       tags: ["Sync"],
       security,
-      summary: "Scaffold: no change feed is served yet.",
+      summary:
+        "Read ordered events containing the current canonical aggregate or a tombstone.",
       request: { query: SyncPullQuerySchema },
-      responses: { 501: errorResponse, ...protectedErrors },
+      responses: {
+        200: {
+          description:
+            "Persist entities and nextCursor together before acknowledging.",
+          content: { "application/json": { schema: SyncPullResponse } },
+        },
+        ...protectedErrors,
+        403: errorResponse,
+      },
     }),
-    () => notImplemented("Sync pull"),
+    async (c) =>
+      c.json(
+        await deps.sync.pull(c.get("authUserId"), c.req.valid("query")),
+        200,
+      ),
+  );
+  app.openapi(
+    createRoute({
+      method: "post",
+      path: "/v1/sync/ack",
+      operationId: "acknowledgeSync",
+      tags: ["Sync"],
+      security,
+      request: {
+        body: {
+          required: true,
+          content: { "application/json": { schema: SyncAckInput } },
+        },
+      },
+      responses: {
+        204: { description: "Monotonic durable-device cursor recorded." },
+        ...protectedErrors,
+        403: errorResponse,
+      },
+    }),
+    async (c) => {
+      const input = c.req.valid("json");
+      await deps.sync.acknowledge(
+        c.get("authUserId"),
+        input.deviceId,
+        input.cursor,
+      );
+      return c.body(null, 204);
+    },
   );
 }

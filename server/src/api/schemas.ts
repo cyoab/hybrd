@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { PolicyConfigSchema } from "../config/policy";
 
 export const ErrorSchema = z
   .object({
@@ -19,6 +20,7 @@ export const protectedErrors = {
   400: errorResponse,
   401: errorResponse,
   413: errorResponse,
+  429: errorResponse,
   500: errorResponse,
 };
 export const security = [{ bearerAuth: [] }];
@@ -37,6 +39,8 @@ export const AthleteSchema = z
     distanceUnit: z.enum(["km", "mi"]),
     loadUnit: z.enum(["kg", "lb"]),
     weekStartsOn: z.number().int().min(1).max(7),
+    cloudAiConsent: z.boolean().default(false),
+    trainingDayBoundary: z.string().nullable().default(null),
     revision: CursorSchema,
   })
   .openapi("Athlete");
@@ -51,10 +55,11 @@ export const EntitlementSchema = z
 
 export const TrainingPolicySchema = z
   .object({
+    id: z.string().uuid(),
     version: z.number().int().positive(),
     schemaVersion: z.number().int().positive(),
     checksum: z.string(),
-    config: z.record(z.string(), z.unknown()),
+    config: PolicyConfigSchema,
     minimumAppVersion: z.string().nullable(),
   })
   .openapi("TrainingPolicy");
@@ -63,6 +68,12 @@ export const BootstrapSchema = z
   .object({
     athlete: AthleteSchema,
     device: z.object({ registered: z.boolean() }),
+    capabilities: z.object({
+      remoteDecisions: z.boolean(),
+      remoteCoach: z.boolean(),
+      billing: z.boolean(),
+      push: z.boolean(),
+    }),
     sync: z.object({ available: z.boolean(), latestSequence: CursorSchema }),
     policy: z
       .object({ version: z.number().int(), checksum: z.string() })
@@ -82,6 +93,7 @@ export const DeviceInputSchema = z
       .max(512)
       .nullable()
       .optional(),
+    pushEnvironment: z.enum(["sandbox", "production"]).default("sandbox"),
     pushEnabled: z.boolean().default(false),
   })
   .strict()

@@ -3,9 +3,8 @@ openapi: 3.1.0
 info:
   title: hybrd API
   version: 0.1.0
-  description: Local-first training control plane. Operations marked scaffold return 501 and do not
-    persist or acknowledge work. Better Auth endpoints live under /api/auth and use the provider's
-    contract.
+  description: Local-first training control plane with versioned aggregate sync. Better Auth endpoints
+    live under /api/auth and use the provider's contract.
 servers:
   - url: http://localhost:3000
     description: Local development; override in the generated client for other environments.
@@ -50,6 +49,22 @@ components:
               type: boolean
           required:
             - registered
+        capabilities:
+          type: object
+          properties:
+            remoteDecisions:
+              type: boolean
+            remoteCoach:
+              type: boolean
+            billing:
+              type: boolean
+            push:
+              type: boolean
+          required:
+            - remoteDecisions
+            - remoteCoach
+            - billing
+            - push
         sync:
           type: object
           properties:
@@ -79,6 +94,7 @@ components:
       required:
         - athlete
         - device
+        - capabilities
         - sync
         - policy
         - entitlements
@@ -106,6 +122,14 @@ components:
           type: integer
           minimum: 1
           maximum: 7
+        cloudAiConsent:
+          type: boolean
+          default: false
+        trainingDayBoundary:
+          type:
+            - string
+            - "null"
+          default: null
         revision:
           $ref: "#/components/schemas/SyncCursor"
       required:
@@ -145,6 +169,9 @@ components:
     TrainingPolicy:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         version:
           type: integer
           exclusiveMinimum: 0
@@ -154,18 +181,123 @@ components:
         checksum:
           type: string
         config:
-          type: object
-          additionalProperties: {}
+          $ref: "#/components/schemas/PolicyConfig"
         minimumAppVersion:
           type:
             - string
             - "null"
       required:
+        - id
         - version
         - schemaVersion
         - checksum
         - config
         - minimumAppVersion
+    PolicyConfig:
+      type: object
+      properties:
+        features:
+          type: object
+          properties:
+            sync:
+              type: boolean
+            remoteDecisions:
+              type: boolean
+            remoteCoach:
+              type: boolean
+            billing:
+              type: boolean
+          required:
+            - sync
+            - remoteDecisions
+            - remoteCoach
+            - billing
+          additionalProperties: false
+        interference:
+          type: object
+          properties:
+            lowerBeforeKeyRun:
+              type: object
+              properties:
+                warningHours:
+                  type: number
+                  minimum: 0
+                  maximum: 168
+                severeHours:
+                  type: number
+                  minimum: 0
+                  maximum: 168
+              required:
+                - warningHours
+                - severeHours
+              additionalProperties: false
+          required:
+            - lowerBeforeKeyRun
+          additionalProperties: false
+        running:
+          type: object
+          properties:
+            defaultProgression:
+              type: object
+              properties:
+                maxWeeklyIncrease:
+                  type: number
+                  minimum: 0
+                  maximum: 0.25
+              required:
+                - maxWeeklyIncrease
+              additionalProperties: false
+          required:
+            - defaultProgression
+          additionalProperties: false
+        strength:
+          type: object
+          properties:
+            maxLoadIncreaseFraction:
+              type: number
+              minimum: 0
+              maximum: 0.25
+            maxSetsPerExercise:
+              type: integer
+              minimum: 1
+              maximum: 20
+          required:
+            - maxLoadIncreaseFraction
+            - maxSetsPerExercise
+          additionalProperties: false
+        intelligence:
+          type: object
+          properties:
+            jevConfidence:
+              type: object
+              properties:
+                auto:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                review:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+              required:
+                - auto
+                - review
+              additionalProperties: false
+            proposalExpiryHours:
+              type: integer
+              minimum: 1
+              maximum: 168
+          required:
+            - jevConfidence
+            - proposalExpiryHours
+          additionalProperties: false
+      required:
+        - features
+        - interference
+        - running
+        - strength
+        - intelligence
+      additionalProperties: false
     RegisteredDevice:
       type: object
       properties:
@@ -197,12 +329,64 @@ components:
           minLength: 32
           maxLength: 512
           pattern: ^[a-fA-F0-9]+$
+        pushEnvironment:
+          type: string
+          enum:
+            - sandbox
+            - production
+          default: sandbox
         pushEnabled:
           type: boolean
           default: false
       required:
         - appVersion
       additionalProperties: false
+    SyncPushResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/MutationResult"
+        serverSequence:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+      required:
+        - results
+        - serverSequence
+    MutationResult:
+      type: object
+      properties:
+        mutationId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - applied
+            - conflict
+            - rejected
+        entityRevision:
+          type:
+            - string
+            - "null"
+          pattern: ^(0|[1-9][0-9]*)$
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            serverRevision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+          required:
+            - code
+            - message
+      required:
+        - mutationId
+        - status
     SyncPush:
       type: object
       properties:
@@ -220,60 +404,4637 @@ components:
         - mutations
       additionalProperties: false
     SyncMutation:
+      oneOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AthleteProfileInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete_goal
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AthleteGoalInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - training_preferences
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/TrainingPreferencesInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - availability_rule
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AvailabilityRuleInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - availability_override
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AvailabilityOverrideInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - baseline_snapshot
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/BaselineInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - planning_context_snapshot
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/PlanningContextInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete_equipment
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AthleteEquipmentInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - exercise_preference
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/ExercisePreferenceInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - training_block
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/TrainingBlockInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - plan_version
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/PlanVersionInput"
+                - $ref: "#/components/schemas/ActivatePlanInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - workout_result
+            payload:
+              anyOf:
+                - type: object
+                  properties:
+                    plannedWorkoutId:
+                      type:
+                        - string
+                        - "null"
+                      format: uuid
+                      default: null
+                    logicalWorkoutId:
+                      type:
+                        - string
+                        - "null"
+                      format: uuid
+                      default: null
+                    trainingDate:
+                      type: string
+                      format: date
+                    timezone:
+                      type: string
+                      maxLength: 100
+                    startedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    endedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    completionStatus:
+                      type: string
+                      enum:
+                        - completed
+                        - partial
+                        - modified
+                        - abandoned
+                        - skipped
+                    sourceType:
+                      type: string
+                      enum:
+                        - manual
+                        - healthkit
+                    sessionRpe:
+                      type:
+                        - number
+                        - "null"
+                      minimum: 0
+                      maximum: 10
+                      default: null
+                    notes:
+                      type:
+                        - string
+                        - "null"
+                      maxLength: 4000
+                      default: null
+                    discipline:
+                      type: string
+                      enum:
+                        - running
+                    run:
+                      type:
+                        - object
+                        - "null"
+                      properties:
+                        distanceM:
+                          type: integer
+                          minimum: 0
+                          maximum: 1000000
+                        durationS:
+                          type: integer
+                          minimum: 0
+                          maximum: 604800
+                        movingDurationS:
+                          type:
+                            - integer
+                            - "null"
+                          minimum: 0
+                          maximum: 604800
+                          default: null
+                        avgHrBpm:
+                          type:
+                            - integer
+                            - "null"
+                          minimum: 20
+                          maximum: 250
+                          default: null
+                        maxHrBpm:
+                          type:
+                            - integer
+                            - "null"
+                          minimum: 20
+                          maximum: 250
+                          default: null
+                        elevationGainM:
+                          type:
+                            - number
+                            - "null"
+                          minimum: 0
+                          default: null
+                        avgCadenceSpm:
+                          type:
+                            - number
+                            - "null"
+                          minimum: 0
+                          maximum: 400
+                          default: null
+                        hrZoneSummary:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              minBpm:
+                                type: integer
+                                minimum: 0
+                                maximum: 250
+                              maxBpm:
+                                type: integer
+                                minimum: 0
+                                maximum: 250
+                              durationS:
+                                type: integer
+                                minimum: 0
+                                maximum: 604800
+                            required:
+                              - minBpm
+                              - maxBpm
+                              - durationS
+                            additionalProperties: false
+                          maxItems: 10
+                          default: []
+                        segments:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              prescriptionStepId:
+                                type:
+                                  - string
+                                  - "null"
+                                format: uuid
+                                default: null
+                              segmentType:
+                                type: string
+                                enum:
+                                  - split
+                                  - warmup
+                                  - work
+                                  - recovery
+                                  - cooldown
+                                  - steady
+                                  - stride
+                              sequence:
+                                type: integer
+                                minimum: 0
+                                maximum: 32767
+                              repeatIteration:
+                                type:
+                                  - integer
+                                  - "null"
+                                minimum: 0
+                                maximum: 32767
+                                default: null
+                              distanceM:
+                                type:
+                                  - integer
+                                  - "null"
+                                minimum: 0
+                                maximum: 1000000
+                                default: null
+                              durationS:
+                                type: integer
+                                minimum: 0
+                                maximum: 604800
+                              avgHrBpm:
+                                type:
+                                  - integer
+                                  - "null"
+                                minimum: 20
+                                maximum: 250
+                                default: null
+                              maxHrBpm:
+                                type:
+                                  - integer
+                                  - "null"
+                                minimum: 20
+                                maximum: 250
+                                default: null
+                              elevationGainM:
+                                type:
+                                  - number
+                                  - "null"
+                                minimum: 0
+                                default: null
+                              avgCadenceSpm:
+                                type:
+                                  - number
+                                  - "null"
+                                minimum: 0
+                                maximum: 400
+                                default: null
+                              startOffsetS:
+                                type:
+                                  - integer
+                                  - "null"
+                                minimum: 0
+                                maximum: 604800
+                                default: null
+                            required:
+                              - id
+                              - segmentType
+                              - sequence
+                              - durationS
+                            additionalProperties: false
+                          maxItems: 500
+                          default: []
+                      required:
+                        - distanceM
+                        - durationS
+                      additionalProperties: false
+                  required:
+                    - trainingDate
+                    - timezone
+                    - completionStatus
+                    - sourceType
+                    - discipline
+                    - run
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    plannedWorkoutId:
+                      type:
+                        - string
+                        - "null"
+                      format: uuid
+                      default: null
+                    logicalWorkoutId:
+                      type:
+                        - string
+                        - "null"
+                      format: uuid
+                      default: null
+                    trainingDate:
+                      type: string
+                      format: date
+                    timezone:
+                      type: string
+                      maxLength: 100
+                    startedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    endedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    completionStatus:
+                      type: string
+                      enum:
+                        - completed
+                        - partial
+                        - modified
+                        - abandoned
+                        - skipped
+                    sourceType:
+                      type: string
+                      enum:
+                        - manual
+                        - healthkit
+                    sessionRpe:
+                      type:
+                        - number
+                        - "null"
+                      minimum: 0
+                      maximum: 10
+                      default: null
+                    notes:
+                      type:
+                        - string
+                        - "null"
+                      maxLength: 4000
+                      default: null
+                    discipline:
+                      type: string
+                      enum:
+                        - strength
+                    exercises:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          prescribedExerciseId:
+                            type:
+                              - string
+                              - "null"
+                            format: uuid
+                            default: null
+                          exerciseId:
+                            type: string
+                            format: uuid
+                          sequence:
+                            type: integer
+                            minimum: 0
+                            maximum: 32767
+                          notes:
+                            type:
+                              - string
+                              - "null"
+                            maxLength: 4000
+                            default: null
+                          substitutionReason:
+                            type:
+                              - string
+                              - "null"
+                            maxLength: 4000
+                            default: null
+                          sets:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                prescribedSetId:
+                                  type:
+                                    - string
+                                    - "null"
+                                  format: uuid
+                                  default: null
+                                setNumber:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 32767
+                                setKind:
+                                  type: string
+                                  enum:
+                                    - warmup
+                                    - working
+                                    - backoff
+                                reps:
+                                  type:
+                                    - integer
+                                    - "null"
+                                  minimum: 0
+                                  maximum: 32767
+                                  default: null
+                                loadKg:
+                                  type:
+                                    - number
+                                    - "null"
+                                  minimum: 0
+                                  maximum: 99999
+                                  default: null
+                                rpe:
+                                  type:
+                                    - number
+                                    - "null"
+                                  minimum: 0
+                                  maximum: 10
+                                  default: null
+                                rir:
+                                  type:
+                                    - number
+                                    - "null"
+                                  minimum: 0
+                                  maximum: 10
+                                  default: null
+                                status:
+                                  type: string
+                                  enum:
+                                    - completed
+                                    - failed
+                                    - skipped
+                                completedAt:
+                                  type:
+                                    - string
+                                    - "null"
+                                  format: date-time
+                                  default: null
+                              required:
+                                - id
+                                - setNumber
+                                - setKind
+                                - status
+                              additionalProperties: false
+                            maxItems: 100
+                        required:
+                          - id
+                          - exerciseId
+                          - sequence
+                          - sets
+                        additionalProperties: false
+                      maxItems: 100
+                  required:
+                    - trainingDate
+                    - timezone
+                    - completionStatus
+                    - sourceType
+                    - discipline
+                    - exercises
+                  additionalProperties: false
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - activity_source_record
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/ActivitySourceInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - coach_thread
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/CoachThreadInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - action_proposal
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/ProposalReviewInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+    AthleteProfileInput:
       type: object
       properties:
-        id:
+        timezone:
           type: string
-          format: uuid
-        entityType:
+          maxLength: 100
+        locale:
+          type: string
+          minLength: 2
+          maxLength: 35
+        distanceUnit:
+          type: string
+          enum:
+            - km
+            - mi
+        loadUnit:
+          type: string
+          enum:
+            - kg
+            - lb
+        weekStartsOn:
+          type: integer
+          minimum: 1
+          maximum: 7
+        trainingDayBoundary:
+          type:
+            - string
+            - "null"
+          pattern: ^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$
+          default: null
+        cloudAiConsent:
+          type: boolean
+          default: false
+      required:
+        - timezone
+        - locale
+        - distanceUnit
+        - loadUnit
+        - weekStartsOn
+      additionalProperties: false
+    AthleteGoalInput:
+      type: object
+      properties:
+        discipline:
+          type: string
+          enum:
+            - running
+            - strength
+            - hybrid
+        goalType:
           type: string
           minLength: 1
           maxLength: 64
-        entityId:
-          type: string
-          format: uuid
-        operation:
+        status:
           type: string
           enum:
-            - create
-            - update
-            - delete
-            - activate_plan
-        baseRevision:
-          allOf:
-            - $ref: "#/components/schemas/SyncCursor"
-            - type:
-                - string
-                - "null"
-        payload:
+            - active
+            - completed
+            - paused
+            - cancelled
+        targetDate:
+          type:
+            - string
+            - "null"
+          format: date
+          default: null
+        targetValue:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          default: null
+        targetUnit:
+          type:
+            - string
+            - "null"
+          enum:
+            - seconds
+            - meters
+            - kg
+            - reps
+            - null
+          default: null
+        priorityRank:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          maximum: 100
+          default: null
+        metadata:
           type: object
-          additionalProperties: {}
+          properties:
+            raceDistanceM:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 1000000
+            targetFinishSeconds:
+              type: integer
+              exclusiveMinimum: 0
+            exerciseId:
+              type: string
+              format: uuid
+            targetLoadKg:
+              type: number
+              minimum: 0
+            targetReps:
+              type: integer
+              exclusiveMinimum: 0
+          default: {}
+          additionalProperties: false
       required:
-        - id
-        - entityType
-        - entityId
-        - operation
-        - baseRevision
-        - payload
+        - discipline
+        - goalType
+        - status
       additionalProperties: false
-    DecisionRequest:
+    TrainingPreferencesInput:
       type: object
       properties:
-        decisionType:
+        priorityMode:
           type: string
           enum:
-            - next_week_running_load
+            - balanced
+            - run_first
+            - strength_first
+            - custom
+        runPriorityWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        strengthPriorityWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        strengthObjective:
+          type: string
+          enum:
+            - strength
+            - hypertrophy
+            - maintenance
+            - mixed
+        experienceLevel:
+          type:
+            - string
+            - "null"
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+            - null
+          default: null
+        notes:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+      required:
+        - priorityMode
+        - runPriorityWeight
+        - strengthPriorityWeight
+        - strengthObjective
+      additionalProperties: false
+    AvailabilityRuleInput:
+      type: object
+      properties:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        available:
+          type: boolean
+        maxSessions:
+          type: integer
+          minimum: 0
+          maximum: 3
+        minSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        maxSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        preference:
+          type: string
+          enum:
+            - preferred
+            - neutral
+            - avoid
+      required:
+        - dayOfWeek
+        - available
+        - maxSessions
+        - preference
+      additionalProperties: false
+    AvailabilityOverrideInput:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        available:
+          type: boolean
+        maxSessions:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 3
+          default: null
+        maxSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        reason:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+      required:
+        - date
+        - available
+      additionalProperties: false
+    BaselineInput:
+      type: object
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
         schemaVersion:
           type: number
           enum:
             - 1
-        context:
-          $ref: "#/components/schemas/RunningLoadContext"
+        metrics:
+          type: object
+          additionalProperties:
+            anyOf:
+              - type: number
+              - type: boolean
+              - type: string
+                maxLength: 200
+              - type: "null"
+        confidence:
+          type: object
+          additionalProperties:
+            anyOf:
+              - type: number
+              - type: boolean
+              - type: string
+                maxLength: 200
+              - type: "null"
+        source:
+          type: string
+          enum:
+            - healthkit
+            - manual
+            - mixed
+        confirmedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
       required:
-        - decisionType
+        - periodStart
+        - periodEnd
         - schemaVersion
-        - context
+        - metrics
+        - confidence
+        - source
       additionalProperties: false
+    PlanningContextInput:
+      type: object
+      properties:
+        baselineSnapshotId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        policyVersionId:
+          type: string
+          format: uuid
+        snapshot:
+          type: object
+          properties:
+            goals:
+              type: array
+              items:
+                $ref: "#/components/schemas/AthleteGoalInput"
+              maxItems: 30
+            preferences:
+              $ref: "#/components/schemas/TrainingPreferencesInput"
+            availabilityRules:
+              type: array
+              items:
+                $ref: "#/components/schemas/AvailabilityRuleInput"
+              maxItems: 7
+            availabilityOverrides:
+              type: array
+              items:
+                $ref: "#/components/schemas/AvailabilityOverrideInput"
+              maxItems: 365
+            equipmentIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+              maxItems: 100
+            recentFeatures:
+              type: object
+              additionalProperties:
+                anyOf:
+                  - type: number
+                  - type: boolean
+                  - type: string
+                    maxLength: 200
+                  - type: "null"
+          required:
+            - goals
+            - preferences
+            - availabilityRules
+            - availabilityOverrides
+            - equipmentIds
+            - recentFeatures
+          additionalProperties: false
+      required:
+        - schemaVersion
+        - policyVersionId
+        - snapshot
+      additionalProperties: false
+    AthleteEquipmentInput:
+      type: object
+      properties:
+        equipmentId:
+          type: string
+          format: uuid
+        available:
+          type: boolean
+      required:
+        - equipmentId
+        - available
+      additionalProperties: false
+    ExercisePreferenceInput:
+      type: object
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        preference:
+          type: string
+          enum:
+            - preferred
+            - neutral
+            - avoid
+            - exclude
+        notes:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+      required:
+        - exerciseId
+        - preference
+      additionalProperties: false
+    TrainingBlockInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        phase:
+          type: string
+          enum:
+            - build
+            - maintain
+            - deload
+            - taper
+            - recovery
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - completed
+            - cancelled
+      required:
+        - name
+        - startDate
+        - endDate
+        - phase
+        - status
+      additionalProperties: false
+    PlanVersionInput:
+      type: object
+      properties:
+        trainingBlockId:
+          type: string
+          format: uuid
+        basePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        planningContextSnapshotId:
+          type: string
+          format: uuid
+        policyVersionId:
+          type: string
+          format: uuid
+        origin:
+          type: string
+          enum:
+            - initial
+            - manual_edit
+            - adaptive
+            - replan
+            - coach
+        summary:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+        workouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannedWorkoutInput"
+          minItems: 1
+          maxItems: 300
+      required:
+        - trainingBlockId
+        - planningContextSnapshotId
+        - policyVersionId
+        - origin
+        - workouts
+      additionalProperties: false
+    PlannedWorkoutInput:
+      oneOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            logicalWorkoutId:
+              type: string
+              format: uuid
+            workoutType:
+              type: string
+              minLength: 1
+              maxLength: 64
+            scheduledDate:
+              type: string
+              format: date
+            scheduledStartAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            timezone:
+              type: string
+              maxLength: 100
+            title:
+              type: string
+              minLength: 1
+              maxLength: 200
+            purpose:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            priority:
+              type: string
+              enum:
+                - key
+                - supporting
+                - optional
+            estimatedDurationS:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 604800
+              default: null
+            plannedDistanceM:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 1000000
+              default: null
+            instructions:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            discipline:
+              type: string
+              enum:
+                - running
+            run:
+              type: object
+              properties:
+                primaryTargetType:
+                  type: string
+                  enum:
+                    - pace
+                    - heart_rate
+                    - rpe
+                    - mixed
+                    - open
+                notes:
+                  type:
+                    - string
+                    - "null"
+                  maxLength: 4000
+                  default: null
+                blocks:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      sequence:
+                        type: integer
+                        minimum: 0
+                        maximum: 32767
+                      repeatCount:
+                        type: integer
+                        minimum: 1
+                        maximum: 100
+                      label:
+                        type:
+                          - string
+                          - "null"
+                        maxLength: 200
+                        default: null
+                      steps:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            sequence:
+                              type: integer
+                              minimum: 0
+                              maximum: 32767
+                            stepKind:
+                              type: string
+                              enum:
+                                - warmup
+                                - work
+                                - recovery
+                                - cooldown
+                                - steady
+                                - stride
+                            distanceM:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 0
+                              maximum: 1000000
+                              default: null
+                            durationS:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 0
+                              maximum: 604800
+                              default: null
+                            paceMinSPerKm:
+                              type:
+                                - number
+                                - "null"
+                              exclusiveMinimum: 0
+                              maximum: 7200
+                              default: null
+                            paceMaxSPerKm:
+                              type:
+                                - number
+                                - "null"
+                              exclusiveMinimum: 0
+                              maximum: 7200
+                              default: null
+                            hrMinBpm:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 20
+                              maximum: 250
+                              default: null
+                            hrMaxBpm:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 20
+                              maximum: 250
+                              default: null
+                            rpeMin:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            rpeMax:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            notes:
+                              type:
+                                - string
+                                - "null"
+                              maxLength: 4000
+                              default: null
+                          required:
+                            - id
+                            - sequence
+                            - stepKind
+                          additionalProperties: false
+                        minItems: 1
+                        maxItems: 50
+                    required:
+                      - id
+                      - sequence
+                      - repeatCount
+                      - steps
+                    additionalProperties: false
+                  minItems: 1
+                  maxItems: 50
+              required:
+                - primaryTargetType
+                - blocks
+              additionalProperties: false
+          required:
+            - id
+            - logicalWorkoutId
+            - workoutType
+            - scheduledDate
+            - timezone
+            - title
+            - priority
+            - discipline
+            - run
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            logicalWorkoutId:
+              type: string
+              format: uuid
+            workoutType:
+              type: string
+              minLength: 1
+              maxLength: 64
+            scheduledDate:
+              type: string
+              format: date
+            scheduledStartAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            timezone:
+              type: string
+              maxLength: 100
+            title:
+              type: string
+              minLength: 1
+              maxLength: 200
+            purpose:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            priority:
+              type: string
+              enum:
+                - key
+                - supporting
+                - optional
+            estimatedDurationS:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 604800
+              default: null
+            plannedDistanceM:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 1000000
+              default: null
+            instructions:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            discipline:
+              type: string
+              enum:
+                - strength
+            strength:
+              type: object
+              properties:
+                sessionFocus:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                notes:
+                  type:
+                    - string
+                    - "null"
+                  maxLength: 4000
+                  default: null
+                exercises:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      exerciseId:
+                        type: string
+                        format: uuid
+                      sequence:
+                        type: integer
+                        minimum: 0
+                        maximum: 32767
+                      supersetGroupId:
+                        type:
+                          - string
+                          - "null"
+                        format: uuid
+                        default: null
+                      substitutionAllowed:
+                        type: boolean
+                      notes:
+                        type:
+                          - string
+                          - "null"
+                        maxLength: 4000
+                        default: null
+                      sets:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            setNumber:
+                              type: integer
+                              minimum: 0
+                              maximum: 32767
+                            setKind:
+                              type: string
+                              enum:
+                                - warmup
+                                - working
+                                - backoff
+                            repsMin:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 0
+                              maximum: 32767
+                              default: null
+                            repsMax:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 0
+                              maximum: 32767
+                              default: null
+                            loadKg:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 99999
+                              default: null
+                            loadPercentE1rm:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 150
+                              default: null
+                            rpeMin:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            rpeMax:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            rirMin:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            rirMax:
+                              type:
+                                - number
+                                - "null"
+                              minimum: 0
+                              maximum: 10
+                              default: null
+                            restS:
+                              type:
+                                - integer
+                                - "null"
+                              minimum: 0
+                              maximum: 604800
+                              default: null
+                            notes:
+                              type:
+                                - string
+                                - "null"
+                              maxLength: 4000
+                              default: null
+                          required:
+                            - id
+                            - setNumber
+                            - setKind
+                          additionalProperties: false
+                        minItems: 1
+                        maxItems: 50
+                      substitutions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            exerciseId:
+                              type: string
+                              format: uuid
+                            priority:
+                              type: integer
+                              minimum: 0
+                              maximum: 32767
+                            rationale:
+                              type:
+                                - string
+                                - "null"
+                              maxLength: 4000
+                              default: null
+                          required:
+                            - exerciseId
+                            - priority
+                          additionalProperties: false
+                        maxItems: 10
+                        default: []
+                    required:
+                      - id
+                      - exerciseId
+                      - sequence
+                      - substitutionAllowed
+                      - sets
+                    additionalProperties: false
+                  minItems: 1
+                  maxItems: 40
+              required:
+                - sessionFocus
+                - exercises
+              additionalProperties: false
+          required:
+            - id
+            - logicalWorkoutId
+            - workoutType
+            - scheduledDate
+            - timezone
+            - title
+            - priority
+            - discipline
+            - strength
+          additionalProperties: false
+    ActivatePlanInput:
+      type: object
+      properties:
+        expectedActivePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        accepted:
+          type: boolean
+          enum:
+            - true
+        reasonCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+        explanation:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        proposalId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+      required:
+        - accepted
+        - reasonCode
+        - explanation
+      additionalProperties: false
+    ActivitySourceInput:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum:
+            - healthkit
+        externalId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        fingerprint:
+          type: string
+          minLength: 1
+          maxLength: 200
+        workoutResultId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        sourceCreatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        sourceUpdatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        sourceDeletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        importStatus:
+          type: string
+          enum:
+            - imported
+            - partial
+            - deleted
+            - error
+        matchStatus:
+          type: string
+          enum:
+            - unmatched
+            - suggested
+            - confirmed
+            - rejected
+        matchConfidence:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 1
+          default: null
+        matchedLogicalWorkoutId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        metadata:
+          type: object
+          properties:
+            appName:
+              type: string
+              maxLength: 200
+            bundleIdentifier:
+              type: string
+              maxLength: 200
+            deviceName:
+              type: string
+              maxLength: 200
+          default: {}
+          additionalProperties: false
+      required:
+        - provider
+        - externalId
+        - fingerprint
+        - importStatus
+        - matchStatus
+      additionalProperties: false
+    CoachThreadInput:
+      type: object
+      properties:
+        title:
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 200
+      required:
+        - title
+      additionalProperties: false
+    ProposalReviewInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - accepted
+            - rejected
+      required:
+        - status
+      additionalProperties: false
+    SyncPullResponse:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyncChange"
+        nextCursor:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        hasMore:
+          type: boolean
+      required:
+        - changes
+        - nextCursor
+        - hasMore
+    SyncChange:
+      oneOf:
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete
+            payload:
+              $ref: "#/components/schemas/AthleteRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete_goal
+            payload:
+              $ref: "#/components/schemas/GoalRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - training_preferences
+            payload:
+              $ref: "#/components/schemas/TrainingPreferencesRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - availability_rule
+            payload:
+              $ref: "#/components/schemas/AvailabilityRuleRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - availability_override
+            payload:
+              $ref: "#/components/schemas/AvailabilityOverrideRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - baseline_snapshot
+            payload:
+              $ref: "#/components/schemas/BaselineRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - planning_context_snapshot
+            payload:
+              $ref: "#/components/schemas/PlanningContextRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete_equipment
+            payload:
+              $ref: "#/components/schemas/AthleteEquipmentRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - exercise_preference
+            payload:
+              $ref: "#/components/schemas/ExercisePreferenceRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - training_block
+            payload:
+              $ref: "#/components/schemas/TrainingBlockRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - plan_version
+            payload:
+              $ref: "#/components/schemas/PlanVersionRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - workout_result
+            payload:
+              $ref: "#/components/schemas/WorkoutResultRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - activity_source_record
+            payload:
+              $ref: "#/components/schemas/ActivitySourceRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - plan_change_set
+            payload:
+              $ref: "#/components/schemas/PlanChangeRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - coach_thread
+            payload:
+              $ref: "#/components/schemas/CoachThreadRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - coach_message
+            payload:
+              $ref: "#/components/schemas/CoachMessageRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - action_proposal
+            payload:
+              $ref: "#/components/schemas/ActionProposalRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - structured_decision
+            payload:
+              $ref: "#/components/schemas/StructuredDecisionRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - entitlement
+            payload:
+              $ref: "#/components/schemas/EntitlementRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+    AthleteRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        timezone:
+          type: string
+          maxLength: 100
+        locale:
+          type: string
+          minLength: 2
+          maxLength: 35
+        distanceUnit:
+          type: string
+          enum:
+            - km
+            - mi
+        loadUnit:
+          type: string
+          enum:
+            - kg
+            - lb
+        weekStartsOn:
+          type: integer
+          minimum: 1
+          maximum: 7
+        trainingDayBoundary:
+          type:
+            - string
+            - "null"
+          pattern: ^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$
+          default: null
+        cloudAiConsent:
+          type: boolean
+          default: false
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+      required:
+        - timezone
+        - locale
+        - distanceUnit
+        - loadUnit
+        - weekStartsOn
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+      additionalProperties: false
+    GoalRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        discipline:
+          type: string
+          enum:
+            - running
+            - strength
+            - hybrid
+        goalType:
+          type: string
+          minLength: 1
+          maxLength: 64
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+            - paused
+            - cancelled
+        targetDate:
+          type:
+            - string
+            - "null"
+          format: date
+          default: null
+        targetValue:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          default: null
+        targetUnit:
+          type:
+            - string
+            - "null"
+          enum:
+            - seconds
+            - meters
+            - kg
+            - reps
+            - null
+          default: null
+        priorityRank:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          maximum: 100
+          default: null
+        metadata:
+          type: object
+          properties:
+            raceDistanceM:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 1000000
+            targetFinishSeconds:
+              type: integer
+              exclusiveMinimum: 0
+            exerciseId:
+              type: string
+              format: uuid
+            targetLoadKg:
+              type: number
+              minimum: 0
+            targetReps:
+              type: integer
+              exclusiveMinimum: 0
+          default: {}
+          additionalProperties: false
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - discipline
+        - goalType
+        - status
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    TrainingPreferencesRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        priorityMode:
+          type: string
+          enum:
+            - balanced
+            - run_first
+            - strength_first
+            - custom
+        runPriorityWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        strengthPriorityWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        strengthObjective:
+          type: string
+          enum:
+            - strength
+            - hypertrophy
+            - maintenance
+            - mixed
+        experienceLevel:
+          type:
+            - string
+            - "null"
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+            - null
+          default: null
+        notes:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - priorityMode
+        - runPriorityWeight
+        - strengthPriorityWeight
+        - strengthObjective
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    AvailabilityRuleRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        available:
+          type: boolean
+        maxSessions:
+          type: integer
+          minimum: 0
+          maximum: 3
+        minSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        maxSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        preference:
+          type: string
+          enum:
+            - preferred
+            - neutral
+            - avoid
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - dayOfWeek
+        - available
+        - maxSessions
+        - preference
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    AvailabilityOverrideRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        date:
+          type: string
+          format: date
+        available:
+          type: boolean
+        maxSessions:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 3
+          default: null
+        maxSessionMinutes:
+          type:
+            - integer
+            - "null"
+          minimum: 0
+          maximum: 1440
+          default: null
+        reason:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - date
+        - available
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    BaselineRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        metrics:
+          type: object
+          additionalProperties:
+            anyOf:
+              - type: number
+              - type: boolean
+              - type: string
+                maxLength: 200
+              - type: "null"
+        confidence:
+          type: object
+          additionalProperties:
+            anyOf:
+              - type: number
+              - type: boolean
+              - type: string
+                maxLength: 200
+              - type: "null"
+        source:
+          type: string
+          enum:
+            - healthkit
+            - manual
+            - mixed
+        confirmedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - periodStart
+        - periodEnd
+        - schemaVersion
+        - metrics
+        - confidence
+        - source
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    PlanningContextRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        baselineSnapshotId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        policyVersionId:
+          type: string
+          format: uuid
+        snapshot:
+          type: object
+          properties:
+            goals:
+              type: array
+              items:
+                $ref: "#/components/schemas/AthleteGoalInput"
+              maxItems: 30
+            preferences:
+              $ref: "#/components/schemas/TrainingPreferencesInput"
+            availabilityRules:
+              type: array
+              items:
+                $ref: "#/components/schemas/AvailabilityRuleInput"
+              maxItems: 7
+            availabilityOverrides:
+              type: array
+              items:
+                $ref: "#/components/schemas/AvailabilityOverrideInput"
+              maxItems: 365
+            equipmentIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+              maxItems: 100
+            recentFeatures:
+              type: object
+              additionalProperties:
+                anyOf:
+                  - type: number
+                  - type: boolean
+                  - type: string
+                    maxLength: 200
+                  - type: "null"
+          required:
+            - goals
+            - preferences
+            - availabilityRules
+            - availabilityOverrides
+            - equipmentIds
+            - recentFeatures
+          additionalProperties: false
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        checksum:
+          type: string
+      required:
+        - schemaVersion
+        - policyVersionId
+        - snapshot
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - checksum
+      additionalProperties: false
+    AthleteEquipmentRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        equipmentId:
+          type: string
+          format: uuid
+        available:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - equipmentId
+        - available
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    ExercisePreferenceRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        preference:
+          type: string
+          enum:
+            - preferred
+            - neutral
+            - avoid
+            - exclude
+        notes:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - exerciseId
+        - preference
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    TrainingBlockRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        phase:
+          type: string
+          enum:
+            - build
+            - maintain
+            - deload
+            - taper
+            - recovery
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - completed
+            - cancelled
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        activePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+      required:
+        - name
+        - startDate
+        - endDate
+        - phase
+        - status
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - activePlanVersionId
+      additionalProperties: false
+    PlanVersionRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        trainingBlockId:
+          type: string
+          format: uuid
+        basePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        planningContextSnapshotId:
+          type: string
+          format: uuid
+        policyVersionId:
+          type: string
+          format: uuid
+        origin:
+          type: string
+          enum:
+            - initial
+            - manual_edit
+            - adaptive
+            - replan
+            - coach
+        summary:
+          type:
+            - string
+            - "null"
+          maxLength: 4000
+          default: null
+        workouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannedWorkoutInput"
+          minItems: 1
+          maxItems: 300
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        versionNumber:
+          type: integer
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - superseded
+            - rejected
+        activatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+      required:
+        - trainingBlockId
+        - planningContextSnapshotId
+        - policyVersionId
+        - origin
+        - workouts
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - versionNumber
+        - status
+        - activatedAt
+      additionalProperties: false
+    WorkoutResultRecord:
+      anyOf:
+        - type: object
+          properties:
+            plannedWorkoutId:
+              type:
+                - string
+                - "null"
+              format: uuid
+              default: null
+            logicalWorkoutId:
+              type:
+                - string
+                - "null"
+              format: uuid
+              default: null
+            trainingDate:
+              type: string
+              format: date
+            timezone:
+              type: string
+              maxLength: 100
+            startedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            endedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            completionStatus:
+              type: string
+              enum:
+                - completed
+                - partial
+                - modified
+                - abandoned
+                - skipped
+            sourceType:
+              type: string
+              enum:
+                - manual
+                - healthkit
+            sessionRpe:
+              type:
+                - number
+                - "null"
+              minimum: 0
+              maximum: 10
+              default: null
+            notes:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            discipline:
+              type: string
+              enum:
+                - running
+            run:
+              type:
+                - object
+                - "null"
+              properties:
+                distanceM:
+                  type: integer
+                  minimum: 0
+                  maximum: 1000000
+                durationS:
+                  type: integer
+                  minimum: 0
+                  maximum: 604800
+                movingDurationS:
+                  type:
+                    - integer
+                    - "null"
+                  minimum: 0
+                  maximum: 604800
+                  default: null
+                avgHrBpm:
+                  type:
+                    - integer
+                    - "null"
+                  minimum: 20
+                  maximum: 250
+                  default: null
+                maxHrBpm:
+                  type:
+                    - integer
+                    - "null"
+                  minimum: 20
+                  maximum: 250
+                  default: null
+                elevationGainM:
+                  type:
+                    - number
+                    - "null"
+                  minimum: 0
+                  default: null
+                avgCadenceSpm:
+                  type:
+                    - number
+                    - "null"
+                  minimum: 0
+                  maximum: 400
+                  default: null
+                hrZoneSummary:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      minBpm:
+                        type: integer
+                        minimum: 0
+                        maximum: 250
+                      maxBpm:
+                        type: integer
+                        minimum: 0
+                        maximum: 250
+                      durationS:
+                        type: integer
+                        minimum: 0
+                        maximum: 604800
+                    required:
+                      - minBpm
+                      - maxBpm
+                      - durationS
+                    additionalProperties: false
+                  maxItems: 10
+                  default: []
+                segments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      prescriptionStepId:
+                        type:
+                          - string
+                          - "null"
+                        format: uuid
+                        default: null
+                      segmentType:
+                        type: string
+                        enum:
+                          - split
+                          - warmup
+                          - work
+                          - recovery
+                          - cooldown
+                          - steady
+                          - stride
+                      sequence:
+                        type: integer
+                        minimum: 0
+                        maximum: 32767
+                      repeatIteration:
+                        type:
+                          - integer
+                          - "null"
+                        minimum: 0
+                        maximum: 32767
+                        default: null
+                      distanceM:
+                        type:
+                          - integer
+                          - "null"
+                        minimum: 0
+                        maximum: 1000000
+                        default: null
+                      durationS:
+                        type: integer
+                        minimum: 0
+                        maximum: 604800
+                      avgHrBpm:
+                        type:
+                          - integer
+                          - "null"
+                        minimum: 20
+                        maximum: 250
+                        default: null
+                      maxHrBpm:
+                        type:
+                          - integer
+                          - "null"
+                        minimum: 20
+                        maximum: 250
+                        default: null
+                      elevationGainM:
+                        type:
+                          - number
+                          - "null"
+                        minimum: 0
+                        default: null
+                      avgCadenceSpm:
+                        type:
+                          - number
+                          - "null"
+                        minimum: 0
+                        maximum: 400
+                        default: null
+                      startOffsetS:
+                        type:
+                          - integer
+                          - "null"
+                        minimum: 0
+                        maximum: 604800
+                        default: null
+                    required:
+                      - id
+                      - segmentType
+                      - sequence
+                      - durationS
+                    additionalProperties: false
+                  maxItems: 500
+                  default: []
+              required:
+                - distanceM
+                - durationS
+              additionalProperties: false
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            revision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            deletedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+            athleteId:
+              type: string
+              format: uuid
+          required:
+            - trainingDate
+            - timezone
+            - completionStatus
+            - sourceType
+            - discipline
+            - run
+            - id
+            - createdAt
+            - updatedAt
+            - revision
+            - deletedAt
+            - athleteId
+          additionalProperties: false
+        - type: object
+          properties:
+            plannedWorkoutId:
+              type:
+                - string
+                - "null"
+              format: uuid
+              default: null
+            logicalWorkoutId:
+              type:
+                - string
+                - "null"
+              format: uuid
+              default: null
+            trainingDate:
+              type: string
+              format: date
+            timezone:
+              type: string
+              maxLength: 100
+            startedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            endedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            completionStatus:
+              type: string
+              enum:
+                - completed
+                - partial
+                - modified
+                - abandoned
+                - skipped
+            sourceType:
+              type: string
+              enum:
+                - manual
+                - healthkit
+            sessionRpe:
+              type:
+                - number
+                - "null"
+              minimum: 0
+              maximum: 10
+              default: null
+            notes:
+              type:
+                - string
+                - "null"
+              maxLength: 4000
+              default: null
+            discipline:
+              type: string
+              enum:
+                - strength
+            exercises:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  prescribedExerciseId:
+                    type:
+                      - string
+                      - "null"
+                    format: uuid
+                    default: null
+                  exerciseId:
+                    type: string
+                    format: uuid
+                  sequence:
+                    type: integer
+                    minimum: 0
+                    maximum: 32767
+                  notes:
+                    type:
+                      - string
+                      - "null"
+                    maxLength: 4000
+                    default: null
+                  substitutionReason:
+                    type:
+                      - string
+                      - "null"
+                    maxLength: 4000
+                    default: null
+                  sets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        prescribedSetId:
+                          type:
+                            - string
+                            - "null"
+                          format: uuid
+                          default: null
+                        setNumber:
+                          type: integer
+                          minimum: 0
+                          maximum: 32767
+                        setKind:
+                          type: string
+                          enum:
+                            - warmup
+                            - working
+                            - backoff
+                        reps:
+                          type:
+                            - integer
+                            - "null"
+                          minimum: 0
+                          maximum: 32767
+                          default: null
+                        loadKg:
+                          type:
+                            - number
+                            - "null"
+                          minimum: 0
+                          maximum: 99999
+                          default: null
+                        rpe:
+                          type:
+                            - number
+                            - "null"
+                          minimum: 0
+                          maximum: 10
+                          default: null
+                        rir:
+                          type:
+                            - number
+                            - "null"
+                          minimum: 0
+                          maximum: 10
+                          default: null
+                        status:
+                          type: string
+                          enum:
+                            - completed
+                            - failed
+                            - skipped
+                        completedAt:
+                          type:
+                            - string
+                            - "null"
+                          format: date-time
+                          default: null
+                      required:
+                        - id
+                        - setNumber
+                        - setKind
+                        - status
+                      additionalProperties: false
+                    maxItems: 100
+                required:
+                  - id
+                  - exerciseId
+                  - sequence
+                  - sets
+                additionalProperties: false
+              maxItems: 100
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            revision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            deletedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+            athleteId:
+              type: string
+              format: uuid
+          required:
+            - trainingDate
+            - timezone
+            - completionStatus
+            - sourceType
+            - discipline
+            - exercises
+            - id
+            - createdAt
+            - updatedAt
+            - revision
+            - deletedAt
+            - athleteId
+          additionalProperties: false
+        - type: "null"
+    ActivitySourceRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        provider:
+          type: string
+          enum:
+            - healthkit
+        externalId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        fingerprint:
+          type: string
+          minLength: 1
+          maxLength: 200
+        workoutResultId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        sourceCreatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        sourceUpdatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        sourceDeletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          default: null
+        importStatus:
+          type: string
+          enum:
+            - imported
+            - partial
+            - deleted
+            - error
+        matchStatus:
+          type: string
+          enum:
+            - unmatched
+            - suggested
+            - confirmed
+            - rejected
+        matchConfidence:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 1
+          default: null
+        matchedLogicalWorkoutId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        metadata:
+          type: object
+          properties:
+            appName:
+              type: string
+              maxLength: 200
+            bundleIdentifier:
+              type: string
+              maxLength: 200
+            deviceName:
+              type: string
+              maxLength: 200
+          default: {}
+          additionalProperties: false
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+      required:
+        - provider
+        - externalId
+        - fingerprint
+        - importStatus
+        - matchStatus
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+      additionalProperties: false
+    PlanChangeRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        athleteId:
+          type: string
+          format: uuid
+        fromPlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        toPlanVersionId:
+          type: string
+          format: uuid
+        origin:
+          type: string
+        reasonCode:
+          type: string
+        explanation:
+          type: string
+        material:
+          type: boolean
+        proposalId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        acceptedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              logicalWorkoutId:
+                type: string
+                format: uuid
+              changeType:
+                type: string
+                enum:
+                  - added
+                  - removed
+                  - moved
+                  - prescription_changed
+              beforePlannedWorkoutId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              afterPlannedWorkoutId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              changes:
+                type: object
+                additionalProperties: {}
+            required:
+              - id
+              - logicalWorkoutId
+              - changeType
+              - beforePlannedWorkoutId
+              - afterPlannedWorkoutId
+              - changes
+      required:
+        - id
+        - athleteId
+        - fromPlanVersionId
+        - toPlanVersionId
+        - origin
+        - reasonCode
+        - explanation
+        - material
+        - proposalId
+        - acceptedAt
+        - createdAt
+        - items
+    CoachThreadRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        title:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - title
+    CoachMessageRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        threadId:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+        content:
+          type: string
+        aiInvocationId:
+          type:
+            - string
+            - "null"
+          format: uuid
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - threadId
+        - role
+        - content
+        - aiInvocationId
+    ActionProposalRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        threadId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        messageId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        basePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        actionType:
+          type: string
+          enum:
+            - move_workout
+            - substitute_exercise
+            - replan_block
+        actionPayload:
+          type: object
+          additionalProperties: {}
+        rationale:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - accepted
+            - rejected
+            - applied
+        expiresAt:
+          type: string
+          format: date-time
+        acceptedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        appliedPlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - threadId
+        - messageId
+        - basePlanVersionId
+        - actionType
+        - actionPayload
+        - rationale
+        - status
+        - expiresAt
+        - acceptedAt
+        - appliedPlanVersionId
+    StructuredDecisionRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        athleteId:
+          type: string
+          format: uuid
+        invocationId:
+          type: string
+          format: uuid
+        decisionType:
+          type: string
+        selectedChoice:
+          type: string
+        result:
+          type: object
+          additionalProperties: {}
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - athleteId
+        - invocationId
+        - decisionType
+        - selectedChoice
+        - result
+        - createdAt
+    EntitlementRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        athleteId:
+          type: string
+          format: uuid
+        entitlementKey:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - grace
+            - expired
+            - revoked
+        validUntil:
+          type:
+            - string
+            - "null"
+          format: date-time
+        source:
+          type: string
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - athleteId
+        - entitlementKey
+        - status
+        - validUntil
+        - source
+        - revision
+        - updatedAt
+    SyncAcknowledgement:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        cursor:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+      required:
+        - deviceId
+        - cursor
+      additionalProperties: false
+    DecisionResponse:
+      type: object
+      properties:
+        decision:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        alternatives:
+          type: array
+          items:
+            type: object
+            properties:
+              choice:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+            required:
+              - choice
+              - confidence
+          maxItems: 20
+        decisionId:
+          type: string
+          format: uuid
+        policyVersion:
+          type: integer
+        disposition:
+          type: string
+          enum:
+            - eligible
+            - review
+            - abstain
+      required:
+        - decision
+        - confidence
+        - alternatives
+        - decisionId
+        - policyVersion
+        - disposition
+      additionalProperties: false
+    DecisionRequest:
+      oneOf:
+        - type: object
+          properties:
+            decisionType:
+              type: string
+              enum:
+                - next_week_running_load
+            schemaVersion:
+              type: number
+              enum:
+                - 1
+            context:
+              $ref: "#/components/schemas/RunningLoadContext"
+          required:
+            - decisionType
+            - schemaVersion
+            - context
+          additionalProperties: false
+        - type: object
+          properties:
+            decisionType:
+              type: string
+              enum:
+                - strength_progression
+            schemaVersion:
+              type: number
+              enum:
+                - 1
+            context:
+              type: object
+              properties:
+                completionRate:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                repsAchieved:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                repsTarget:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                lastRpe:
+                  type:
+                    - number
+                    - "null"
+                  minimum: 0
+                  maximum: 10
+                performanceTrend:
+                  type:
+                    - number
+                    - "null"
+                  minimum: -10
+                  maximum: 10
+                consecutiveFailures:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                runLoadTrend:
+                  type:
+                    - number
+                    - "null"
+                  minimum: -10
+                  maximum: 10
+              required:
+                - completionRate
+                - repsAchieved
+                - repsTarget
+                - lastRpe
+                - performanceTrend
+                - consecutiveFailures
+                - runLoadTrend
+              additionalProperties: false
+          required:
+            - decisionType
+            - schemaVersion
+            - context
+          additionalProperties: false
+        - type: object
+          properties:
+            decisionType:
+              type: string
+              enum:
+                - interference_severity
+            schemaVersion:
+              type: number
+              enum:
+                - 1
+            context:
+              type: object
+              properties:
+                hoursBetweenSessions:
+                  type: number
+                  minimum: 0
+                  maximum: 168
+                lowerBodyHardSets:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                keyRun:
+                  type: boolean
+                runDurationMinutes:
+                  type: number
+                  minimum: 0
+                  maximum: 1440
+                fatigueScore:
+                  type:
+                    - number
+                    - "null"
+                  minimum: 0
+                  maximum: 1
+                runPriorityWeight:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+              required:
+                - hoursBetweenSessions
+                - lowerBodyHardSets
+                - keyRun
+                - runDurationMinutes
+                - fatigueScore
+                - runPriorityWeight
+              additionalProperties: false
+          required:
+            - decisionType
+            - schemaVersion
+            - context
+          additionalProperties: false
+        - type: object
+          properties:
+            decisionType:
+              type: string
+              enum:
+                - schedule_candidate
+            schemaVersion:
+              type: number
+              enum:
+                - 1
+            context:
+              type: object
+              properties:
+                candidates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      hardConflicts:
+                        type: number
+                        enum:
+                          - 0
+                      interferenceScore:
+                        type: number
+                        minimum: 0
+                        maximum: 1
+                      preferenceScore:
+                        type: number
+                        minimum: 0
+                        maximum: 1
+                      recoveryScore:
+                        type: number
+                        minimum: 0
+                        maximum: 1
+                      goalAlignment:
+                        type: number
+                        minimum: 0
+                        maximum: 1
+                    required:
+                      - id
+                      - hardConflicts
+                      - interferenceScore
+                      - preferenceScore
+                      - recoveryScore
+                      - goalAlignment
+                    additionalProperties: false
+                  minItems: 2
+                  maxItems: 8
+                runPriorityWeight:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+              required:
+                - candidates
+                - runPriorityWeight
+              additionalProperties: false
+          required:
+            - decisionType
+            - schemaVersion
+            - context
+          additionalProperties: false
     RunningLoadContext:
       type: object
       properties:
@@ -284,9 +5045,11 @@ components:
         weeklyDistanceKm:
           type: number
           minimum: 0
+          maximum: 1000
         previousWeeklyDistanceKm:
           type: number
           minimum: 0
+          maximum: 1000
         keyRunCompletionRate:
           type: number
           minimum: 0
@@ -295,18 +5058,24 @@ components:
           type:
             - number
             - "null"
+          minimum: -10
+          maximum: 10
         missedSessionsLast14d:
           type: integer
           minimum: 0
+          maximum: 100
         strengthPerformanceTrend:
           type:
             - number
             - "null"
+          minimum: -10
+          maximum: 10
         raceWeeksRemaining:
           type:
             - integer
             - "null"
           minimum: 0
+          maximum: 520
       required:
         - completionRate
         - weeklyDistanceKm
@@ -317,6 +5086,148 @@ components:
         - strengthPerformanceTrend
         - raceWeeksRemaining
       additionalProperties: false
+    CoachResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+          format: uuid
+        content:
+          type: string
+        actionProposals:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - move_workout
+                  payload:
+                    type: object
+                    properties:
+                      logicalWorkoutId:
+                        type: string
+                        format: uuid
+                      targetDate:
+                        type: string
+                        format: date
+                    required:
+                      - logicalWorkoutId
+                      - targetDate
+                    additionalProperties: false
+                  rationale:
+                    type: string
+                    minLength: 1
+                    maxLength: 2000
+                  id:
+                    type: string
+                    format: uuid
+                  basePlanVersionId:
+                    type: string
+                    format: uuid
+                  expiresAt:
+                    type: string
+                    format: date-time
+                required:
+                  - type
+                  - payload
+                  - rationale
+                  - id
+                  - basePlanVersionId
+                  - expiresAt
+                additionalProperties: false
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - substitute_exercise
+                  payload:
+                    type: object
+                    properties:
+                      logicalWorkoutId:
+                        type: string
+                        format: uuid
+                      exerciseId:
+                        type: string
+                        format: uuid
+                      replacementExerciseId:
+                        type: string
+                        format: uuid
+                    required:
+                      - logicalWorkoutId
+                      - exerciseId
+                      - replacementExerciseId
+                    additionalProperties: false
+                  rationale:
+                    type: string
+                    minLength: 1
+                    maxLength: 2000
+                  id:
+                    type: string
+                    format: uuid
+                  basePlanVersionId:
+                    type: string
+                    format: uuid
+                  expiresAt:
+                    type: string
+                    format: date-time
+                required:
+                  - type
+                  - payload
+                  - rationale
+                  - id
+                  - basePlanVersionId
+                  - expiresAt
+                additionalProperties: false
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - replan_block
+                  payload:
+                    type: object
+                    properties:
+                      objective:
+                        type: string
+                        enum:
+                          - reduce_load
+                          - change_schedule
+                          - rebalance_priorities
+                    required:
+                      - objective
+                    additionalProperties: false
+                  rationale:
+                    type: string
+                    minLength: 1
+                    maxLength: 2000
+                  id:
+                    type: string
+                    format: uuid
+                  basePlanVersionId:
+                    type: string
+                    format: uuid
+                  expiresAt:
+                    type: string
+                    format: date-time
+                required:
+                  - type
+                  - payload
+                  - rationale
+                  - id
+                  - basePlanVersionId
+                  - expiresAt
+                additionalProperties: false
+        policyVersion:
+          type: integer
+      required:
+        - messageId
+        - content
+        - actionProposals
+        - policyVersion
     CoachRequest:
       type: object
       properties:
@@ -326,7 +5237,7 @@ components:
         message:
           type: string
           minLength: 1
-          maxLength: 8000
+          maxLength: 4000
         context:
           type: object
           properties:
@@ -341,7 +5252,24 @@ components:
               format: uuid
             summary:
               type: string
-              maxLength: 12000
+              maxLength: 4000
+            relevantLogicalWorkoutIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+              maxItems: 12
+              default: []
+            recentFeatures:
+              type: object
+              additionalProperties:
+                anyOf:
+                  - type: number
+                  - type: boolean
+                  - type: string
+                    maxLength: 200
+                  - type: "null"
+              default: {}
           required:
             - schemaVersion
             - activePlanVersionId
@@ -362,6 +5290,139 @@ components:
       required:
         - signedTransaction
       additionalProperties: false
+    ExerciseCatalog:
+      type: object
+      properties:
+        version:
+          type: integer
+        exercises:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              slug:
+                type: string
+              name:
+                type: string
+              movementPattern:
+                type:
+                  - string
+                  - "null"
+              unilateral:
+                type: boolean
+              active:
+                type: boolean
+              metadata:
+                type: object
+                additionalProperties: {}
+            required:
+              - id
+              - slug
+              - name
+              - movementPattern
+              - unilateral
+              - active
+              - metadata
+        equipment:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              slug:
+                type: string
+              name:
+                type: string
+            required:
+              - id
+              - slug
+              - name
+        muscleGroups:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              slug:
+                type: string
+              name:
+                type: string
+            required:
+              - id
+              - slug
+              - name
+        aliases:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              exerciseId:
+                type: string
+                format: uuid
+              source:
+                type: string
+              alias:
+                type: string
+            required:
+              - id
+              - exerciseId
+              - source
+              - alias
+        exerciseMuscles:
+          type: array
+          items:
+            type: object
+            properties:
+              exerciseId:
+                type: string
+                format: uuid
+              muscleGroupId:
+                type: string
+                format: uuid
+              role:
+                type: string
+                enum:
+                  - primary
+                  - secondary
+            required:
+              - exerciseId
+              - muscleGroupId
+              - role
+        exerciseEquipment:
+          type: array
+          items:
+            type: object
+            properties:
+              exerciseId:
+                type: string
+                format: uuid
+              equipmentId:
+                type: string
+                format: uuid
+              required:
+                type: boolean
+            required:
+              - exerciseId
+              - equipmentId
+              - required
+      required:
+        - version
+        - exercises
+        - equipment
+        - muscleGroups
+        - aliases
+        - exerciseMuscles
+        - exerciseEquipment
   parameters: {}
 paths:
   /health/live:
@@ -424,7 +5485,7 @@ paths:
           in: query
       responses:
         "200":
-          description: Account state and capabilities. Sync is unavailable in this scaffold.
+          description: Account state and sync capabilities.
           content:
             application/json:
               schema:
@@ -448,6 +5509,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -497,6 +5564,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -570,6 +5643,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -610,6 +5689,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -665,6 +5750,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -677,7 +5768,7 @@ paths:
       tags:
         - Sync
       security: *a1
-      summary: "Scaffold: no mutations are accepted or acknowledged yet."
+      summary: Apply each mutation atomically; replay identical mutation IDs.
       requestBody:
         required: true
         content:
@@ -685,6 +5776,12 @@ paths:
             schema:
               $ref: "#/components/schemas/SyncPush"
       responses:
+        "200":
+          description: Per-mutation outcomes. Conflicts do not roll back other mutations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncPushResponse"
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -697,19 +5794,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "413":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "500":
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+        "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -721,22 +5824,36 @@ paths:
       tags:
         - Sync
       security: *a1
-      summary: "Scaffold: no change feed is served yet."
+      summary: Read ordered events containing the current canonical aggregate or a tombstone.
       parameters:
         - schema:
-            $ref: "#/components/schemas/SyncCursor"
+            type: string
+            format: uuid
+          required: true
+          name: deviceId
+          in: query
+        - schema:
+            type: string
+            pattern: ^(0|[1-9][0-9]*)$
+            default: "0"
           required: false
           name: cursor
           in: query
         - schema:
             type: integer
             minimum: 1
-            maximum: 500
-            default: 100
+            maximum: 100
+            default: 50
           required: false
           name: limit
           in: query
       responses:
+        "200":
+          description: Persist entities and nextCursor together before acknowledging.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncPullResponse"
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -749,7 +5866,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -761,7 +5890,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+  /v1/sync/ack:
+    post:
+      operationId: acknowledgeSync
+      tags:
+        - Sync
+      security: *a1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncAcknowledgement"
+      responses:
+        "204":
+          description: Monotonic durable-device cursor recorded.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -773,7 +5947,6 @@ paths:
       tags:
         - Intelligence
       security: *a1
-      summary: "Scaffold: structured decision gateway. No provider is called."
       parameters:
         - schema:
             type: string
@@ -788,6 +5961,12 @@ paths:
             schema:
               $ref: "#/components/schemas/DecisionRequest"
       responses:
+        "200":
+          description: Validated advisory choice; never changes a plan.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionResponse"
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -800,7 +5979,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -812,7 +6009,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -824,7 +6027,6 @@ paths:
       tags:
         - Intelligence
       security: *a1
-      summary: "Scaffold: coach gateway. Streaming and proposal contracts are not implemented."
       parameters:
         - schema:
             type: string
@@ -839,6 +6041,16 @@ paths:
             schema:
               $ref: "#/components/schemas/CoachRequest"
       responses:
+        "200":
+          description: Persisted, validated response. Accept text/event-stream for a single complete event
+            after validation; no unvalidated model tokens are emitted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoachResponse"
+            text/event-stream:
+              schema:
+                type: string
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -851,7 +6063,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -863,7 +6093,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -875,7 +6111,6 @@ paths:
       tags:
         - Billing
       security: *a1
-      summary: "Scaffold: signed transaction verification. No entitlement is granted."
       requestBody:
         required: true
         content:
@@ -883,6 +6118,19 @@ paths:
             schema:
               $ref: "#/components/schemas/AppleTransactionSubmission"
       responses:
+        "200":
+          description: Verified effective entitlements. Send the athlete UUID as StoreKit appAccountToken.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entitlements:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Entitlement"
+                required:
+                  - entitlements
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -890,6 +6138,72 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /webhooks/apple:
+    post:
+      operationId: appleServerNotification
+      tags:
+        - Billing
+      summary: App Store Server Notifications V2. Authentication is the verified Apple JWS, not a user
+        session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signedPayload:
+                  type: string
+                  minLength: 1
+                  maxLength: 64000
+              required:
+                - signedPayload
+              additionalProperties: false
+      responses:
+        "204":
+          description: Verified notification processed or deduplicated.
+        "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -907,7 +6221,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+        "503":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
@@ -919,8 +6233,60 @@ paths:
       tags:
         - Account
       security: *a1
-      summary: "Scaffold: account deletion is pending a retention policy."
+      summary: Permanently delete the account and its data; requires a session created in the last 10
+        minutes.
       responses:
+        "204":
+          description: Account, sessions, training data and provider records purged.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/catalog:
+    get:
+      operationId: getCatalog
+      tags:
+        - Catalog
+      security: *a1
+      responses:
+        "200":
+          description: Versioned exercise, muscle and equipment reference catalog.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExerciseCatalog"
         "400":
           description: Request failed. Use the stable error code for client behavior.
           content:
@@ -939,13 +6305,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-        "501":
+  /v1/account/export:
+    get:
+      operationId: exportAccount
+      tags:
+        - Account
+      security: *a1
+      responses:
+        "200":
+          description: Canonical training and coaching data export. Excludes credentials and operational logs.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

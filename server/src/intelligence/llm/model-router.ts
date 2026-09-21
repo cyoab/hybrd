@@ -1,7 +1,6 @@
 import type { Env } from "../../config/env";
 
-// Only server configuration may select models. Implement quota/entitlement
-// enforcement and invocation auditing before adding a provider transport.
+// Clients never select a model; provider calls are gated by the gateway service.
 export function configuredModel(
   env: Env,
   kind: "jev" | "llm",

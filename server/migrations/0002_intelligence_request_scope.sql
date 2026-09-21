@@ -1,0 +1,1 @@
+ALTER TABLE "ai_invocations" ADD COLUMN "scope_id" uuid;

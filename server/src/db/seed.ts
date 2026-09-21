@@ -1,3 +1,4 @@
+import { seedCatalog } from "../catalog/service";
 import { developmentPolicy, policyChecksum } from "../config/policy";
 import { createDatabase } from "./client";
 import { trainingPolicyVersions } from "./schema";
@@ -13,8 +14,8 @@ try {
   await database.db
     .insert(trainingPolicyVersions)
     .values({
-      id: "00000000-0000-4000-8000-000000000001",
-      version: 1,
+      id: "00000000-0000-4000-8000-000000000002",
+      version: 2,
       schemaVersion: 1,
       status: "published",
       config: developmentPolicy,
@@ -22,6 +23,7 @@ try {
       publishedAt: new Date("2026-09-21T00:00:00Z"),
     })
     .onConflictDoNothing();
+  await seedCatalog(database.client);
   console.info(
     "Development policy seeded. No user accounts or training records created.",
   );

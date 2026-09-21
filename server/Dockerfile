@@ -26,6 +26,7 @@ COPY --chown=bun:bun package.json bunfig.toml ./
 COPY --chown=bun:bun server/package.json ./server/package.json
 COPY --chown=bun:bun server/src ./server/src
 COPY --chown=bun:bun server/migrations ./server/migrations
+COPY --chown=bun:bun server/certificates ./server/certificates
 USER bun
 EXPOSE 3000
 CMD ["bun", "run", "start"]

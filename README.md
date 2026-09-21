@@ -1,6 +1,6 @@
 # hybrd
 
-Local-first hybrid training: a native iOS app backed by a Bun/Hono control plane and PostgreSQL. This repository contains the non-iOS project scaffold. `ios/` is reserved for the separate iOS implementation.
+Local-first hybrid training: a native iOS app backed by a Bun/Hono control plane and PostgreSQL. This repository contains the backend MVP. `ios/` is reserved for the separate iOS implementation.
 
 The original [product requirements](hybrd_mvp_product_design_requirements.md) and [technical architecture](hybrd_technical_architecture_v0.1.md) remain at the repository root.
 
@@ -43,21 +43,17 @@ docker compose up --build --detach --wait
 | `make openapi` | Regenerate `contracts/openapi.yaml` |
 | `make build` | Build the production image |
 
-## What is ready
+## Backend capabilities
 
-- Bun workspace with pinned dependencies, lockfile, strict TypeScript, Biome, and Bun tests.
-- Hono API with request validation, standardized errors, request IDs, bounded bodies, CORS, and privacy-conscious logging.
-- Better Auth with bearer sessions, optional Apple provider configuration, and local-only email/password sign-in.
-- PostgreSQL/Drizzle foundation schema and checked-in migration: authentication, athletes, policy versions, devices, entitlements, and sync bookkeeping.
-- Working bootstrap, policy/ETag, device registration/revocation, entitlement reads, and health endpoints.
-- Generated OpenAPI 3.1 contract shared with the iOS implementation.
-- Development Compose stack, disposable test database, non-root production image, Railway configuration, and GitHub Actions checks.
+- Athlete onboarding data, a versioned exercise/equipment catalog and remote training policy.
+- Transactional sync with idempotency, revision conflicts, paging, restore and tombstones.
+- Immutable run/strength plans, explicit plan activation/audit history and separate actual workout results.
+- HealthKit activity provenance, matching references and duplicate detection.
+- Jev bounded decisions and a structured AI coach with consent, entitlements, quotas and accepted proposals.
+- Verified StoreKit subscriptions/server notifications, APNs delivery and account export/deletion.
+- Typed OpenAPI, real PostgreSQL/auth integration tests, provider adapter tests, CI and a production Docker image.
 
-## What remains scaffolded
-
-This is the foundation, not a complete MVP. Sync handlers, the relational training domain, plan/workout persistence, exercise catalog, remote AI, StoreKit verification, APNs delivery, and account deletion remain to be implemented. Reserved HTTP routes return `501 NOT_IMPLEMENTED` and perform no work. Bootstrap advertises `sync.available: false`; the development policy disables unfinished features.
-
-Directories for every backend module in the architecture are in place, with implementation boundaries documented. No worker, Redis, object storage, web app, or server-side training engine has been added.
+Run `make check` for the complete suite. Tests use injected external providers, never paid requests or real notifications. Apple/OpenRouter/APNs credentials and product identifiers are optional for local development; configured capabilities are advertised by bootstrap. See [deployment](docs/deployment.md) for live-provider validation and release setup. The iOS training engine remains responsible for training computation and candidate generation.
 
 ## Repository map
 
@@ -67,15 +63,17 @@ server/
   src/
     api/                     App factory, errors, schemas, service wiring
     auth/                    Better Auth and athlete provisioning
-    athlete/                 Authenticated athlete lookup
-    sync/                    Draft envelopes, placeholder routes, ledger design
-    plans/                   Plan/prescription implementation boundary
-    workouts/                Catalog/result/provenance implementation boundary
+    athlete/                 Athlete profile and onboarding schemas
+    sync/                    Typed mutations, replay ledger, conflicts and restore
+    plans/                   Immutable prescriptions, activation and history
+    workouts/                Actual results and activity provenance
     intelligence/jev/        Versioned bounded-decision registry
     intelligence/llm/        Server-controlled model selection
+    catalog/                 Versioned exercises, muscles and equipment
+    ops/                     Policy, catalog, retention and push commands
     config/                  Environment validation and development policy
-    billing/                 StoreKit placeholder and entitlement boundary
-    notifications/           APNs implementation boundary
+    billing/                 Verified StoreKit lifecycle and entitlements
+    notifications/           APNs delivery and idempotency
     db/                      Database client, schemas, migrations, fixtures
     telemetry/               Structured metadata-only logging
   migrations/                Versioned SQL and Drizzle snapshots

@@ -19,7 +19,8 @@
     "db:migrate": "bun run --cwd server db:migrate",
     "db:seed": "bun run --cwd server db:seed",
     "openapi:generate": "bun run --cwd server openapi:generate",
-    "openapi:check": "bun run --cwd server openapi:check"
+    "openapi:check": "bun run --cwd server openapi:check",
+    "ops": "bun run --cwd server ops"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",

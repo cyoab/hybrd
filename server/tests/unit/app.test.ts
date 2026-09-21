@@ -1,11 +1,44 @@
 import { describe, expect, test } from "bun:test";
 import { createApp, openApiInfo } from "../../src/api/app";
 import type { AppDependencies } from "../../src/api/dependencies";
+import { developmentPolicy } from "../../src/config/policy";
 
 function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    billing: {
+      submit: async () => ({ entitlements: [] }),
+      notification: async () => {},
+    },
+    intelligence: {
+      decision: async () => {
+        throw new Error("Unexpected decision");
+      },
+      chat: async () => {
+        throw new Error("Unexpected chat");
+      },
+    },
+    sync: {
+      push: async () => {
+        throw new Error("Unexpected sync");
+      },
+      pull: async () => {
+        throw new Error("Unexpected sync");
+      },
+      acknowledge: async () => {},
+    },
+    catalog: async () => ({
+      version: 1,
+      exercises: [],
+      equipment: [],
+      muscleGroups: [],
+      aliases: [],
+      exerciseMuscles: [],
+      exerciseEquipment: [],
+    }),
+    deleteAccount: async () => {},
+    exportAccount: async () => ({}),
     checkDatabase: async () => {},
     authenticate: async () => null,
     handleAuth: async () => new Response(null, { status: 404 }),
@@ -55,30 +88,6 @@ describe("API foundation", () => {
       expect((await app.request(path, { method })).status).toBe(401);
   });
 
-  test("authenticated placeholders never acknowledge mutations", async () => {
-    const app = appWith({ authenticate: async () => "user" });
-    const response = await app.request("/v1/sync/push", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        deviceId: crypto.randomUUID(),
-        mutations: [
-          {
-            id: crypto.randomUUID(),
-            entityId: crypto.randomUUID(),
-            entityType: "athlete_goal",
-            operation: "create",
-            baseRevision: null,
-            payload: {},
-          },
-        ],
-      }),
-    });
-    expect(response.status).toBe(501);
-    expect((await response.json()).error.code).toBe("NOT_IMPLEMENTED");
-    expect((await app.request("/v1/sync/pull")).status).toBe(501);
-  });
-
   test("invalid inputs fail before the persistence service", async () => {
     let writes = 0;
     const app = appWith({
@@ -107,10 +116,11 @@ describe("API foundation", () => {
     const app = appWith({
       authenticate: async () => "user",
       trainingPolicy: async () => ({
+        id: "00000000-0000-4000-8000-000000000001",
         version: 1,
         schemaVersion: 1,
         checksum: "sha256:abc",
-        config: {},
+        config: developmentPolicy,
         minimumAppVersion: null,
       }),
     });
@@ -159,14 +169,14 @@ describe("API foundation", () => {
     expect(await response.text()).not.toContain("private athlete");
   });
 
-  test("OpenAPI is available offline and placeholders have no success response", () => {
+  test("OpenAPI is available offline with sync success responses", () => {
     const spec = appWith().getOpenAPI31Document(openApiInfo);
     expect(spec.openapi).toBe("3.1.0");
     expect(
       spec.paths?.["/v1/sync/push"]?.post?.responses?.["200"],
-    ).toBeUndefined();
+    ).toBeDefined();
     expect(
       spec.paths?.["/v1/sync/push"]?.post?.responses?.["501"],
-    ).toBeDefined();
+    ).toBeUndefined();
   });
 });

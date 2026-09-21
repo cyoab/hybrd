@@ -10,11 +10,3 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
-
-export function notImplemented(feature: string): never {
-  throw new ApiError(
-    501,
-    "NOT_IMPLEMENTED",
-    `${feature} is scaffolded and is not available yet.`,
-  );
-}

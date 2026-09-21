@@ -1,7 +1,5 @@
 # Intelligence
 
-The Jev decision registry, server-selected model configuration, request contracts, and authenticated routes are scaffolded. Both routes return 501 and make no network requests, including when credentials are set.
+The gateway enforces explicit profile consent, effective entitlement, published policy, persistent daily/minute quotas and idempotency before calling a provider. Only server configuration chooses models. Jev uses OpenRouter's Decisions API with typed contexts and server-owned criteria. The coach uses bounded history/context and strict structured output. Invalid output rolls back canonical writes.
 
-Before enabling a gateway, implement entitlement checks, per-athlete quotas, idempotent invocation records, provider timeouts, bounded compact context, response validation, and cost/audit metadata. Do not accept client-selected models or arbitrary Jev prompts. Confirm the current Jev request protocol with OpenRouter rather than assuming it behaves like a generative chat model.
-
-The coach needs a versioned context contract and SSE response contract before client integration. Model output can only propose actions; it never writes plans. Prompts and raw health streams must not enter telemetry.
+External requests run outside database transactions. Account deletion, consent withdrawal and plan-head changes are rechecked on completion. A pending/uncertain attempt is never reissued automatically. Canonical decisions, messages and proposals sync; telemetry contains usage/cost/model metadata, not full prompts. Coach proposals never mutate plans directly. JSON is default; SSE emits one validated complete event.

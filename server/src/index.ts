@@ -8,7 +8,8 @@ import { log } from "./telemetry/logger";
 const env = readEnv();
 const database = createDatabase(env.DATABASE_URL);
 const auth = createAuth(env, database.db);
-const app = createApp(createServices(database, auth), {
+const app = createApp(createServices(database, auth, { env }), {
+  peerAddress: (request) => server.requestIP(request)?.address,
   trustedOrigins: [
     env.BETTER_AUTH_URL,
     ...env.TRUSTED_ORIGINS.split(",")
@@ -18,6 +19,7 @@ const app = createApp(createServices(database, auth), {
 });
 
 const server = Bun.serve({
+  idleTimeout: 60,
   hostname: env.HOST,
   port: env.PORT,
   fetch: app.fetch,
@@ -28,7 +30,7 @@ let stopping = false;
 async function shutdown() {
   if (stopping) return;
   stopping = true;
-  const deadline = setTimeout(() => process.exit(1), 10000);
+  const deadline = setTimeout(() => process.exit(1), 35000);
   deadline.unref();
   await server.stop();
   await database.close();
