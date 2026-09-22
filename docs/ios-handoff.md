@@ -72,4 +72,6 @@ HealthKit normalization, local feature computation, candidate generation, interf
 
 ## Progress dashboard read model
 
-See [Progress metrics handoff](progress-metrics-handoff.md) for the proposed authenticated summary, comparison-history and activity endpoints, metric rules, cache/projection strategy, and native date/identity migration prerequisites. These endpoints are proposals; the native Progress screen currently computes its actual-only metrics offline.
+The [Progress metrics handoff](progress-metrics-handoff.md) is now implemented on the backend. See the [implementation and client contract](progress-metrics-implementation.md) for summary, comparison-history and activity endpoints; date/identity migration fields; cursor and cache behavior; and measured performance. The generated OpenAPI contains `ProgressSummary`, `ProgressComparisonPage`, and `ProgressActivityPage`.
+
+The native Progress screen can keep computing offline until it persists canonical training dates/timezones, revisions and exercise IDs. Legacy logs must explicitly send `dateBasis:loggedDate`; unknown performed instants stay null. Select one authoritative local/server snapshot per render rather than summing overlapping histories.

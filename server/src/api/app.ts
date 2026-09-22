@@ -1,11 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { bodyLimit } from "hono/body-limit";
+import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { secureHeaders } from "hono/secure-headers";
 import { registerBillingRoutes } from "../billing/routes";
 import { CatalogSchema } from "../domain/records";
 import { registerIntelligenceRoutes } from "../intelligence/routes";
+import { registerProgressRoutes } from "../progress/routes";
 import { registerSyncRoutes } from "../sync/routes";
 import { log } from "../telemetry/logger";
 import type { AppDependencies, AppEnv } from "./dependencies";
@@ -382,6 +384,8 @@ export function createApp(
   );
 
   registerSyncRoutes(app, deps);
+  app.use("/v1/progress/*", compress());
+  registerProgressRoutes(app, deps);
   registerIntelligenceRoutes(app, deps);
   registerBillingRoutes(app, deps);
   app.openapi(

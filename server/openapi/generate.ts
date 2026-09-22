@@ -7,6 +7,7 @@ const unused = async (): Promise<never> => {
   throw new Error("Contract generation must not call runtime services.");
 };
 const dependencies: AppDependencies = {
+  progress: { summary: unused, comparison: unused, activity: unused },
   billing: { submit: unused, notification: unused },
   intelligence: { decision: unused, chat: unused },
   sync: { push: unused, pull: unused, acknowledge: unused },

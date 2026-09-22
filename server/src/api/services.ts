@@ -11,6 +11,7 @@ import {
   openRouterProvider,
 } from "../intelligence/provider";
 import { intelligenceServices } from "../intelligence/service";
+import { type ProgressOptions, progressServices } from "../progress/service";
 import { exportTraining, syncServices } from "../sync/service";
 import type { AppDependencies } from "./dependencies";
 import { ApiError } from "./errors";
@@ -23,6 +24,7 @@ export function createServices(
     env?: Env;
     intelligence?: IntelligenceProvider;
     apple?: AppleVerifier;
+    progress?: ProgressOptions;
   } = {},
 ): AppDependencies {
   const { client } = database;
@@ -35,6 +37,11 @@ export function createServices(
     return policy ? TrainingPolicySchema.parse(wire(policy)) : null;
   }
   return {
+    progress: progressServices(
+      client,
+      env.BETTER_AUTH_SECRET,
+      options.progress,
+    ),
     billing: billingServices(client, env, apple),
     sync: syncServices(client),
     intelligence: intelligenceServices(client, env, intelligence),

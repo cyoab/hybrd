@@ -1,6 +1,7 @@
 import type { billingServices } from "../billing/service";
 import type { readCatalog } from "../catalog/service";
 import type { intelligenceServices } from "../intelligence/service";
+import type { progressServices } from "../progress/service";
 import type { syncServices } from "../sync/service";
 import type {
   Bootstrap,
@@ -12,6 +13,7 @@ import type {
 export type AppEnv = { Variables: { requestId: string; authUserId: string } };
 
 export interface AppDependencies {
+  progress: ReturnType<typeof progressServices>;
   billing: ReturnType<typeof billingServices>;
   intelligence: ReturnType<typeof intelligenceServices>;
   sync: ReturnType<typeof syncServices>;

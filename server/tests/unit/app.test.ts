@@ -7,6 +7,17 @@ function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    progress: {
+      summary: async () => {
+        throw new Error("Unexpected progress");
+      },
+      comparison: async () => {
+        throw new Error("Unexpected progress");
+      },
+      activity: async () => {
+        throw new Error("Unexpected progress");
+      },
+    },
     billing: {
       submit: async () => ({ entitlements: [] }),
       notification: async () => {},
@@ -75,6 +86,9 @@ describe("API foundation", () => {
     const app = appWith();
     for (const [method, path] of [
       ["GET", "/v1/bootstrap"],
+      ["GET", "/v1/progress/summary"],
+      ["GET", "/v1/progress/activity"],
+      ["GET", `/v1/progress/comparisons/${"a".repeat(64)}`],
       ["GET", "/v1/config/training-policy"],
       ["GET", "/v1/sync/pull"],
       ["POST", "/v1/sync/push"],

@@ -164,6 +164,11 @@ export async function emit(
 ) {
   const [event] =
     await sql`insert into sync_change_log (athlete_id,entity_type,entity_id,operation,row_revision) values (${athleteId},${entityType},${entityId},${operation},${revision}) returning sequence::text`;
+  if (
+    entityType === "workout_result" ||
+    entityType === "activity_source_record"
+  )
+    await sql`insert into progress_outbox (athlete_id,sequence) values (${athleteId},${String(event?.sequence)}) on conflict (athlete_id) do update set sequence=greatest(progress_outbox.sequence,excluded.sequence)`;
   return String(event?.sequence);
 }
 export async function ensureInitialChange(sql: Tx, athlete: Row) {

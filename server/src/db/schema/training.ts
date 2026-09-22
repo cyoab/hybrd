@@ -447,6 +447,9 @@ export const workoutResults = pgTable(
     discipline: text("discipline").notNull(),
     trainingDate: date("training_date").notNull(),
     timezone: text("timezone").notNull(),
+    dateBasis: text("date_basis").notNull().default("performedDate"),
+    loggedAt: instant("logged_at"),
+    durationS: integer("duration_s"),
     startedAt: instant("started_at"),
     endedAt: instant("ended_at"),
     completionStatus: text("completion_status").notNull(),
@@ -457,6 +460,14 @@ export const workoutResults = pgTable(
   },
   (t) => [
     index("results_owner_date_idx").on(t.athleteId, t.trainingDate),
+    check(
+      "result_date_basis",
+      sql`${t.dateBasis} in ('performedDate', 'loggedDate')`,
+    ),
+    check(
+      "result_duration",
+      sql`${t.durationS} is null or ${t.durationS} between 0 and 604800`,
+    ),
     check(
       "result_times",
       sql`${t.endedAt} is null or ${t.startedAt} is null or ${t.endedAt} >= ${t.startedAt}`,
@@ -545,6 +556,7 @@ export const strengthSetResults = pgTable(
     setKind: text("set_kind").notNull(),
     reps: integer("reps"),
     loadKg: kg("load_kg"),
+    loadConvention: text("load_convention").notNull().default("external"),
     rpe: effort("rpe"),
     rir: effort("rir"),
     status: text("status").notNull(),
@@ -552,6 +564,10 @@ export const strengthSetResults = pgTable(
   },
   (t) => [
     unique("actual_set_number_unique").on(t.exerciseResultId, t.setNumber),
+    check(
+      "actual_load_convention",
+      sql`${t.loadConvention} in ('external', 'bodyweight', 'assistance')`,
+    ),
     check("actual_load_positive", sql`${t.loadKg} is null or ${t.loadKg} >= 0`),
   ],
 );

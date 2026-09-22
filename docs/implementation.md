@@ -9,6 +9,7 @@ The backend now implements the control-plane responsibilities in the two origina
 | Catalog | Versioned stable IDs for 28 exercises, equipment, aliases, movement patterns and primary/secondary muscles |
 | Plans | Blocks, immutable plan aggregates, repeatable run blocks/steps, strength exercises/sets/substitutions, expected-head activation, accepted before/after audit |
 | Results | Separate actual run summaries/segments and strength sets, exact prescription references, partial/modified/skipped sessions, HealthKit provenance and duplicate detection |
+| Progress | Versioned actual-only summaries, calendar series, lifetime journey/milestones, exact comparisons, bounded activity history, transactional projections, signed cursors and private ETags |
 | Sync | Typed per-entity mutations/projections, durable idempotency, optimistic revisions, per-mutation transactions, paginated change feed, tombstones, monotonic acknowledgements |
 | Intelligence | Four bounded Jev decisions, structured coach JSON/SSE completion, validated proposals, consent/entitlement gates, persisted quotas, provider timeouts, usage/cost metadata |
 | Billing | Apple's signed-data verifier, app/environment/product/account checks, restore replay, server notifications, renewal/grace/expiry/refund/revocation |
@@ -18,6 +19,7 @@ The backend now implements the control-plane responsibilities in the two origina
 
 ## Deliberate contract decisions
 
+- Progress is a read model over canonical sync. Stored local training dates remain authoritative; optional legacy logging provenance and actual duration support native migration. See the [implementation plan, client contract and measurements](progress-metrics-implementation.md).
 - `plan_version` is a whole immutable prescription aggregate; `workout_result` is a whole mutable actual-result aggregate. A set edit replaces its parent result with an expected revision. This differs from the architecture's illustrative granular set mutation and avoids partial relational graphs during restore. Individual rows remain relational in PostgreSQL.
 - A new plan has new physical workout/block/step/exercise/set IDs. Preserve each unchanged session's `logicalWorkoutId`. Accepted plans cannot be edited; materialize a new version and explicitly activate it. Any prescription with a non-deleted result (including skipped work) must be copied unchanged into subsequent versions of that block.
 - Changes contain current aggregate state, not a frozen historical payload for each feed event. An older event can therefore carry a newer revision. Clients apply revisions monotonically. Immutable plan versions and plan-change records retain the actual history.

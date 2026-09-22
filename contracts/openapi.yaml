@@ -870,6 +870,25 @@ components:
                     timezone:
                       type: string
                       maxLength: 100
+                    dateBasis:
+                      type: string
+                      enum:
+                        - performedDate
+                        - loggedDate
+                      default: performedDate
+                    loggedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    durationS:
+                      type:
+                        - integer
+                        - "null"
+                      minimum: 0
+                      maximum: 604800
+                      default: null
                     startedAt:
                       type:
                         - string
@@ -1103,6 +1122,25 @@ components:
                     timezone:
                       type: string
                       maxLength: 100
+                    dateBasis:
+                      type: string
+                      enum:
+                        - performedDate
+                        - loggedDate
+                      default: performedDate
+                    loggedAt:
+                      type:
+                        - string
+                        - "null"
+                      format: date-time
+                      default: null
+                    durationS:
+                      type:
+                        - integer
+                        - "null"
+                      minimum: 0
+                      maximum: 604800
+                      default: null
                     startedAt:
                       type:
                         - string
@@ -1216,6 +1254,13 @@ components:
                                   minimum: 0
                                   maximum: 99999
                                   default: null
+                                loadConvention:
+                                  type: string
+                                  enum:
+                                    - external
+                                    - bodyweight
+                                    - assistance
+                                  default: external
                                 rpe:
                                   type:
                                     - number
@@ -3884,6 +3929,25 @@ components:
             timezone:
               type: string
               maxLength: 100
+            dateBasis:
+              type: string
+              enum:
+                - performedDate
+                - loggedDate
+              default: performedDate
+            loggedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            durationS:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 604800
+              default: null
             startedAt:
               type:
                 - string
@@ -4143,6 +4207,25 @@ components:
             timezone:
               type: string
               maxLength: 100
+            dateBasis:
+              type: string
+              enum:
+                - performedDate
+                - loggedDate
+              default: performedDate
+            loggedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+              default: null
+            durationS:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+              maximum: 604800
+              default: null
             startedAt:
               type:
                 - string
@@ -4256,6 +4339,13 @@ components:
                           minimum: 0
                           maximum: 99999
                           default: null
+                        loadConvention:
+                          type: string
+                          enum:
+                            - external
+                            - bodyweight
+                            - assistance
+                          default: external
                         rpe:
                           type:
                             - number
@@ -4798,6 +4888,604 @@ components:
         - deviceId
         - cursor
       additionalProperties: false
+    ProgressSummary:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        rulesVersion:
+          type: number
+          enum:
+            - 1
+        asOf:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          maxLength: 100
+        dateBasis:
+          type: string
+          enum:
+            - performedDate
+            - loggedDate
+            - mixed
+        dataRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        projectionSequence:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        freshness:
+          type: string
+          enum:
+            - current
+        periodDays:
+          anyOf:
+            - type: number
+              enum:
+                - 7
+            - type: number
+              enum:
+                - 28
+            - type: number
+              enum:
+                - 84
+        range:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDateInclusive:
+              type: string
+              format: date
+            includesPartialToday:
+              type: boolean
+              enum:
+                - true
+            previousStartDate:
+              type: string
+              format: date
+            previousEndDateInclusive:
+              type: string
+              format: date
+          required:
+            - startDate
+            - endDateInclusive
+            - includesPartialToday
+            - previousStartDate
+            - previousEndDateInclusive
+        totals:
+          type: object
+          properties:
+            current:
+              $ref: "#/components/schemas/ProgressTotals"
+            previous:
+              $ref: "#/components/schemas/ProgressTotals"
+            lifetime:
+              $ref: "#/components/schemas/ProgressTotals"
+            percentChange:
+              type: object
+              properties:
+                runMeters:
+                  type:
+                    - number
+                    - "null"
+                strengthSets:
+                  type:
+                    - number
+                    - "null"
+                activeSeconds:
+                  type:
+                    - number
+                    - "null"
+                sessions:
+                  type:
+                    - number
+                    - "null"
+                runSessions:
+                  type:
+                    - number
+                    - "null"
+                liftSessions:
+                  type:
+                    - number
+                    - "null"
+                activeDays:
+                  type:
+                    - number
+                    - "null"
+              required:
+                - runMeters
+                - strengthSets
+                - activeSeconds
+                - sessions
+                - runSessions
+                - liftSessions
+                - activeDays
+          required:
+            - current
+            - previous
+            - lifetime
+            - percentChange
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressDay"
+          maxItems: 84
+        activityDays:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressDay"
+        journey:
+          type: object
+          properties:
+            trainingDays:
+              type: integer
+            level:
+              type: integer
+            stepsInLevel:
+              type: integer
+            stepsToNextLevel:
+              type: integer
+          required:
+            - trainingDays
+            - level
+            - stepsInLevel
+            - stepsToNextLevel
+        milestones:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressMilestone"
+        comparisons:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressComparison"
+          maxItems: 2
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressActivity"
+          maxItems: 3
+        exclusions:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+      required:
+        - schemaVersion
+        - rulesVersion
+        - asOf
+        - timezone
+        - dateBasis
+        - dataRevision
+        - projectionSequence
+        - freshness
+        - periodDays
+        - range
+        - totals
+        - series
+        - activityDays
+        - journey
+        - milestones
+        - comparisons
+        - recentActivity
+        - exclusions
+    ProgressTotals:
+      type: object
+      properties:
+        runMeters:
+          type: number
+          minimum: 0
+        strengthSets:
+          type: integer
+          minimum: 0
+        activeSeconds:
+          type: number
+          minimum: 0
+        sessions:
+          type: integer
+          minimum: 0
+        runSessions:
+          type: integer
+          minimum: 0
+        liftSessions:
+          type: integer
+          minimum: 0
+        activeDays:
+          type: integer
+          minimum: 0
+      required:
+        - runMeters
+        - strengthSets
+        - activeSeconds
+        - sessions
+        - runSessions
+        - liftSessions
+        - activeDays
+    ProgressDay:
+      allOf:
+        - $ref: "#/components/schemas/ProgressTotals"
+        - type: object
+          properties:
+            date:
+              type: string
+              format: date
+          required:
+            - date
+    ProgressMilestone:
+      type: object
+      properties:
+        key:
+          type: string
+        rulesVersion:
+          type: number
+          enum:
+            - 1
+        requirement:
+          type: string
+        target:
+          type: number
+        current:
+          type: number
+        unit:
+          type: string
+          enum:
+            - days
+            - disciplines
+            - meters
+            - sets
+        earnedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        earnedOn:
+          type:
+            - string
+            - "null"
+          format: date
+        evidenceResultId:
+          type:
+            - string
+            - "null"
+          format: uuid
+      required:
+        - key
+        - rulesVersion
+        - requirement
+        - target
+        - current
+        - unit
+        - earnedAt
+        - earnedOn
+        - evidenceResultId
+    ProgressComparison:
+      type: object
+      properties:
+        key:
+          type: string
+        group:
+          $ref: "#/components/schemas/ProgressComparisonGroup"
+        unit:
+          type: string
+          enum:
+            - secondsPerKilometer
+            - kilograms
+        first:
+          $ref: "#/components/schemas/ProgressComparisonPoint"
+        latest:
+          $ref: "#/components/schemas/ProgressComparisonPoint"
+        best:
+          $ref: "#/components/schemas/ProgressComparisonPoint"
+        sampleCount:
+          type: integer
+        chartPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressComparisonPoint"
+          maxItems: 32
+        hasMore:
+          type: boolean
+        change:
+          type: object
+          properties:
+            absolute:
+              type: number
+            percent:
+              type:
+                - number
+                - "null"
+            direction:
+              type: string
+              enum:
+                - improved
+                - regressed
+                - steady
+          required:
+            - absolute
+            - percent
+            - direction
+      required:
+        - key
+        - group
+        - unit
+        - first
+        - latest
+        - best
+        - sampleCount
+        - chartPoints
+        - hasMore
+        - change
+    ProgressComparisonGroup:
+      oneOf:
+        - type: object
+          properties:
+            kind:
+              type: string
+              enum:
+                - running
+            runType:
+              type: string
+              enum:
+                - easy
+                - recovery
+                - long
+                - tempo
+                - intervals
+                - hills
+                - progression
+                - custom
+            distanceM:
+              type: integer
+              minimum: 1000
+          required:
+            - kind
+            - runType
+            - distanceM
+        - type: object
+          properties:
+            kind:
+              type: string
+              enum:
+                - strength
+            exerciseId:
+              type: string
+              format: uuid
+            exerciseName:
+              type: string
+            reps:
+              type: integer
+              minimum: 1
+              maximum: 100
+            loadConvention:
+              type: string
+              enum:
+                - external
+                - bodyweight
+          required:
+            - kind
+            - exerciseId
+            - exerciseName
+            - reps
+            - loadConvention
+    ProgressComparisonPoint:
+      type: object
+      properties:
+        resultId:
+          type: string
+          format: uuid
+        trainingDate:
+          type: string
+          format: date
+        occurredAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        value:
+          type: number
+          minimum: 0
+      required:
+        - resultId
+        - trainingDate
+        - occurredAt
+        - value
+    ProgressActivity:
+      type: object
+      properties:
+        resultId:
+          type: string
+          format: uuid
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        trainingDate:
+          type: string
+          format: date
+        timezone:
+          type: string
+          maxLength: 100
+        dateBasis:
+          type: string
+          enum:
+            - performedDate
+            - loggedDate
+        discipline:
+          type: string
+          enum:
+            - running
+            - strength
+        completionStatus:
+          type: string
+        title:
+          type: string
+        loggedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        runMeters:
+          type: number
+          minimum: 0
+        strengthSets:
+          type: integer
+          minimum: 0
+        activeSeconds:
+          type: number
+          minimum: 0
+        source:
+          type: object
+          properties:
+            type:
+              type: string
+            records:
+              type: integer
+            unresolvedMatches:
+              type: integer
+            deletedRecords:
+              type: integer
+          required:
+            - type
+            - records
+            - unresolvedMatches
+            - deletedRecords
+        flags:
+          type: array
+          items:
+            type: string
+      required:
+        - resultId
+        - revision
+        - trainingDate
+        - timezone
+        - dateBasis
+        - discipline
+        - completionStatus
+        - title
+        - loggedAt
+        - completedAt
+        - runMeters
+        - strengthSets
+        - activeSeconds
+        - source
+        - flags
+    ProgressComparisonPage:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        rulesVersion:
+          type: number
+          enum:
+            - 1
+        asOf:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          maxLength: 100
+        dateBasis:
+          type: string
+          enum:
+            - performedDate
+            - loggedDate
+            - mixed
+        dataRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        projectionSequence:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        freshness:
+          type: string
+          enum:
+            - current
+        comparison:
+          $ref: "#/components/schemas/ProgressComparison"
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressComparisonPoint"
+          maxItems: 100
+        nextCursor:
+          type:
+            - string
+            - "null"
+      required:
+        - schemaVersion
+        - rulesVersion
+        - asOf
+        - timezone
+        - dateBasis
+        - dataRevision
+        - projectionSequence
+        - freshness
+        - comparison
+        - points
+        - nextCursor
+    ProgressActivityPage:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        rulesVersion:
+          type: number
+          enum:
+            - 1
+        asOf:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          maxLength: 100
+        dateBasis:
+          type: string
+          enum:
+            - performedDate
+            - loggedDate
+            - mixed
+        dataRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        projectionSequence:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        freshness:
+          type: string
+          enum:
+            - current
+        activity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressActivity"
+          maxItems: 100
+        nextCursor:
+          type:
+            - string
+            - "null"
+      required:
+        - schemaVersion
+        - rulesVersion
+        - asOf
+        - timezone
+        - dateBasis
+        - dataRevision
+        - projectionSequence
+        - freshness
+        - activity
+        - nextCursor
     DecisionResponse:
       type: object
       properties:
@@ -5918,6 +6606,256 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/progress/summary:
+    get:
+      operationId: getProgressSummary
+      tags:
+        - Progress
+      security: *a1
+      summary: Current canonical progress on stored local training dates; no historical asOf queries.
+      parameters:
+        - schema:
+            type: number
+            default: 28
+          required: false
+          name: periodDays
+          in: query
+        - schema:
+            type: string
+            maxLength: 100
+            default: UTC
+          required: false
+          name: timezone
+          in: query
+      responses:
+        "200":
+          description: Consistent versioned progress snapshot. Private ETag revalidation is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressSummary"
+        "304":
+          description: The authenticated athlete's summary has not changed.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/progress/comparisons/{comparisonKey}:
+    get:
+      operationId: getProgressComparison
+      tags:
+        - Progress
+      security: *a1
+      summary: Lifetime exact comparison history in ascending date/occurrence/result order. Edits expire
+        cursors.
+      parameters:
+        - schema:
+            type: string
+            pattern: ^[a-f0-9]{64}$
+          required: true
+          name: comparisonKey
+          in: path
+        - schema:
+            type: string
+            minLength: 1
+            maxLength: 2048
+          required: false
+          name: cursor
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          required: false
+          name: limit
+          in: query
+        - schema:
+            type: string
+            maxLength: 100
+            default: UTC
+          required: false
+          name: timezone
+          in: query
+      responses:
+        "200":
+          description: Bounded history page; cursor is bound to query and projection generation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressComparisonPage"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/progress/activity:
+    get:
+      operationId: getProgressActivity
+      tags:
+        - Progress
+      security: *a1
+      summary: Eligible canonical activity in descending training-date/result-ID order, at most 366 days
+        per query.
+      parameters:
+        - schema:
+            type: string
+            minLength: 1
+            maxLength: 2048
+          required: false
+          name: cursor
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          required: false
+          name: limit
+          in: query
+        - schema:
+            type: string
+            maxLength: 100
+            default: UTC
+          required: false
+          name: timezone
+          in: query
+        - schema:
+            type: string
+            format: date
+          required: true
+          name: from
+          in: query
+        - schema:
+            type: string
+            format: date
+          required: true
+          name: to
+          in: query
+      responses:
+        "200":
+          description: Compact actuals without prescriptions, traces or full set histories.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressActivityPage"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

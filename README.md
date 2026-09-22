@@ -37,6 +37,7 @@ docker compose up --build --detach --wait
 | `make down` | Stop services; keep database data |
 | `make shell` / `make db-shell` | API shell / PostgreSQL console |
 | `make check` | Lint, types, unit tests, contract check, isolated PostgreSQL integration tests |
+| `make progress-benchmark` | Measure progress APIs with 10,000 results in the isolated test database |
 | `make format` | Format and fix server code |
 | `make db-generate` / `make migrate` | Generate / apply migrations |
 | `make seed` | Reapply idempotent development fixtures |
@@ -49,6 +50,7 @@ docker compose up --build --detach --wait
 - Transactional sync with idempotency, revision conflicts, paging, restore and tombstones.
 - Immutable run/strength plans, explicit plan activation/audit history and separate actual workout results.
 - HealthKit activity provenance, matching references and duplicate detection.
+- Progress summaries, revocable milestones, exact run/strength comparisons and paginated activity, with transactional projections and private conditional caching. See the [progress implementation and client contract](docs/progress-metrics-implementation.md).
 - Jev bounded decisions and a structured AI coach with consent, entitlements, quotas and accepted proposals.
 - Verified StoreKit subscriptions/server notifications, APNs delivery and account export/deletion.
 - Typed OpenAPI, real PostgreSQL/auth integration tests, provider adapter tests, CI and a production Docker image.
@@ -67,6 +69,7 @@ server/
     sync/                    Typed mutations, replay ledger, conflicts and restore
     plans/                   Immutable prescriptions, activation and history
     workouts/                Actual results and activity provenance
+    progress/                Versioned metrics, projections, cache and history
     intelligence/jev/        Versioned bounded-decision registry
     intelligence/llm/        Server-controlled model selection
     catalog/                 Versioned exercises, muscles and equipment

@@ -79,6 +79,9 @@ const set = z
     setKind: z.enum(["warmup", "working", "backoff"]),
     reps: Count.nullable().default(null),
     loadKg: Load.nullable().default(null),
+    loadConvention: z
+      .enum(["external", "bodyweight", "assistance"])
+      .default("external"),
     rpe: Effort.nullable().default(null),
     rir: Effort.nullable().default(null),
     status: z.enum(["completed", "failed", "skipped"]),
@@ -106,6 +109,9 @@ const result = {
   logicalWorkoutId: optionalId,
   trainingDate: Day,
   timezone: Zone,
+  dateBasis: z.enum(["performedDate", "loggedDate"]).default("performedDate"),
+  loggedAt: optionalInstant,
+  durationS: Seconds.nullable().default(null),
   startedAt: optionalInstant,
   endedAt: optionalInstant,
   completionStatus: z.enum([
@@ -137,6 +143,16 @@ export const WorkoutInput = z
       .strict(),
   ])
   .superRefine((v, ctx) => {
+    if (
+      v.discipline === "running" &&
+      v.durationS !== null &&
+      v.run &&
+      v.durationS !== v.run.durationS
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "Session and run elapsed duration must agree",
+      });
     if (
       v.startedAt &&
       v.endedAt &&
