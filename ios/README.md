@@ -6,7 +6,7 @@ The official source of truth is this repository's `ios/` directory.
 
 - `Project.json`: Bitrig/XcodeGen project definition; separate iPhone and Apple Watch targets.
 - `App/`: SwiftUI iPhone shells, SwiftData persistence, draft logging, local sample plan, and deterministic coach fallback.
-- `Watch/`: read-only companion shell for receiving and browsing prescriptions.
+- `Watch/`: standalone run recording within the paired companion, with cached prescriptions, live metrics, interval controls and durable result transfer.
 - `Shared/`: typed local models, starter-plan rules, and WatchConnectivity transport.
 - `Tests/`: executable checks for planning, profile validation, backward compatibility, and the bundled catalog.
 
@@ -14,13 +14,13 @@ The current Bitrig-managed workspace links its `App`, `Watch`, `Shared`, and `Pr
 
 ## Current scope
 
-This is an early local scaffold, not the complete MVP. It includes sample data, editable goals, heart-rate-zone run targets, four-week starter prescriptions and a clearly labeled sample block, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, basic totals, and a read-only Watch companion.
+This is an early local scaffold, not the complete MVP. It includes sample data, editable goals, heart-rate-zone run targets, four-week starter prescriptions and a clearly labeled sample block, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, the illustrated Progress journey, and a Watch-first run recorder.
 
 The athlete profile includes optional birth date/age, height, weight, self-reported running and strength experience, editable personal BPM boundaries, running PRs, and strength records expressed as load × reps. Native illustrated selectors cover ten muscle groups and twenty equipment types. A bundled public-domain catalog contains 876 exercises as an internal data source. It is not a profile destination; strength PR entry uses a focused movement picker. Profile saves preserve plan snapshots, actual results, and unfinished logs. Applying training preferences to a new starter block still requires review and acceptance.
 
 Apple Health import requests read-only access to date of birth, height, and weight, then presents a per-field review before applying values to the profile draft. It does not import heart-rate zones or PRs. Strength records can also be selected from completed sets in local logs. Strava is explicitly deferred until its developer app and OAuth backend exist; see `PROFILE-INTEGRATIONS.md`.
 
-The iPhone target has a HealthKit entitlement and usage description. Physical-device Health verification still needs a connected Apple account and provisioned app identifier in Bitrig. Automatic BPM calibration, live heart-rate recording, backend requests, authentication, cloud AI, StoreKit, reminders, WorkoutKit delivery, and production synchronization are not implemented. The current local models are not the generated OpenAPI contract. The starter generator uses a small reviewed recipe library: configured equipment constrains movement choices and selected muscles influence their order. Age, body measurements, experience, and PRs are stored metadata; they do not yet calculate loads or progression. Goal-specific programming and adaptive progression remain future work.
+Both app targets have workout HealthKit permissions; outdoor runs request precise location when recording starts. Physical-device Health verification still needs a connected Apple account and provisioned app identifier in Bitrig. Automatic BPM calibration, backend requests, authentication, cloud AI, StoreKit, WorkoutKit plan delivery, and production server synchronization are not implemented. Native run recording uses GPS and live Apple Health metrics; strength logging stores weight, reps, optional RIR, and persistent rest timers with opt-in local alerts. See `WORKOUT-RECORDING.md` for behavior and hardware validation requirements. The current local models are not the generated OpenAPI contract. The starter generator uses a small reviewed recipe library: configured equipment constrains movement choices and selected muscles influence their order. Age, body measurements, experience, and PRs are stored metadata; they do not yet calculate loads or progression. Goal-specific programming and adaptive progression remain future work.
 
 ## Integration constraints
 

@@ -5,4 +5,5 @@ struct CompanionSnapshot: Codable {
   var isSample: Bool
   var workouts: [TrainingWorkout]
   var updatedAt = Date()
+  var heartRateZones: PersonalHeartRateZones?
 }

@@ -23,7 +23,15 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>hybrd reads your date of birth, height, and weight to fill in your athlete profile after you review and select the values.</string>
+	<string>hybrd reads heart rate and running distance during your workouts. On iPhone, you can also review and import your birth date, height, and weight into your athlete profile.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>hybrd saves the runs you record, including their distance and route, to Apple Health.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

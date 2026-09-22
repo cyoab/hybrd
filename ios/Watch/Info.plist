@@ -22,8 +22,19 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>hybrd reads your heart rate and running distance during the workouts you start on Apple Watch.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>hybrd saves the runs you record, including their distance and route, to Apple Health.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.</string>
 	<key>WKApplication</key>
 	<true/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+		<string>location</string>
+	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b</string>
 </dict>

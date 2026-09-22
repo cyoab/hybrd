@@ -12,6 +12,7 @@ struct WorkoutResult: Codable, Identifiable, Equatable {
   var effort: Int
   var notes: String
   var sets: [LoggedSet]
+  var run: RunRecording?
 }
 
 enum ResultStatus: String, Codable {
@@ -27,6 +28,7 @@ struct LoggedSet: Codable, Identifiable, Equatable {
   var reps: Int
   var kilograms: Double
   var isComplete = false
+  var rir: Int?
 }
 
 struct WorkoutDraft: Codable, Identifiable, Equatable {
@@ -40,6 +42,7 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
   var sets: [LoggedSet] = []
   var elapsedSeconds: TimeInterval?
   var runningSince: Date?
+  var rest: StrengthRestTimer?
 
   var validationMessage: String? {
     if workout.kind == .run {
@@ -50,8 +53,8 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
     } else {
       let completed = sets.filter(\.isComplete)
       guard !completed.isEmpty else { return "Check at least one completed set." }
-      guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) }) else {
-        return "Completed sets need 1–100 reps and a load between 0 and 1,000 kg."
+      guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && ($0.rir.map { (0...10).contains($0) } ?? true) }) else {
+        return "Completed sets need 1–100 reps and a load between 0 and 1,000 kg, with RIR from 0 to 10 when entered."
       }
     }
     return nil

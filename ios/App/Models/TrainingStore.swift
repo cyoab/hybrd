@@ -18,7 +18,11 @@ final class TrainingStore {
   private var container: ModelContainer?
   private var record: StoredTrainingState?
 
-  init() { load() }
+  init() {
+    load()
+    companion.onRunReceived = { [weak self] run in self?.saveRecordedRun(run) ?? false }
+    companion.retryTransfers()
+  }
 
   var plan: TrainingPlan { state.plans.last! }
   var profile: TrainingProfile { state.profile }
@@ -251,6 +255,19 @@ final class TrainingStore {
     persist(next, share: false)
   }
 
+  @discardableResult
+  func saveRecordedRun(_ run: RunRecording, asSeparate: Bool = false) -> Bool {
+    guard run.isFinished, run.canSave else { errorMessage = "This recording needs a positive distance and time before saving."; return false }
+    if state.results.contains(where: { $0.id == run.id }) { return true }
+    if !asSeparate && state.results.contains(where: { $0.logicalWorkoutID == run.workout.logicalID }) { return false }
+    var result = run.result()
+    if asSeparate { result.logicalWorkoutID = result.id }
+    var next = state
+    next.results.append(result)
+    next.drafts.removeAll { $0.id == result.logicalWorkoutID }
+    return persist(next)
+  }
+
   func previousSets(for exerciseName: String) -> [LoggedSet] {
     let previous = state.results.filter { $0.kind == .strength && $0.status != .skipped }
       .sorted { $0.completedAt > $1.completedAt }
@@ -260,6 +277,6 @@ final class TrainingStore {
 
   func shareWithWatch() {
     let pending = workouts.filter { result(for: $0) == nil && $0.date >= Calendar.current.startOfDay(for: Date()) }
-    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12))))
+    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12)), heartRateZones: profile.athlete?.heartRateZones))
   }
 }

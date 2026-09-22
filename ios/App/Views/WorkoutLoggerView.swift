@@ -9,8 +9,9 @@ struct WorkoutLoggerView: View {
   @State private var showFinish = false
   @State private var completionFeedback = 0
   @State private var showSessionNotes = false
-  @AppStorage("hybrd.restEnd") private var restEnd = 0.0
-  @AppStorage("hybrd.restWorkout") private var restWorkout = ""
+  @State private var exerciseIndex = 0
+  @State private var restMessage: String?
+  @AppStorage("hybrd.restAlerts") private var restAlerts = false
   private var completedSets: Int { draft.sets.filter(\.isComplete).count }
 
   var body: some View {
@@ -46,15 +47,25 @@ struct WorkoutLoggerView: View {
         }
       }
       .onAppear {
-        if restWorkout != draft.id.uuidString { restEnd = 0; restWorkout = draft.id.uuidString }
+        if let index = draft.workout.exercises.firstIndex(where: { exercise in
+          draft.sets.contains { $0.exerciseName == exercise.name && !$0.isComplete }
+        }) { exerciseIndex = index }
         draft.resume()
         store.saveDraft(draft)
+        if restAlerts { Task {
+          restAlerts = await RestReminder.requestPermission()
+          if !restAlerts { restMessage = "Rest alerts are off in Settings." }
+          RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts)
+        } }
       }
       .onDisappear {
         if !finished { draft.pause(); store.saveDraft(draft) }
       }
       .onChange(of: draft) { _, newValue in
         if !finished { store.saveDraft(newValue) }
+      }
+      .onChange(of: draft.rest) { _, value in
+        RestReminder.schedule(value, workoutID: draft.id, enabled: restAlerts)
       }
       .sensoryFeedback(.success, trigger: completionFeedback)
       .sheet(isPresented: $showSessionNotes) { notesSheet }
@@ -63,7 +74,8 @@ struct WorkoutLoggerView: View {
           draft.pause()
           if store.finish(draft) {
             finished = true
-            restEnd = 0
+            draft.rest = nil
+            RestReminder.schedule(nil, workoutID: draft.id, enabled: false)
             dismiss()
           }
         }
@@ -78,8 +90,18 @@ struct WorkoutLoggerView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 24) {
         workoutHeader
-        ForEach(draft.workout.exercises) { exercise in
+        if draft.workout.exercises.indices.contains(exerciseIndex) {
+          Picker("Current exercise", selection: $exerciseIndex) {
+            ForEach(Array(draft.workout.exercises.enumerated()), id: \.element.id) { index, exercise in
+              Text("\(index + 1). " + exercise.name).tag(index)
+            }
+          }.pickerStyle(.menu).labelsHidden().tint(SessionPalette.ink(.violet))
+          let exercise = draft.workout.exercises[exerciseIndex]
           exerciseCard(exercise)
+          if exerciseIndex + 1 < draft.workout.exercises.count {
+            Button("Next exercise", systemImage: "arrow.right") { exerciseIndex += 1 }
+              .buttonStyle(.bordered).frame(maxWidth: .infinity)
+          }
         }
         Button { showSessionNotes = true } label: {
           HStack {
@@ -144,28 +166,26 @@ struct WorkoutLoggerView: View {
     let previous = store.previousSets(for: exercise.name)
     return VStack(alignment: .leading, spacing: 13) {
       HStack(alignment: .top, spacing: 12) {
-        Image(systemName: "dumbbell")
-          .font(.title3).frame(width: 42, height: 42)
-          .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 12))
+        Image("SessionDumbbell").resizable().scaledToFit().frame(width: 62, height: 62)
           .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 5) {
-          Text(exercise.name).font(.headline).foregroundStyle(HybrdStyle.terraText)
-          Text("\(exercise.sets.count) prescribed sets · \(exercise.sets.first?.reps ?? 0) reps · 3 RIR")
+          Text(exercise.name).font(.system(.title2, design: .rounded, weight: .semibold)).foregroundStyle(SessionPalette.ink(.violet))
+          Text("\(exercise.sets.count) prescribed sets · \(exercise.sets.first?.reps ?? 0) reps · \(exercise.sets.first?.targetRIR ?? 3) target RIR")
             .font(.caption).foregroundStyle(HybrdStyle.muted)
         }
         Spacer(minLength: 0)
       }
       Text(exercise.note).font(.caption).foregroundStyle(HybrdStyle.muted)
       Button("Rest timer: \(exercise.restSeconds) sec", systemImage: "timer") {
-        restEnd = Date().addingTimeInterval(Double(exercise.restSeconds)).timeIntervalSince1970
+        beginRest(exercise)
       }.font(.caption.weight(.medium)).buttonStyle(.plain).foregroundStyle(HybrdStyle.terraText)
 
       if !dynamicType.isAccessibilitySize {
         HStack(spacing: 8) {
-          Text("SET").frame(width: 24)
-          Text("PREVIOUS").frame(width: 70)
+          Text("SET").frame(width: 22)
           Text("KG").frame(maxWidth: .infinity)
           Text("REPS").frame(maxWidth: .infinity)
+          Text("RIR").frame(width: 48)
           Image(systemName: "checkmark").frame(width: 44)
         }
         .font(.system(size: 9, weight: .medium)).foregroundStyle(HybrdStyle.muted)
@@ -180,7 +200,7 @@ struct WorkoutLoggerView: View {
             .onChange(of: set.isComplete) { _, complete in
               if complete {
                 completionFeedback += 1
-                restEnd = Date().addingTimeInterval(Double(exercise.restSeconds)).timeIntervalSince1970
+                beginRest(exercise)
               }
             }
         }
@@ -196,7 +216,7 @@ struct WorkoutLoggerView: View {
     }
     .padding(14)
     .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
-    .overlay(RoundedRectangle(cornerRadius: 20).stroke(HybrdStyle.line))
+    .overlay(RoundedRectangle(cornerRadius: 20).stroke(SessionPalette.violet.opacity(0.2)))
   }
 
   private func binding(for set: LoggedSet) -> Binding<LoggedSet> {
@@ -206,20 +226,41 @@ struct WorkoutLoggerView: View {
     })
   }
 
+  private func beginRest(_ exercise: ExercisePrescription) {
+    draft.rest = StrengthRestTimer(duration: Double(exercise.restSeconds),
+      endsAt: Date().addingTimeInterval(Double(exercise.restSeconds)), exerciseName: exercise.name)
+  }
+
   private var restBar: some View {
-    TimelineView(.periodic(from: .now, by: 1)) { context in
-      let remaining = max(0, Int(ceil(restEnd - context.date.timeIntervalSince1970)))
-      if remaining > 0 {
-        HStack {
-          Image(systemName: "timer").foregroundStyle(HybrdStyle.terraText)
-          Text("Rest").font(.subheadline)
-          Text(clock(Double(remaining))).font(.headline.monospacedDigit())
-          Spacer()
-          Button("+15s") { restEnd += 15 }.font(.subheadline.weight(.medium))
-          Button("Skip") { restEnd = 0 }.font(.subheadline.weight(.medium))
+    Group {
+      if let rest = draft.rest {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+          let remaining = rest.remaining(at: context.date)
+          VStack(alignment: .leading, spacing: 10) {
+            HStack {
+              VStack(alignment: .leading, spacing: 4) {
+                Text(remaining > 0 ? "REST & RESET" : "READY WHEN YOU ARE").font(.caption2.weight(.semibold)).tracking(1)
+                Text(remaining > 0 ? clock(ceil(remaining)) : "Next set").font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
+              }
+              Spacer()
+              Button("Add 15 seconds", systemImage: "plus") { draft.rest?.extend(by: 15) }.labelStyle(.iconOnly).frame(width: 44, height: 44)
+              Button(remaining > 0 ? "Skip rest" : "Done", systemImage: "forward.end.fill") { draft.rest = nil }.labelStyle(.iconOnly).frame(width: 44, height: 44)
+            }
+            ProgressView(value: min(1, remaining / max(1, rest.duration))).tint(SessionPalette.violet)
+              .accessibilityLabel("Rest time remaining")
+            if !restAlerts {
+              Button("Enable rest alerts", systemImage: "bell") {
+                Task {
+                  restAlerts = await RestReminder.requestPermission()
+                  restMessage = restAlerts ? nil : "Rest alerts are off. You can allow notifications for hybrd in Settings."
+                  RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts)
+                }
+              }.font(.caption)
+            }
+            if let restMessage { Text(restMessage).font(.caption2) }
+          }.padding(16).background(SessionPalette.wash(.violet))
+            .sensoryFeedback(.success, trigger: remaining <= 0)
         }
-        .padding(.horizontal, 20).padding(.vertical, 16)
-        .background(HybrdStyle.terraWash)
       }
     }
   }
@@ -253,7 +294,7 @@ struct WorkoutLoggerView: View {
       Section {
         Button("Save run") { showFinish = true }.fontWeight(.semibold).disabled(!draft.canFinish)
       } footer: {
-        Text("Distance and time aren’t recorded automatically in this build.")
+        Text("Use Start run for GPS recording. This form logs a run you already completed.")
       }
     }
     .scrollContentBackground(.hidden)
@@ -281,7 +322,16 @@ struct WorkoutLoggerView: View {
 
   private var notesSheet: some View {
     NavigationStack {
-      Form { effortSection }
+      Form {
+        effortSection
+        Section("Rest timer") {
+          Toggle("Rest alerts", isOn: $restAlerts).onChange(of: restAlerts) { _, enabled in
+            if enabled { Task { restAlerts = await RestReminder.requestPermission(); RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts) } }
+            else { RestReminder.schedule(nil, workoutID: draft.id, enabled: false) }
+          }
+          Text("RIR means reps in reserve: how many more good repetitions you could have completed. Leave it blank when you’re unsure.").font(.caption)
+        }
+      }
         .navigationTitle("Effort & notes").navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showSessionNotes = false } } }
     }.presentationDetents([.medium, .large])

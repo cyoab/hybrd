@@ -37,7 +37,12 @@
             "UIInterfaceOrientationLandscapeLeft",
             "UIInterfaceOrientationLandscapeRight"
           ],
-          "NSHealthShareUsageDescription": "hybrd reads your date of birth, height, and weight to fill in your athlete profile after you review and select the values."
+          "NSHealthShareUsageDescription": "hybrd reads heart rate and running distance during your workouts. On iPhone, you can also review and import your birth date, height, and weight into your athlete profile.",
+          "NSHealthUpdateUsageDescription": "hybrd saves the runs you record, including their distance and route, to Apple Health.",
+          "NSLocationWhenInUseUsageDescription": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.",
+          "UIBackgroundModes": [
+            "location"
+          ]
         }
       },
       "platform": "iOS",
@@ -76,7 +81,14 @@
           "CFBundleVersion": "1",
           "ITSAppUsesNonExemptEncryption": false,
           "WKApplication": true,
-          "WKCompanionAppBundleIdentifier": "app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b"
+          "WKCompanionAppBundleIdentifier": "app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b",
+          "NSHealthShareUsageDescription": "hybrd reads your heart rate and running distance during the workouts you start on Apple Watch.",
+          "NSHealthUpdateUsageDescription": "hybrd saves the runs you record, including their distance and route, to Apple Health.",
+          "NSLocationWhenInUseUsageDescription": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.",
+          "WKBackgroundModes": [
+            "workout-processing",
+            "location"
+          ]
         }
       },
       "platform": "watchOS",
@@ -100,7 +112,13 @@
           "path": "Shared"
         }
       ],
-      "type": "application"
+      "type": "application",
+      "entitlements": {
+        "path": "Watch/hybrd.entitlements",
+        "properties": {
+          "com.apple.developer.healthkit": true
+        }
+      }
     }
   }
 }

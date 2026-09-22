@@ -16,10 +16,11 @@ struct ProgressResultDetailView: View {
       if result.kind == .strength {
         Section("Completed sets") {
           ForEach(ProgressSnapshot.validSets(result)) { set in
-            LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)")
+            LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
           }
         }
       }
+      if let run = result.run { Section { NavigationLink("Route, heart rate & splits") { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } } }
       if !result.notes.isEmpty { Section("Your notes") { Text(result.notes) } }
     }
     .scrollContentBackground(.hidden).background(HybrdStyle.background)

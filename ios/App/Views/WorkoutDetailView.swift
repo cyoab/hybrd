@@ -57,8 +57,8 @@ struct WorkoutDetailView: View {
     .safeAreaInset(edge: .bottom) {
       if result == nil {
         Button { logging = true } label: {
-          Label(store.hasDraft(for: current) ? "Continue session" : (current.kind == .strength ? "Start workout" : "Log run"),
-            systemImage: current.kind == .strength ? "play.fill" : "square.and.pencil")
+          Label(store.hasDraft(for: current) ? "Continue session" : (current.kind == .strength ? "Start workout" : "Start run"),
+            systemImage: "play.fill")
         }
         .buttonStyle(HybrdPrimaryButtonStyle())
         .padding(.horizontal, 20).padding(.vertical, 12)
@@ -66,7 +66,10 @@ struct WorkoutDetailView: View {
         .overlay(alignment: .top) { Rectangle().fill(HybrdStyle.line).frame(height: 0.5) }
       }
     }
-    .fullScreenCover(isPresented: $logging) { WorkoutLoggerView(draft: store.draft(for: current)) }
+    .fullScreenCover(isPresented: $logging) {
+      if current.kind == .run { RunSessionView(workout: current) }
+      else { WorkoutLoggerView(draft: store.draft(for: current)) }
+    }
     .sheet(isPresented: $moving) { MoveSessionView(workout: current, expectedPlanID: store.plan.id) }
     .confirmationDialog("Skip this session?", isPresented: $confirmSkip, titleVisibility: .visible) {
       Button("Skip session", role: .destructive) { store.skip(current) }
@@ -87,12 +90,13 @@ struct WorkoutDetailView: View {
           LabeledContent("Sets completed", value: "\(result.sets.count)")
           DisclosureGroup("Recorded sets") {
             ForEach(result.sets) { set in
-              LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)")
+              LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
                 .font(.subheadline).padding(.vertical, 3)
             }
           }
         }
-        LabeledContent("How it felt", value: "\(result.effort)/10")
+        if result.effort > 0 { LabeledContent("How it felt", value: "\(result.effort)/10") }
+        if let run = result.run { NavigationLink("Route, heart rate & splits") { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } }
         if !result.notes.isEmpty { Text(result.notes).font(.subheadline) }
       } else {
         Text("Your next sessions have not been moved.").font(.subheadline)
