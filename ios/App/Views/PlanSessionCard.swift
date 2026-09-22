@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PlanSessionCard: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   @Environment(\.dynamicTypeSize) private var typeSize
   var workout: TrainingWorkout
@@ -33,7 +34,7 @@ struct PlanSessionCard: View {
               Text(workout.title)
                 .font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-0.6)
                 .fixedSize(horizontal: false, vertical: true)
-              Text(workout.summary).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+              Text(units.summary(workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
                 .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

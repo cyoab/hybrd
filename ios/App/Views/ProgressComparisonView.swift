@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct ProgressComparisonView: View {
+  @Environment(\.trainingUnits) private var units
   var comparison: ProgressComparison
   private var tone: SessionBreakdown.Tone { comparison.kind == .run ? .terra : .violet }
 
@@ -9,27 +10,27 @@ struct ProgressComparisonView: View {
     VStack(alignment: .leading, spacing: 14) {
       Label(comparison.subtitle, systemImage: comparison.kind.symbol)
         .font(.caption.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
-      Text(comparison.title).font(.headline)
-      Text(comparison.changeLabel).font(.system(.title2, design: .rounded, weight: .semibold))
+      Text(comparison.displayTitle(in: units)).font(.headline)
+      Text(comparison.changeLabel(in: units)).font(.system(.title2, design: .rounded, weight: .semibold))
       ViewThatFits(in: .horizontal) {
         HStack { metric("First logged", comparison.first); Spacer(); Image(systemName: "arrow.right").accessibilityHidden(true); Spacer(); metric("Latest logged", comparison.latest) }
         VStack(alignment: .leading, spacing: 12) { metric("First logged", comparison.first); metric("Latest logged", comparison.latest) }
       }
       Chart(comparison.points) { point in
-        LineMark(x: .value("Date", point.date), y: .value("Logged value", point.value))
+        LineMark(x: .value("Date", point.date), y: .value("Logged value", comparison.displayValue(point.value, in: units)))
           .foregroundStyle(SessionPalette.color(tone)).lineStyle(StrokeStyle(lineWidth: 3))
-        PointMark(x: .value("Date", point.date), y: .value("Logged value", point.value))
+        PointMark(x: .value("Date", point.date), y: .value("Logged value", comparison.displayValue(point.value, in: units)))
           .foregroundStyle(SessionPalette.color(tone))
           .accessibilityLabel(point.date.formatted(date: .abbreviated, time: .omitted))
-          .accessibilityValue(comparison.formatted(point.value))
+          .accessibilityValue(comparison.formatted(point.value, units: units))
       }
       .chartXAxis(.hidden).chartYAxis(.hidden)
-      .chartYScale(domain: max(0, (comparison.points.map(\.value).min() ?? 0) * 0.85)...max(1, (comparison.points.map(\.value).max() ?? 1) * 1.1))
+      .chartYScale(domain: max(0, (comparison.points.map { comparison.displayValue($0.value, in: units) }.min() ?? 0) * 0.85)...max(1, (comparison.points.map { comparison.displayValue($0.value, in: units) }.max() ?? 1) * 1.1))
       .frame(height: 64).accessibilityLabel("Comparable logged efforts over time")
       Text(comparison.points.first!.date.formatted(date: .abbreviated, time: .omitted) + " → " +
         comparison.points.last!.date.formatted(date: .abbreviated, time: .omitted))
         .font(.caption2).foregroundStyle(HybrdStyle.muted)
-      Label("Best logged · " + comparison.formatted(comparison.best.value) + " · " + comparison.best.date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "medal")
+      Label("Best logged · " + comparison.formatted(comparison.best.value, units: units) + " · " + comparison.best.date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "medal")
         .font(.caption.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
       Text(comparison.kind == .run ? "Whole-session pace. Route, conditions, and effort can differ." :
         "Heaviest completed set at the same rep count in each session.")
@@ -40,7 +41,7 @@ struct ProgressComparisonView: View {
   private func metric(_ label: String, _ value: Double) -> some View {
     VStack(alignment: .leading, spacing: 5) {
       Text(label).font(.caption).foregroundStyle(HybrdStyle.muted)
-      Text(comparison.formatted(value)).font(.title3.weight(.semibold)).monospacedDigit()
+      Text(comparison.formatted(value, units: units)).font(.title3.weight(.semibold)).monospacedDigit()
     }
   }
 }

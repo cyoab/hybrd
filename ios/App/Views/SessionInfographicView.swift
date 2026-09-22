@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SessionInfographicView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   @Environment(\.dynamicTypeSize) private var typeSize
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -128,9 +129,9 @@ struct SessionInfographicView: View {
   private var firstMetric: some View {
     let hasDistance = workout.kind == .run && workout.distanceMeters > 0
     return metric(value: hasDistance
-      ? (Double(workout.distanceMeters) / 1_000).formatted(.number.precision(.fractionLength(0...1)))
+      ? units.distanceNumber(Double(workout.distanceMeters))
       : workout.minutes.formatted(),
-      label: hasDistance ? "km planned" : "min planned",
+      label: hasDistance ? units.distance.symbol + " planned" : "min planned",
       symbol: hasDistance ? "point.bottomleft.forward.to.point.topright.scurvepath" : "clock")
   }
 

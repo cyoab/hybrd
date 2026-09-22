@@ -27,6 +27,10 @@ swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/TrainingEngine.swift \
   Shared/TrainingPlan.swift \
   Shared/TrainingProfile.swift \
+  Shared/TrainingUnits.swift \
+  Shared/TrainingWeightUnit.swift \
+  Shared/TrainingDistanceUnit.swift \
+  Shared/CompanionSnapshot.swift \
   Shared/TrainingWeekWindow.swift \
   Shared/TrainingWorkout.swift \
   Shared/WeeklyTrainingSummary.swift \

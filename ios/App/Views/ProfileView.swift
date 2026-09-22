@@ -37,6 +37,7 @@ struct ProfileView: View {
       .onAppear { if editor == nil { editor = AthleteProfileEditor(profile: store.profile) } }
       .sheet(item: $proposal) { plan in
         StarterReviewView(proposal: plan) { dismiss() }
+          .environment(\.trainingUnits, plan.profile.trainingUnits)
       }
     }
     // Apply here as well because the profile is a separate sheet presentation.
@@ -104,8 +105,10 @@ struct ProfileView: View {
         Text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences.")
       }
 
+      ProfileUnitsSection(editor: editor)
       ProfileAppearanceSection(appearance: $appearance)
     }
+    .environment(\.trainingUnits, editor.units)
     .scrollContentBackground(.hidden).background(HybrdStyle.background)
     .safeAreaInset(edge: .bottom) {
       VStack(spacing: 8) {

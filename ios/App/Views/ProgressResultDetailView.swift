@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProgressResultDetailView: View {
+  @Environment(\.trainingUnits) private var units
   var result: WorkoutResult
   var title: String
   var body: some View {
@@ -10,13 +11,13 @@ struct ProgressResultDetailView: View {
         LabeledContent("Logged", value: result.completedAt.formatted(date: .abbreviated, time: .shortened))
         LabeledContent("Active time", value: RunningPersonalBest.format(max(0, result.durationSeconds)))
         if result.kind == .run, let meters = result.distanceMeters {
-          LabeledContent("Distance", value: (Double(meters) / 1_000).formatted() + " km")
+          LabeledContent("Distance", value: units.distanceText(Double(meters), decimals: 2))
         }
       }
       if result.kind == .strength {
         Section("Completed sets") {
           ForEach(ProgressSnapshot.validSets(result)) { set in
-            LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
+            LabeledContent(set.exerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
           }
         }
       }

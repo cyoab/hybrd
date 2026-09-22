@@ -9,6 +9,7 @@ struct HybrdApp: App {
     WindowGroup {
       ContentView()
         .environment(store)
+        .environment(\.trainingUnits, store.profile.trainingUnits)
         .environment(recorder)
         .task { await recorder.recover() }
     }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkoutDetailView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   var workout: TrainingWorkout
   @State private var logging = false
@@ -85,12 +86,12 @@ struct WorkoutDetailView: View {
       if result.status != .skipped {
         LabeledContent("Actual duration", value: "\(result.durationSeconds / 60) min")
         if let meters = result.distanceMeters {
-          LabeledContent("Actual distance", value: (Double(meters) / 1_000).formatted() + " km")
+          LabeledContent("Actual distance", value: units.distanceText(Double(meters), decimals: 2))
         } else {
           LabeledContent("Sets completed", value: "\(result.sets.count)")
           DisclosureGroup("Recorded sets") {
             ForEach(result.sets) { set in
-              LabeledContent(set.exerciseName, value: "\(set.kilograms.formatted()) kg × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
+              LabeledContent(set.exerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
                 .font(.subheadline).padding(.vertical, 3)
             }
           }

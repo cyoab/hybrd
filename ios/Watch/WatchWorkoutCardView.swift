@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchWorkoutCardView: View {
+  @Environment(\.trainingUnits) private var units
   var workout: TrainingWorkout
   private var accent: Color { WatchRunStyle.workoutColor(workout) }
 
@@ -17,7 +18,7 @@ struct WatchWorkoutCardView: View {
         Image(workout.kind == .run ? "SessionShoe" : "SessionDumbbell")
           .resizable().scaledToFit().frame(width: 54, height: 50).accessibilityHidden(true)
       }
-      Text(workout.summary).font(.caption2).foregroundStyle(.white.opacity(0.85))
+      Text(units.summary(workout)).font(.caption2).foregroundStyle(.white.opacity(0.85))
       if workout.kind == .run {
         WatchRunSequenceView(steps: RunTimeline(segments: workout.segments).steps).frame(height: 21)
         Text(workout.prescriptionTarget).font(.caption2.weight(.medium)).foregroundStyle(accent)

@@ -7,6 +7,7 @@ struct RunRecording: Codable, Identifiable, Equatable {
   var workout: TrainingWorkout
   var zones: PersonalHeartRateZones?
   var source: Source
+  var splitUnit: TrainingDistanceUnit?
   var recordedTimeZoneID: String? = TimeZone.current.identifier
   var startedAt: Date
   var runningSince: Date?
@@ -24,6 +25,7 @@ struct RunRecording: Codable, Identifiable, Equatable {
   var healthSaveMessage: String?
   var recoveryMessage: String?
   var intervalOffset: Double = 0
+  // Legacy storage names; these now track automatic splits in splitUnit.
   var kilometerMark: Int = 0
   var kilometerTime: Double = 0
   var manualLapMeters: Double = 0
@@ -58,14 +60,15 @@ struct RunRecording: Codable, Identifiable, Equatable {
   }
   mutating func updateDistance(_ total: Double, at seconds: Double) {
     guard total.isFinite, total >= meters, total <= 500_000, seconds >= distanceSampleTime else { return }
+    let splitMeters = (splitUnit ?? .kilometers).metersPerUnit
     let oldDistance = meters
     let oldTime = distanceSampleTime
-    while Double(kilometerMark + 1) * 1_000 <= total {
-      let boundary = Double(kilometerMark + 1) * 1_000
+    while Double(kilometerMark + 1) * splitMeters <= total {
+      let boundary = Double(kilometerMark + 1) * splitMeters
       let fraction = total > oldDistance ? (boundary - oldDistance) / (total - oldDistance) : 1
       let crossing = oldTime + (seconds - oldTime) * min(1, max(0, fraction))
       kilometerMark += 1
-      laps.append(RunLap(kind: .kilometer, number: kilometerMark, meters: 1_000, seconds: max(0, crossing - kilometerTime)))
+      laps.append(RunLap(kind: splitUnit == .miles ? .mile : .kilometer, number: kilometerMark, meters: splitMeters, seconds: max(0, crossing - kilometerTime)))
       kilometerTime = crossing
     }
     meters = total; distanceSampleTime = seconds
@@ -114,13 +117,13 @@ struct RunRecording: Codable, Identifiable, Equatable {
 }
 
 struct RunLap: Codable, Identifiable, Equatable {
-  enum Kind: String, Codable { case kilometer, manual }
+  enum Kind: String, Codable { case kilometer, mile, manual }
   var id = UUID()
   var kind: Kind
   var number: Int
   var meters: Double
   var seconds: Double
-  var title: String { kind == .kilometer ? "Kilometer \(number)" : "Lap \(number)" }
+  var title: String { kind == .manual ? "Lap \(number)" : (kind == .mile ? "Mile \(number)" : "Kilometer \(number)") }
   var pace: Double? { meters > 0 ? seconds * 1_000 / meters : nil }
 }
 

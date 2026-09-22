@@ -22,7 +22,7 @@ struct AthleteProfileHeader: View {
         AnyLayout(HStackLayout(spacing: 8))
       layout {
         stat(profile.athlete?.age().map(String.init) ?? "—", label: "years")
-        stat(profile.athlete?.weightKilograms.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "—", label: "kg")
+        stat(profile.athlete?.weightKilograms.map { profile.trainingUnits.weightNumber($0) } ?? "—", label: profile.trainingUnits.weight.symbol)
         stat(profile.athlete?.heightCentimeters.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "—", label: "cm")
       }
       Text("Your starting point. Your next personal best.")

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchRunMetricsView: View {
+  @Environment(\.trainingUnits) private var units
   var run: RunRecording
   var now: Date
   var pace: Double?
@@ -17,14 +18,14 @@ struct WatchRunMetricsView: View {
         Text(run.isPaused ? "PAUSED" : run.step(at: now)?.segment.title.uppercased() ?? "RUNNING")
           .font(.caption2.weight(.bold)).foregroundStyle(WatchRunStyle.terra).lineLimit(2)
         HStack(alignment: .firstTextBaseline, spacing: 4) {
-          Text(RunRecording.pace(shownPace)).font(.system(size: paceSize, weight: .bold, design: .rounded)).monospacedDigit().minimumScaleFactor(0.7).lineLimit(1)
+          Text(units.paceNumber(shownPace)).font(.system(size: paceSize, weight: .bold, design: .rounded)).monospacedDigit().minimumScaleFactor(0.7).lineLimit(1)
           VStack(alignment: .leading, spacing: 0) {
             Text("PACE").font(.system(size: 9, weight: .semibold))
-            Text("/km").font(.caption2)
+            Text("/" + units.distance.symbol).font(.caption2)
           }.foregroundStyle(.secondary)
         }.accessibilityElement(children: .ignore)
           .accessibilityLabel("Current pace")
-          .accessibilityValue(shownPace.map { RunRecording.pace($0) + " per kilometer" } ?? "Unavailable")
+          .accessibilityValue(shownPace.map { units.paceNumber($0) + " per " + units.distance.singular } ?? "Unavailable")
         HStack(alignment: .firstTextBaseline, spacing: 5) {
           Image(systemName: "heart.fill").font(.caption).foregroundStyle(WatchRunStyle.terra)
           Text(heartRate.map { Int($0.rounded()).formatted() } ?? "—")
@@ -40,8 +41,8 @@ struct WatchRunMetricsView: View {
           Text(RunRecording.clock(run.seconds(at: now))).foregroundStyle(.yellow)
             .accessibilityLabel("Active time, " + RunRecording.clock(run.seconds(at: now)))
           Spacer(minLength: 3)
-          Text((run.meters / 1_000).formatted(.number.precision(.fractionLength(2))) + " km")
-            .accessibilityLabel("Distance, " + (run.meters / 1_000).formatted(.number.precision(.fractionLength(2))) + " kilometers")
+          Text(units.distanceText(run.meters, decimals: 2))
+            .accessibilityLabel("Distance, " + units.distanceNumber(run.meters, decimals: 2) + " " + units.distance.title.lowercased())
         }.font(.system(.footnote, design: .rounded, weight: .semibold)).monospacedDigit().padding(.top, 2)
         if let target {
           Text("Target " + target.shortTitle + (run.zones.flatMap { $0.isValid ? " · " + $0.label(for: target) : nil } ?? ""))

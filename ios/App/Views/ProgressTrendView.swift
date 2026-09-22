@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct ProgressTrendView: View {
+  @Environment(\.trainingUnits) private var units
   var snapshot: ProgressSnapshot
   @State private var kind: WorkoutKind = .run
   @State private var selectedDate: Date?
@@ -11,7 +12,7 @@ struct ProgressTrendView: View {
     return snapshot.buckets.last { $0.date <= selectedDate } ?? snapshot.buckets.first
   }
   private func value(_ day: ProgressSnapshot.Day) -> Double {
-    kind == .run ? Double(day.runMeters) / 1_000 : Double(day.strengthSets)
+    kind == .run ? units.distance.value(fromMeters: Double(day.runMeters)) : Double(day.strengthSets)
   }
 
   private func end(of day: ProgressSnapshot.Day) -> Date {
@@ -39,21 +40,21 @@ struct ProgressTrendView: View {
       }.pickerStyle(.segmented).labelsHidden()
       if let selected {
         Text(label(selected) + " · " +
-          value(selected).formatted(.number.precision(.fractionLength(0...1))) + (kind == .run ? " km" : " sets"))
+          value(selected).formatted(.number.precision(.fractionLength(0...1))) + (kind == .run ? " " + units.distance.symbol : " sets"))
           .font(.subheadline.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
       } else {
-        Text(kind == .run ? "Distance · km" : "Completed sets").font(.subheadline.weight(.medium))
+        Text(kind == .run ? "Distance · " + units.distance.symbol : "Completed sets").font(.subheadline.weight(.medium))
       }
       Chart(snapshot.buckets) { day in
         let padding = end(of: day).timeIntervalSince(day.date) * 0.17
         RectangleMark(xStart: .value("From", day.date.addingTimeInterval(padding)),
           xEnd: .value("To", end(of: day).addingTimeInterval(-padding)),
-          yStart: .value("Baseline", 0), yEnd: .value(kind == .run ? "Kilometers" : "Sets", value(day)))
+          yStart: .value("Baseline", 0), yEnd: .value(kind == .run ? units.distance.title : "Sets", value(day)))
           .foregroundStyle(LinearGradient(colors: [SessionPalette.color(tone), SessionPalette.color(tone).opacity(0.4)], startPoint: .top, endPoint: .bottom))
           .cornerRadius(5)
           .opacity(selected == nil || selected?.date == day.date ? 1 : 0.35)
           .accessibilityLabel(label(day))
-          .accessibilityValue(value(day).formatted() + (kind == .run ? " kilometers" : " sets"))
+          .accessibilityValue(value(day).formatted() + (kind == .run ? " " + units.distance.title.lowercased() : " sets"))
       }
       .chartXScale(domain: snapshot.start...end(of: snapshot.buckets.last!))
       .chartYScale(domain: 0...max(kind == .run ? 1 : 2, (snapshot.buckets.map(value).max() ?? 0) * 1.15))

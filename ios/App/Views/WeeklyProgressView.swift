@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WeeklyProgressView: View {
+  @Environment(\.trainingUnits) private var units
   var summary: WeeklyTrainingSummary
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -9,10 +10,10 @@ struct WeeklyProgressView: View {
       AnyLayout(HStackLayout(alignment: .top, spacing: 10))
     layout {
       tile(title: "Running", symbol: "figure.run",
-        value: kilometers(summary.loggedMeters), unit: "km",
+        value: distanceNumber(summary.loggedMeters), unit: units.distance.symbol,
         goal: runningGoal,
         progress: summary.runningProgress, tone: .terra,
-        accessibility: "\(kilometers(summary.loggedMeters)) kilometers logged. " + runningGoal + " this week")
+        accessibility: "\(distanceNumber(summary.loggedMeters)) \(units.distance.title.lowercased()) logged. " + runningGoal + " this week")
       tile(title: "Strength", symbol: "dumbbell",
         value: "\(summary.loggedLifts)", unit: "logged",
         goal: "of \(summary.plannedLifts) sessions",
@@ -22,14 +23,14 @@ struct WeeklyProgressView: View {
   }
 
   private var runningGoal: String {
-    let distance = "of \(kilometers(summary.plannedMeters)) km planned"
+    let distance = "of \(distanceNumber(summary.plannedMeters)) \(units.distance.symbol) planned"
     guard summary.timedRuns > 0 else { return distance }
     let timed = "\(summary.timedRuns) timed " + (summary.timedRuns == 1 ? "run" : "runs")
     return summary.plannedMeters > 0 ? distance + " + " + timed : timed + " planned"
   }
 
-  private func kilometers(_ meters: Int) -> String {
-    (Double(meters) / 1_000).formatted(.number.precision(.fractionLength(0...1)))
+  private func distanceNumber(_ meters: Int) -> String {
+    units.distanceNumber(Double(meters))
   }
 
   private func tile(title: String, symbol: String, value: String, unit: String, goal: String,

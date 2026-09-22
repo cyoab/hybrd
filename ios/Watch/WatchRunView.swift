@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchRunView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(RunRecorder.self) private var recorder
   @Environment(CompanionBridge.self) private var companion
   @Environment(\.isLuminanceReduced) private var luminanceReduced
@@ -51,8 +52,8 @@ struct WatchRunView: View {
       VStack(alignment: .leading, spacing: 13) {
         Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(WatchRunStyle.mint)
         Text("Run complete.").font(.title3.bold())
-        Text((run.meters / 1_000).formatted(.number.precision(.fractionLength(2))) + " km").font(.system(.title, design: .rounded, weight: .bold))
-        Text(RunRecording.clock(run.elapsed) + " · " + RunRecording.pace(run.averagePace) + " /km").font(.footnote.monospacedDigit())
+        Text(units.distanceText(run.meters, decimals: 2)).font(.system(.title, design: .rounded, weight: .bold))
+        Text(RunRecording.clock(run.elapsed) + " · " + units.paceText(run.averagePace)).font(.footnote.monospacedDigit())
         if let heart = run.averageHeartRate { Label("\(Int(heart.rounded())) bpm average", systemImage: "heart.fill").font(.caption) }
         if let message = run.healthSaveMessage { Text(message).font(.caption2).foregroundStyle(.secondary) }
         if let message = run.recoveryMessage { Text(message).font(.caption2).foregroundStyle(.orange) }

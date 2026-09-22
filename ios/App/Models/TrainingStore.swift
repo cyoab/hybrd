@@ -201,7 +201,7 @@ final class TrainingStore {
       kind: draft.workout.kind,
       status: !run && !draft.hasAllPrescribedSets ? .partial : .completed,
       durationSeconds: run ? draft.durationMinutes * 60 : max(1, Int(draft.activeSeconds())),
-      distanceMeters: run ? Int(draft.distanceKilometers * 1_000) : nil,
+      distanceMeters: run ? Int((draft.distanceKilometers * 1_000).rounded()) : nil,
       effort: draft.effort, notes: draft.notes, sets: completed)
     var next = state
     next.results.append(result)
@@ -277,6 +277,6 @@ final class TrainingStore {
 
   func shareWithWatch() {
     let pending = workouts.filter { result(for: $0) == nil && $0.date >= Calendar.current.startOfDay(for: Date()) }
-    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12)), heartRateZones: profile.athlete?.heartRateZones))
+    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12)), heartRateZones: profile.athlete?.heartRateZones, units: profile.trainingUnits))
   }
 }

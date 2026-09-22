@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkoutLoggerView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   @Environment(\.dismiss) private var dismiss
   @Environment(\.dynamicTypeSize) private var dynamicType
@@ -112,7 +113,7 @@ struct WorkoutLoggerView: View {
           .font(.subheadline).padding(17)
           .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 16))
         }.buttonStyle(.plain)
-        if let validation = draft.validationMessage, completedSets > 0 {
+        if let validation = draft.validationMessage(in: units), completedSets > 0 {
           Text(validation).font(.caption).foregroundStyle(.red)
         }
         Button("Finish workout") { showFinish = true }
@@ -133,7 +134,7 @@ struct WorkoutLoggerView: View {
         HStack(alignment: .top, spacing: 18) {
           smallMetric(value: clock(draft.activeSeconds(at: context.date)), label: draft.runningSince == nil ? "PAUSED" : "DURATION")
           Spacer(minLength: 0)
-          smallMetric(value: volume.formatted(.number.precision(.fractionLength(0...1))) + " kg", label: "VOLUME")
+          smallMetric(value: units.weightText(volume), label: "VOLUME")
           Spacer(minLength: 0)
           smallMetric(value: "\(completedSets)", label: "SETS")
           Button(draft.runningSince == nil ? "Resume workout" : "Pause workout",
@@ -183,7 +184,7 @@ struct WorkoutLoggerView: View {
       if !dynamicType.isAccessibilitySize {
         HStack(spacing: 8) {
           Text("SET").frame(width: 22)
-          Text("KG").frame(maxWidth: .infinity)
+          Text(units.weight.symbol.uppercased()).frame(maxWidth: .infinity)
           Text("REPS").frame(maxWidth: .infinity)
           Text("RIR").frame(width: 48)
           Image(systemName: "checkmark").frame(width: 44)
@@ -270,16 +271,16 @@ struct WorkoutLoggerView: View {
       Section {
         VStack(alignment: .leading, spacing: 10) {
           Text(draft.workout.title).font(.title2.weight(.semibold))
-          Text("Prescribed: " + draft.workout.summary).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          Text("Prescribed: " + units.summary(draft.workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
           if let zone = draft.workout.primaryHeartRateZone { RunZoneBadge(zone: zone) }
           Text("Enter the run you completed.").font(.subheadline)
         }.padding(.vertical, 8)
       }
       Section("Actual results") {
-        LabeledContent("Distance · km") {
-          TextField("0.0", value: $draft.distanceKilometers, format: .number.precision(.fractionLength(0...2)))
+        LabeledContent("Distance · " + units.distance.symbol) {
+          TextField("0.0", value: Binding(get: { units.distance.value(fromMeters: draft.distanceKilometers * 1_000) }, set: { draft.distanceKilometers = units.distance.meters(from: $0) / 1_000 }), format: .number.precision(.fractionLength(0...2)))
             .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-            .accessibilityLabel("Actual distance in kilometers")
+            .accessibilityLabel("Actual distance in " + units.distance.title.lowercased())
         }
         LabeledContent("Duration · min") {
           TextField("0", value: $draft.durationMinutes, format: .number)
@@ -302,8 +303,7 @@ struct WorkoutLoggerView: View {
 
   private var paceLabel: String {
     guard draft.distanceKilometers.isFinite, (0.001...500).contains(draft.distanceKilometers), (1...2_880).contains(draft.durationMinutes) else { return "—" }
-    let seconds = Int(Double(draft.durationMinutes * 60) / draft.distanceKilometers)
-    return "\(seconds / 60):\(String(format: "%02d", seconds % 60)) /km"
+    return units.paceText(Double(draft.durationMinutes * 60) / draft.distanceKilometers)
   }
 
   private var effortSection: some View {

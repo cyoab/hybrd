@@ -2,6 +2,7 @@ import SwiftUI
 import MapKit
 
 struct RunSummaryView: View {
+  @Environment(\.trainingUnits) private var units
   var run: RunRecording
   private var routes: [[CLLocationCoordinate2D]] {
     var groups: [[CLLocationCoordinate2D]] = []
@@ -25,9 +26,9 @@ struct RunSummaryView: View {
           .accessibilityLabel("Recorded route. Gaps are left disconnected.")
       }
       VStack(spacing: 14) {
-        LabeledContent("Distance", value: (run.meters / 1_000).formatted(.number.precision(.fractionLength(2))) + " km")
+        LabeledContent("Distance", value: units.distanceText(run.meters, decimals: 2))
         LabeledContent("Active time", value: RunRecording.clock(run.elapsed))
-        LabeledContent("Average pace", value: RunRecording.pace(run.averagePace) + " /km")
+        LabeledContent("Average pace", value: units.paceText(run.averagePace))
         if let bpm = run.averageHeartRate { LabeledContent("Average heart rate", value: "\(Int(bpm.rounded())) bpm") }
         if let bpm = run.maximumHeartRate { LabeledContent("Maximum heart rate", value: "\(Int(bpm.rounded())) bpm") }
       }.font(.headline).padding(20).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 24))
@@ -37,10 +38,10 @@ struct RunSummaryView: View {
         Text("Splits & laps").font(.title3.bold())
         ForEach(run.laps) { lap in
           HStack {
-            VStack(alignment: .leading, spacing: 4) { Text(lap.title); Text((lap.meters / 1_000).formatted(.number.precision(.fractionLength(2))) + " km").font(.caption).foregroundStyle(HybrdStyle.muted) }
+            VStack(alignment: .leading, spacing: 4) { Text(units.lapTitle(lap)); Text(units.distanceText(lap.meters, decimals: 2)).font(.caption).foregroundStyle(HybrdStyle.muted) }
             Spacer()
             Text(RunRecording.clock(lap.seconds)).monospacedDigit()
-            Text(RunRecording.pace(lap.pace) + " /km").font(.caption).foregroundStyle(HybrdStyle.muted)
+            Text(units.paceText(lap.pace)).font(.caption).foregroundStyle(HybrdStyle.muted)
           }.padding(.vertical, 4)
           Divider()
         }

@@ -88,6 +88,7 @@ struct DisciplineMark: View {
 }
 
 struct SessionRow: View {
+  @Environment(\.trainingUnits) private var units
   var workout: TrainingWorkout
   var status: String
   var body: some View {
@@ -100,7 +101,7 @@ struct SessionRow: View {
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 5) {
         Text(workout.title).font(.headline)
-        Text(workout.summary).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+        Text(units.summary(workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
         Text(status).font(.caption).foregroundStyle(HybrdStyle.muted)
       }
       Spacer(minLength: 0)

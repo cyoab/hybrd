@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RunSessionView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   @Environment(RunRecorder.self) private var recorder
   @Environment(\.dismiss) private var dismiss
@@ -76,7 +77,7 @@ struct RunSessionView: View {
         .foregroundStyle(HybrdStyle.muted)
       RunRhythmView(segments: workout.segments, type: workout.resolvedRunType)
       Label(workout.prescriptionTarget, systemImage: "heart.fill").foregroundStyle(HybrdStyle.terraText)
-      Button { Task { await recorder.start(workout, zones: store.profile.athlete?.heartRateZones) } } label: {
+      Button { Task { await recorder.start(workout, zones: store.profile.athlete?.heartRateZones, units: units) } } label: {
         Label(recorder.preparing ? "Preparing…" : "Record on iPhone", systemImage: "play.fill")
       }.buttonStyle(HybrdPrimaryButtonStyle()).disabled(recorder.preparing)
       Button("Use Apple Watch", systemImage: "applewatch") { store.shareWithWatch(); watchHelp = true }
@@ -106,7 +107,7 @@ struct RunSessionView: View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Your splits").font(.headline)
       ForEach(run.laps.suffix(5).reversed()) { lap in
-        HStack { Text(lap.title); Spacer(); Text(RunRecording.clock(lap.seconds)); Text(RunRecording.pace(lap.pace) + " /km").foregroundStyle(HybrdStyle.muted) }
+        HStack { VStack(alignment: .leading, spacing: 3) { Text(units.lapTitle(lap)); Text(units.distanceText(lap.meters, decimals: 2)).font(.caption).foregroundStyle(HybrdStyle.muted) }; Spacer(); Text(RunRecording.clock(lap.seconds)); Text(units.paceText(lap.pace)).foregroundStyle(HybrdStyle.muted) }
           .font(.subheadline.monospacedDigit())
       }
     }.padding(18).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 24))

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchRunControlsView: View {
+  @Environment(\.trainingUnits) private var units
   var run: RunRecording
   var busy: Bool
   var error: String?
@@ -20,7 +21,7 @@ struct WatchRunControlsView: View {
         Button("Mark lap", systemImage: "flag.fill") { markLap() }
           .disabled(run.isPaused).tint(WatchRunStyle.mint)
         if let lap = run.laps.last {
-          Text(lap.title + " · " + RunRecording.clock(lap.seconds)).font(.caption2).foregroundStyle(.secondary)
+          Text(units.lapTitle(lap) + " · " + units.distanceText(lap.meters, decimals: 2) + " · " + RunRecording.clock(lap.seconds)).font(.caption2).foregroundStyle(.secondary)
         }
         if let error { Text(error).font(.caption2).foregroundStyle(.orange) }
         Button("Discard run", role: .destructive) { discard() }.font(.caption2)

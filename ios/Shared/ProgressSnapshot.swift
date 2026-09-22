@@ -160,7 +160,7 @@ struct ProgressSnapshot {
       guard comparable(points) else { return nil }
       return ProgressComparison(kind: .run,
         title: "\((Double(key.meters) / 1_000).formatted(.number.precision(.fractionLength(0...3)))) km · \(key.type.title)",
-        subtitle: "Same distance & run type", points: points)
+        subtitle: "Same distance & run type", points: points, runDistanceMeters: key.meters, runType: key.type)
     }.sorted {
       $0.latestDate == $1.latestDate ? $0.title < $1.title : $0.latestDate > $1.latestDate
     }.first

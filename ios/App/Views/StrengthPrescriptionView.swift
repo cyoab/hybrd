@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StrengthPrescriptionView: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(TrainingStore.self) private var store
   var exercises: [ExercisePrescription]
 
@@ -28,7 +29,7 @@ struct StrengthPrescriptionView: View {
             }
             Text("RIR = reps left in reserve.").font(.caption).foregroundStyle(HybrdStyle.muted)
             if let previous = store.previousSets(for: exercise.name).first {
-              Label("Last time: \(previous.kilograms.formatted()) kg × \(previous.reps)", systemImage: "clock.arrow.circlepath")
+              Label("Last time: " + units.weightText(previous.kilograms) + " × \(previous.reps)", systemImage: "clock.arrow.circlepath")
                 .font(.caption).foregroundStyle(HybrdStyle.muted)
             }
           }.padding(.top, 12).padding(.bottom, 8)

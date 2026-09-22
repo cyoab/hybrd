@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StrengthSetRow: View {
+  @Environment(\.trainingUnits) private var units
   @Environment(\.dynamicTypeSize) private var dynamicType
   @Binding var loggedSet: LoggedSet
   var number: Int
@@ -13,7 +14,7 @@ struct StrengthSetRow: View {
       if dynamicType.isAccessibilitySize {
         HStack { Text("Set \(number)").font(.headline); Spacer(); completionToggle }
         VStack(spacing: 10) {
-          LabeledContent("Weight · kg") { weightField }
+          LabeledContent("Weight · " + units.weight.symbol) { weightField }
           LabeledContent("Reps") { repsField }
           LabeledContent("Reps in reserve") { rirField }
         }
@@ -24,7 +25,7 @@ struct StrengthSetRow: View {
         }
       }
       if let previous {
-        Text("Last time · \(previous.kilograms.formatted()) kg × \(previous.reps)" + (previous.rir.map { " · \($0) RIR" } ?? ""))
+        Text("Last time · " + units.weightText(previous.kilograms) + " × \(previous.reps)" + (previous.rir.map { " · \($0) RIR" } ?? ""))
           .font(.caption2).foregroundStyle(HybrdStyle.muted).padding(.leading, dynamicType.isAccessibilitySize ? 0 : 29)
       }
     }
@@ -34,8 +35,8 @@ struct StrengthSetRow: View {
     .accessibilityAction(named: Text("Remove set"), remove)
   }
   private var weightField: some View {
-    TextField("0", value: $loggedSet.kilograms, format: .number.precision(.fractionLength(0...1)))
-      .keyboardType(.decimalPad).accessibilityLabel("\(loggedSet.exerciseName), set \(number), kilograms")
+    TextField("0", value: Binding(get: { units.weight.value(fromKilograms: loggedSet.kilograms) }, set: { loggedSet.kilograms = units.weight.kilograms(from: $0) }), format: .number.precision(.fractionLength(0...1)))
+      .keyboardType(.decimalPad).accessibilityLabel("\(loggedSet.exerciseName), set \(number), \(units.weight.title.lowercased())")
       .multilineTextAlignment(.center).font(.body.monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
   }

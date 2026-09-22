@@ -10,6 +10,7 @@ struct HybrdWatchApp: App {
   var body: some Scene {
     WindowGroup {
       ContentView().environment(companion).environment(recorder)
+        .environment(\.trainingUnits, companion.snapshot?.units ?? .metric)
         .task { await recorder.recover() }
     }
   }

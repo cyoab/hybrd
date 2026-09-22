@@ -31,12 +31,12 @@ struct AthleteInfoView: View {
         }
       }
       Section {
-        ProfileMetricField(title: "Weight", text: $editor.weight, unit: "kg", tone: .terra)
+        ProfileMetricField(title: "Weight", text: $editor.weight, unit: editor.units.weight.symbol, tone: .terra)
           .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .terra))
         ProfileMetricField(title: "Height", text: $editor.height, unit: "cm", tone: .sky)
           .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .sky))
-        if !editor.weight.isEmpty && TrainingProfile.parseDecimal(editor.weight, range: 20...400) == nil {
-          Text("Enter 20–400 kg or leave weight blank.").font(.caption).foregroundStyle(HybrdStyle.terraText)
+        if !editor.weight.isEmpty && editor.parsedWeightKilograms == nil {
+          Text(editor.weightError).font(.caption).foregroundStyle(HybrdStyle.terraText)
         }
         if !editor.height.isEmpty && TrainingProfile.parseDecimal(editor.height, range: 80...250) == nil {
           Text("Enter 80–250 cm or leave height blank.").font(.caption).foregroundStyle(HybrdStyle.terraText)

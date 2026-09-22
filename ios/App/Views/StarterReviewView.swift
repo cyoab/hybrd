@@ -33,7 +33,7 @@ struct StarterReviewView: View {
               LabeledContent("Muscle focus", value: MuscleGroup.allCases.filter { info.focusMuscles.contains($0) }.map(\.title).joined(separator: ", "))
             }
           }
-          LabeledContent("Weekly baseline", value: proposal.profile.weeklyKilometers.formatted() + " km")
+          LabeledContent("Weekly baseline", value: proposal.profile.trainingUnits.distanceText(proposal.profile.weeklyKilometers * 1_000))
         }
         Section("First seven days") {
           ForEach(firstWeek) { workout in

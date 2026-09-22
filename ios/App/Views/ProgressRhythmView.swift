@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProgressRhythmView: View {
+  @Environment(\.trainingUnits) private var units
   var days: [ProgressSnapshot.Day]
   var select: (ProgressSnapshot.Day) -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -34,7 +35,7 @@ struct ProgressRhythmView: View {
           }
           .buttonStyle(.plain)
           .accessibilityLabel(day.date.formatted(date: .complete, time: .omitted))
-          .accessibilityValue(day.results.isEmpty ? "No training logged" : "\(day.results.count) sessions, \(Double(day.runMeters) / 1_000, specifier: "%.1f") kilometers and \(day.strengthSets) strength sets")
+          .accessibilityValue(day.results.isEmpty ? "No training logged" : "\(day.results.count) sessions, \(units.distanceText(Double(day.runMeters))) and \(day.strengthSets) strength sets")
         }
       }
       ViewThatFits {

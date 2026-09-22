@@ -15,7 +15,7 @@ enum LocalCoach {
     if query.contains("progress") || query.contains("done") {
       let meters = completed.reduce(0) { $0 + ($1.distanceMeters ?? 0) }
       let lifts = completed.filter { $0.kind == .strength }.count
-      return completed.isEmpty ? "There are no completed sessions yet. Log your first run or strength session and Progress will show your actual distance, completed sets, and consistency. Sample prescriptions don’t count as completed training." : "You’ve logged \(completed.count) sessions: \(Double(meters) / 1_000, specifier: "%.1f") km of running and \(lifts) strength sessions. These totals reflect your saved results. A longer history is needed to assess a trend."
+      return completed.isEmpty ? "There are no completed sessions yet. Log your first run or strength session and Progress will show your actual distance, completed sets, and consistency. Sample prescriptions don’t count as completed training." : "You’ve logged \(completed.count) sessions: \(profile.trainingUnits.distanceText(Double(meters))) of running and \(lifts) strength sessions. These totals reflect your saved results. A longer history is needed to assess a trend."
     }
     if query.contains("why") || query.contains("week") || query.contains("balance") || query.contains("plan") {
       let start = TrainingEngine.startOfWeek(containing: Date())

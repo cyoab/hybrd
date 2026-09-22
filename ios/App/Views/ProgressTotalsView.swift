@@ -1,14 +1,15 @@
 import SwiftUI
 
 struct ProgressTotalsView: View {
+  @Environment(\.trainingUnits) private var units
   var snapshot: ProgressSnapshot
   @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
     layout {
-      tile(value: (Double(snapshot.current.runMeters) / 1_000).formatted(.number.precision(.fractionLength(0...1))),
-        unit: "km running", current: snapshot.current.runMeters, previous: snapshot.previous.runMeters,
+      tile(value: units.distanceNumber(Double(snapshot.current.runMeters)),
+        unit: units.distance.symbol + " running", current: snapshot.current.runMeters, previous: snapshot.previous.runMeters,
         image: "SessionShoe", tone: .terra)
       tile(value: snapshot.current.strengthSets.formatted(), unit: "strength sets",
         current: snapshot.current.strengthSets, previous: snapshot.previous.strengthSets,

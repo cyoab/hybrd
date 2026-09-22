@@ -67,7 +67,7 @@ private struct WatchSessionReadyView: View {
           .background(WatchRunStyle.workoutColor(workout).opacity(0.14), in: RoundedRectangle(cornerRadius: 18))
         if workout.kind == .run {
           Button(recorder.preparing ? "Preparing…" : "Start run", systemImage: "play.fill") {
-            Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones) }
+            Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones, units: companion.snapshot?.units ?? .metric) }
           }.buttonStyle(.borderedProminent).disabled(recorder.preparing)
           if let error = recorder.errorMessage {
             Text(error).font(.caption2).foregroundStyle(.orange)

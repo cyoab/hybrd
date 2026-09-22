@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StrengthBestsView: View {
+  @Environment(\.trainingUnits) private var units
   @Bindable var editor: AthleteProfileEditor
   @Environment(TrainingStore.self) private var store
   @State private var editing: StrengthPersonalBest?
@@ -71,7 +72,7 @@ struct StrengthBestsView: View {
               if exists { Label("Already added", systemImage: "checkmark").font(.subheadline) }
               else {
                 Button("Add this record", systemImage: "plus") { save(record) }
-                  .accessibilityLabel("Add \(record.exerciseName), \(record.summary)")
+                  .accessibilityLabel("Add \(record.exerciseName), \(units.weightText(record.kilograms)) × \(record.reps)")
               }
             }.listRowBackground(SessionPalette.wash(.violet))
           }
@@ -93,6 +94,7 @@ struct StrengthBestsView: View {
 }
 
 private struct StrengthRecordCard: View {
+  @Environment(\.trainingUnits) private var units
   var record: StrengthPersonalBest
   var showsEdit = true
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -112,7 +114,7 @@ private struct StrengthRecordCard: View {
         AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) :
         AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 20))
       layout {
-        metric(record.kilograms.formatted(.number.precision(.fractionLength(0...1))), unit: "kg")
+        metric(units.weightNumber(record.kilograms), unit: units.weight.symbol)
         metric(String(record.reps), unit: "reps")
       }
       Text(record.source == .logged ? "From your logged sets" : "Entered by you")

@@ -11,10 +11,12 @@ struct TrainingProfile: Codable, Equatable {
   var sessionMinutes = 60
   var isSample = true
   var athlete: AthleteDetails?
+  var units: TrainingUnits?
+  var trainingUnits: TrainingUnits { units ?? .metric }
 
   var validationMessage: String? {
     guard weeklyKilometers.isFinite, (3...150).contains(weeklyKilometers) else {
-      return "Enter a weekly distance from 3 to 150 km."
+      return "Enter a weekly distance from " + trainingUnits.distanceText(3_000) + " to " + trainingUnits.distanceText(150_000) + "."
     }
     guard availableDays.count >= 2, availableDays.isSubset(of: Set(1...7)) else {
       return "Choose at least two valid training days."

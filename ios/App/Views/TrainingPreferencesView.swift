@@ -37,11 +37,11 @@ struct TrainingPreferencesView: View {
       Section {
         VStack(alignment: .leading, spacing: 6) {
           ProfileMetricField(title: "Weekly running distance", text: $editor.weeklyDistance,
-            unit: "km / week", tone: .terra, placeholder: "e.g. 70")
+            unit: editor.units.distance.symbol + " / week", tone: .terra, placeholder: "e.g. " + editor.units.distanceNumber(70_000, decimals: 0))
             .keyboardType(.decimalPad).focused($distanceFocused)
-            .accessibilityHint("Enter any distance from 3 to 150 kilometers.")
-          if TrainingProfile.parseWeeklyKilometers(editor.weeklyDistance) == nil {
-            Label("Enter a distance from 3 to 150 km.", systemImage: "exclamationmark.circle")
+            .accessibilityHint(editor.weeklyDistanceError)
+          if editor.parsedWeeklyKilometers == nil {
+            Label(editor.weeklyDistanceError, systemImage: "exclamationmark.circle")
               .font(.caption).foregroundStyle(HybrdStyle.terraText)
           } else {
             Text("Tap the number to edit. Decimals welcome.")

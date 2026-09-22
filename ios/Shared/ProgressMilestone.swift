@@ -59,10 +59,16 @@ struct ProgressMilestone: Identifiable {
       case .fiftyDays: "Train on 50 different days."
       }
     }
-    func progressLabel(_ value: Int) -> String {
+    func requirement(in units: TrainingUnits) -> String {
+      if self == .tenKilometers || self == .fiftyKilometers {
+        return "Reach " + units.distanceText(Double(target), decimals: 2) + " of logged running."
+      }
+      return requirement
+    }
+    func progressLabel(_ value: Int, units: TrainingUnits = .metric) -> String {
       switch self {
       case .tenKilometers, .fiftyKilometers:
-        "\((Double(value) / 1_000).formatted(.number.precision(.fractionLength(0...1)))) / \(target / 1_000) km"
+        units.distanceNumber(Double(value), decimals: 2) + " / " + units.distanceText(Double(target), decimals: 2)
       case .twentyFiveSets, .hundredSets: "\(value) / \(target) sets"
       case .bothDisciplines: "\(value) / 2 disciplines"
       default: "\(value) / \(target) training days"

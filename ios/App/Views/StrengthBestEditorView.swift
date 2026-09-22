@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StrengthBestEditorView: View {
+  @Environment(\.trainingUnits) private var units
   var record: StrengthPersonalBest?
   var onSave: (StrengthPersonalBest) -> Void
   @Environment(\.dismiss) private var dismiss
@@ -12,14 +13,19 @@ struct StrengthBestEditorView: View {
   @State private var discard = false
   @FocusState private var focused: Bool
 
+  private var initialWeight: String { record.map { units.weightInput($0.kilograms) } ?? "" }
+  private var parsedKilograms: Double? {
+    if let record, weight == initialWeight { return record.kilograms }
+    return units.weight.parse(weight, kilograms: 0...1_000)
+  }
   private var valid: Bool {
-    !exerciseID.isEmpty && TrainingProfile.parseDecimal(weight, range: 0...1_000) != nil &&
+    !exerciseID.isEmpty && parsedKilograms != nil &&
       Int(reps).map { (1...100).contains($0) } == true
   }
   private var changed: Bool {
     loaded && (exerciseID != (record?.exerciseID ?? "") ||
       exerciseName != (record?.exerciseName ?? "") ||
-      weight != (record?.kilograms.formatted(.number.grouping(.never)) ?? "") ||
+      weight != initialWeight ||
       reps != (record.map { String($0.reps) } ?? ""))
   }
 
@@ -36,13 +42,13 @@ struct StrengthBestEditorView: View {
           NavigationLink {
             StrengthExercisePicker { exercise in exerciseID = exercise.id; exerciseName = exercise.name }
           } label: { LabeledContent("Exercise", value: exerciseName.isEmpty ? "Choose" : exerciseName) }
-          ProfileMetricField(title: "Weight", text: $weight, unit: "kg", tone: .violet)
+          ProfileMetricField(title: "Weight", text: $weight, unit: units.weight.symbol, tone: .violet)
             .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .violet))
           ProfileMetricField(title: "Repetitions", text: $reps, unit: "reps", tone: .violet, placeholder: "e.g. 5")
             .keyboardType(.numberPad).focused($focused).modifier(ProfileTintedRow(tone: .violet))
-        } footer: { Text("Use the total load for the movement. Keep your convention consistent for dumbbells and machines. Bodyweight-only sets can use 0 kg.") }
+        } footer: { Text("Use the total load for the movement. Keep your convention consistent for dumbbells and machines. Bodyweight-only sets can use 0 \(units.weight.symbol).") }
         if !valid && (!weight.isEmpty || !reps.isEmpty) {
-          Section { Text("Choose an exercise, enter 0–1,000 kg, and 1–100 reps.").foregroundStyle(HybrdStyle.terraText) }
+          Section { Text("Choose an exercise, enter 0–" + units.weightText(1_000) + ", and 1–100 reps.").foregroundStyle(HybrdStyle.terraText) }
         }
       }
       .scrollContentBackground(.hidden).background(HybrdStyle.background)
@@ -54,7 +60,7 @@ struct StrengthBestEditorView: View {
         }
         ToolbarItem(placement: .confirmationAction) {
           Button("Done") {
-            guard let kilograms = TrainingProfile.parseDecimal(weight, range: 0...1_000), let count = Int(reps), valid else { return }
+            guard let kilograms = parsedKilograms, let count = Int(reps), valid else { return }
             onSave(StrengthPersonalBest(id: record?.id ?? UUID(), exerciseID: exerciseID,
               exerciseName: exerciseName, kilograms: kilograms, reps: count, source: changed ? .manual : record?.source ?? .manual))
             dismiss()
@@ -71,7 +77,7 @@ struct StrengthBestEditorView: View {
         guard !loaded else { return }
         if let record {
           exerciseID = record.exerciseID; exerciseName = record.exerciseName
-          weight = record.kilograms.formatted(.number.grouping(.never)); reps = String(record.reps)
+          weight = initialWeight; reps = String(record.reps)
         }
         loaded = true
       }

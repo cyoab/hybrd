@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProgressMilestonesView: View {
+  @Environment(\.trainingUnits) private var units
   var milestones: [ProgressMilestone]
   var showAll = false
   @State private var selected: ProgressMilestone?
@@ -34,7 +35,7 @@ struct ProgressMilestonesView: View {
                 .frame(width: 88, height: 96)
               Text(milestone.kind.title).font(.subheadline.weight(.semibold)).multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-              Text(milestone.earned ? "Unlocked" : milestone.kind.progressLabel(milestone.value))
+              Text(milestone.earned ? "Unlocked" : milestone.kind.progressLabel(milestone.value, units: units))
                 .font(.caption2).foregroundStyle(milestone.earned ? SessionPalette.ink(ProgressTheme.tone(milestone.kind)) : HybrdStyle.muted)
                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
               if !milestone.earned { ProgressView(value: milestone.fraction).tint(SessionPalette.color(ProgressTheme.tone(milestone.kind))) }
@@ -46,7 +47,7 @@ struct ProgressMilestonesView: View {
           .buttonStyle(.plain)
           .accessibilityElement(children: .ignore)
           .accessibilityLabel(milestone.kind.title)
-          .accessibilityValue(milestone.earned ? "Unlocked" : milestone.kind.progressLabel(milestone.value))
+          .accessibilityValue(milestone.earned ? "Unlocked" : milestone.kind.progressLabel(milestone.value, units: units))
           .accessibilityHint("Shows the milestone and how it is earned")
         }
       }

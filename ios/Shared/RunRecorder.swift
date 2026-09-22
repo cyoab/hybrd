@@ -45,7 +45,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     #endif
   }
 
-  func start(_ workout: TrainingWorkout, zones: PersonalHeartRateZones?) async {
+  func start(_ workout: TrainingWorkout, zones: PersonalHeartRateZones?, units: TrainingUnits = .metric) async {
     guard recording == nil, !preparing, !RunArchive.hasCheckpoint else { return }
     preparing = true; errorMessage = nil
     defer { preparing = false }
@@ -71,7 +71,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       let source: RunRecording.Source = .phone
       #endif
       routeCheckpointCount = 0
-      recording = RunRecording(workout: workout, zones: zones, source: source, startedAt: start, runningSince: start, checkpointAt: start)
+      recording = RunRecording(workout: workout, zones: zones, source: source, splitUnit: units.distance, startedAt: start, runningSince: start, checkpointAt: start)
       guard checkpoint() else { recording = nil; builder?.discardWorkout(); session.end(); self.session = nil; return }
       try await builder?.addMetadata([HKMetadataKeyExternalUUID: recording!.id.uuidString, "hybrd.logicalWorkoutID": workout.logicalID.uuidString])
       session.startActivity(with: start)

@@ -29,6 +29,7 @@ struct ProgressHistoryView: View {
 }
 
 struct ProgressHistoryRow: View {
+  @Environment(\.trainingUnits) private var units
   var result: WorkoutResult
   var title: String
   var body: some View {
@@ -42,7 +43,7 @@ struct ProgressHistoryRow: View {
         Text(title).font(.subheadline.weight(.semibold))
         Text(result.completedAt.formatted(date: .abbreviated, time: .omitted) + " · " + result.status.rawValue)
           .font(.caption).foregroundStyle(HybrdStyle.muted)
-        Text(result.kind == .run ? "\(Double(result.distanceMeters ?? 0) / 1_000, specifier: "%.1f") km · \(result.durationSeconds / 60) min" :
+        Text(result.kind == .run ? units.distanceText(Double(result.distanceMeters ?? 0)) + " · \(result.durationSeconds / 60) min" :
           "\(ProgressSnapshot.validSets(result).count) completed sets")
           .font(.caption.weight(.medium))
       }.frame(maxWidth: .infinity, alignment: .leading)
