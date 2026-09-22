@@ -2,67 +2,97 @@ import SwiftUI
 
 struct PlanSessionCard: View {
   @Environment(TrainingStore.self) private var store
+  @Environment(\.dynamicTypeSize) private var typeSize
   var workout: TrainingWorkout
   var expanded: Bool
   var move: () -> Void
 
   private var result: WorkoutResult? { store.result(for: workout) }
   private var canMove: Bool { result == nil && !store.hasDraft(for: workout) }
+  private var tone: SessionBreakdown.Tone { workout.kind == .run ? .terra : .violet }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      HStack(spacing: 9) {
-        DisciplineMark(kind: workout.kind, size: 9)
-        Text(category.uppercased()).font(.caption2.weight(.medium)).tracking(1.2)
-          .foregroundStyle(workout.isKey ? HybrdStyle.terraText : HybrdStyle.muted)
-        Spacer(minLength: 4)
-        if let time = workout.scheduledTimeLabel {
-          Text(time).font(.caption.monospacedDigit()).foregroundStyle(HybrdStyle.muted)
-        }
-      }
       NavigationLink {
         WorkoutDetailView(workout: workout)
       } label: {
-        VStack(alignment: .leading, spacing: 8) {
-          Text(workout.title).font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-0.6)
-            .foregroundStyle(HybrdStyle.ink)
-          Text(workout.summary + (workout.kind == .run ? " · " + workout.prescriptionTarget : ""))
-            .font(.subheadline).foregroundStyle(HybrdStyle.muted)
+        VStack(alignment: .leading, spacing: 14) {
+          HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Label(category, systemImage: workout.kind.symbol)
+              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+            Spacer(minLength: 0)
+            if let time = workout.scheduledTimeLabel {
+              Text(time).font(.caption.monospacedDigit()).foregroundStyle(HybrdStyle.muted)
+            }
+          }
+          HStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
+              Text(workout.title)
+                .font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-0.6)
+                .fixedSize(horizontal: false, vertical: true)
+              Text(workout.summary).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if !typeSize.isAccessibilitySize {
+              Image(workout.kind == .run ? "SessionShoe" : "SessionDumbbell")
+                .resizable().scaledToFit().frame(width: expanded ? 94 : 76, height: expanded ? 88 : 70)
+                .accessibilityHidden(true)
+            }
+          }
+
+          if workout.kind == .run {
+            Label(workout.prescriptionTarget, systemImage: "heart")
+              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+          } else if expanded {
+            Text("\(workout.exercises.flatMap(\.sets).count) sets planned")
+              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+          }
         }
+        .foregroundStyle(HybrdStyle.ink)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
-
-      if expanded && workout.kind == .run && result == nil {
-        VStack(spacing: 9) {
-          ForEach(workout.segments) { segment in
-            RunStepSummary(segment: segment)
-          }
-        }
-      }
+      .accessibilityHint("Opens session details")
 
       if let result {
         Label(result.status.rawValue, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
-          .font(.subheadline.weight(.medium))
-          .foregroundStyle(HybrdStyle.terraText)
+          .font(.subheadline.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
       } else if expanded {
-        ViewThatFits(in: .horizontal) {
-          HStack(spacing: 8) {
-            openButton
-            if canMove { Button("Move", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
-          }
+        if typeSize.isAccessibilitySize {
           VStack(spacing: 8) {
             openButton
             if canMove { Button("Move session", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
           }
+        } else {
+          sessionActions
         }
       }
     }
     .padding(18)
-    .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 22))
-    .overlay(RoundedRectangle(cornerRadius: 22).stroke(workout.isKey && result == nil ? HybrdStyle.terra : HybrdStyle.line, lineWidth: 1))
-    .shadow(color: .black.opacity(workout.isKey ? 0.025 : 0), radius: 15, y: 8)
+    .background {
+      RoundedRectangle(cornerRadius: 26).fill(
+        LinearGradient(colors: [SessionPalette.wash(tone), HybrdStyle.surface],
+          startPoint: .topLeading, endPoint: .bottomTrailing))
+    }
+    .overlay {
+      RoundedRectangle(cornerRadius: 26)
+        .strokeBorder(SessionPalette.color(tone).opacity(workout.isKey && result == nil ? 0.3 : 0.12))
+    }
+  }
+
+  private var sessionActions: some View {
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: 8) {
+        openButton
+        if canMove { Button("Move", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
+      }
+      VStack(spacing: 8) {
+        openButton
+        if canMove { Button("Move session", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
+      }
+    }
   }
 
   private var category: String {
@@ -78,31 +108,5 @@ struct PlanSessionCard: View {
       Text(store.hasDraft(for: workout) ? "Continue session" : "Open session")
     }
     .buttonStyle(HybrdPrimaryButtonStyle())
-  }
-}
-
-struct RunStepSummary: View {
-  @Environment(\.dynamicTypeSize) private var dynamicType
-  var segment: RunSegment
-
-  var body: some View {
-    HStack(alignment: .top, spacing: 10) {
-      RoundedRectangle(cornerRadius: 2)
-        .fill(SessionPalette.color(SessionBreakdown.tone(for: segment.heartRateZone)))
-        .frame(width: 3, height: 20).accessibilityHidden(true)
-      if dynamicType.isAccessibilitySize {
-        VStack(alignment: .leading, spacing: 5) {
-          Text(segment.displayTitle).foregroundStyle(HybrdStyle.muted)
-          Text(segment.targetSummary)
-        }
-      } else {
-        Text(segment.displayTitle).foregroundStyle(HybrdStyle.muted)
-        Spacer(minLength: 8)
-        Text(segment.targetSummary).multilineTextAlignment(.trailing)
-      }
-    }
-    .font(.subheadline)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .accessibilityElement(children: .combine)
   }
 }

@@ -16,7 +16,7 @@ Small Terra text uses a darker accessible variant in light appearance. Dark appe
 
 ## Navigation and home
 
-Plan is the home tab, followed by Progress and Coach. Profile is accessed through the avatar. The home screen shows the selected week, seven tappable days, actual-versus-planned totals, and the selected day's session cards. Calendar selection, previous/next week, full-week view, session opening, and moving use real local state.
+Plan is the home tab, followed by Progress and Coach. Profile is accessed through the avatar. The home screen shows the selected week, seven tappable days, actual-versus-planned totals, and the selected day's session cards. Calendar selection, horizontal week paging, full-week view, session opening, and moving use real local state.
 
 The sample block is explicitly labeled. Demo prescriptions never create actual results. Existing athlete results and drafts remain intact.
 
@@ -75,3 +75,15 @@ The built-in starter recipe explicitly assigns Z2 to warm-up/easy running and Z1
 On load, known built-in future run recipes without zones are reissued in a new immutable plan version. Completed sessions, active drafts, past sessions, unknown recipes, and previous snapshots retain their exact prescriptions. The upgrade is idempotent and does not infer targets from an RPE string. Optional zone fields preserve older Codable data.
 
 Validation includes iPhone/Watch builds; zone totals and round trips; legacy decoding; safe, idempotent plan upgrades; unknown/past/protected prescription preservation; and offscreen SwiftUI review of light, dark, compact, and accessibility layouts. Offscreen images use a temporary macOS harness and do not establish interactive iPhone/VoiceOver correctness. The existing Bitrig simulator-inspection limitation remains.
+
+## Home refresh and swipeable weeks
+
+The Plan home carries the session screens’ Lifesum-inspired color treatment into two compact actual-versus-planned tiles and illustrated session cards. Running uses Terra and peach; strength uses lavender; recovery uses mint. The existing original shoe/dumbbell artwork is reused. The main card keeps its HR-zone target and Open/Continue and Move actions, while the detailed interval list lives on the session screen.
+
+The seven-day calendar remains prominent. A native horizontal scroll view snaps to complete weeks, replacing the two week arrows. Swiping retains the selected weekday and updates the date range, week number, totals, and sessions together. The date picker and Back to today remain available. A date-based window extends as the athlete approaches either edge; distant date-picker jumps reset a small window rather than allocating every intervening week. Calendar arithmetic handles daylight-saving and year boundaries.
+
+Weekly rings use logged running distance and logged strength-session counts, matched by logical workout identity within the selected week. Partial lifts count as logged; skipped sessions and drafts do not. Ring fills cap at 100 percent, while the actual numbers remain uncapped. Sample prescriptions do not fabricate activity. Empty weeks show zero totals and a recovery state.
+
+The selected day reverses contrast in dark appearance. At accessibility text sizes, the week becomes two rows within each page, progress tiles stack, artwork makes room for text, and session actions stack. Dates retain native button semantics, workout descriptions, selected traits, and named previous/next week accessibility actions; the graphical picker remains a direct-navigation alternative.
+
+Validation: iPhone and Watch builds, core regression checks, and new calendar/weekly-total checks passed. Offscreen macOS SwiftUI/hosting renders covered light, dark, compact, and accessibility layouts; native lazy calendar pages were also mounted offscreen. Simulator inspection remains unavailable, so live iPhone swipe gestures, VoiceOver behavior, and exact iOS font scaling still need interactive verification.
