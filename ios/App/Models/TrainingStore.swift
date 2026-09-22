@@ -198,6 +198,22 @@ final class TrainingStore {
     return persist(next)
   }
 
+  @discardableResult
+  func addRun(_ template: RunWorkoutTemplate, on date: Date, expectedPlanID: UUID) -> Bool {
+    guard isLoaded, plan.id == expectedPlanID else {
+      errorMessage = "Your plan changed while you were reviewing. Reopen this workout to review the latest schedule."
+      return false
+    }
+    guard date.timeIntervalSinceReferenceDate.isFinite,
+          Calendar.current.startOfDay(for: date) >= Calendar.current.startOfDay(for: Date()) else {
+      errorMessage = "Choose today or a future date for this session."
+      return false
+    }
+    var next = state
+    next.plans.append(TrainingEngine.adding(template.workout(on: date), to: plan))
+    return persist(next)
+  }
+
   func askCoach(_ question: String) {
     let text = question.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !text.isEmpty else { return }

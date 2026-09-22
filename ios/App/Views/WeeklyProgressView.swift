@@ -10,15 +10,22 @@ struct WeeklyProgressView: View {
     layout {
       tile(title: "Running", symbol: "figure.run",
         value: kilometers(summary.loggedMeters), unit: "km",
-        goal: "of \(kilometers(summary.plannedMeters)) km planned",
+        goal: runningGoal,
         progress: summary.runningProgress, tone: .terra,
-        accessibility: "\(kilometers(summary.loggedMeters)) kilometers logged of \(kilometers(summary.plannedMeters)) planned this week")
+        accessibility: "\(kilometers(summary.loggedMeters)) kilometers logged. " + runningGoal + " this week")
       tile(title: "Strength", symbol: "dumbbell",
         value: "\(summary.loggedLifts)", unit: "logged",
         goal: "of \(summary.plannedLifts) sessions",
         progress: summary.liftingProgress, tone: .violet,
         accessibility: "\(summary.loggedLifts) strength sessions logged of \(summary.plannedLifts) planned this week")
     }
+  }
+
+  private var runningGoal: String {
+    let distance = "of \(kilometers(summary.plannedMeters)) km planned"
+    guard summary.timedRuns > 0 else { return distance }
+    let timed = "\(summary.timedRuns) timed " + (summary.timedRuns == 1 ? "run" : "runs")
+    return summary.plannedMeters > 0 ? distance + " + " + timed : timed + " planned"
   }
 
   private func kilometers(_ meters: Int) -> String {

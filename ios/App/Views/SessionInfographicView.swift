@@ -126,11 +126,12 @@ struct SessionInfographicView: View {
   }
 
   private var firstMetric: some View {
-    metric(value: workout.kind == .run
+    let hasDistance = workout.kind == .run && workout.distanceMeters > 0
+    return metric(value: hasDistance
       ? (Double(workout.distanceMeters) / 1_000).formatted(.number.precision(.fractionLength(0...1)))
       : workout.minutes.formatted(),
-      label: workout.kind == .run ? "km planned" : "min planned",
-      symbol: workout.kind == .run ? "point.bottomleft.forward.to.point.topright.scurvepath" : "clock")
+      label: hasDistance ? "km planned" : "min planned",
+      symbol: hasDistance ? "point.bottomleft.forward.to.point.topright.scurvepath" : "clock")
   }
 
   private var secondMetric: some View {

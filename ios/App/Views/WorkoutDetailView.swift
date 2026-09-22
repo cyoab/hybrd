@@ -40,7 +40,7 @@ struct WorkoutDetailView: View {
     }
     .background(HybrdStyle.background)
     .toolbar(.visible, for: .navigationBar)
-    .toolbarBackground(current.kind == .run ? SessionPalette.runTop : SessionPalette.liftTop, for: .navigationBar)
+    .toolbarBackground(current.kind == .run ? RunPalette.top(current.resolvedRunType) : SessionPalette.liftTop, for: .navigationBar)
     .toolbarBackground(.visible, for: .navigationBar)
     .navigationTitle(current.kind == .run ? "Run session" : "Strength session")
     .navigationBarTitleDisplayMode(.inline)

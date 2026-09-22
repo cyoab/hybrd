@@ -4,6 +4,7 @@ import Foundation
 enum TrainingEngineChecks {
   static func main() throws {
     HomePlanChecks.run()
+    try RunWorkoutChecks.run()
     try AthleteProfileChecks.run()
     let english = Locale(identifier: "en_US")
     let german = Locale(identifier: "de_DE")

@@ -9,7 +9,10 @@ struct PlanSessionCard: View {
 
   private var result: WorkoutResult? { store.result(for: workout) }
   private var canMove: Bool { result == nil && !store.hasDraft(for: workout) }
-  private var tone: SessionBreakdown.Tone { workout.kind == .run ? .terra : .violet }
+  private var accent: Color { workout.kind == .run ? RunPalette.color(workout.resolvedRunType) : SessionPalette.violet }
+  private var ink: Color { workout.kind == .run ? RunPalette.ink(workout.resolvedRunType) : SessionPalette.ink(.violet) }
+  private var wash: Color { workout.kind == .run ? RunPalette.wash(workout.resolvedRunType) : SessionPalette.wash(.violet) }
+  private var categoryTitle: String { workout.kind == .run ? workout.resolvedRunType.title : workout.kind.rawValue }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -18,8 +21,8 @@ struct PlanSessionCard: View {
       } label: {
         VStack(alignment: .leading, spacing: 14) {
           HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Label(category, systemImage: workout.kind.symbol)
-              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+            Label(category, systemImage: workout.kind == .run ? workout.resolvedRunType.symbol : workout.kind.symbol)
+              .font(.caption.weight(.semibold)).foregroundStyle(ink)
             Spacer(minLength: 0)
             if let time = workout.scheduledTimeLabel {
               Text(time).font(.caption.monospacedDigit()).foregroundStyle(HybrdStyle.muted)
@@ -43,10 +46,10 @@ struct PlanSessionCard: View {
 
           if workout.kind == .run {
             Label(workout.prescriptionTarget, systemImage: "heart")
-              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+              .font(.caption.weight(.semibold)).foregroundStyle(ink)
           } else if expanded {
             Text("\(workout.exercises.flatMap(\.sets).count) sets planned")
-              .font(.caption.weight(.semibold)).foregroundStyle(SessionPalette.ink(tone))
+              .font(.caption.weight(.semibold)).foregroundStyle(ink)
           }
         }
         .foregroundStyle(HybrdStyle.ink)
@@ -58,7 +61,7 @@ struct PlanSessionCard: View {
 
       if let result {
         Label(result.status.rawValue, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
-          .font(.subheadline.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
+          .font(.subheadline.weight(.medium)).foregroundStyle(ink)
       } else if expanded {
         if typeSize.isAccessibilitySize {
           VStack(spacing: 8) {
@@ -73,12 +76,12 @@ struct PlanSessionCard: View {
     .padding(18)
     .background {
       RoundedRectangle(cornerRadius: 26).fill(
-        LinearGradient(colors: [SessionPalette.wash(tone), HybrdStyle.surface],
+        LinearGradient(colors: [wash, HybrdStyle.surface],
           startPoint: .topLeading, endPoint: .bottomTrailing))
     }
     .overlay {
       RoundedRectangle(cornerRadius: 26)
-        .strokeBorder(SessionPalette.color(tone).opacity(workout.isKey && result == nil ? 0.3 : 0.12))
+        .strokeBorder(accent.opacity(workout.isKey && result == nil ? 0.3 : 0.12))
     }
   }
 
@@ -96,9 +99,9 @@ struct PlanSessionCard: View {
   }
 
   private var category: String {
-    if let result { return result.status.rawValue + " · " + workout.kind.rawValue }
-    if store.hasDraft(for: workout) { return "In progress · " + workout.kind.rawValue }
-    return (workout.isKey ? "Key session · " : workout.isOptional == true ? "Optional · " : "") + workout.kind.rawValue
+    if let result { return result.status.rawValue + " · " + categoryTitle }
+    if store.hasDraft(for: workout) { return "In progress · " + categoryTitle }
+    return (workout.isKey ? "Key session · " : workout.isOptional == true ? "Optional · " : "") + categoryTitle
   }
 
   private var openButton: some View {

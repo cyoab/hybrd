@@ -39,7 +39,7 @@ struct PlanWeekRow: View {
             let result = results.first { $0.logicalWorkoutID == workout.logicalID }
             DisciplineMark(kind: workout.kind,
               color: result != nil ? HybrdStyle.chartStone :
-                (workout.kind == .run ? HybrdStyle.terra : SessionPalette.violet), size: 6)
+                (workout.kind == .run ? RunPalette.color(workout.resolvedRunType) : SessionPalette.violet), size: 6)
           }
           if daySessions.isEmpty { Color.clear.frame(width: 6, height: 6) }
         }

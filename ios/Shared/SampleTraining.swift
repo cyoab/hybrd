@@ -18,7 +18,7 @@ enum SampleTraining {
           RunSegment(title: "Work", seconds: 480, cue: "A controlled, comfortably hard effort. This pace is illustrative sample data.", phase: .work, repetitions: repetitions, target: "@ 4:22–4:30", heartRateZone: .four),
           RunSegment(title: "Recovery", seconds: 180, cue: "Jog easily after each work interval.", phase: .recovery, repetitions: repetitions, target: "jog", heartRateZone: .one),
           RunSegment(title: "Cool-down", seconds: 600, cue: "Let your breathing settle as you ease the pace.", phase: .coolDown, target: "easy", heartRateZone: .one)
-        ], scheduledMinutes: 390))
+        ], scheduledMinutes: 390, runType: .intervals))
       var upper = TrainingEngine.strengthWorkout(on: day, lower: false, minutes: 45, goal: .build)
       upper.title = "Upper push"
       upper.isOptional = true
@@ -37,7 +37,7 @@ enum SampleTraining {
             RunSegment(title: "Warm-up", seconds: 300, cue: "Ease into the run.", phase: .warmUp, target: "easy", heartRateZone: .two),
             RunSegment(title: "Easy running", seconds: (minutes - 10) * 60, cue: "You should be able to speak in full sentences.", phase: .easy, target: "easy", heartRateZone: .two),
             RunSegment(title: "Cool-down", seconds: 300, cue: "Gradually slow down.", phase: .coolDown, target: "easy", heartRateZone: .one)
-          ], scheduledMinutes: 420))
+          ], scheduledMinutes: 420, runType: offset == 5 ? .long : .easy))
       }
       var lower = TrainingEngine.strengthWorkout(on: TrainingEngine.date(day, offset: 2), lower: true, minutes: 50, goal: .build)
       lower.scheduledMinutes = 1_080

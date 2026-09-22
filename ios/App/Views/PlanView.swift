@@ -6,6 +6,7 @@ struct PlanView: View {
   @State private var selectedDate = Calendar.current.startOfDay(for: Date())
   @State private var showProfile = false
   @State private var showCalendar = false
+  @State private var showRunningWorkouts = false
   @State private var moving: TrainingWorkout?
   @State private var weekMode = false
 
@@ -100,6 +101,12 @@ struct PlanView: View {
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .sheet(isPresented: $showProfile) { ProfileView() }
       .sheet(isPresented: $showCalendar) { calendarSheet }
+      .sheet(isPresented: $showRunningWorkouts) {
+        RunningWorkoutsView(selectedDate: selectedDate) { date in
+          selectedDate = date
+          showRunningWorkouts = false
+        }
+      }
       .sheet(item: $moving) { workout in
         MoveSessionView(workout: workout, expectedPlanID: store.plan.id)
       }
@@ -213,6 +220,25 @@ struct PlanView: View {
 
   private var bottomActions: some View {
     VStack(spacing: 18) {
+      Button { showRunningWorkouts = true } label: {
+        HStack(spacing: 14) {
+          Image(systemName: "figure.run").font(.title2)
+            .foregroundStyle(RunPalette.ink(.easy))
+            .frame(width: 48, height: 48).background(RunPalette.top(.easy), in: RoundedRectangle(cornerRadius: 16))
+            .accessibilityHidden(true)
+          VStack(alignment: .leading, spacing: 5) {
+            Text("Running workouts").font(.headline)
+            Text("Find a run for your day").font(.caption).foregroundStyle(HybrdStyle.muted)
+          }
+          Spacer(minLength: 0)
+          Image(systemName: "chevron.right").font(.caption.weight(.semibold)).accessibilityHidden(true)
+        }
+        .padding(17).frame(maxWidth: .infinity, alignment: .leading)
+        .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 22))
+        .contentShape(RoundedRectangle(cornerRadius: 22))
+      }
+      .buttonStyle(.plain)
+
       if store.profile.isSample {
         Button { showProfile = true } label: {
           HStack {

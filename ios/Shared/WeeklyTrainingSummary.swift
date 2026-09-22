@@ -4,6 +4,7 @@ import Foundation
 struct WeeklyTrainingSummary {
   var plannedMeters: Int
   var loggedMeters: Int
+  var timedRuns: Int
   var plannedLifts: Int
   var loggedLifts: Int
 
@@ -11,6 +12,7 @@ struct WeeklyTrainingSummary {
     let recorded = workouts.compactMap { workout in
       results.first { $0.logicalWorkoutID == workout.logicalID && $0.status != .skipped }
     }
+    timedRuns = workouts.filter { $0.kind == .run && $0.distanceMeters == 0 }.count
     plannedMeters = workouts.filter { $0.kind == .run }.reduce(0) { $0 + $1.distanceMeters }
     loggedMeters = recorded.filter { $0.kind == .run }.reduce(0) { $0 + ($1.distanceMeters ?? 0) }
     plannedLifts = workouts.filter { $0.kind == .strength }.count

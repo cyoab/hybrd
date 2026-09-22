@@ -8,7 +8,7 @@ struct SessionHeroView: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .center, spacing: 6) {
         VStack(alignment: .leading, spacing: 10) {
-          Text((workout.isKey ? "KEY SESSION · " : workout.isOptional == true ? "OPTIONAL · " : "") + workout.kind.rawValue.uppercased())
+          Text((workout.isKey ? "KEY SESSION · " : workout.isOptional == true ? "OPTIONAL · " : "") + (workout.kind == .run ? workout.resolvedRunType.title : workout.kind.rawValue).uppercased())
             .font(.caption.weight(.semibold)).tracking(1.3)
           Text(workout.title)
             .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
@@ -33,8 +33,8 @@ struct SessionHeroView: View {
     .frame(maxWidth: 760).frame(maxWidth: .infinity)
     .background {
       LinearGradient(stops: [
-        .init(color: workout.kind == .run ? SessionPalette.runTop : SessionPalette.liftTop, location: 0),
-        .init(color: workout.kind == .run ? SessionPalette.runGlow : SessionPalette.liftGlow, location: 0.38),
+        .init(color: workout.kind == .run ? RunPalette.top(workout.resolvedRunType) : SessionPalette.liftTop, location: 0),
+        .init(color: workout.kind == .run ? RunPalette.wash(workout.resolvedRunType) : SessionPalette.liftGlow, location: 0.38),
         .init(color: HybrdStyle.background, location: 0.8)
       ], startPoint: .topLeading, endPoint: .bottomTrailing)
     }

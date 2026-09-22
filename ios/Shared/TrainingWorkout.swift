@@ -16,19 +16,31 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   var segments: [RunSegment] = []
   var scheduledMinutes: Int?
   var isOptional: Bool?
+  var runType: RunWorkoutType?
+
+  var resolvedRunType: RunWorkoutType {
+    runType ?? RunWorkoutType.legacyType(for: title)
+  }
+
+  private var workZones: [HeartRateZone] {
+    Array(Set(segments.filter { $0.phase == .work }.compactMap(\.heartRateZone))).sorted()
+  }
 
   var primaryHeartRateZone: HeartRateZone? {
-    if let work = segments.first(where: { $0.phase == .work }) { return work.heartRateZone }
+    if let zone = workZones.last { return zone }
     if let easy = segments.first(where: { $0.phase == .easy }) { return easy.heartRateZone }
     return segments.compactMap(\.heartRateZone).max()
   }
 
   var heartRateTargetCaption: String {
-    segments.contains { $0.phase == .work } ? "work target" : "main HR target"
+    workZones.count > 1 ? "highest work target" : segments.contains { $0.phase == .work } ? "work target" : "main HR target"
   }
 
   var prescriptionTarget: String {
     guard kind == .run else { return effort }
+    if let first = workZones.first, let last = workZones.last, first != last {
+      return "\(first.shortTitle)–\(last.shortTitle) work"
+    }
     guard let zone = primaryHeartRateZone else { return "HR target not set" }
     return zone.title + (segments.contains { $0.phase == .work } ? " work" : " focus")
   }
@@ -39,7 +51,8 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   }
 
   var summary: String {
-    kind == .run ? "\(Double(distanceMeters) / 1_000, specifier: "%.1f") km · \(minutes) min" : "\(exercises.count) exercises · \(minutes) min"
+    if kind == .run && distanceMeters == 0 { return "\(minutes) min · Time-based run" }
+    return kind == .run ? "\(Double(distanceMeters) / 1_000, specifier: "%.1f") km · \(minutes) min" : "\(exercises.count) exercises · \(minutes) min"
   }
 
   func reidentified() -> TrainingWorkout {

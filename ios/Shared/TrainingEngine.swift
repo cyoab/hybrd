@@ -40,7 +40,7 @@ enum TrainingEngine {
               RunSegment(title: "Ease in", seconds: 5 * 60, cue: "Start gently; settle into your rhythm.", phase: .warmUp, heartRateZone: .two),
               RunSegment(title: "Easy running", seconds: max(1, minutes - 10) * 60, cue: "A pace where you can speak in full sentences.", phase: .easy, heartRateZone: .two),
               RunSegment(title: "Cool down", seconds: 5 * 60, cue: "Gradually ease the pace.", phase: .coolDown, heartRateZone: .one)
-            ]))
+            ], runType: longRun ? .long : .easy))
           runsPlaced += 1
         } else {
           let lower = liftsPlaced == 0
@@ -66,6 +66,17 @@ enum TrainingEngine {
       exercises: names.map { name in
         ExercisePrescription(name: name, note: "Choose a load that leaves 3 reps in reserve.", sets: (0..<count).map { _ in SetPrescription(reps: reps) })
       })
+  }
+
+  /// Adds an accepted session with fresh physical IDs; logical identity and older snapshots remain intact.
+  static func adding(_ workout: TrainingWorkout, to plan: TrainingPlan) -> TrainingPlan {
+    var next = plan
+    next.id = UUID()
+    next.basePlanID = plan.id
+    next.createdAt = Date()
+    next.reason = "Added \(workout.title) on \(workout.date.formatted(date: .abbreviated, time: .omitted))"
+    next.workouts = plan.workouts.map { $0.reidentified() } + [workout]
+    return next
   }
 
   static func moving(_ workout: TrainingWorkout, to date: Date, in plan: TrainingPlan) -> TrainingPlan {
