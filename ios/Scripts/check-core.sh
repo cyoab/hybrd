@@ -8,6 +8,10 @@ swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/HeartRateZone.swift \
   Shared/MuscleGroup.swift \
   Shared/PersonalHeartRateZones.swift \
+  Shared/ProgressPeriod.swift \
+  Shared/ProgressMilestone.swift \
+  Shared/ProgressComparison.swift \
+  Shared/ProgressSnapshot.swift \
   Shared/RunTimeline.swift \
   Shared/RunWorkoutType.swift \
   Shared/RunWorkoutTemplate.swift \

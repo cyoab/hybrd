@@ -9,6 +9,11 @@ final class TrainingStore {
   private(set) var isLoaded = false
   var errorMessage: String?
   var loadError: String?
+  private(set) var progressRevision = 0
+  @ObservationIgnored private var progressCache: [ProgressPeriod: ProgressSnapshot] = [:]
+  @ObservationIgnored private var progressCacheNextResult: Date?
+  @ObservationIgnored private var progressCacheDay: Date?
+  @ObservationIgnored private var progressCacheZone: String?
   var companion = CompanionBridge()
   private var container: ModelContainer?
   private var record: StoredTrainingState?
@@ -54,6 +59,8 @@ final class TrainingStore {
         try container.mainContext.save()
         state = upgradedState
       }
+      progressRevision += 1
+      progressCache.removeAll()
       isLoaded = true
       loadError = nil
       shareWithWatch()
@@ -68,6 +75,10 @@ final class TrainingStore {
     do {
       record.payload = try JSONEncoder().encode(next)
       try container.mainContext.save()
+      if state.results != next.results || state.plans.last?.id != next.plans.last?.id {
+        progressRevision += 1
+        progressCache.removeAll()
+      }
       state = next
       if share { shareWithWatch() }
       return true
@@ -76,6 +87,23 @@ final class TrainingStore {
       errorMessage = "Your changes could not be saved. Please try again. \(error.localizedDescription)"
       return false
     }
+  }
+
+  func progress(for period: ProgressPeriod, now: Date = Date()) -> ProgressSnapshot {
+    _ = progressRevision
+    let calendar = Calendar.current
+    let day = calendar.startOfDay(for: now)
+    if progressCacheDay != day || progressCacheZone != calendar.timeZone.identifier ||
+      (progressCacheNextResult.map { now >= $0 } ?? false) {
+      progressCache.removeAll()
+      progressCacheDay = day
+      progressCacheZone = calendar.timeZone.identifier
+    }
+    if let cached = progressCache[period], now >= cached.asOf { return cached }
+    progressCacheNextResult = state.results.lazy.map(\.completedAt).filter { $0 > now }.min()
+    let snapshot = ProgressSnapshot(results: state.results, plans: state.plans, period: period, now: now, calendar: calendar)
+    progressCache[period] = snapshot
+    return snapshot
   }
 
   func result(for workout: TrainingWorkout) -> WorkoutResult? {

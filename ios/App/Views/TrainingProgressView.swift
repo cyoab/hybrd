@@ -1,81 +1,135 @@
 import SwiftUI
-import Charts
 
 struct TrainingProgressView: View {
   @Environment(TrainingStore.self) private var store
-  private var completed: [WorkoutResult] { store.state.results.filter { $0.status != .skipped } }
-  private var distance: Double { Double(completed.reduce(0) { $0 + ($1.distanceMeters ?? 0) }) / 1_000 }
-  private var sets: Int { completed.reduce(0) { $0 + $1.sets.count } }
+  @Environment(\.scenePhase) private var scenePhase
+  @AppStorage("hybrd.progress.period") private var period: ProgressPeriod = .month
+  @State private var showingHistory = false
+  @State private var showingJourney = false
+  @State private var selectedResult: WorkoutResult?
+  @State private var selectedDay: ProgressSnapshot.Day?
+  @State private var selectedMilestone: ProgressMilestone?
+  @State private var refreshDate = Date()
 
   var body: some View {
     NavigationStack {
-      ScrollView {
-        VStack(alignment: .leading, spacing: 24) {
-          VStack(alignment: .leading, spacing: 8) {
-            Eyebrow(text: "Both disciplines. Real work.")
-            Text("Consistency adds up.").font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
-            Text("Your logged training, together in one place.").foregroundStyle(.secondary)
-          }
-          LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            MetricTile(value: String(format: "%.1f km", distance), label: "Running completed", symbol: "figure.run")
-            MetricTile(value: "\(sets)", label: "Strength sets completed", symbol: "dumbbell.fill")
-          }
-          if completed.isEmpty {
-            ContentUnavailableView {
-              Label("Your first session starts the story", systemImage: "chart.xyaxis.line")
-            } description: {
-              Text("Log a run or check off your strength sets. Your real progress will appear here.")
+      TimelineView(.periodic(from: refreshDate, by: 60)) { _ in
+        let snapshot = store.progress(for: period)
+        ScrollView {
+          VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: 7) {
+              Eyebrow(text: "The work becomes you")
+              Text(snapshot.lifetime.sessions == 0 ? "Your next chapter." : "Look at you go.")
+                .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
+              Text("Running and strength. One evolving story.").font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
-            .padding(.vertical, 24)
-          } else {
-            VStack(alignment: .leading, spacing: 16) {
-              Text("Last seven days").font(.title3.bold())
-              Chart {
-                ForEach(0..<7) { offset in
-                  let day = TrainingEngine.date(Calendar.current.startOfDay(for: Date()), offset: offset - 6)
-                  let results = completed.filter { Calendar.current.isDate($0.completedAt, inSameDayAs: day) }
-                  ForEach(WorkoutKind.allCases) { kind in
-                    BarMark(
-                      x: .value("Day", day, unit: .day),
-                      y: .value("Minutes", results.filter { $0.kind == kind }.reduce(0) { $0 + $1.durationSeconds } / 60)
-                    )
-                    .foregroundStyle(by: .value("Discipline", kind.rawValue))
+            ProgressJourneyView(snapshot: snapshot) { showingJourney = true }
+            if let latest = snapshot.latestMilestone {
+              Button { selectedMilestone = latest } label: {
+                HStack(spacing: 12) {
+                  Image(systemName: "sparkles").font(.title2).foregroundStyle(SessionPalette.ink(.gold))
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text("Latest milestone · " + latest.kind.title).font(.subheadline.weight(.semibold))
+                    Text(latest.earnedAt!.formatted(date: .abbreviated, time: .omitted)).font(.caption).foregroundStyle(HybrdStyle.muted)
                   }
-                }
-              }
-              .chartForegroundStyleScale(["Run": HybrdStyle.run, "Strength": HybrdStyle.strength])
-              .chartYAxisLabel("Minutes")
-              .frame(height: 190)
-              .accessibilityLabel("Logged training minutes over the last seven days")
+                  Spacer(minLength: 0)
+                  Image(systemName: "chevron.right").font(.caption)
+                }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
+                  .background(SessionPalette.wash(.gold), in: RoundedRectangle(cornerRadius: 20))
+              }.buttonStyle(.plain)
             }
-            .padding(20)
-            .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 22))
-
-            Text("Training history").font(.title3.bold())
-            ForEach(completed.sorted { $0.completedAt > $1.completedAt }) { result in
-              HStack(spacing: 14) {
-                Image(systemName: result.kind.symbol).font(.title3).foregroundStyle(.tint)
-                VStack(alignment: .leading, spacing: 5) {
-                  Text(result.kind.rawValue + " · " + result.status.rawValue).font(.headline)
-                  Text(result.completedAt.formatted(date: .abbreviated, time: .omitted))
-                    .font(.caption).foregroundStyle(.secondary)
-                }
+            VStack(alignment: .leading, spacing: 16) {
+              Picker("Progress period", selection: $period) {
+                ForEach(ProgressPeriod.allCases) { Text($0.title).tag($0) }
+              }.pickerStyle(.segmented).labelsHidden()
+              ProgressTotalsView(snapshot: snapshot)
+              HStack {
+                Label("\(snapshot.current.sessions) sessions", systemImage: "checkmark.seal")
                 Spacer()
-                Text(result.kind == .run ? String(format: "%.1f km", Double(result.distanceMeters ?? 0) / 1_000) : "\(result.sets.count) sets")
-                  .font(.subheadline.monospacedDigit())
-              }
-              .padding(18)
-              .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+                Text("\(snapshot.current.activeDays) active days")
+              }.font(.caption.weight(.medium)).foregroundStyle(HybrdStyle.muted)
+              ProgressTrendView(snapshot: snapshot)
             }
+            VStack(alignment: .leading, spacing: 16) {
+              Text("See your change").font(.title3.weight(.semibold))
+              if snapshot.comparisons.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                  ProfileIllustration(artwork: .experience).frame(height: 112)
+                  Text("A baseline worth building.").font(.headline)
+                  Text("Repeat a logged run distance and type, or a lift at the same rep count on another day. Your first-to-latest comparison will appear here.")
+                    .font(.subheadline).foregroundStyle(HybrdStyle.muted)
+                  if snapshot.lifetime.sessions == 0, let next = store.workouts.first(where: { $0.date >= Calendar.current.startOfDay(for: Date()) && store.result(for: $0) == nil }) {
+                    NavigationLink("Open your next session") { WorkoutDetailView(workout: next) }
+                      .buttonStyle(HybrdPrimaryButtonStyle())
+                  }
+                }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                  .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 25))
+              } else {
+                Text("First to latest comparable efforts · all time").font(.caption).foregroundStyle(HybrdStyle.muted)
+                ForEach(snapshot.comparisons) { ProgressComparisonView(comparison: $0) }
+              }
+            }
+            ProgressRhythmView(days: snapshot.rhythm) { selectedDay = $0 }
+            ProgressMilestonesView(milestones: snapshot.milestones)
+            if !snapshot.results.isEmpty {
+              VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                  Text("The work behind it").font(.title3.weight(.semibold))
+                  Spacer()
+                  Button("View all") { showingHistory = true }.font(.subheadline)
+                }
+                ForEach(snapshot.results.prefix(3)) { result in
+                  Button { selectedResult = result } label: {
+                    ProgressHistoryRow(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue)
+                      .padding(12).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
+                  }.buttonStyle(.plain)
+                }
+              }
+            }
+            Text("Built from your logged activity. Partial sessions include only completed work. More volume isn’t automatically better fitness.")
+              .font(.caption).foregroundStyle(HybrdStyle.muted)
+          }
+          .padding(20).padding(.bottom, 16).frame(maxWidth: 760).frame(maxWidth: .infinity)
+        }
+        .background(HybrdStyle.background)
+        .sheet(isPresented: $showingHistory) { ProgressHistoryView(results: snapshot.results, workoutTitles: snapshot.workoutTitles) }
+        .sheet(item: $selectedResult) { result in
+          NavigationStack {
+            ProgressResultDetailView(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue)
+              .toolbar { ToolbarItem(placement: .confirmationAction) {
+                Button("Close", systemImage: "xmark") { selectedResult = nil }.labelStyle(.iconOnly)
+              } }
           }
         }
-        .frame(maxWidth: 720, alignment: .leading).frame(maxWidth: .infinity)
-        .padding(20)
+        .sheet(item: $selectedDay) { day in ProgressHistoryView(results: day.results.reversed(), workoutTitles: snapshot.workoutTitles, day: day.date) }
       }
-      .background(HybrdStyle.background)
-      .navigationTitle("Progress")
-      .navigationBarTitleDisplayMode(.inline)
+      .navigationTitle("Progress").navigationBarTitleDisplayMode(.inline)
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
+      .sheet(item: $selectedMilestone) { ProgressMilestoneDetailView(milestone: $0) }
+      .sheet(isPresented: $showingJourney) { ProgressJourneyExplanation() }
+      .sensoryFeedback(.selection, trigger: period)
+      .onChange(of: scenePhase) { _, phase in if phase == .active { refreshDate = Date() } }
+    }
+  }
+}
+
+private struct ProgressJourneyExplanation: View {
+  @Environment(\.dismiss) private var dismiss
+  var body: some View {
+    NavigationStack {
+      ScrollView {
+        VStack(alignment: .leading, spacing: 22) {
+          ProgressMedalView(symbol: "sparkles", tone: .gold, level: 1).frame(height: 170)
+          Text("A journey built one day at a time.").font(.system(.title, design: .rounded, weight: .semibold))
+          Text("Each distinct day with a logged run or completed strength sets adds one step. Every 10 training days opens another level.")
+          Text("Two workouts on the same day still count as one training day. Rest days don’t take away steps. Your level reflects logged consistency, not fitness or a ranking against other athletes.")
+          Text("The calendar currently uses the date you log a result in your device’s time zone. It does not backdate activity to its planned date.").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          Text("Milestones are calculated from your current records. Correcting or deleting a record can update the totals and awards attached to it.")
+            .font(.subheadline).foregroundStyle(HybrdStyle.muted)
+        }.padding(24).frame(maxWidth: 600).frame(maxWidth: .infinity)
+      }
+      .background(HybrdStyle.background).navigationTitle("Your journey").navigationBarTitleDisplayMode(.inline)
+      .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Close", systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly) } }
     }
   }
 }

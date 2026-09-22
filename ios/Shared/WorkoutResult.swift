@@ -1,6 +1,6 @@
 import Foundation
 
-struct WorkoutResult: Codable, Identifiable {
+struct WorkoutResult: Codable, Identifiable, Equatable {
   var id = UUID()
   var plannedWorkoutID: UUID
   var logicalWorkoutID: UUID

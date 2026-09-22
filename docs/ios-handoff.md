@@ -69,3 +69,7 @@ For StoreKit purchases pass **the athlete UUID as `appAccountToken`**. Submit th
 Errors use `{error:{code,message,details?,requestId}}`; branch on codes. `X-Request-Id` correlates sanitized server logs. Better Auth uses its own error format.
 
 HealthKit normalization, local feature computation, candidate generation, interference checks, training progression, local scheduling, SwiftData/outbox handling, local reminders, WidgetKit/WorkoutKit and UI remain iOS responsibilities.
+
+## Progress dashboard read model
+
+See [Progress metrics handoff](progress-metrics-handoff.md) for the proposed authenticated summary, comparison-history and activity endpoints, metric rules, cache/projection strategy, and native date/identity migration prerequisites. These endpoints are proposals; the native Progress screen currently computes its actual-only metrics offline.
