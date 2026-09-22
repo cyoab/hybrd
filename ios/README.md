@@ -32,14 +32,14 @@ Follow `../docs/ios-handoff.md` and generate the production API client from `../
 
 ## Design implementation
 
-The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The Plan home and workout flows now use this direction. See `DESIGN.md` for tokens, accessibility choices, and the Runna/Hevy references. The iPhone app uses Plan, Progress, and Coach tabs; the previous Today tab has been removed.
+The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The Plan home and workout flows now use this direction. See `DESIGN.md` for tokens, accessibility choices, and references from Runna, Hevy, Duolingo, Revolut, and Headspace. The iPhone app uses Plan, Progress, and Coach tabs; the previous Today tab has been removed.
 
 ## Local checks
 
 Run the core checks from this directory:
 
 ```sh
-swiftc -module-cache-path /tmp/hybrd-swift-module-cache Shared/TrainingProfile.swift Shared/TrainingWorkout.swift Shared/TrainingPlan.swift Shared/WorkoutResult.swift Shared/TrainingEngine.swift Shared/SampleTraining.swift Tests/TrainingEngineChecks.swift -o /tmp/hybrd-core-checks
+swiftc -module-cache-path /tmp/hybrd-swift-module-cache Shared/TrainingProfile.swift Shared/TrainingWorkout.swift Shared/TrainingPlan.swift Shared/WorkoutResult.swift Shared/TrainingEngine.swift Shared/SampleTraining.swift Shared/RunTimeline.swift Tests/TrainingEngineChecks.swift -o /tmp/hybrd-core-checks
 /tmp/hybrd-core-checks
 ```
 
@@ -48,5 +48,5 @@ Build and run the iPhone and Watch targets using Bitrig.
 ## Validation at scaffold handoff
 
 - Bitrig build completed successfully for the iPhone app and embedded Watch target.
-- Core executable checks passed for availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, encoding, old draft decoding, interval totals, partial and extra sets, actual-result validation, and pause/resume timing.
+- Core executable checks passed for localized weekly-distance entry, invalid numeric input, chronological work/recovery timelines, availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, encoding, old draft decoding, interval totals, partial and extra sets, actual-result validation, and pause/resume timing.
 - Bitrig reports both simulators running, but its simulator-inspection tool returns that this destination does not support simulator state. Interactive UI behavior and paired Watch delivery have not been verified.

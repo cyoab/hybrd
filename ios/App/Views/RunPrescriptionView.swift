@@ -2,66 +2,110 @@ import SwiftUI
 
 struct RunPrescriptionView: View {
   var workout: TrainingWorkout
+  private var timeline: RunTimeline { RunTimeline(segments: workout.segments) }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 14) {
-      HStack {
-        Text("Workout structure").font(.title3.weight(.semibold))
-        Spacer()
-        Text("\(workout.minutes) MIN").font(.caption2.weight(.medium)).tracking(1).foregroundStyle(HybrdStyle.muted)
+    VStack(alignment: .leading, spacing: 24) {
+      VStack(alignment: .leading, spacing: 14) {
+        Text("Session rhythm").font(.title3.weight(.semibold))
+        rhythm
+        HStack {
+          Text("0")
+          Spacer()
+          Text("\(timeline.totalSeconds / 60) min")
+        }
+        .font(.caption2).monospacedDigit().foregroundStyle(HybrdStyle.muted)
+        .accessibilityHidden(true)
+        Text("Planned sequence · bar width shows time")
+          .font(.caption).foregroundStyle(HybrdStyle.muted)
       }
-      ForEach(workout.segments.indices, id: \.self) { index in
-        let segment = workout.segments[index]
-        if !isPairedRecovery(index) {
-          VStack(alignment: .leading, spacing: 0) {
-            HStack {
-              Text(segment.phase == .work && pairedRecovery(index) != nil ? "Repeat \(segment.repetitions ?? 1) times" : segment.displayTitle)
-                .font(.subheadline.weight(.semibold))
-              Spacer()
-              if segment.phase == .work { Image(systemName: "repeat").accessibilityHidden(true) }
-            }
-            .padding(.horizontal, 16).padding(.vertical, 12)
-            .foregroundStyle(segment.phase == .work ? HybrdStyle.terraText : HybrdStyle.ink)
-            .background(segment.phase == .work ? HybrdStyle.terraWash : HybrdStyle.field)
 
-            stepContent(segment, showTitle: pairedRecovery(index) != nil)
-            if let recovery = pairedRecovery(index) {
-              Divider().padding(.horizontal, 16)
-              stepContent(recovery, showTitle: true)
-            }
+      VStack(alignment: .leading, spacing: 0) {
+        ForEach(workout.segments.indices, id: \.self) { index in
+          if !isPairedRecovery(index) {
+            timelineRow(at: index)
           }
-          .background(HybrdStyle.surface)
-          .clipShape(RoundedRectangle(cornerRadius: 18))
-          .overlay(RoundedRectangle(cornerRadius: 18).stroke(HybrdStyle.line))
         }
       }
     }
   }
 
-  private func stepContent(_ segment: RunSegment, showTitle: Bool) -> some View {
-    HStack(alignment: .top, spacing: 13) {
-      Image(systemName: segment.phase == .recovery ? "figure.walk" : "figure.run")
-        .foregroundStyle(segment.phase == .work ? HybrdStyle.terraText : HybrdStyle.muted)
-        .frame(width: 22).padding(.top, 3).accessibilityHidden(true)
-      VStack(alignment: .leading, spacing: 7) {
-        if showTitle { Text(segment.title).font(.caption.weight(.medium)).foregroundStyle(HybrdStyle.muted) }
-        Text(segment.targetSummary).font(.headline)
-        Text(segment.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+  private var rhythm: some View {
+    GeometryReader { geometry in
+      let total = max(1, timeline.totalSeconds)
+      let gap: CGFloat = 3
+      let width = max(1, geometry.size.width - CGFloat(max(0, timeline.steps.count - 1)) * gap)
+      HStack(alignment: .bottom, spacing: gap) {
+        ForEach(timeline.steps) { step in
+          RoundedRectangle(cornerRadius: 4)
+            .fill(barColor(step.segment.phase))
+            .frame(width: width * CGFloat(step.seconds) / CGFloat(total),
+              height: step.segment.phase == .work ? 76 : step.segment.phase == .recovery ? 24 : 42)
+        }
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
     }
-    .frame(maxWidth: .infinity, alignment: .leading).padding(16)
-    .accessibilityElement(children: .combine)
+    .frame(height: 80)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Planned running sequence")
+    .accessibilityValue(timeline.steps.map { step in
+      step.segment.title + ", " + step.segment.targetSummary
+    }.joined(separator: ". "))
   }
 
-  private func pairedRecovery(_ index: Int) -> RunSegment? {
+  private func timelineRow(at index: Int) -> some View {
     let segment = workout.segments[index]
-    guard segment.phase == .work, (segment.repetitions ?? 1) > 1,
-          workout.segments.indices.contains(index + 1) else { return nil }
-    let recovery = workout.segments[index + 1]
-    return recovery.phase == .recovery && recovery.repetitions == segment.repetitions ? recovery : nil
+    let recovery = RunTimeline.pairedRecovery(after: index, in: workout.segments)
+    let work = segment.phase == .work
+    return HStack(alignment: .top, spacing: 16) {
+      VStack(spacing: 0) {
+        ZStack {
+          Circle().fill(work ? HybrdStyle.terraWash : HybrdStyle.field).frame(width: 34, height: 34)
+          Image(systemName: work ? "repeat" : segment.phase == .coolDown ? "flag.checkered" : "figure.run")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(work ? HybrdStyle.terraText : HybrdStyle.muted)
+        }
+        Rectangle().fill(HybrdStyle.line).frame(width: 1)
+      }.frame(width: 34).accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: 10) {
+        HStack(alignment: .firstTextBaseline) {
+          Text(recovery == nil ? segment.displayTitle : "Repeat \(segment.repetitions ?? 1) times")
+            .font(.headline)
+          Spacer(minLength: 8)
+          if work {
+            Text("WORK").font(.caption2.weight(.semibold)).tracking(1)
+              .foregroundStyle(HybrdStyle.terraText)
+          }
+        }
+        Text(segment.targetSummary).font(.title3.weight(.medium)).monospacedDigit()
+        Text(segment.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+        if let recovery {
+          HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "arrow.turn.down.right").font(.subheadline)
+              .foregroundStyle(HybrdStyle.muted).padding(.top, 2)
+            VStack(alignment: .leading, spacing: 5) {
+              Text(recovery.targetSummary + " recovery").font(.subheadline.weight(.medium))
+              Text(recovery.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+            }
+          }.padding(.top, 4)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.top, 6).padding(.bottom, 28)
+      .accessibilityElement(children: .combine)
+    }
+    .fixedSize(horizontal: false, vertical: true)
+  }
+
+  private func barColor(_ phase: RunSegmentPhase?) -> Color {
+    switch phase {
+    case .work: HybrdStyle.terra
+    case .recovery: HybrdStyle.muted.opacity(0.55)
+    default: HybrdStyle.stone
+    }
   }
 
   private func isPairedRecovery(_ index: Int) -> Bool {
-    index > 0 && pairedRecovery(index - 1)?.id == workout.segments[index].id
+    index > 0 && RunTimeline.pairedRecovery(after: index - 1, in: workout.segments)?.id == workout.segments[index].id
   }
 }

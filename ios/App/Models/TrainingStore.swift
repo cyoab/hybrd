@@ -94,22 +94,35 @@ final class TrainingStore {
     return workout.isKey ? "Key session" : "Planned"
   }
 
-  @discardableResult
-  func accept(profile: TrainingProfile) -> Bool {
-    guard profile.availableDays.count >= 2 else { return false }
-    var next = state
+  func starterProposal(for profile: TrainingProfile) -> TrainingPlan? {
+    guard profile.validationMessage == nil else { return nil }
     var updated = profile
     updated.isSample = false
     updated.name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
     if updated.name.isEmpty { updated.name = "Athlete" }
-    let accepted = TrainingEngine.makePlan(profile: updated, basePlanID: plan.id)
-    // Completed and in-progress sessions retain their exact historical prescriptions.
-    let retained = workouts.filter { result(for: $0) != nil || hasDraft(for: $0) || $0.date < Calendar.current.startOfDay(for: Date()) }
+    var proposal = TrainingEngine.makePlan(profile: updated, basePlanID: plan.id)
+    // Review and accept the same snapshot, including retained historical prescriptions.
+    let retained = workouts.filter {
+      result(for: $0) != nil || hasDraft(for: $0) || $0.date < Calendar.current.startOfDay(for: Date())
+    }
     let occupied = Set(retained.map { Calendar.current.startOfDay(for: $0.date) })
-    var merged = accepted
-    merged.workouts = retained + accepted.workouts.filter { !occupied.contains($0.date) }
-    next.profile = updated
-    next.plans.append(merged)
+    proposal.workouts = retained + proposal.workouts.filter { !occupied.contains($0.date) }
+    return proposal
+  }
+
+  @discardableResult
+  func accept(proposal: TrainingPlan) -> Bool {
+    guard proposal.basePlanID == plan.id else {
+      errorMessage = "Your plan changed while you were reviewing. Return to your profile and review the latest block."
+      return false
+    }
+    guard proposal.profile.validationMessage == nil else {
+      errorMessage = proposal.profile.validationMessage
+      return false
+    }
+    var next = state
+    next.profile = proposal.profile
+    next.plans.append(proposal)
     return persist(next)
   }
 

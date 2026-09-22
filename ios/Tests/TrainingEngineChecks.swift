@@ -3,7 +3,27 @@ import Foundation
 @main
 enum TrainingEngineChecks {
   static func main() throws {
+    let english = Locale(identifier: "en_US")
+    let german = Locale(identifier: "de_DE")
+    precondition(TrainingProfile.parseWeeklyKilometers("70", locale: english) == 70)
+    precondition(TrainingProfile.parseWeeklyKilometers(" 70.5 ", locale: english) == 70.5)
+    precondition(TrainingProfile.parseWeeklyKilometers("70,5", locale: german) == 70.5)
+    for input in ["", "70km", "70x", "NaN", "inf", "-4", "151", "2.9", "7.0.5", "70,5"] {
+      precondition(TrainingProfile.parseWeeklyKilometers(input, locale: english) == nil,
+        "Reject malformed or out-of-range distances instead of silently changing them: " + input)
+    }
+    for boundary in ["3", "150"] {
+      precondition(TrainingProfile.parseWeeklyKilometers(boundary, locale: english) != nil)
+    }
     var profile = TrainingProfile()
+    profile.weeklyKilometers = .infinity
+    precondition(profile.validationMessage != nil, "Reject non-finite distances before planning")
+    profile.weeklyKilometers = 70.5
+    precondition(profile.validationMessage == nil)
+    profile.availableDays = [2]
+    precondition(profile.validationMessage != nil)
+    profile.availableDays = [2, 8]
+    precondition(profile.validationMessage != nil, "Reject invalid weekday values")
     profile.availableDays = [2, 4, 6]
     profile.strengthDays = 2
     let start = ISO8601DateFormatter().date(from: "2026-09-21T12:00:00Z")!
@@ -75,6 +95,21 @@ enum TrainingEngineChecks {
       $0.segments.reduce(0) { $0 + $1.totalSeconds } == $0.minutes * 60
     }, "Displayed interval totals must equal prescribed duration")
     precondition(sample.workouts.contains { $0.isOptional == true })
-    print("PASS: planning invariants, legacy decoding, interval totals, actual-result validation, partial/extra sets, and pause/resume timing")
+    let intervals = sample.workouts.first { $0.segments.contains { $0.phase == .work } }!
+    let timeline = RunTimeline(segments: intervals.segments)
+    precondition(timeline.steps.map { $0.segment.phase } == [
+      .warmUp, .work, .recovery, .work, .recovery, .work, .recovery, .coolDown
+    ], "Repeated work and recovery must alternate chronologically")
+    precondition(timeline.totalSeconds == intervals.minutes * 60)
+    precondition(timeline.steps.first?.startSeconds == 0)
+    for pair in zip(timeline.steps, timeline.steps.dropFirst()) {
+      precondition(pair.0.endSeconds == pair.1.startSeconds, "Timeline must not overlap or omit time")
+    }
+    let easy = RunTimeline(segments: original.segments)
+    precondition(easy.totalSeconds == original.minutes * 60, "Legacy untyped phases still visualize correctly")
+    precondition(RunTimeline(segments: []).steps.isEmpty)
+    let unpaired = RunTimeline(segments: [RunSegment(title: "Strides", seconds: 20, cue: "Relaxed", phase: .work, repetitions: 4)])
+    precondition(unpaired.steps.count == 4 && unpaired.totalSeconds == 80)
+    print("PASS: profile input and validation, interval ordering and duration, planning invariants, legacy decoding, actual-result validation, partial/extra sets, and pause/resume timing")
   }
 }
