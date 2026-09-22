@@ -18,6 +18,14 @@ enum AppAppearance: String, CaseIterable, Identifiable {
     }
   }
 
+  var symbol: String {
+    switch self {
+    case .light: "sun.max.fill"
+    case .dark: "moon.fill"
+    case .system: "circle.lefthalf.filled"
+    }
+  }
+
   var colorScheme: ColorScheme? {
     switch self {
     case .light: .light

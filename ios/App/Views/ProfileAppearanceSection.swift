@@ -1,20 +1,15 @@
 import SwiftUI
 
 struct ProfileAppearanceSection: View {
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Binding var appearance: AppAppearance
 
   var body: some View {
     Section {
-      Group {
-        if dynamicTypeSize.isAccessibilitySize {
-          appearancePicker.pickerStyle(.menu)
-        } else {
-          appearancePicker.pickerStyle(.segmented).labelsHidden()
-        }
-      }
-      .padding(.vertical, 4)
-      .listRowBackground(HybrdStyle.surface)
+      appearancePicker
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .padding(.vertical, 4)
+        .listRowBackground(HybrdStyle.surface)
     } header: {
       Text("Appearance")
     } footer: {
@@ -25,7 +20,11 @@ struct ProfileAppearanceSection: View {
   private var appearancePicker: some View {
     Picker("Appearance", selection: $appearance) {
       ForEach(AppAppearance.allCases) { option in
-        Text(option.title).tag(option)
+        Label(option.title, systemImage: option.symbol)
+          .labelStyle(.iconOnly)
+          .accessibilityLabel(option.title)
+          .help(option.title)
+          .tag(option)
       }
     }
     .tint(HybrdStyle.ink)

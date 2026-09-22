@@ -145,7 +145,7 @@ Validation: the Bitrig iPhone/Watch build and existing profile/planning checks p
 
 ## Appearance preference
 
-The final section in Athlete profile offers Light, Dark, and System in a native segmented Picker. System is the default; it requests no color-scheme override. At accessibility text sizes the control uses a labeled menu Picker. The existing semantic colors, illustration palettes, wordmark, and native controls supply both appearances.
+The final section in Athlete profile offers Light, Dark, and System in a native segmented Picker, represented by sun, moon, and half-filled-circle SF Symbols. Each icon retains its spoken option name for accessibility. The compact icon control stays segmented at larger text sizes. System is the default; it requests no color-scheme override. The existing semantic colors, illustration palettes, wordmark, and native controls supply both appearances.
 
 The choice is stored locally with AppStorage and takes effect immediately, independently of unsaved athlete edits and Save profile. The app root and profile sheet observe the same typed preference so the selection applies across tabs and presentations. This display preference is not part of training data or Watch synchronization.
 
