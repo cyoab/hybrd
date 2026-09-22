@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Decorative artwork in the same shaded vector style as the gym inventory.
 struct ProfileIllustration: View {
-  enum Artwork { case identity, experience, heart, running, strength }
+  enum Artwork { case identity, experience, heart, running, strength, rhythm }
   var artwork: Artwork
 
   var body: some View {
@@ -18,6 +18,7 @@ struct ProfileIllustration: View {
       case .heart: painter.heart()
       case .running: painter.stopwatch()
       case .strength: painter.trophy()
+      case .rhythm: painter.rhythm()
       }
     }
     .accessibilityHidden(true).allowsHitTesting(false)
@@ -124,6 +125,32 @@ private struct ProfileArtworkPainter {
     stroke([(80, 57), (99, 57)], .white, 3)
     rounded(78, 51, 4, 12, 1, .white)
     rounded(97, 51, 4, 12, 1, .white)
+  }
+
+  func rhythm() {
+    oval(24, 121, 138, 10, SessionPalette.gold.opacity(0.15))
+    rounded(28, 30, 123, 94, 14, SessionPalette.gold.opacity(0.7))
+    rounded(22, 24, 123, 94, 14, SessionPalette.wash(.gold))
+    rounded(22, 24, 123, 26, 11, SessionPalette.gold)
+    for x: CGFloat in [49, 116] {
+      stroke([(x, 18), (x, 33)], steel, 7)
+      stroke([(x - 1, 18), (x - 1, 28)], .white.opacity(0.35), 2)
+    }
+    for row in 0..<3 {
+      for column in 0..<4 {
+        let x = CGFloat(38 + column * 23)
+        let y = CGFloat(62 + row * 18)
+        rounded(x, y, 12, 8, 3, steel.opacity(0.18))
+      }
+    }
+    oval(38, 61, 12, 12, terra)
+    rounded(61, 79, 12, 12, 3, violet)
+    oval(84, 97, 12, 12, terra)
+    oval(108, 79, 47, 47, SessionPalette.ink(.mint))
+    oval(104, 75, 47, 47, SessionPalette.mint)
+    oval(110, 81, 35, 35, SessionPalette.wash(.mint))
+    stroke([(128, 87), (128, 99), (139, 104)], SessionPalette.ink(.mint), 3)
+    oval(125, 96, 6, 6, SessionPalette.mint)
   }
 
   private func ribbon(x: CGFloat, y: CGFloat) {

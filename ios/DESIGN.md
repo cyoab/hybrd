@@ -132,3 +132,12 @@ The standalone exercise-library navigation and browser have been removed. Catalo
 Native Form/List containers, text fields, menu Pickers, sheets, swipe deletion, and keyboard controls retain their semantics. Headers stack at accessibility sizes, fields keep accessible labels, and illustrations are hidden from VoiceOver. Optional values, draft validation, explicit profile saving, and separate starter-plan acceptance remain intact.
 
 Validation: Bitrig builds and core regression checks passed. Temporary offscreen macOS SwiftUI renders cover all five destinations plus the strength editor, lift picker, empty strength records, and invalid input in light, dark, compact, and accessibility layouts. Interactive iPhone and VoiceOver verification remain unavailable in this Bitrig destination.
+
+
+## Goals and weekly rhythm
+
+Goals & rhythm now uses the shared profile header and tinted form cards. Original calendar-and-clock vector artwork introduces the screen. Running, strength, and training focus use the established Terra, lavender, and mint palette with illustrated native menu Pickers. Weekly running volume keeps direct, locale-aware entry in a prominent measurement card; strength frequency keeps its native segmented control, and session duration remains a menu Picker.
+
+Available weekdays are native Toggle cards on a mint surface. Checkmarks and contrasting fills distinguish selected days in both appearances. The grid reflows at narrow widths and accessibility sizes, and invalid distance or insufficient availability stays visibly explained. No goal, schedule, saved-profile, or starter-plan rules changed; these remain profile draft edits until the existing save/review flow is completed.
+
+Validation: the Bitrig iPhone/Watch build and existing profile/planning checks passed. Offscreen macOS SwiftUI review covered light, dark, compact, and accessibility layouts, including a 72.5 km week and invalid distance/availability. Interactive iPhone verification remains unavailable in the current Bitrig destination.
