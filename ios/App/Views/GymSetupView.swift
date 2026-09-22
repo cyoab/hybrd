@@ -35,19 +35,7 @@ struct GymSetupView: View {
                       if enabled { editor.details.equipment.insert(equipment) }
                       else { editor.details.equipment.remove(equipment) }
                     })) {
-                    VStack(alignment: .leading, spacing: 16) {
-                      HStack {
-                        Image(systemName: equipment.symbol).font(.title2)
-                        Spacer()
-                        Image(systemName: selected ? "checkmark.circle.fill" : "circle").font(.body)
-                      }
-                      .foregroundStyle(SessionPalette.ink(.violet))
-                      Text(equipment.title).font(.subheadline.weight(.medium))
-                        .frame(maxWidth: .infinity, minHeight: 38, alignment: .topLeading)
-                    }
-                    .padding(16).foregroundStyle(HybrdStyle.ink)
-                    .background(selected ? SessionPalette.wash(.violet) : HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
-                    .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(selected ? SessionPalette.violet : HybrdStyle.line))
+                    GymEquipmentCard(equipment: equipment, selected: selected)
                   }
                   .toggleStyle(.button).buttonStyle(.plain).accessibilityLabel(equipment.title)
                 }

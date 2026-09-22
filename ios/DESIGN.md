@@ -110,3 +110,12 @@ Running PRs retain exact entered times. Strength PRs retain load and reps, with 
 Health import requests only birth date, height, and weight after an explicit tap. The review shows available values and measurement dates; existing entries are unselected by default. Applying values edits the local draft, and Save profile persists it. There is no permission-success inference from absent Health data, automatic overwrite, background import, or current Strava connection. See `PROFILE-INTEGRATIONS.md` for setup and the deferred Strava contract.
 
 Validation: Bitrig builds for iPhone and embedded Watch succeeded. Core checks and an isolated check of the actual SwiftData save path passed. Offscreen macOS SwiftUI renders covered the overview, personal information, muscle selector, equipment selector, and HR editor in light, dark, compact, and accessibility layouts. This does not establish interactive iPhone, VoiceOver, real Health authorization, or paired Watch delivery correctness. Bitrig simulator inspection remains unavailable, and no Apple account is currently connected for device provisioning.
+
+
+## Illustrated gym inventory
+
+All twenty gym equipment choices now have original shaded SwiftUI Canvas illustrations. Free weights use Terra, benches and stations use sky, machines use lavender, and accessories use mint. Distinct silhouettes, padding, grips, plates, and cable details help identify each item. Vector drawing keeps the artwork sharp across display scales without adding image downloads or bitmap assets.
+
+The equipment artwork sits above the label inside each native Toggle card. A separate checkmark and selected border communicate state; the whole card remains tappable. Illustrations are decorative for VoiceOver, with the equipment name and native toggle state supplying the accessible meaning. Cards reflow at narrow widths and accessibility text sizes. Search, equipment persistence, and bodyweight selection retain their existing behavior.
+
+Validation: the Bitrig iPhone/Watch build passed. Offscreen SwiftUI review covered all twenty illustrations in light and dark appearance and the gym screen at standard, compact, and accessibility layouts. These macOS renders do not replace interactive iPhone verification.
