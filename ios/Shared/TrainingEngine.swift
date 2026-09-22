@@ -35,11 +35,11 @@ enum TrainingEngine {
             date: day, kind: .run, title: longRun ? "Long easy run" : "Aerobic base",
             purpose: longRun ? "Build time on your feet at a conversational effort. Keep enough in reserve for your next strength session." : "Build your aerobic base without adding unnecessary fatigue to the week.",
             minutes: minutes, distanceMeters: cappedMeters,
-            effort: "Conversational · RPE 3–4", isKey: longRun,
+            effort: "Easy running", isKey: longRun,
             segments: [
-              RunSegment(title: "Ease in", seconds: 5 * 60, cue: "Start gently; settle into your rhythm.", phase: .warmUp),
-              RunSegment(title: "Easy running", seconds: max(1, minutes - 10) * 60, cue: "A pace where you can speak in full sentences.", phase: .easy),
-              RunSegment(title: "Cool down", seconds: 5 * 60, cue: "Gradually ease the pace.", phase: .coolDown)
+              RunSegment(title: "Ease in", seconds: 5 * 60, cue: "Start gently; settle into your rhythm.", phase: .warmUp, heartRateZone: .two),
+              RunSegment(title: "Easy running", seconds: max(1, minutes - 10) * 60, cue: "A pace where you can speak in full sentences.", phase: .easy, heartRateZone: .two),
+              RunSegment(title: "Cool down", seconds: 5 * 60, cue: "Gradually ease the pace.", phase: .coolDown, heartRateZone: .one)
             ]))
           runsPlaced += 1
         } else {

@@ -46,6 +46,14 @@ final class TrainingStore {
         record?.payload = try JSONEncoder().encode(state)
         try container.mainContext.save()
       }
+      let protectedIDs = Set(state.results.map(\.logicalWorkoutID) + state.drafts.map(\.id))
+      if let upgraded = HeartRatePlanUpgrade.apply(to: plan, retaining: protectedIDs) {
+        var upgradedState = state
+        upgradedState.plans.append(upgraded)
+        record?.payload = try JSONEncoder().encode(upgradedState)
+        try container.mainContext.save()
+        state = upgradedState
+      }
       isLoaded = true
       loadError = nil
       shareWithWatch()

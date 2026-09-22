@@ -38,7 +38,7 @@ struct RunPrescriptionView: View {
       HStack(alignment: .bottom, spacing: gap) {
         ForEach(timeline.steps) { step in
           RoundedRectangle(cornerRadius: 3)
-            .fill(barColor(step.segment.phase))
+            .fill(SessionPalette.color(SessionBreakdown.tone(for: step.segment.heartRateZone)))
             .frame(width: width * CGFloat(step.seconds) / CGFloat(total),
               height: 16)
         }
@@ -60,10 +60,10 @@ struct RunPrescriptionView: View {
     return HStack(alignment: .top, spacing: 16) {
       VStack(spacing: 0) {
         ZStack {
-          Circle().fill(work ? HybrdStyle.terraWash : HybrdStyle.field).frame(width: 34, height: 34)
+          Circle().fill(SessionPalette.wash(SessionBreakdown.tone(for: segment.heartRateZone))).frame(width: 34, height: 34)
           Image(systemName: work ? "repeat" : segment.phase == .coolDown ? "flag.checkered" : "figure.run")
             .font(.caption.weight(.semibold))
-            .foregroundStyle(work ? HybrdStyle.terraText : HybrdStyle.muted)
+            .foregroundStyle(SessionPalette.ink(SessionBreakdown.tone(for: segment.heartRateZone)))
         }
         Rectangle().fill(HybrdStyle.line).frame(width: 1)
       }.frame(width: 34).accessibilityHidden(true)
@@ -77,14 +77,16 @@ struct RunPrescriptionView: View {
               .foregroundStyle(HybrdStyle.terraText)
           }
         }
-        Text(segment.targetSummary).font(.title3.weight(.medium)).monospacedDigit()
+        Text(segment.durationTargetSummary).font(.title3.weight(.medium)).monospacedDigit()
+        if let zone = segment.heartRateZone { RunZoneBadge(zone: zone) }
         Text(segment.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
         if let recovery {
           HStack(alignment: .top, spacing: 10) {
             Image(systemName: "arrow.turn.down.right").font(.subheadline)
               .foregroundStyle(HybrdStyle.muted).padding(.top, 2)
             VStack(alignment: .leading, spacing: 5) {
-              Text(recovery.targetSummary + " recovery").font(.subheadline.weight(.medium))
+              Text(recovery.durationTargetSummary + " recovery").font(.subheadline.weight(.medium))
+              if let zone = recovery.heartRateZone { RunZoneBadge(zone: zone) }
               Text(recovery.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
           }.padding(.top, 4)
@@ -95,15 +97,6 @@ struct RunPrescriptionView: View {
       .accessibilityElement(children: .combine)
     }
     .fixedSize(horizontal: false, vertical: true)
-  }
-
-  private func barColor(_ phase: RunSegmentPhase?) -> Color {
-    switch phase {
-    case .work: HybrdStyle.terra
-    case .recovery: HybrdStyle.ink
-    case .warmUp, .easy, .coolDown: HybrdStyle.chartStone
-    case nil: HybrdStyle.chartSand
-    }
   }
 
   private func isPairedRecovery(_ index: Int) -> Bool {

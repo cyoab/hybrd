@@ -112,20 +112,21 @@ enum TrainingEngineChecks {
     precondition(unpaired.steps.count == 4 && unpaired.totalSeconds == 80)
     let composition = SessionBreakdown(workout: intervals)
     precondition(composition.total == 58 * 60)
-    precondition(composition.parts.first { $0.id == "easy" }?.amount == 25 * 60)
-    precondition(composition.parts.first { $0.id == "work" }?.amount == 24 * 60)
-    precondition(composition.parts.first { $0.id == "recovery" }?.amount == 9 * 60)
+    precondition(composition.parts.first { $0.id == "zone1" }?.amount == 19 * 60)
+    precondition(composition.parts.first { $0.id == "zone4" }?.amount == 24 * 60)
+    precondition(composition.parts.first { $0.id == "zone2" }?.amount == 15 * 60)
     precondition(abs(composition.parts.reduce(0.0) { $0 + composition.share(of: $1) } - 1) < 0.000001,
       "Infographic shares must account for the entire prescribed session")
     var legacyRun = original
     legacyRun.segments = original.segments.map { segment in
       var old = segment
       old.phase = nil
+      old.heartRateZone = nil
       return old
     }
     let legacyComposition = SessionBreakdown(workout: legacyRun)
-    precondition(legacyComposition.parts.count == 1 && legacyComposition.parts[0].id == "unspecified",
-      "Do not infer intensity for old prescriptions without phase metadata")
+    precondition(legacyComposition.parts.count == 1 && legacyComposition.parts[0].id == "unassigned",
+      "Do not infer HR targets from missing metadata or legacy RPE")
     precondition(legacyComposition.total == RunTimeline(segments: legacyRun.segments).totalSeconds)
     precondition(composition.value(for: 80) == "1:20" && composition.unit(for: 80) == "min:sec",
       "Sub-minute prescriptions must not lose seconds in the infographic")
@@ -142,6 +143,59 @@ enum TrainingEngineChecks {
     var emptyLift = lift
     emptyLift.exercises = []
     precondition(SessionBreakdown(workout: emptyLift).total == 0)
-    print("PASS: session composition totals, shares and legacy fallback, profile input and validation, interval ordering and duration, planning invariants, legacy decoding, actual-result validation, partial/extra sets, and pause/resume timing")
+    precondition(intervals.primaryHeartRateZone == .four && !intervals.prescriptionTarget.contains("RPE"))
+    precondition(original.primaryHeartRateZone == .two)
+    let encodedRun = try JSONEncoder().encode(intervals)
+    let restoredRun = try JSONDecoder().decode(TrainingWorkout.self, from: encodedRun)
+    precondition(restoredRun.segments.map(\.heartRateZone) == intervals.segments.map(\.heartRateZone))
+    var legacySegment = try JSONSerialization.jsonObject(with: JSONEncoder().encode(intervals.segments[0])) as! [String: Any]
+    legacySegment.removeValue(forKey: "heartRateZone")
+    let decodedSegment = try JSONDecoder().decode(RunSegment.self, from: JSONSerialization.data(withJSONObject: legacySegment))
+    precondition(decodedSegment.heartRateZone == nil, "Existing persisted segments must decode without zone metadata")
+
+    var legacyPlan = sample
+    legacyPlan.workouts = sample.workouts.map { workout in
+      var old = workout
+      old.segments = workout.segments.map { segment in
+        var part = segment
+        part.heartRateZone = nil
+        return part
+      }
+      return old
+    }
+    let protectedRun = legacyPlan.workouts.first { $0.kind == .run }!
+    let beforeUpgrade = try JSONEncoder().encode(legacyPlan)
+    let upgrade = HeartRatePlanUpgrade.apply(to: legacyPlan, retaining: [protectedRun.logicalID], today: start)!
+    precondition(upgrade.id != legacyPlan.id && upgrade.basePlanID == legacyPlan.id)
+    precondition(upgrade.workouts.first { $0.logicalID == protectedRun.logicalID } == protectedRun,
+      "Completed and in-progress prescriptions must remain exact")
+    precondition(legacyPlan.workouts.allSatisfy { $0.segments.allSatisfy { $0.heartRateZone == nil } },
+      "Upgrading targets must not mutate a historical snapshot")
+    precondition(upgrade.workouts.contains { $0.primaryHeartRateZone == .four })
+    precondition(HeartRatePlanUpgrade.apply(to: upgrade, retaining: [protectedRun.logicalID], today: start) == nil,
+      "Target upgrade must be idempotent")
+    let historicalPlan = try JSONDecoder().decode(TrainingPlan.self, from: beforeUpgrade)
+    precondition(historicalPlan.workouts == legacyPlan.workouts)
+    var custom = legacyPlan
+    custom.workouts = [protectedRun]
+    custom.workouts[0].title = "Custom coach workout"
+    precondition(HeartRatePlanUpgrade.apply(to: custom, retaining: [], today: start) == nil,
+      "Never assign guessed zones to an unknown recipe")
+    precondition(HeartRatePlanUpgrade.apply(to: legacyPlan, retaining: [], today: TrainingEngine.date(start, offset: 40)) == nil,
+      "Past sessions must retain their original targets")
+    var legacyStarter = plan
+    legacyStarter.workouts = plan.workouts.map { workout in
+      var old = workout
+      old.segments = workout.segments.map { segment in
+        var part = segment
+        part.phase = nil
+        part.heartRateZone = nil
+        return part
+      }
+      return old
+    }
+    let starterUpgrade = HeartRatePlanUpgrade.apply(to: legacyStarter, retaining: [], today: start)!
+    precondition(starterUpgrade.workouts.filter { $0.kind == .run }.allSatisfy { $0.primaryHeartRateZone == .two })
+    print("PASS: HR targets, Codable compatibility, safe plan upgrades, zone composition totals and shares, profile input and validation, interval ordering and duration, planning invariants, legacy decoding, actual-result validation, partial/extra sets, and pause/resume timing")
   }
 }

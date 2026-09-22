@@ -230,6 +230,7 @@ struct WorkoutLoggerView: View {
         VStack(alignment: .leading, spacing: 10) {
           Text(draft.workout.title).font(.title2.weight(.semibold))
           Text("Prescribed: " + draft.workout.summary).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          if let zone = draft.workout.primaryHeartRateZone { RunZoneBadge(zone: zone) }
           Text("Enter the run you completed.").font(.subheadline)
         }.padding(.vertical, 8)
       }
@@ -266,7 +267,7 @@ struct WorkoutLoggerView: View {
 
   private var effortSection: some View {
     Section("How did it feel?") {
-      LabeledContent("Session effort", value: "\(draft.effort) / 10")
+      LabeledContent("How it felt", value: "\(draft.effort) / 10")
       Slider(value: Binding(get: { Double(draft.effort) }, set: { draft.effort = Int($0) }), in: 1...10, step: 1) {
         Text("Session effort")
       } minimumValueLabel: {

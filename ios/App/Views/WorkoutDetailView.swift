@@ -14,30 +14,34 @@ struct WorkoutDetailView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 28) {
-        hero
-        if let result { resultCard(result) }
+      VStack(alignment: .leading, spacing: 12) {
+        SessionHeroView(workout: current)
+        VStack(alignment: .leading, spacing: 26) {
+          if let result { resultCard(result) }
 
-        HStack(alignment: .top, spacing: 14) {
-          Image(systemName: "scope").font(.title3).foregroundStyle(HybrdStyle.terraText)
-            .padding(.top, 2).accessibilityHidden(true)
-          VStack(alignment: .leading, spacing: 7) {
-            Text("Why this session").font(.subheadline.weight(.semibold))
-            Text(current.purpose).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          HStack(alignment: .top, spacing: 14) {
+            Image(systemName: "scope").font(.title3).foregroundStyle(HybrdStyle.terraText)
+              .padding(.top, 2).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 7) {
+              Text("Why this session").font(.subheadline.weight(.semibold))
+              Text(current.purpose).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+            }
+          }
+          Divider().overlay(HybrdStyle.line)
+          if current.kind == .run {
+            RunPrescriptionView(workout: current)
+          } else {
+            StrengthPrescriptionView(exercises: current.exercises)
           }
         }
-        Divider().overlay(HybrdStyle.line)
-        if current.kind == .run {
-          RunPrescriptionView(workout: current)
-        } else {
-          StrengthPrescriptionView(exercises: current.exercises)
-        }
+        .padding(20).padding(.bottom, 12)
+        .frame(maxWidth: 760).frame(maxWidth: .infinity)
       }
-      .padding(20).padding(.bottom, 12)
-      .frame(maxWidth: 760).frame(maxWidth: .infinity)
     }
     .background(HybrdStyle.background)
     .toolbar(.visible, for: .navigationBar)
+    .toolbarBackground(current.kind == .run ? SessionPalette.runTop : SessionPalette.liftTop, for: .navigationBar)
+    .toolbarBackground(.visible, for: .navigationBar)
     .navigationTitle(current.kind == .run ? "Run session" : "Strength session")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
@@ -71,25 +75,6 @@ struct WorkoutDetailView: View {
     }
   }
 
-  private var hero: some View {
-    VStack(alignment: .leading, spacing: 20) {
-      VStack(alignment: .leading, spacing: 12) {
-        HStack(spacing: 8) {
-          DisciplineMark(kind: current.kind, size: 8)
-          Eyebrow(text: (current.isKey ? "Key session · " : current.isOptional == true ? "Optional · " : "") + current.kind.rawValue)
-        }
-        Text(current.title)
-          .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
-          .fixedSize(horizontal: false, vertical: true)
-        Text(current.date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
-          + (current.scheduledTimeLabel.map { " · " + $0 } ?? ""))
-          .font(.subheadline).foregroundStyle(HybrdStyle.muted)
-      }
-
-      SessionInfographicView(workout: current)
-    }
-  }
-
   private func resultCard(_ result: WorkoutResult) -> some View {
     VStack(alignment: .leading, spacing: 14) {
       Label(result.status.rawValue, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
@@ -107,7 +92,7 @@ struct WorkoutDetailView: View {
             }
           }
         }
-        LabeledContent("Session effort", value: "\(result.effort)/10")
+        LabeledContent("How it felt", value: "\(result.effort)/10")
         if !result.notes.isEmpty { Text(result.notes).font(.subheadline) }
       } else {
         Text("Your next sessions have not been moved.").font(.subheadline)

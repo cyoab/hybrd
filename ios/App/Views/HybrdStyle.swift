@@ -14,14 +14,13 @@ enum HybrdStyle {
   static let field = adaptive(light: 0xF0F3F6, dark: 0x29292E)
   static let terraWash = adaptive(light: 0xFFF0E9, dark: 0x35231D)
   static let chartStone = adaptive(light: 0xCBD5E1, dark: 0x718096)
-  static let chartSand = adaptive(light: 0xB5A799, dark: 0xBCA18B)
   static let terraText = adaptive(light: 0xBB401B, dark: 0xFF956F)
   static let run = terra
   static let strength = ink
   static let primaryButton = adaptive(light: 0x0D0D0E, dark: 0xF8FAFC)
   static let primaryButtonText = adaptive(light: 0xFFFFFF, dark: 0x0D0D0E)
 
-  private static func adaptive(light: UInt32, dark: UInt32) -> Color {
+  static func adaptive(light: UInt32, dark: UInt32) -> Color {
     Color(uiColor: UIColor { traits in
       let value = traits.userInterfaceStyle == .dark ? dark : light
       return UIColor(red: CGFloat((value >> 16) & 255) / 255,

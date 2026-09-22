@@ -57,7 +57,7 @@ private struct WatchSessionView: View {
       Section {
         Text(workout.title).font(.title3.bold())
         Text(workout.summary).foregroundStyle(.tint)
-        Text(workout.effort).font(.footnote)
+        Text(workout.prescriptionTarget).font(.footnote)
       }
       if workout.kind == .run {
         ForEach(workout.segments) { segment in

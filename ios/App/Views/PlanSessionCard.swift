@@ -26,7 +26,7 @@ struct PlanSessionCard: View {
         VStack(alignment: .leading, spacing: 8) {
           Text(workout.title).font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-0.6)
             .foregroundStyle(HybrdStyle.ink)
-          Text(workout.summary + (workout.kind == .run ? " · " + workout.effort : ""))
+          Text(workout.summary + (workout.kind == .run ? " · " + workout.prescriptionTarget : ""))
             .font(.subheadline).foregroundStyle(HybrdStyle.muted)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -88,7 +88,7 @@ struct RunStepSummary: View {
   var body: some View {
     HStack(alignment: .top, spacing: 10) {
       RoundedRectangle(cornerRadius: 2)
-        .fill(segment.phase == .work ? HybrdStyle.terra : HybrdStyle.stone)
+        .fill(SessionPalette.color(SessionBreakdown.tone(for: segment.heartRateZone)))
         .frame(width: 3, height: 20).accessibilityHidden(true)
       if dynamicType.isAccessibilitySize {
         VStack(alignment: .leading, spacing: 5) {

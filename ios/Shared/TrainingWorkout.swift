@@ -10,12 +10,28 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   var purpose: String
   var minutes: Int
   var distanceMeters: Int = 0
-  var effort = "Easy · RPE 3–4"
+  var effort = "Easy running"
   var isKey = false
   var exercises: [ExercisePrescription] = []
   var segments: [RunSegment] = []
   var scheduledMinutes: Int?
   var isOptional: Bool?
+
+  var primaryHeartRateZone: HeartRateZone? {
+    if let work = segments.first(where: { $0.phase == .work }) { return work.heartRateZone }
+    if let easy = segments.first(where: { $0.phase == .easy }) { return easy.heartRateZone }
+    return segments.compactMap(\.heartRateZone).max()
+  }
+
+  var heartRateTargetCaption: String {
+    segments.contains { $0.phase == .work } ? "work target" : "main HR target"
+  }
+
+  var prescriptionTarget: String {
+    guard kind == .run else { return effort }
+    guard let zone = primaryHeartRateZone else { return "HR target not set" }
+    return zone.title + (segments.contains { $0.phase == .work } ? " work" : " focus")
+  }
 
   var scheduledTimeLabel: String? {
     guard let scheduledMinutes else { return nil }
@@ -77,6 +93,7 @@ struct RunSegment: Codable, Identifiable, Equatable {
   var phase: RunSegmentPhase?
   var repetitions: Int?
   var target: String?
+  var heartRateZone: HeartRateZone?
 
   var displayTitle: String {
     if let repetitions, repetitions > 1 { return title + " × " + String(repetitions) }
@@ -84,6 +101,10 @@ struct RunSegment: Codable, Identifiable, Equatable {
   }
 
   var targetSummary: String {
+    durationTargetSummary + (heartRateZone.map { " · " + $0.shortTitle } ?? "")
+  }
+
+  var durationTargetSummary: String {
     let duration = seconds.isMultiple(of: 60) ? "\(seconds / 60) min" : "\(seconds / 60):\(String(format: "%02d", seconds % 60)) min"
     return duration + (target.map { " " + $0 } ?? "")
   }
