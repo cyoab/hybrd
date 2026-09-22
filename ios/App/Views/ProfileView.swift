@@ -82,9 +82,6 @@ struct ProfileView: View {
             (editor.details.equipment.isEmpty ? "Bodyweight setup" : "\(editor.details.equipment.count) equipment types") : "Choose your available equipment",
             symbol: "dumbbell", tone: .violet)
         }
-        NavigationLink { ExerciseLibraryView() } label: {
-          ProfileMenuRow(title: "Exercise library", subtitle: "Explore movements, muscles & equipment", symbol: "books.vertical", tone: .sky)
-        }
       }
 
       Section("Training & connections") {

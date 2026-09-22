@@ -8,8 +8,17 @@ struct AthleteInfoView: View {
 
   var body: some View {
     Form {
+      Section {
+        ProfileSectionHero(eyebrow: "Your foundation", title: "It starts with you.",
+          subtitle: "A few details about the athlete behind the plan. Share only what you want to.",
+          artwork: .identity, tone: .violet)
+          .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
+      }
       Section("Identity") {
-        TextField("Name", text: $editor.profile.name).textContentType(.name).focused($focused)
+        LabeledContent("Name") {
+          TextField("Name", text: $editor.profile.name, prompt: Text("Your name")).labelsHidden()
+            .textContentType(.name).multilineTextAlignment(.trailing).focused($focused).accessibilityLabel("Name")
+        }
         Button {
           birthDraft = editor.details.birthDate ?? Calendar.current.date(byAdding: .year, value: -25, to: Date())!
           showBirthday = true
@@ -22,8 +31,10 @@ struct AthleteInfoView: View {
         }
       }
       Section {
-        ProfileNumberField(title: "Weight", text: $editor.weight, unit: "kg").focused($focused)
-        ProfileNumberField(title: "Height", text: $editor.height, unit: "cm").focused($focused)
+        ProfileMetricField(title: "Weight", text: $editor.weight, unit: "kg", tone: .terra)
+          .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .terra))
+        ProfileMetricField(title: "Height", text: $editor.height, unit: "cm", tone: .sky)
+          .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .sky))
         if !editor.weight.isEmpty && TrainingProfile.parseDecimal(editor.weight, range: 20...400) == nil {
           Text("Enter 20–400 kg or leave weight blank.").font(.caption).foregroundStyle(HybrdStyle.terraText)
         }
@@ -36,9 +47,11 @@ struct AthleteInfoView: View {
       Section {
         NavigationLink { ProfileConnectionsView(editor: editor) } label: {
           Label("Import from Apple Health", systemImage: "heart.text.clipboard")
+            .foregroundStyle(SessionPalette.ink(.mint)).padding(.vertical, 5)
         }
       }
     }
+    .scrollContentBackground(.hidden).background(HybrdStyle.background)
     .sheet(isPresented: $showBirthday) {
       NavigationStack {
         Form {
@@ -58,22 +71,5 @@ struct AthleteInfoView: View {
     .navigationTitle("About you").navigationBarTitleDisplayMode(.inline)
     .scrollDismissesKeyboard(.interactively)
     .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { focused = false } } }
-  }
-}
-
-struct ProfileNumberField: View {
-  var title: String
-  @Binding var text: String
-  var unit: String
-
-  var body: some View {
-    LabeledContent {
-      HStack(spacing: 6) {
-        TextField("Not set", text: $text).labelsHidden().keyboardType(.decimalPad)
-          .multilineTextAlignment(.trailing).monospacedDigit()
-          .accessibilityLabel(title + " in " + unit)
-        Text(unit).foregroundStyle(.secondary)
-      }
-    } label: { Text(title) }
   }
 }

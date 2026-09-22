@@ -39,7 +39,7 @@ Validate available fields and account access against the [Strava API reference](
 
 The app bundles 876 text records from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), pinned to `a859101d633a01c4a1a920d6a8ce41dabba0705f`, with its Unlicense and source note under `App/Resources/ExerciseCatalog/`. No source images are bundled.
 
-The public library's string IDs and broad equipment categories are reference data. They must not be submitted as the backend catalog's canonical UUIDs or treated as complete equipment requirements. The reviewed local starter recipes maintain their own explicit equipment sets. Any future backend exercise mapping must be versioned and preserve existing prescriptions.
+The catalog is an internal data source, not a profile screen. A scoped lift picker uses its names and IDs during strength PR entry. Its string IDs and broad equipment categories are reference data. They must not be submitted as the backend catalog's canonical UUIDs or treated as complete equipment requirements. The reviewed local starter recipes maintain their own explicit equipment sets. Any future backend exercise mapping must be versioned and preserve existing prescriptions.
 
 ## Verification status
 

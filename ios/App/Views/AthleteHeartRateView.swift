@@ -7,42 +7,77 @@ struct AthleteHeartRateView: View {
   var body: some View {
     Form {
       Section {
-        Text("Your zones, your effort.")
-          .font(.system(.title2, design: .rounded, weight: .semibold))
-        Text("Enter the start of Zones 2–5 from your tested or configured zones. Zone 1 sits below Zone 2; Zone 5 has no upper limit here.")
-          .font(.subheadline).foregroundStyle(.secondary)
+        ProfileSectionHero(eyebrow: "Find your rhythm", title: "Your heart. Your zones.",
+          subtitle: "Give every run a personal effort range. Enter the boundaries you already use.",
+          artwork: .heart, tone: .terra)
+          .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
       }
-      Section("Zone boundaries") {
-        ForEach(0..<4) { index in
-          ProfileNumberField(title: "Zone \(index + 2) starts at", text: $editor.zoneStarts[index], unit: "bpm")
-            .focused($focused)
-        }
-      }
-      if let zones = editor.zones {
-        Section("Your five zones") {
-          ForEach(HeartRateZone.allCases) { zone in
-            HStack {
-              RunZoneBadge(zone: zone, personalZones: zones)
-              Spacer()
-              Text(zone.name).font(.caption).foregroundStyle(.secondary)
-            }
-            .accessibilityElement(children: .combine)
+      Section {
+        HStack(spacing: 12) {
+          zoneMark(.one)
+          VStack(alignment: .leading, spacing: 5) {
+            Text("Recovery").font(.headline)
+            Text(editor.zones?.label(for: .one) ?? "Below the start of Zone 2")
+              .font(.subheadline).foregroundStyle(HybrdStyle.muted)
           }
-        }
-      } else if editor.zoneStarts.contains(where: { !$0.isEmpty }) {
+        }.padding(.vertical, 7)
+          .accessibilityElement(children: .combine)
+          .modifier(ProfileTintedRow(tone: .sky))
+      } header: { Text("Your five zones") }
+
+      ForEach(Array(HeartRateZone.allCases.dropFirst())) { zone in
+        let index = zone.rawValue - 2
+        let tone = SessionBreakdown.tone(for: zone)
         Section {
-          Text("Enter all four boundaries in increasing order, from 30 to 250 bpm.")
-            .foregroundStyle(HybrdStyle.terraText)
+          VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+              zoneMark(zone)
+              VStack(alignment: .leading, spacing: 4) {
+                Text(zone.name).font(.headline)
+                if let ranges = editor.zones {
+                  Text(ranges.label(for: zone)).font(.caption).foregroundStyle(HybrdStyle.muted)
+                }
+              }
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+              Text("Starts at").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+              Spacer(minLength: 0)
+              TextField("Zone boundary", text: $editor.zoneStarts[index], prompt: Text("Not set")).labelsHidden()
+                .keyboardType(.numberPad).focused($focused).multilineTextAlignment(.trailing)
+                .font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
+                .accessibilityLabel("Zone \(zone.rawValue) starts at, beats per minute")
+              Text("bpm").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+            }
+          }
+          .padding(.vertical, 8)
+          .modifier(ProfileTintedRow(tone: tone))
+        }
+      }
+      if editor.zoneStarts.contains(where: { !$0.isEmpty }) && editor.zones == nil {
+        Section {
+          Label("Enter four increasing boundaries from 30–250 bpm.", systemImage: "exclamationmark.circle")
+            .font(.subheadline).foregroundStyle(HybrdStyle.terraText)
         }
       }
       Section {
         Button("Clear personal zones", role: .destructive) { editor.zoneStarts = ["", "", "", ""] }
+          .disabled(editor.zoneStarts.allSatisfy(\.isEmpty))
       } footer: {
-        Text("We don’t estimate zones from your age. Apple Health’s profile import doesn’t provide your Apple Watch zone settings.")
+        Text("Use your tested or configured zones. Zone 5 has no upper limit here. We don’t estimate zones from age, and Apple Health’s profile import doesn’t include Apple Watch zone settings.")
       }
     }
+    .scrollContentBackground(.hidden).background(HybrdStyle.background)
     .navigationTitle("Heart-rate zones").navigationBarTitleDisplayMode(.inline)
     .scrollDismissesKeyboard(.interactively)
     .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { focused = false } } }
+  }
+
+  private func zoneMark(_ zone: HeartRateZone) -> some View {
+    Text(zone.shortTitle).font(.headline.monospacedDigit())
+      .foregroundStyle(SessionPalette.ink(SessionBreakdown.tone(for: zone)))
+      .frame(minWidth: 42, minHeight: 42)
+      .background(SessionPalette.color(SessionBreakdown.tone(for: zone)).opacity(0.18),
+        in: RoundedRectangle(cornerRadius: 13))
+      .accessibilityLabel(zone.title)
   }
 }

@@ -103,7 +103,7 @@ References inspected through Mobbin for this expansion:
 
 Muscle illustrations are original SwiftUI vector paths. Front/back maps summarize the selection, and ten native Toggle cards pair individual muscle illustrations with names and checkmarks. Equipment uses twenty named, searchable Toggle cards grouped by type, plus an explicit bodyweight setup. Color is reinforced by text and selection marks; grids become single-column at accessibility sizes. An unconfigured gym remains distinct from an intentionally empty equipment inventory.
 
-The bundled Free Exercise DB provides 876 searchable reference entries, primary muscle/equipment filters, movement instructions where available, and source attribution. Its primary-equipment category is not a complete equipment requirement. New starter plans use a separate reviewed recipe set with explicit requirements and bodyweight alternatives. Muscle focus prioritizes movements within upper/lower sessions; it does not claim measured muscle load or a complete personalized program. User equipment and focus choices take effect only in an explicitly accepted new starter block.
+The bundled Free Exercise DB provides 876 internal reference records. The profile no longer exposes a library browser, category filters, or movement-reference pages. Strength PR entry uses a dedicated Choose lift picker with common lifts and matching search results. Its primary-equipment category is not a complete equipment requirement. New starter plans use a separate reviewed recipe set with explicit requirements and bodyweight alternatives. Muscle focus prioritizes movements within upper/lower sessions; it does not claim measured muscle load or a complete personalized program. User equipment and focus choices take effect only in an explicitly accepted new starter block.
 
 Running PRs retain exact entered times. Strength PRs retain load and reps, with manual/logged provenance; no estimated one-rep maximum is substituted. Logged candidates exclude unfinished sets and skipped sessions and need explicit addition. Optional athlete details keep older stored profiles and plan snapshots decodable.
 
@@ -119,3 +119,16 @@ All twenty gym equipment choices now have original shaded SwiftUI Canvas illustr
 The equipment artwork sits above the label inside each native Toggle card. A separate checkmark and selected border communicate state; the whole card remains tappable. Illustrations are decorative for VoiceOver, with the equipment name and native toggle state supplying the accessible meaning. Cards reflow at narrow widths and accessibility text sizes. Search, equipment persistence, and bodyweight selection retain their existing behavior.
 
 Validation: the Bitrig iPhone/Watch build passed. Offscreen SwiftUI review covered all twenty illustrations in light and dark appearance and the gym screen at standard, compact, and accessibility layouts. These macOS renders do not replace interactive iPhone verification.
+
+
+## Profile detail design system
+
+About you, Experience, Heart-rate zones, and running/strength PRs share an illustrated header with rounded typography, pastel gradients, and original vector artwork. Identity uses an athlete card and ruler; experience pairs running and lifting; heart-rate editing uses a heart/pulse illustration; running uses a stopwatch and medal; strength uses a trophy with a barbell motif. The artwork is decorative and never represents recorded achievements or health measurements.
+
+Measurement fields use prominent editable values with persistent labels and units. Running and strength experience stay independent native Pickers in Terra and lavender cards. Each HR zone has its numbered label and established zone color; Zones 2–5 expose direct integer BPM entry while Zone 1 follows the lower boundary. Valid personal ranges appear next to their zones, and invalid drafts retain corrective messaging. Running PRs use warm time-entry cards; strength PRs pair clear load/rep metrics with edit/delete controls and reviewed logged-set imports.
+
+The standalone exercise-library navigation and browser have been removed. Catalog data remains behind the scenes, supplying a scoped movement choice only when adding or editing a strength PR. Existing records and catalog identifiers are preserved; no backend migration or network integration is implied.
+
+Native Form/List containers, text fields, menu Pickers, sheets, swipe deletion, and keyboard controls retain their semantics. Headers stack at accessibility sizes, fields keep accessible labels, and illustrations are hidden from VoiceOver. Optional values, draft validation, explicit profile saving, and separate starter-plan acceptance remain intact.
+
+Validation: Bitrig builds and core regression checks passed. Temporary offscreen macOS SwiftUI renders cover all five destinations plus the strength editor, lift picker, empty strength records, and invalid input in light, dark, compact, and accessibility layouts. Interactive iPhone and VoiceOver verification remain unavailable in this Bitrig destination.

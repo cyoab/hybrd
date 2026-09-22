@@ -7,30 +7,41 @@ struct RunningBestsView: View {
   var body: some View {
     Form {
       Section {
-        Label("Every benchmark starts somewhere.", systemImage: "stopwatch")
-          .font(.headline).foregroundStyle(HybrdStyle.terraText)
-        Text("Add the distances you’ve raced or timed. Leave the rest blank.")
-          .font(.subheadline).foregroundStyle(.secondary)
+        ProfileSectionHero(eyebrow: "Running PRs", title: "Your fastest times.",
+          subtitle: "From your first mile to your fastest marathon. Add the distances you’ve raced or timed.",
+          artwork: .running, tone: .terra)
+          .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
       }
-      Section {
-        ForEach(RunRecordDistance.allCases) { distance in
-          VStack(alignment: .leading, spacing: 6) {
-            LabeledContent(distance.rawValue) {
-              TextField("mm:ss", text: Binding(
-                get: { editor.runningTimes[distance] ?? "" },
-                set: { editor.runningTimes[distance] = $0 }))
-                .labelsHidden().keyboardType(.numbersAndPunctuation).multilineTextAlignment(.trailing).monospacedDigit()
-                .focused($focused).accessibilityLabel(distance.rawValue + " personal-best time")
+      ForEach(RunRecordDistance.allCases) { distance in
+        Section {
+          VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+              Text(distance.rawValue).font(.headline).foregroundStyle(HybrdStyle.ink)
+              Spacer()
+              if let time = editor.runningTimes[distance], RunningPersonalBest.parse(time) != nil {
+                Image(systemName: "checkmark.seal.fill").foregroundStyle(HybrdStyle.terraText)
+                  .accessibilityLabel("Time entered")
+              }
             }
+            ProfileMetricField(title: "Personal best", text: Binding(
+              get: { editor.runningTimes[distance] ?? "" },
+              set: { editor.runningTimes[distance] = $0 }), unit: "", tone: .terra, placeholder: "mm:ss",
+              accessibilityTitle: distance.rawValue + " personal-best time")
+              .keyboardType(.numbersAndPunctuation).focused($focused)
             if let value = editor.runningTimes[distance], !value.isEmpty, RunningPersonalBest.parse(value) == nil {
               Text("Use mm:ss or h:mm:ss.").font(.caption).foregroundStyle(HybrdStyle.terraText)
             }
           }
+          .padding(.vertical, 4)
+          .modifier(ProfileTintedRow(tone: .terra))
         }
-      } header: { Text("Personal-best times") } footer: {
-        Text("For example: 24:30 for a 5K or 1:48:20 for a half marathon. These are your recorded times, not pace estimates.")
+      }
+      Section {
+        Text("Leave unrecorded distances blank. Use mm:ss or h:mm:ss, such as 24:30 or 1:48:20.")
+          .font(.subheadline).foregroundStyle(HybrdStyle.muted)
       }
     }
+    .scrollContentBackground(.hidden).background(HybrdStyle.background)
     .navigationTitle("Running PRs").navigationBarTitleDisplayMode(.inline)
     .scrollDismissesKeyboard(.interactively)
     .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { focused = false } } }

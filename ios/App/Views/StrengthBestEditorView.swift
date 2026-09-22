@@ -27,19 +27,25 @@ struct StrengthBestEditorView: View {
     NavigationStack {
       Form {
         Section {
+          ProfileSectionHero(eyebrow: "Strength record", title: "Make it a milestone.",
+            subtitle: "Choose your lift, then record the load and the reps you completed.",
+            artwork: .strength, tone: .violet)
+            .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
+        }
+        Section {
           NavigationLink {
-            ExerciseLibraryView { exercise in exerciseID = exercise.id; exerciseName = exercise.name }
+            StrengthExercisePicker { exercise in exerciseID = exercise.id; exerciseName = exercise.name }
           } label: { LabeledContent("Exercise", value: exerciseName.isEmpty ? "Choose" : exerciseName) }
-          ProfileNumberField(title: "Weight", text: $weight, unit: "kg").focused($focused)
-          LabeledContent("Reps") {
-            TextField("e.g. 5", text: $reps).labelsHidden().keyboardType(.numberPad).multilineTextAlignment(.trailing)
-              .focused($focused).accessibilityLabel("Repetitions")
-          }
+          ProfileMetricField(title: "Weight", text: $weight, unit: "kg", tone: .violet)
+            .keyboardType(.decimalPad).focused($focused).modifier(ProfileTintedRow(tone: .violet))
+          ProfileMetricField(title: "Repetitions", text: $reps, unit: "reps", tone: .violet, placeholder: "e.g. 5")
+            .keyboardType(.numberPad).focused($focused).modifier(ProfileTintedRow(tone: .violet))
         } footer: { Text("Use the total load for the movement. Keep your convention consistent for dumbbells and machines. Bodyweight-only sets can use 0 kg.") }
         if !valid && (!weight.isEmpty || !reps.isEmpty) {
           Section { Text("Choose an exercise, enter 0–1,000 kg, and 1–100 reps.").foregroundStyle(HybrdStyle.terraText) }
         }
       }
+      .scrollContentBackground(.hidden).background(HybrdStyle.background)
       .navigationTitle(record == nil ? "Add strength PR" : "Edit strength PR")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
