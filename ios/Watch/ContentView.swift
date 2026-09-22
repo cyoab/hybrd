@@ -6,44 +6,52 @@ struct ContentView: View {
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
-    NavigationStack {
+    // The recording owns its navigation stack. Changing only a stack's root
+    // leaves an already-pushed session detail covering the live workout.
+    Group {
       if recorder.recording != nil {
-        WatchRunView()
+        NavigationStack { WatchRunView() }
       } else {
-        List {
-          if companion.queuedRunCount > 0 {
-            Section {
-              Label("\(companion.queuedRunCount) run(s) saved on Watch", systemImage: "checkmark.seal")
-              Text("Waiting for iPhone confirmation").font(.caption2).foregroundStyle(.secondary)
-              Button("Retry transfer") { companion.retryTransfers() }
-            }
-          }
-          if let snapshot = companion.snapshot {
-            Section {
-              Text(snapshot.isSample ? "Sample plan" : snapshot.name + "’s plan").font(.caption)
-              Text("Updated " + snapshot.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                .font(.caption2).foregroundStyle(.secondary)
-            }
-            ForEach(snapshot.workouts) { workout in
-              NavigationLink { WatchSessionReadyView(workout: workout) } label: {
-                WatchWorkoutCardView(workout: workout)
-              }
-              .listRowBackground(RoundedRectangle(cornerRadius: 20).fill(
-                WatchRunStyle.workoutColor(workout).opacity(0.16).gradient))
-            }
-            if snapshot.workouts.isEmpty { Text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.").font(.footnote) }
-          } else {
-            Section {
-              Image(systemName: "iphone.and.arrow.forward").font(.largeTitle).foregroundStyle(WatchRunStyle.terra)
-              Text("Your run, on your wrist").font(.headline)
-              Text("Open hybrd on your paired iPhone, then send your plan from Athlete. Once synced, you can run without your phone.").font(.footnote).foregroundStyle(.secondary)
-            }
-          }
-        }.navigationTitle("hybrd")
+        NavigationStack {
+          workoutList
+        }
       }
     }
     .tint(WatchRunStyle.terra)
     .onChange(of: scenePhase) { _, phase in if phase == .active { companion.retryTransfers() } }
+  }
+
+  private var workoutList: some View {
+    List {
+      if companion.queuedRunCount > 0 {
+        Section {
+          Label("\(companion.queuedRunCount) run(s) saved on Watch", systemImage: "checkmark.seal")
+          Text("Waiting for iPhone confirmation").font(.caption2).foregroundStyle(.secondary)
+          Button("Retry transfer") { companion.retryTransfers() }
+        }
+      }
+      if let snapshot = companion.snapshot {
+        Section {
+          Text(snapshot.isSample ? "Sample plan" : snapshot.name + "’s plan").font(.caption)
+          Text("Updated " + snapshot.updatedAt.formatted(date: .abbreviated, time: .shortened))
+            .font(.caption2).foregroundStyle(.secondary)
+        }
+        ForEach(snapshot.workouts) { workout in
+          NavigationLink { WatchSessionReadyView(workout: workout) } label: {
+            WatchWorkoutCardView(workout: workout)
+          }
+          .listRowBackground(RoundedRectangle(cornerRadius: 20).fill(
+            WatchRunStyle.workoutColor(workout).opacity(0.16).gradient))
+        }
+        if snapshot.workouts.isEmpty { Text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.").font(.footnote) }
+      } else {
+        Section {
+          Image(systemName: "iphone.and.arrow.forward").font(.largeTitle).foregroundStyle(WatchRunStyle.terra)
+          Text("Your run, on your wrist").font(.headline)
+          Text("Open hybrd on your paired iPhone, then send your plan from Athlete. Once synced, you can run without your phone.").font(.footnote).foregroundStyle(.secondary)
+        }
+      }
+    }.navigationTitle("hybrd")
   }
 }
 
@@ -61,6 +69,9 @@ private struct WatchSessionReadyView: View {
           Button(recorder.preparing ? "Preparing…" : "Start run", systemImage: "play.fill") {
             Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones) }
           }.buttonStyle(.borderedProminent).disabled(recorder.preparing)
+          if let error = recorder.errorMessage {
+            Text(error).font(.caption2).foregroundStyle(.orange)
+          }
           Text("GPS, heart rate and laps record on this Watch. Your phone can stay behind.").font(.caption2).foregroundStyle(.secondary)
           ForEach(workout.segments) { segment in
             VStack(alignment: .leading, spacing: 3) {
@@ -78,7 +89,6 @@ private struct WatchSessionReadyView: View {
             }
           }
         }
-        if let error = recorder.errorMessage { Text(error).font(.caption2).foregroundStyle(.orange) }
       }.padding(.horizontal, 8).frame(maxWidth: .infinity, alignment: .leading)
     }.navigationTitle(workout.kind.rawValue)
   }
