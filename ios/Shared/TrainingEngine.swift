@@ -44,7 +44,7 @@ enum TrainingEngine {
           runsPlaced += 1
         } else {
           let lower = liftsPlaced == 0
-          workouts.append(strengthWorkout(on: day, lower: lower, minutes: profile.sessionMinutes, goal: profile.strengthGoal))
+          workouts.append(strengthWorkout(on: day, lower: lower, minutes: profile.sessionMinutes, goal: profile.strengthGoal, athlete: profile.athlete))
           liftsPlaced += 1
         }
       }
@@ -52,10 +52,13 @@ enum TrainingEngine {
     return TrainingPlan(basePlanID: basePlanID, reason: "Starter block accepted", profile: profile, workouts: workouts)
   }
 
-  static func strengthWorkout(on date: Date, lower: Bool, minutes: Int, goal: StrengthGoal) -> TrainingWorkout {
+  static func strengthWorkout(on date: Date, lower: Bool, minutes: Int, goal: StrengthGoal, athlete: AthleteDetails? = nil) -> TrainingWorkout {
     let reps = goal == .muscle ? 10 : 6
     let count = minutes < 40 ? 2 : 3
-    let names = lower ? ["Goblet squat", "Romanian deadlift", "Reverse lunge", "Standing calf raise"] : ["Dumbbell bench press", "One-arm dumbbell row", "Seated shoulder press", "Lat pulldown"]
+    var names = lower ? ["Goblet squat", "Romanian deadlift", "Reverse lunge", "Standing calf raise"] : ["Dumbbell bench press", "One-arm dumbbell row", "Seated shoulder press", "Lat pulldown"]
+    if let athlete, athlete.gymConfigured || !athlete.focusMuscles.isEmpty {
+      names = StrengthStarterSelection.moves(lower: lower, details: athlete).map(\.name)
+    }
     return TrainingWorkout(
       date: date, kind: .strength, title: lower ? "Lower body" : "Upper body",
       purpose: lower ? "Build a strong foundation. Use a comfortable load and keep three reps in reserve." : "Build upper-body strength while giving your legs space to recover for the next run.",

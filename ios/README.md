@@ -1,4 +1,4 @@
-# hybrd native app scaffold
+# hybrd native app
 
 The official source of truth is this repository's `ios/` directory.
 
@@ -8,7 +8,7 @@ The official source of truth is this repository's `ios/` directory.
 - `App/`: SwiftUI iPhone shells, SwiftData persistence, draft logging, local sample plan, and deterministic coach fallback.
 - `Watch/`: read-only companion shell for receiving and browsing prescriptions.
 - `Shared/`: typed local models, starter-plan rules, and WatchConnectivity transport.
-- `Tests/`: focused executable checks for local planning invariants.
+- `Tests/`: executable checks for planning, profile validation, backward compatibility, and the bundled catalog.
 
 The current Bitrig-managed workspace links its `App`, `Watch`, `Shared`, and `Project.json` paths here. These are local development links, not copies of the source. Build outputs remain in Bitrig's build directory.
 
@@ -16,7 +16,11 @@ The current Bitrig-managed workspace links its `App`, `Watch`, `Shared`, and `Pr
 
 This is an early local scaffold, not the complete MVP. It includes sample data, editable goals, heart-rate-zone run targets, four-week starter prescriptions and a clearly labeled sample block, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, basic totals, and a read-only Watch companion.
 
-Personal BPM calibration and live heart-rate recording are not available. No backend requests, authentication, cloud AI, entitlements, HealthKit import, StoreKit, reminders, WorkoutKit delivery, or production synchronization are implemented. The current local models are not the generated OpenAPI contract. The starter generator is deliberately simple; goal-specific programming, priority weighting, robust scheduling, and adaptive progression are future work.
+The athlete profile includes optional birth date/age, height, weight, self-reported running and strength experience, editable personal BPM boundaries, running PRs, and strength records expressed as load × reps. Native illustrated selectors cover ten muscle groups and twenty equipment types. A bundled, searchable public-domain library contains 876 exercises. Profile saves preserve plan snapshots, actual results, and unfinished logs. Applying training preferences to a new starter block still requires review and acceptance.
+
+Apple Health import requests read-only access to date of birth, height, and weight, then presents a per-field review before applying values to the profile draft. It does not import heart-rate zones or PRs. Strength records can also be selected from completed sets in local logs. Strava is explicitly deferred until its developer app and OAuth backend exist; see `PROFILE-INTEGRATIONS.md`.
+
+The iPhone target has a HealthKit entitlement and usage description. Physical-device Health verification still needs a connected Apple account and provisioned app identifier in Bitrig. Automatic BPM calibration, live heart-rate recording, backend requests, authentication, cloud AI, StoreKit, reminders, WorkoutKit delivery, and production synchronization are not implemented. The current local models are not the generated OpenAPI contract. The starter generator uses a small reviewed recipe library: configured equipment constrains movement choices and selected muscles influence their order. Age, body measurements, experience, and PRs are stored metadata; they do not yet calculate loads or progression. Goal-specific programming and adaptive progression remain future work.
 
 ## Integration constraints
 
@@ -39,8 +43,7 @@ The user's supplied reference at `../docs/design.png` is the visual direction: a
 Run the core checks from this directory:
 
 ```sh
-swiftc -module-cache-path /tmp/hybrd-swift-module-cache Shared/TrainingProfile.swift Shared/TrainingWorkout.swift Shared/TrainingPlan.swift Shared/WorkoutResult.swift Shared/TrainingEngine.swift Shared/SampleTraining.swift Shared/RunTimeline.swift Shared/SessionBreakdown.swift Shared/HeartRateZone.swift Shared/HeartRatePlanUpgrade.swift Shared/TrainingWeekWindow.swift Shared/WeeklyTrainingSummary.swift Tests/HomePlanChecks.swift Tests/TrainingEngineChecks.swift -o /tmp/hybrd-core-checks
-/tmp/hybrd-core-checks
+bash Scripts/check-core.sh
 ```
 
 Build and run the iPhone and Watch targets using Bitrig.
@@ -48,6 +51,7 @@ Build and run the iPhone and Watch targets using Bitrig.
 ## Validation at scaffold handoff
 
 - Bitrig build completed successfully for the iPhone app and embedded Watch target.
-- Core executable checks passed for calendar paging across daylight-saving and year boundaries, distant date jumps, weekly actual-versus-planned totals, localized weekly-distance entry, invalid numeric input, chronological work/recovery timelines, session composition totals and proportions, HR-zone decoding and history-preserving plan upgrades, legacy target fallback, availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, encoding, old draft decoding, interval totals, partial and extra sets, actual-result validation, and pause/resume timing.
-- Home and session infographic components were visually reviewed using offscreen SwiftUI renders in light, dark, compact, and accessibility layouts with the bundled illustrations. This was a macOS rendering harness, not interactive iPhone verification.
+- Core executable checks additionally cover legacy profile decoding, richer profile round trips, optional and invalid input, HR boundary ordering, PR parsing, completed-set candidates, equipment-constrained starter recipes, focus ordering, and catalog integrity. An isolated in-memory SwiftData check exercised the actual profile-save implementation, confirming reload persistence, unchanged plans/results/drafts, and rejection of stale or invalid edits.
+- Existing core executable checks passed for calendar paging across daylight-saving and year boundaries, distant date jumps, weekly actual-versus-planned totals, localized weekly-distance entry, invalid numeric input, chronological work/recovery timelines, session composition totals and proportions, HR-zone decoding and history-preserving plan upgrades, legacy target fallback, availability, physical/logical identities, historical snapshot preservation, schedule conflicts, unperformed defaults, encoding, old draft decoding, interval totals, partial and extra sets, actual-result validation, and pause/resume timing.
+- Home, session, and athlete-profile components were visually reviewed using offscreen SwiftUI renders in light, dark, compact, and accessibility layouts with the bundled illustrations. This was a macOS rendering harness, not interactive iPhone verification.
 - Bitrig reports both simulators running, but its simulator-inspection tool returns that this destination does not support simulator state. Interactive UI behavior and paired Watch delivery have not been verified.

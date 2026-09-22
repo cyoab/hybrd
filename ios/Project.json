@@ -36,7 +36,8 @@
             "UIInterfaceOrientationPortraitUpsideDown",
             "UIInterfaceOrientationLandscapeLeft",
             "UIInterfaceOrientationLandscapeRight"
-          ]
+          ],
+          "NSHealthShareUsageDescription": "hybrd reads your date of birth, height, and weight to fill in your athlete profile after you review and select the values."
         }
       },
       "platform": "iOS",
@@ -58,7 +59,13 @@
           "path": "Shared"
         }
       ],
-      "type": "application"
+      "type": "application",
+      "entitlements": {
+        "path": "App/hybrd.entitlements",
+        "properties": {
+          "com.apple.developer.healthkit": true
+        }
+      }
     },
     "hybrd Watch": {
       "info": {

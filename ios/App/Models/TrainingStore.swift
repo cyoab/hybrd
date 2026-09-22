@@ -102,6 +102,23 @@ final class TrainingStore {
     return workout.isKey ? "Key session" : "Planned"
   }
 
+  @discardableResult
+  func saveProfile(_ profile: TrainingProfile, replacing expected: TrainingProfile) -> Bool {
+    guard state.profile == expected else {
+      errorMessage = "Your profile changed while you were editing. Reopen it to use the latest details."
+      return false
+    }
+    guard profile.validationMessage == nil else {
+      errorMessage = profile.validationMessage
+      return false
+    }
+    var next = state
+    next.profile = profile
+    next.profile.name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
+    if next.profile.name.isEmpty { next.profile.name = "Athlete" }
+    return persist(next)
+  }
+
   func starterProposal(for profile: TrainingProfile) -> TrainingPlan? {
     guard profile.validationMessage == nil else { return nil }
     var updated = profile

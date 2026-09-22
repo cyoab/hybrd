@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SessionInfographicView: View {
+  @Environment(TrainingStore.self) private var store
   @Environment(\.dynamicTypeSize) private var typeSize
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   var workout: TrainingWorkout
@@ -72,7 +73,7 @@ struct SessionInfographicView: View {
               .font(.caption).foregroundStyle(HybrdStyle.muted)
           }
           if workout.kind == .run {
-            Text("Zone targets only · personal BPM ranges aren’t connected.")
+            Text(store.profile.athlete?.heartRateZones == nil ? "Add personal BPM ranges in your athlete profile." : "Your personal BPM ranges are shown in the run steps.")
               .font(.caption).foregroundStyle(HybrdStyle.muted)
             if breakdown.total != workout.minutes * 60 {
               Text("Session estimate: \(workout.minutes) min. The ring shows timed segments only.")

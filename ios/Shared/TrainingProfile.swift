@@ -10,6 +10,7 @@ struct TrainingProfile: Codable, Equatable {
   var strengthDays = 3
   var sessionMinutes = 60
   var isSample = true
+  var athlete: AthleteDetails?
 
   var validationMessage: String? {
     guard weeklyKilometers.isFinite, (3...150).contains(weeklyKilometers) else {
@@ -21,10 +22,14 @@ struct TrainingProfile: Codable, Equatable {
     guard (1...4).contains(strengthDays), [30, 45, 60, 75, 90].contains(sessionMinutes) else {
       return "Choose a strength frequency and session length from the available options."
     }
-    return nil
+    return athlete?.validationMessage
   }
 
   static func parseWeeklyKilometers(_ text: String, locale: Locale = .current) -> Double? {
+    parseDecimal(text, range: 3...150, locale: locale)
+  }
+
+  static func parseDecimal(_ text: String, range: ClosedRange<Double>, locale: Locale = .current) -> Double? {
     let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
     let formatter = NumberFormatter()
     formatter.locale = locale
@@ -35,7 +40,7 @@ struct TrainingProfile: Codable, Equatable {
     guard parts.count <= 2, input.contains(where: { $0.isNumber }),
           parts.allSatisfy({ $0.allSatisfy(\.isNumber) }),
           let number = formatter.number(from: input)?.doubleValue,
-          number.isFinite, (3...150).contains(number) else { return nil }
+          number.isFinite, range.contains(number) else { return nil }
     return number
   }
 }

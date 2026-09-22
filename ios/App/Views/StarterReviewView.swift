@@ -25,6 +25,14 @@ struct StarterReviewView: View {
           }.padding(.vertical, 10)
           LabeledContent("Running goal", value: proposal.profile.runningGoal.rawValue)
           LabeledContent("Strength goal", value: proposal.profile.strengthGoal.rawValue)
+          if let info = proposal.profile.athlete {
+            if info.gymConfigured {
+              LabeledContent("Gym setup", value: info.equipment.isEmpty ? "Bodyweight" : "\(info.equipment.count) equipment types")
+            }
+            if !info.focusMuscles.isEmpty {
+              LabeledContent("Muscle focus", value: MuscleGroup.allCases.filter { info.focusMuscles.contains($0) }.map(\.title).joined(separator: ", "))
+            }
+          }
           LabeledContent("Weekly baseline", value: proposal.profile.weeklyKilometers.formatted() + " km")
         }
         Section("First seven days") {
