@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
   @Environment(TrainingStore.self) private var store
+  @AppStorage(AppAppearance.storageKey) private var appearance: AppAppearance = .system
 
   var body: some View {
     Group {
@@ -22,6 +23,7 @@ struct ContentView: View {
         }
       }
     }
+    .preferredColorScheme(appearance.colorScheme)
     .alert("Couldn’t save changes", isPresented: Binding(
       get: { store.errorMessage != nil },
       set: { if !$0 { store.errorMessage = nil } }

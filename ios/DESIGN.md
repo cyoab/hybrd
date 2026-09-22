@@ -141,3 +141,12 @@ Goals & rhythm now uses the shared profile header and tinted form cards. Origina
 Available weekdays are native Toggle cards on a mint surface. Checkmarks and contrasting fills distinguish selected days in both appearances. The grid reflows at narrow widths and accessibility sizes, and invalid distance or insufficient availability stays visibly explained. No goal, schedule, saved-profile, or starter-plan rules changed; these remain profile draft edits until the existing save/review flow is completed.
 
 Validation: the Bitrig iPhone/Watch build and existing profile/planning checks passed. Offscreen macOS SwiftUI review covered light, dark, compact, and accessibility layouts, including a 72.5 km week and invalid distance/availability. Interactive iPhone verification remains unavailable in the current Bitrig destination.
+
+
+## Appearance preference
+
+The final section in Athlete profile offers Light, Dark, and System in a native segmented Picker. System is the default; it requests no color-scheme override. At accessibility text sizes the control uses a labeled menu Picker. The existing semantic colors, illustration palettes, wordmark, and native controls supply both appearances.
+
+The choice is stored locally with AppStorage and takes effect immediately, independently of unsaved athlete edits and Save profile. The app root and profile sheet observe the same typed preference so the selection applies across tabs and presentations. This display preference is not part of training data or Watch synchronization.
+
+Validation: Bitrig iPhone/Watch builds passed. An isolated offscreen macOS harness checked live Light/Dark changes at the actual ContentView root, storage restoration, fallback for unknown stored values, and compact/accessibility layouts. System saves successfully and maps to SwiftUI’s nil preference. The macOS harness retained its simulated application appearance when that override was cleared, so returning to and following System still needs interactive iPhone verification; simulator inspection remains unavailable.

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
   @Environment(TrainingStore.self) private var store
+  @AppStorage(AppAppearance.storageKey) private var appearance: AppAppearance = .system
   @Environment(\.dismiss) private var dismiss
   @State private var editor: AthleteProfileEditor?
   @State private var confirmDiscard = false
@@ -38,6 +39,8 @@ struct ProfileView: View {
         StarterReviewView(proposal: plan) { dismiss() }
       }
     }
+    // Apply here as well because the profile is a separate sheet presentation.
+    .preferredColorScheme(appearance.colorScheme)
   }
 
   private func profileForm(_ editor: AthleteProfileEditor) -> some View {
@@ -100,6 +103,8 @@ struct ProfileView: View {
       } footer: {
         Text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences.")
       }
+
+      ProfileAppearanceSection(appearance: $appearance)
     }
     .scrollContentBackground(.hidden).background(HybrdStyle.background)
     .safeAreaInset(edge: .bottom) {
