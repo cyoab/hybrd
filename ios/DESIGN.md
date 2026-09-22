@@ -44,6 +44,22 @@ Additional references inspected through Mobbin:
 
 The athlete profile keeps native Form, Picker, TextField, and Toggle semantics. Weekly running distance accepts direct, locale-aware numeric entry (3–150 km, including decimals); invalid or partial input blocks review. Strength frequency uses a segmented picker, training days use accessible selected toggles, and connections move into a dedicated native form. Unsaved edits are protected. The review holds one immutable proposal, includes retained sessions, and only dismisses after a successful save; stale plan heads are rejected.
 
-Session headers use original SwiftUI vector track and barbell illustrations with adaptive brand colors. Metrics and purpose sit directly on the canvas. Run details include a time-proportional prescribed sequence and an open vertical timeline; repeated work and recovery alternate in their true order. Bar heights distinguish phases, not measured intensity. Strength details use numbered, expandable exercise rows with actual prescribed reps and RIR, rest guidance, and previous recorded sets when available. No illustration or prescription is presented as completed training.
+Session headers now use the Lifesum-inspired composition infographic described below. Run details retain a time-proportional prescribed sequence and an open vertical timeline; repeated work and recovery alternate in their true order. Strength details use numbered, expandable exercise rows with actual prescribed reps and RIR, rest guidance, and previous recorded sets when available. No illustration or prescription is presented as completed training.
 
 All primary controls remain native and accessible. Headers wrap with Dynamic Type; session metrics stack at accessibility sizes; the day grid adapts to available width; illustrations are hidden from VoiceOver while the run diagram has a spoken chronological equivalent. Keyboard dismissal is available for name and distance fields. Simulator inspection remains unavailable in this Bitrig destination, so visual and assistive-technology behavior still need interactive verification.
+
+## Lifesum-inspired session infographics
+
+The session hero now uses a data-bearing composition graphic in place of the previous decorative track/barbell banner. References inspected in Mobbin:
+
+- [Lifesum daily-progress widget](https://mobbin.com/screens/c832f3db-c966-43e7-b063-cc80e5d699aa): a central ring paired with compact, labeled breakdown bars.
+- [Lifesum diary overview](https://mobbin.com/screens/668b7896-8d50-4a07-abaa-83de54f1f850): a prominent total, supporting metrics, and softer background treatment.
+- [Lifesum food macro breakdown](https://mobbin.com/screens/2978a113-5407-42aa-9c1d-3303f5036312): directly labeled proportions and quantities.
+
+The decision is one shared infographic pattern for both disciplines. Run arcs represent prescribed seconds: easy running/warm-up/cooldown, work, recovery, and unclassified running when legacy metadata is absent. Strength arcs represent actual prescribed set counts for each named exercise. Tapping a breakdown highlights its arc, shows its exact amount, and reveals prescription details; tapping it again restores the whole session. The chart is labeled as planned composition, never completion, readiness, muscle load, or recorded activity.
+
+Terra, adaptive ink, stone, and a darker sand shade retain hybrd’s palette. New starter prescriptions carry explicit phase metadata; historical snapshots remain unchanged. Seconds remain visible for non-whole-minute intervals. Empty prescriptions show an explicit unavailable state. The chronological run strip uses the same colors and time proportions as the summary.
+
+Native Swift Charts renders the sectors. Native buttons provide 44-point or larger hit targets and VoiceOver labels with amounts, percentages, and selection state. At accessibility text sizes the chart grows and the breakdown becomes a vertical list. Reduced Motion disables selection animation. Supporting metrics reflow when a compact width cannot fit the horizontal layout.
+
+Validation: iPhone and Watch builds succeeded, and executable checks passed for phase totals, time shares, unequal exercise set counts, exact seconds, empty data, and unclassified legacy prescriptions. Offscreen SwiftUI renders were reviewed in light and dark appearance and with the accessibility layout. These renders used a temporary macOS harness with equivalent adaptive colors; they do not replace iPhone interaction, VoiceOver, or Dynamic Type verification in the simulator.

@@ -37,9 +37,9 @@ enum TrainingEngine {
             minutes: minutes, distanceMeters: cappedMeters,
             effort: "Conversational · RPE 3–4", isKey: longRun,
             segments: [
-              RunSegment(title: "Ease in", seconds: 5 * 60, cue: "Start gently; settle into your rhythm."),
-              RunSegment(title: "Easy running", seconds: max(1, minutes - 10) * 60, cue: "A pace where you can speak in full sentences."),
-              RunSegment(title: "Cool down", seconds: 5 * 60, cue: "Gradually ease the pace.")
+              RunSegment(title: "Ease in", seconds: 5 * 60, cue: "Start gently; settle into your rhythm.", phase: .warmUp),
+              RunSegment(title: "Easy running", seconds: max(1, minutes - 10) * 60, cue: "A pace where you can speak in full sentences.", phase: .easy),
+              RunSegment(title: "Cool down", seconds: 5 * 60, cue: "Gradually ease the pace.", phase: .coolDown)
             ]))
           runsPlaced += 1
         } else {

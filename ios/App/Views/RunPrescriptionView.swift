@@ -7,7 +7,7 @@ struct RunPrescriptionView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       VStack(alignment: .leading, spacing: 14) {
-        Text("Session rhythm").font(.title3.weight(.semibold))
+        Text("Step by step").font(.title3.weight(.semibold))
         rhythm
         HStack {
           Text("0")
@@ -37,15 +37,15 @@ struct RunPrescriptionView: View {
       let width = max(1, geometry.size.width - CGFloat(max(0, timeline.steps.count - 1)) * gap)
       HStack(alignment: .bottom, spacing: gap) {
         ForEach(timeline.steps) { step in
-          RoundedRectangle(cornerRadius: 4)
+          RoundedRectangle(cornerRadius: 3)
             .fill(barColor(step.segment.phase))
             .frame(width: width * CGFloat(step.seconds) / CGFloat(total),
-              height: step.segment.phase == .work ? 76 : step.segment.phase == .recovery ? 24 : 42)
+              height: 16)
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
     }
-    .frame(height: 80)
+    .frame(height: 16)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("Planned running sequence")
     .accessibilityValue(timeline.steps.map { step in
@@ -100,8 +100,9 @@ struct RunPrescriptionView: View {
   private func barColor(_ phase: RunSegmentPhase?) -> Color {
     switch phase {
     case .work: HybrdStyle.terra
-    case .recovery: HybrdStyle.muted.opacity(0.55)
-    default: HybrdStyle.stone
+    case .recovery: HybrdStyle.ink
+    case .warmUp, .easy, .coolDown: HybrdStyle.chartStone
+    case nil: HybrdStyle.chartSand
     }
   }
 

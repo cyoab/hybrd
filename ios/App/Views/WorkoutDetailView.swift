@@ -2,7 +2,6 @@ import SwiftUI
 
 struct WorkoutDetailView: View {
   @Environment(TrainingStore.self) private var store
-  @Environment(\.dynamicTypeSize) private var typeSize
   var workout: TrainingWorkout
   @State private var logging = false
   @State private var moving = false
@@ -87,44 +86,8 @@ struct WorkoutDetailView: View {
           .font(.subheadline).foregroundStyle(HybrdStyle.muted)
       }
 
-      WorkoutArtwork(kind: current.kind)
-
-      VStack(alignment: .leading, spacing: 14) {
-        Eyebrow(text: "The plan")
-        if typeSize.isAccessibilitySize {
-          VStack(alignment: .leading, spacing: 18) { metrics }
-        } else {
-          HStack(alignment: .top, spacing: 20) { metrics }
-        }
-      }
+      SessionInfographicView(workout: current)
     }
-  }
-
-  @ViewBuilder
-  private var metrics: some View {
-    heroMetric(value: current.kind == .run
-      ? (Double(current.distanceMeters) / 1_000).formatted(.number.precision(.fractionLength(0...1)))
-      : "\(current.exercises.count)",
-      label: current.kind == .run ? "kilometers" : "exercises")
-    heroMetric(value: "\(current.minutes)", label: "minutes")
-    heroMetric(value: current.kind == .run ? effortValue : "\(current.exercises.reduce(0) { $0 + $1.sets.count })",
-      label: current.kind == .run ? "effort · RPE" : "working sets")
-  }
-
-  private var effortValue: String {
-    if let range = current.effort.range(of: "RPE ") {
-      return String(current.effort[range.upperBound...])
-    }
-    return current.effort
-  }
-
-  private func heroMetric(value: String, label: String) -> some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(value).font(.system(.title, design: .rounded, weight: .semibold)).monospacedDigit()
-      Text(label).font(.caption).foregroundStyle(HybrdStyle.muted)
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .accessibilityElement(children: .combine)
   }
 
   private func resultCard(_ result: WorkoutResult) -> some View {

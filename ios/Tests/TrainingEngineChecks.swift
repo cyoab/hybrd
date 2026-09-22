@@ -110,6 +110,38 @@ enum TrainingEngineChecks {
     precondition(RunTimeline(segments: []).steps.isEmpty)
     let unpaired = RunTimeline(segments: [RunSegment(title: "Strides", seconds: 20, cue: "Relaxed", phase: .work, repetitions: 4)])
     precondition(unpaired.steps.count == 4 && unpaired.totalSeconds == 80)
-    print("PASS: profile input and validation, interval ordering and duration, planning invariants, legacy decoding, actual-result validation, partial/extra sets, and pause/resume timing")
+    let composition = SessionBreakdown(workout: intervals)
+    precondition(composition.total == 58 * 60)
+    precondition(composition.parts.first { $0.id == "easy" }?.amount == 25 * 60)
+    precondition(composition.parts.first { $0.id == "work" }?.amount == 24 * 60)
+    precondition(composition.parts.first { $0.id == "recovery" }?.amount == 9 * 60)
+    precondition(abs(composition.parts.reduce(0.0) { $0 + composition.share(of: $1) } - 1) < 0.000001,
+      "Infographic shares must account for the entire prescribed session")
+    var legacyRun = original
+    legacyRun.segments = original.segments.map { segment in
+      var old = segment
+      old.phase = nil
+      return old
+    }
+    let legacyComposition = SessionBreakdown(workout: legacyRun)
+    precondition(legacyComposition.parts.count == 1 && legacyComposition.parts[0].id == "unspecified",
+      "Do not infer intensity for old prescriptions without phase metadata")
+    precondition(legacyComposition.total == RunTimeline(segments: legacyRun.segments).totalSeconds)
+    precondition(composition.value(for: 80) == "1:20" && composition.unit(for: 80) == "min:sec",
+      "Sub-minute prescriptions must not lose seconds in the infographic")
+    var unevenLift = lift
+    unevenLift.exercises[0].sets.removeLast()
+    let setComposition = SessionBreakdown(workout: unevenLift)
+    precondition(setComposition.parts.map(\.amount) == unevenLift.exercises.map { $0.sets.count })
+    precondition(setComposition.total == unevenLift.exercises.flatMap(\.sets).count,
+      "Strength composition must show prescribed set counts, not estimated muscle loading")
+    var emptyRun = original
+    emptyRun.segments = []
+    precondition(SessionBreakdown(workout: emptyRun).total == 0)
+    precondition(SessionBreakdown(workout: emptyRun).parts.isEmpty)
+    var emptyLift = lift
+    emptyLift.exercises = []
+    precondition(SessionBreakdown(workout: emptyLift).total == 0)
+    print("PASS: session composition totals, shares and legacy fallback, profile input and validation, interval ordering and duration, planning invariants, legacy decoding, actual-result validation, partial/extra sets, and pause/resume timing")
   }
 }
