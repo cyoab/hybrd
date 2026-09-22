@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 enum LiveWorkoutChecks {
   static func run() throws {
@@ -6,8 +7,19 @@ enum LiveWorkoutChecks {
     let workout = RunWorkoutTemplate.twoMinuteIntervals.workout(on: start)
     var run = RunRecording(workout: workout, zones: PersonalHeartRateZones(zone2: 120, zone3: 140, zone4: 160, zone5: 180), source: .watch, startedAt: start, runningSince: start, checkpointAt: start)
     precondition(run.meters == 0 && !run.canSave && run.currentHeartRate(at: start) == nil)
+    let opening = RunGuidance(run: run, at: start)
+    precondition(opening.current?.id == 0 && opening.next?.id == 1 && opening.fraction == 0)
+    let firstBoundary = start.addingTimeInterval(Double(opening.current!.endSeconds))
+    let boundary = RunGuidance(run: run, at: firstBoundary)
+    precondition(boundary.current?.id == 1 && boundary.fraction == 0)
+    precondition(boundary.current?.segment.phase == .work && boundary.next?.segment.phase == .recovery)
+    let allDone = RunGuidance(run: run, at: start.addingTimeInterval(Double(opening.steps.last!.endSeconds)))
+    precondition(allDone.current == nil && allDone.next == nil && allDone.remaining == 0)
+    var freeRun = run; freeRun.workout.segments = []
+    precondition(RunGuidance(run: freeRun, at: start).current == nil)
     run.pause(at: start.addingTimeInterval(60))
     precondition(run.seconds(at: start.addingTimeInterval(600)) == 60)
+    precondition(RunGuidance(run: run, at: start.addingTimeInterval(600)).remaining == Double(opening.current!.endSeconds) - 60)
     run.resume(at: start.addingTimeInterval(600))
     precondition(run.seconds(at: start.addingTimeInterval(660)) == 120)
     run.pause(at: start.addingTimeInterval(660))
@@ -39,6 +51,16 @@ enum LiveWorkoutChecks {
     precondition(run.isFinished && run.canSave && run.result().id == run.id && run.result().effort == 0)
     precondition(run.result().durationSeconds == 870 && run.result().distanceMeters == 2_500)
     precondition(run.result().plannedWorkoutID == workout.id && run.result().logicalWorkoutID == workout.logicalID)
+    // Exercise finalization through the same @Observable optional access as RunRecorder.
+    // Both old call sites trapped at runtime (simultaneous read/modify access).
+    let observed = ObservedRunForChecks(recording: run)
+    observed.recording?.updateFinalDistance(3_000)
+    precondition(observed.recording?.meters == 3_000 && observed.recording?.distanceSampleTime == 870)
+    observed.recording?.markHealthSaveFailure()
+    precondition(observed.recording?.healthSaveMessage?.hasPrefix("Saved locally.") == true)
+    observed.recording?.healthWorkoutID = UUID()
+    observed.recording?.markHealthSaveFailure()
+    precondition(observed.recording?.healthSaveMessage?.hasPrefix("Workout saved to Apple Health;") == true)
     let roundTrip = try JSONDecoder().decode(RunRecording.self, from: JSONEncoder().encode(run))
     precondition(roundTrip == run && roundTrip.result().run == run)
     precondition(RunRecording.pace(nil) == "—" && RunRecording.clock(3_661) == "1:01:01")
@@ -83,6 +105,11 @@ enum LiveWorkoutChecks {
     oldResult.removeValue(forKey: "run")
     let decodedOld = try JSONDecoder().decode(WorkoutResult.self, from: JSONSerialization.data(withJSONObject: oldResult))
     precondition(decodedOld.run == nil)
-    print("PASS: live workout pause/recovery timing, interval guidance, kilometer interpolation, manual laps, stale HR and zone boundaries, GPS accuracy/jumps/gaps, stable result identity, Codable compatibility, RIR validation and persistent rest timing")
+    print("PASS: observed-optional finalization without exclusivity conflicts, failed Health save status, live workout pause/recovery timing, current/next interval boundaries, kilometer interpolation, manual laps, stale HR and zone boundaries, GPS accuracy/jumps/gaps, stable result identity, Codable compatibility, RIR validation and persistent rest timing")
   }
+}
+
+@Observable private final class ObservedRunForChecks {
+  var recording: RunRecording?
+  init(recording: RunRecording) { self.recording = recording }
 }

@@ -252,7 +252,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       try await collect(builder, end: end)
       #if os(watchOS)
       if let meters = builder.statistics(for: HKQuantityType(.distanceWalkingRunning))?.sumQuantity()?.doubleValue(for: .meter()) {
-        recording?.updateDistance(meters, at: recording?.elapsed ?? 0)
+        recording?.updateFinalDistance(meters)
       }
       #endif
       let heart = builder.statistics(for: HKQuantityType(.heartRate))
@@ -278,7 +278,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       }
       #endif
     } catch {
-      recording?.healthSaveMessage = recording?.healthWorkoutID == nil ? "Saved locally. Apple Health couldn’t save this workout." : "Workout saved to Apple Health; its route could not be saved."
+      recording?.markHealthSaveFailure()
       errorMessage = error.localizedDescription
     }
   }

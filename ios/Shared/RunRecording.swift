@@ -70,6 +70,16 @@ struct RunRecording: Codable, Identifiable, Equatable {
     }
     meters = total; distanceSampleTime = seconds
   }
+  // Keep dependent reads inside the value mutation. Reading an @Observable optional
+  // again from the call site while mutating it violates Swift exclusivity.
+  mutating func updateFinalDistance(_ total: Double) {
+    updateDistance(total, at: elapsed)
+  }
+  mutating func markHealthSaveFailure() {
+    healthSaveMessage = healthWorkoutID == nil
+      ? "Saved locally. Apple Health couldn’t save this workout."
+      : "Workout saved to Apple Health; its route could not be saved."
+  }
   mutating func markLap(at date: Date) {
     guard !isPaused, !isFinished else { return }
     let time = seconds(at: date)

@@ -6,7 +6,8 @@ struct WatchRunView: View {
   @Environment(\.isLuminanceReduced) private var luminanceReduced
   @State private var finish = false
   @State private var discard = false
-  @State private var page = 0
+  @State private var page: Page = .metrics
+  private enum Page: Int { case controls, metrics, guidance }
 
   var body: some View {
     Group {
@@ -14,57 +15,35 @@ struct WatchRunView: View {
         if run.isFinished { summary(run) }
         else {
           TabView(selection: $page) {
+            WatchRunControlsView(run: run, busy: recorder.ending || recorder.preparing, error: recorder.errorMessage,
+              togglePause: { recorder.pauseOrResume() }, markLap: { recorder.lap() }, finish: { finish = true }, discard: { discard = true })
+              .tag(Page.controls)
             TimelineView(.periodic(from: .now, by: luminanceReduced ? 10 : 1)) { context in
               WatchRunMetricsView(run: run, now: context.date, pace: recorder.currentPace, gps: recorder.gpsMessage)
-            }.tag(0)
+            }.tag(Page.metrics)
             TimelineView(.periodic(from: .now, by: luminanceReduced ? 10 : 1)) { context in
-              interval(run, at: context.date)
-            }.tag(1)
-            controls(run).tag(2)
-          }.tabViewStyle(.verticalPage)
+              WatchRunGuidanceView(run: run, now: context.date,
+                canAdvance: !run.isPaused && !recorder.ending && !recorder.preparing) { recorder.nextInterval() }
+            }.tag(Page.guidance)
+          }
+          .tabViewStyle(.page(indexDisplayMode: .always))
+          .onChange(of: run.id) { _, _ in page = .metrics }
+          .onChange(of: run.isPaused) { wasPaused, isPaused in
+            if wasPaused && !isPaused { page = .metrics }
+          }
+          .accessibilityAction(named: "Show controls") { page = .controls }
+          .accessibilityAction(named: "Show live metrics") { page = .metrics }
+          .accessibilityAction(named: "Show workout guidance") { page = .guidance }
         }
       }
     }
     .navigationBarBackButtonHidden()
     .confirmationDialog("Finish your run?", isPresented: $finish, titleVisibility: .visible) {
       Button("Finish and review") { recorder.finish() }
+      Button("Cancel", role: .cancel) {}
     }
     .confirmationDialog("Discard recording?", isPresented: $discard, titleVisibility: .visible) {
       Button("Discard", role: .destructive) { recorder.discard() }
-    }
-  }
-  private func interval(_ run: RunRecording, at now: Date) -> some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 10) {
-        if let step = run.step(at: now) {
-          Text("CURRENT INTERVAL").font(.caption2).foregroundStyle(WatchRunStyle.terra)
-          Text(step.segment.title).font(.title3.bold())
-          Text(RunRecording.clock(max(0, Double(step.endSeconds) - run.seconds(at: now) - run.intervalOffset)))
-            .font(.system(.largeTitle, design: .rounded, weight: .bold)).monospacedDigit()
-          Text(step.segment.heartRateZone?.title ?? "Your own effort").font(.headline).foregroundStyle(WatchRunStyle.mint)
-          if let zone = step.segment.heartRateZone, let zones = run.zones, zones.isValid { Text(zones.label(for: zone)).font(.caption2) }
-          Text(step.segment.cue).font(.caption2).foregroundStyle(.secondary)
-          Button("Next interval", systemImage: "forward.end") { recorder.nextInterval() }.disabled(run.isPaused || recorder.ending)
-        } else {
-          Image(systemName: "checkmark.seal").font(.largeTitle).foregroundStyle(WatchRunStyle.mint)
-          Text("Intervals complete").font(.headline)
-          Text("Keep running at your own rhythm, or finish when you’re ready.").font(.footnote)
-        }
-      }.frame(maxWidth: .infinity, alignment: .leading)
-    }
-  }
-  private func controls(_ run: RunRecording) -> some View {
-    ScrollView {
-      VStack(spacing: 10) {
-        Button(run.isPaused ? "Resume" : "Pause", systemImage: run.isPaused ? "play.fill" : "pause.fill") { recorder.pauseOrResume() }
-          .buttonStyle(.borderedProminent).tint(WatchRunStyle.terra)
-        Button("Mark lap", systemImage: "flag.fill") { recorder.lap() }.disabled(run.isPaused)
-        Button("Finish", systemImage: "stop.fill") { finish = true }.tint(.red)
-        if let lap = run.laps.last { Text(lap.title + " · " + RunRecording.clock(lap.seconds)).font(.caption2).foregroundStyle(.secondary) }
-        if let message = recorder.errorMessage { Text(message).font(.caption2).foregroundStyle(.orange) }
-        Button("Discard", role: .destructive) { discard = true }.font(.caption2)
-      }.disabled(recorder.ending)
-      if recorder.ending { ProgressView("Saving…") }
     }
   }
   private func summary(_ run: RunRecording) -> some View {

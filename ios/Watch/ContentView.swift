@@ -26,12 +26,10 @@ struct ContentView: View {
             }
             ForEach(snapshot.workouts) { workout in
               NavigationLink { WatchSessionReadyView(workout: workout) } label: {
-                VStack(alignment: .leading, spacing: 5) {
-                  Label(workout.title, systemImage: workout.kind.symbol).font(.headline)
-                  Text(workout.date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())).font(.caption2).foregroundStyle(.secondary)
-                  Text(workout.prescriptionTarget).font(.caption).foregroundStyle(WatchRunStyle.terra)
-                }.padding(.vertical, 4)
+                WatchWorkoutCardView(workout: workout)
               }
+              .listRowBackground(RoundedRectangle(cornerRadius: 20).fill(
+                WatchRunStyle.workoutColor(workout).opacity(0.16).gradient))
             }
             if snapshot.workouts.isEmpty { Text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.").font(.footnote) }
           } else {
@@ -56,10 +54,10 @@ private struct WatchSessionReadyView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 14) {
-        Text(workout.title).font(.title3.bold())
-        Text(workout.summary).font(.footnote).foregroundStyle(.secondary)
+        WatchWorkoutCardView(workout: workout)
+          .padding(10)
+          .background(WatchRunStyle.workoutColor(workout).opacity(0.14), in: RoundedRectangle(cornerRadius: 18))
         if workout.kind == .run {
-          Label(workout.prescriptionTarget, systemImage: "heart.fill").font(.footnote).foregroundStyle(WatchRunStyle.terra)
           Button(recorder.preparing ? "Preparing…" : "Start run", systemImage: "play.fill") {
             Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones) }
           }.buttonStyle(.borderedProminent).disabled(recorder.preparing)
@@ -84,12 +82,4 @@ private struct WatchSessionReadyView: View {
       }.padding(.horizontal, 8).frame(maxWidth: .infinity, alignment: .leading)
     }.navigationTitle(workout.kind.rawValue)
   }
-}
-
-enum WatchRunStyle {
-  static func zoneColor(_ zone: HeartRateZone) -> Color {
-    switch zone { case .one: .cyan; case .two: mint; case .three: .yellow; case .four: terra; case .five: .purple }
-  }
-  static let terra = Color(red: 1, green: 0.48, blue: 0.3)
-  static let mint = Color(red: 0.45, green: 0.85, blue: 0.68)
 }
