@@ -13,27 +13,27 @@ struct ProgressComparisonView: View {
       Text(comparison.displayTitle(in: units)).font(.headline)
       Text(comparison.changeLabel(in: units)).font(.system(.title2, design: .rounded, weight: .semibold))
       ViewThatFits(in: .horizontal) {
-        HStack { metric("First logged", comparison.first); Spacer(); Image(systemName: "arrow.right").accessibilityHidden(true); Spacer(); metric("Latest logged", comparison.latest) }
-        VStack(alignment: .leading, spacing: 12) { metric("First logged", comparison.first); metric("Latest logged", comparison.latest) }
+        HStack { metric(L10n.text("First logged"), comparison.first); Spacer(); Image(systemName: "arrow.right").accessibilityHidden(true); Spacer(); metric(L10n.text("Latest logged"), comparison.latest) }
+        VStack(alignment: .leading, spacing: 12) { metric(L10n.text("First logged"), comparison.first); metric(L10n.text("Latest logged"), comparison.latest) }
       }
       Chart(comparison.points) { point in
-        LineMark(x: .value("Date", point.date), y: .value("Logged value", comparison.displayValue(point.value, in: units)))
+        LineMark(x: .value(L10n.text("Date"), point.date), y: .value(L10n.text("Logged value"), comparison.displayValue(point.value, in: units)))
           .foregroundStyle(SessionPalette.color(tone)).lineStyle(StrokeStyle(lineWidth: 3))
-        PointMark(x: .value("Date", point.date), y: .value("Logged value", comparison.displayValue(point.value, in: units)))
+        PointMark(x: .value(L10n.text("Date"), point.date), y: .value(L10n.text("Logged value"), comparison.displayValue(point.value, in: units)))
           .foregroundStyle(SessionPalette.color(tone))
           .accessibilityLabel(point.date.formatted(date: .abbreviated, time: .omitted))
           .accessibilityValue(comparison.formatted(point.value, units: units))
       }
       .chartXAxis(.hidden).chartYAxis(.hidden)
       .chartYScale(domain: max(0, (comparison.points.map { comparison.displayValue($0.value, in: units) }.min() ?? 0) * 0.85)...max(1, (comparison.points.map { comparison.displayValue($0.value, in: units) }.max() ?? 1) * 1.1))
-      .frame(height: 64).accessibilityLabel("Comparable logged efforts over time")
+      .frame(height: 64).accessibilityLabel(L10n.text("Comparable logged efforts over time"))
       Text(comparison.points.first!.date.formatted(date: .abbreviated, time: .omitted) + " → " +
         comparison.points.last!.date.formatted(date: .abbreviated, time: .omitted))
         .font(.caption2).foregroundStyle(HybrdStyle.muted)
-      Label("Best logged · " + comparison.formatted(comparison.best.value, units: units) + " · " + comparison.best.date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "medal")
+      Label(L10n.text("Best logged · ") + comparison.formatted(comparison.best.value, units: units) + " · " + comparison.best.date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "medal")
         .font(.caption.weight(.medium)).foregroundStyle(SessionPalette.ink(tone))
-      Text(comparison.kind == .run ? "Whole-session pace. Route, conditions, and effort can differ." :
-        "Heaviest completed set at the same rep count in each session.")
+      Text(comparison.kind == .run ? L10n.text("Whole-session pace. Route, conditions, and effort can differ.") :
+        L10n.text("Heaviest completed set at the same rep count in each session."))
         .font(.caption).foregroundStyle(HybrdStyle.muted)
     }
     .padding(20).background(SessionPalette.wash(tone).opacity(0.65), in: RoundedRectangle(cornerRadius: 25))

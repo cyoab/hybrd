@@ -7,8 +7,8 @@ struct AthleteHeartRateView: View {
   var body: some View {
     Form {
       Section {
-        ProfileSectionHero(eyebrow: "Find your rhythm", title: "Your heart. Your zones.",
-          subtitle: "Give every run a personal effort range. Enter the boundaries you already use.",
+        ProfileSectionHero(eyebrow: L10n.text("Find your rhythm"), title: L10n.text("Your heart. Your zones."),
+          subtitle: L10n.text("Give every run a personal effort range. Enter the boundaries you already use."),
           artwork: .heart, tone: .terra)
           .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
       }
@@ -16,14 +16,14 @@ struct AthleteHeartRateView: View {
         HStack(spacing: 12) {
           zoneMark(.one)
           VStack(alignment: .leading, spacing: 5) {
-            Text("Recovery").font(.headline)
-            Text(editor.zones?.label(for: .one) ?? "Below the start of Zone 2")
+            Text(L10n.text("Recovery")).font(.headline)
+            Text(editor.zones?.label(for: .one) ?? L10n.text("Below the start of Zone 2"))
               .font(.subheadline).foregroundStyle(HybrdStyle.muted)
           }
         }.padding(.vertical, 7)
           .accessibilityElement(children: .combine)
           .modifier(ProfileTintedRow(tone: .sky))
-      } header: { Text("Your five zones") }
+      } header: { Text(L10n.text("Your five zones")) }
 
       ForEach(Array(HeartRateZone.allCases.dropFirst())) { zone in
         let index = zone.rawValue - 2
@@ -40,13 +40,13 @@ struct AthleteHeartRateView: View {
               }
             }
             HStack(alignment: .firstTextBaseline, spacing: 12) {
-              Text("Starts at").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+              Text(L10n.text("Starts at")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
               Spacer(minLength: 0)
-              TextField("Zone boundary", text: $editor.zoneStarts[index], prompt: Text("Not set")).labelsHidden()
+              TextField(L10n.text("Zone boundary"), text: $editor.zoneStarts[index], prompt: Text(L10n.text("Not set"))).labelsHidden()
                 .keyboardType(.numberPad).focused($focused).multilineTextAlignment(.trailing)
                 .font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
-                .accessibilityLabel("Zone \(zone.rawValue) starts at, beats per minute")
-              Text("bpm").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+                .accessibilityLabel(L10n.text("Zone \(zone.rawValue) starts at, beats per minute"))
+              Text(L10n.text("bpm")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
           }
           .padding(.vertical, 8)
@@ -55,21 +55,21 @@ struct AthleteHeartRateView: View {
       }
       if editor.zoneStarts.contains(where: { !$0.isEmpty }) && editor.zones == nil {
         Section {
-          Label("Enter four increasing boundaries from 30–250 bpm.", systemImage: "exclamationmark.circle")
+          Label(L10n.text("Enter four increasing boundaries from 30–250 bpm."), systemImage: "exclamationmark.circle")
             .font(.subheadline).foregroundStyle(HybrdStyle.terraText)
         }
       }
       Section {
-        Button("Clear personal zones", role: .destructive) { editor.zoneStarts = ["", "", "", ""] }
+        Button(L10n.text("Clear personal zones"), role: .destructive) { editor.zoneStarts = ["", "", "", ""] }
           .disabled(editor.zoneStarts.allSatisfy(\.isEmpty))
       } footer: {
-        Text("Use your tested or configured zones. Zone 5 has no upper limit here. We don’t estimate zones from age, and Apple Health’s profile import doesn’t include Apple Watch zone settings.")
+        Text(L10n.text("Use your tested or configured zones. Zone 5 has no upper limit here. We don’t estimate zones from age, and Apple Health’s profile import doesn’t include Apple Watch zone settings."))
       }
     }
     .scrollContentBackground(.hidden).background(HybrdStyle.background)
-    .navigationTitle("Heart-rate zones").navigationBarTitleDisplayMode(.inline)
+    .navigationTitle(L10n.text("Heart-rate zones")).navigationBarTitleDisplayMode(.inline)
     .scrollDismissesKeyboard(.interactively)
-    .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { focused = false } } }
+    .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button(L10n.text("Done")) { focused = false } } }
   }
 
   private func zoneMark(_ zone: HeartRateZone) -> some View {

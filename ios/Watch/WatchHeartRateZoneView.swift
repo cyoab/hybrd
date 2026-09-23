@@ -24,7 +24,7 @@ struct WatchHeartRateZoneView: View {
       }
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("Heart rate zones")
-    .accessibilityValue((current.map { "Current " + $0.title } ?? "Current zone unavailable") + (target.map { "; target " + $0.title } ?? "; no target"))
+    .accessibilityLabel(L10n.text("Heart rate zones"))
+    .accessibilityValue((current.map { L10n.text("Current ") + $0.title } ?? L10n.text("Current zone unavailable")) + (target.map { L10n.text("; target ") + $0.title } ?? L10n.text("; no target")))
   }
 }

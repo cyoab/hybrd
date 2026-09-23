@@ -35,11 +35,11 @@ struct WeekCalendarView: View {
       .scrollPosition(id: $visibleWeek, anchor: .center)
       .frame(height: typeSize.isAccessibilitySize ? dayHeight * 2 + 8 : dayHeight)
       .accessibilityElement(children: .contain)
-      .accessibilityLabel("Weekly calendar")
-      .accessibilityAction(named: Text("Next week")) { shiftWeek(1) }
-      .accessibilityAction(named: Text("Previous week")) { shiftWeek(-1) }
+      .accessibilityLabel(L10n.text("Weekly calendar"))
+      .accessibilityAction(named: Text(L10n.text("Next week"))) { shiftWeek(1) }
+      .accessibilityAction(named: Text(L10n.text("Previous week"))) { shiftWeek(-1) }
 
-      Text("Swipe to explore weeks")
+      Text(L10n.text("Swipe to explore weeks"))
         .font(.caption2).foregroundStyle(HybrdStyle.muted)
         .accessibilityHidden(true)
     }

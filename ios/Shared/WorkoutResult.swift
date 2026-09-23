@@ -16,6 +16,7 @@ struct WorkoutResult: Codable, Identifiable, Equatable {
 }
 
 enum ResultStatus: String, Codable {
+  var displayName: String { L10n.content(rawValue) }
   case completed = "Completed"
   case partial = "Partial"
   case skipped = "Skipped"
@@ -24,6 +25,7 @@ enum ResultStatus: String, Codable {
 struct LoggedSet: Codable, Identifiable, Equatable {
   var id = UUID()
   var prescriptionID: UUID?
+  var localizedExerciseName: String { L10n.content(exerciseName) }
   var exerciseName: String
   var reps: Int
   var kilograms: Double
@@ -49,13 +51,13 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
     if workout.kind == .run {
       guard distanceKilometers.isFinite, distanceKilometers >= 0.001, distanceKilometers <= 500,
         durationMinutes > 0, durationMinutes <= 2_880 else {
-        return "Enter a distance up to " + units.distanceText(500_000) + " and a duration up to 2,880 minutes. Both must be greater than zero."
+        return L10n.text("Enter a distance up to \(units.distanceText(500_000)) and a duration up to 2,880 minutes. Both must be greater than zero.")
       }
     } else {
       let completed = sets.filter(\.isComplete)
-      guard !completed.isEmpty else { return "Check at least one completed set." }
+      guard !completed.isEmpty else { return L10n.text("Check at least one completed set.") }
       guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && ($0.rir.map { (0...10).contains($0) } ?? true) }) else {
-        return "Completed sets need 1–100 reps and a load between 0 and " + units.weightText(1_000) + ", with RIR from 0 to 10 when entered."
+        return L10n.text("Completed sets need 1–100 reps and a load between 0 and \(units.weightText(1_000)), with RIR from 0 to 10 when entered.")
       }
     }
     return nil

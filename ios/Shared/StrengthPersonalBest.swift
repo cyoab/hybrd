@@ -3,6 +3,7 @@ import Foundation
 struct StrengthPersonalBest: Codable, Equatable, Identifiable {
   var id = UUID()
   var exerciseID: String
+  var localizedExerciseName: String { L10n.content(exerciseName) }
   var exerciseName: String
   var kilograms: Double
   var reps: Int
@@ -11,7 +12,7 @@ struct StrengthPersonalBest: Codable, Equatable, Identifiable {
     !exerciseID.isEmpty && !exerciseName.isEmpty && kilograms.isFinite &&
       (0...1_000).contains(kilograms) && (1...100).contains(reps)
   }
-  var summary: String { "\(kilograms.formatted(.number.precision(.fractionLength(0...1)))) kg × \(reps)" }
+  var summary: String { L10n.text("\(kilograms.formatted(.number.precision(.fractionLength(0...1)))) kg × \(reps)") }
 }
 
 enum RecordSource: String, Codable { case manual, logged }

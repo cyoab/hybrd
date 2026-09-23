@@ -13,26 +13,26 @@ struct ProfileView: View {
     NavigationStack {
       Group {
         if let editor { profileForm(editor) }
-        else { ProgressView("Opening profile…") }
+        else { ProgressView(L10n.text("Opening profile…")) }
       }
-      .navigationTitle("Athlete profile")
+      .navigationTitle(L10n.text("Athlete profile"))
       .navigationBarTitleDisplayMode(.inline)
       .tint(HybrdStyle.ink)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Close", systemImage: "xmark") {
+          Button(L10n.text("Close"), systemImage: "xmark") {
             if editor?.hasChanges == true { confirmDiscard = true } else { dismiss() }
           }.labelStyle(.iconOnly)
         }
       }
       .interactiveDismissDisabled(editor?.hasChanges == true)
-      .confirmationDialog("Discard profile changes?", isPresented: $confirmDiscard, titleVisibility: .visible) {
-        Button("Discard changes", role: .destructive) { dismiss() }
-        Button("Keep editing", role: .cancel) {}
+      .confirmationDialog(L10n.text("Discard profile changes?"), isPresented: $confirmDiscard, titleVisibility: .visible) {
+        Button(L10n.text("Discard changes"), role: .destructive) { dismiss() }
+        Button(L10n.text("Keep editing"), role: .cancel) {}
       }
-      .alert("Couldn’t save profile", isPresented: Binding(
+      .alert(L10n.text("Couldn’t save profile"), isPresented: Binding(
         get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
-        Button("OK") { saveError = nil }
+        Button(L10n.text("OK")) { saveError = nil }
       } message: { Text(saveError ?? "") }
       .onAppear { if editor == nil { editor = AthleteProfileEditor(profile: store.profile) } }
       .sheet(item: $proposal) { plan in
@@ -51,58 +51,58 @@ struct ProfileView: View {
           .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
       }
 
-      Section("Your foundation") {
+      Section(L10n.text("Your foundation")) {
         NavigationLink { AthleteInfoView(editor: editor) } label: {
-          ProfileMenuRow(title: "About you", subtitle: "Name, age, height & weight", symbol: "person", tone: .terra)
+          ProfileMenuRow(title: L10n.text("About you"), subtitle: L10n.text("Name, age, height & weight"), symbol: "person", tone: .terra)
         }
         NavigationLink { AthleteLevelsView(editor: editor) } label: {
-          ProfileMenuRow(title: "Experience", subtitle: levelSummary(editor), symbol: "chart.bar", tone: .mint)
+          ProfileMenuRow(title: L10n.text("Experience"), subtitle: levelSummary(editor), symbol: "chart.bar", tone: .mint)
         }
         NavigationLink { AthleteHeartRateView(editor: editor) } label: {
-          ProfileMenuRow(title: "Heart-rate zones", subtitle: editor.zones == nil ? "Set your personal BPM ranges" : "Five personal zones",
+          ProfileMenuRow(title: L10n.text("Heart-rate zones"), subtitle: editor.zones == nil ? L10n.text("Set your personal BPM ranges") : L10n.text("Five personal zones"),
             symbol: "heart", tone: .terra)
         }
       }
 
-      Section("Your benchmarks") {
+      Section(L10n.text("Your benchmarks")) {
         NavigationLink { RunningBestsView(editor: editor) } label: {
-          ProfileMenuRow(title: "Running PRs", subtitle: recordCount(editor.assembledProfile.athlete?.runningBests.count ?? 0),
+          ProfileMenuRow(title: L10n.text("Running PRs"), subtitle: recordCount(editor.assembledProfile.athlete?.runningBests.count ?? 0),
             symbol: "stopwatch", tone: .terra)
         }
         NavigationLink { StrengthBestsView(editor: editor) } label: {
-          ProfileMenuRow(title: "Strength PRs", subtitle: recordCount(editor.details.strengthBests.count),
+          ProfileMenuRow(title: L10n.text("Strength PRs"), subtitle: recordCount(editor.details.strengthBests.count),
             symbol: "trophy", tone: .violet)
         }
       }
 
-      Section("Make strength yours") {
+      Section(L10n.text("Make strength yours")) {
         NavigationLink { MuscleFocusView(editor: editor) } label: {
-          ProfileMenuRow(title: "Muscle focus", subtitle: editor.details.focusMuscles.isEmpty ? "Choose your focus areas" :
+          ProfileMenuRow(title: L10n.text("Muscle focus"), subtitle: editor.details.focusMuscles.isEmpty ? L10n.text("Choose your focus areas") :
             MuscleGroup.allCases.filter { editor.details.focusMuscles.contains($0) }.map(\.title).joined(separator: ", "),
             symbol: "figure.strengthtraining.traditional", tone: .violet)
         }
         NavigationLink { GymSetupView(editor: editor) } label: {
-          ProfileMenuRow(title: "Your gym", subtitle: editor.details.gymConfigured ?
-            (editor.details.equipment.isEmpty ? "Bodyweight setup" : "\(editor.details.equipment.count) equipment types") : "Choose your available equipment",
+          ProfileMenuRow(title: L10n.text("Your gym"), subtitle: editor.details.gymConfigured ?
+            (editor.details.equipment.isEmpty ? L10n.text("Bodyweight setup") : L10n.text("\(editor.details.equipment.count) equipment types")) : L10n.text("Choose your available equipment"),
             symbol: "dumbbell", tone: .violet)
         }
       }
 
-      Section("Training & connections") {
+      Section(L10n.text("Training & connections")) {
         NavigationLink { TrainingPreferencesView(editor: editor) } label: {
-          ProfileMenuRow(title: "Goals & weekly rhythm", subtitle: "Running, strength & availability", symbol: "calendar", tone: .gold)
+          ProfileMenuRow(title: L10n.text("Goals & weekly rhythm"), subtitle: L10n.text("Running, strength & availability"), symbol: "calendar", tone: .gold)
         }
         NavigationLink { ProfileConnectionsView(editor: editor) } label: {
-          ProfileMenuRow(title: "Health & connections", subtitle: "Apple Health, Strava & Watch", symbol: "heart.text.clipboard", tone: .mint)
+          ProfileMenuRow(title: L10n.text("Health & connections"), subtitle: L10n.text("Apple Health, Strava & Watch"), symbol: "heart.text.clipboard", tone: .mint)
         }
       }
       Section {
-        Button("Review a new starter block", systemImage: "arrow.right") {
+        Button(L10n.text("Review a new starter block"), systemImage: "arrow.right") {
           proposal = store.starterProposal(for: editor.assembledProfile)
         }
         .disabled(editor.validationMessage != nil)
       } footer: {
-        Text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences.")
+        Text(L10n.text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences."))
       }
 
       ProfileUnitsSection(editor: editor)
@@ -116,7 +116,7 @@ struct ProfileView: View {
           Text(error).font(.caption).foregroundStyle(HybrdStyle.terraText)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        Button("Save profile") {
+        Button(L10n.text("Save profile")) {
           if store.saveProfile(editor.assembledProfile, replacing: editor.original) { dismiss() }
           else { saveError = store.errorMessage; store.errorMessage = nil }
         }
@@ -128,13 +128,13 @@ struct ProfileView: View {
   }
 
   private func recordCount(_ count: Int) -> String {
-    count == 1 ? "1 personal best" : "\(count) personal bests"
+    L10n.text("\(count) personal bests")
   }
 
   private func levelSummary(_ editor: AthleteProfileEditor) -> String {
-    let run = editor.details.runningLevel?.rawValue ?? "Not set"
-    let lift = editor.details.strengthLevel?.rawValue ?? "Not set"
-    return "Run: \(run) · Lift: \(lift)"
+    let run = editor.details.runningLevel?.displayName ?? L10n.text("Not set")
+    let lift = editor.details.strengthLevel?.displayName ?? L10n.text("Not set")
+    return L10n.text("Run: \(run) · Lift: \(lift)")
   }
 }
 

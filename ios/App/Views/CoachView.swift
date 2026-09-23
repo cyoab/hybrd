@@ -4,7 +4,7 @@ struct CoachView: View {
   @Environment(TrainingStore.self) private var store
   @State private var question = ""
   @FocusState private var composing: Bool
-  private let suggestions = ["Why is my week arranged this way?", "I’m feeling tired", "How is my progress?"]
+  private let suggestions = [L10n.text("Why is my week arranged this way?"), L10n.text("I’m feeling tired"), L10n.text("How is my progress?")]
 
   var body: some View {
     NavigationStack {
@@ -13,13 +13,13 @@ struct CoachView: View {
           VStack(alignment: .leading, spacing: 22) {
             VStack(alignment: .leading, spacing: 14) {
               Image(systemName: "sparkles").font(.largeTitle).foregroundStyle(.tint).accessibilityHidden(true)
-              Text("Your training, connected.").font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
-              Text("Running and lifting, in the same conversation.").foregroundStyle(.secondary)
-              Label("On-device guidance", systemImage: "iphone")
+              Text(L10n.text("Your training, connected.")).font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
+              Text(L10n.text("Running and lifting, in the same conversation.")).foregroundStyle(.secondary)
+              Label(L10n.text("On-device guidance"), systemImage: "iphone")
                 .font(.caption.weight(.medium))
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(HybrdStyle.surface, in: Capsule())
-              Text("Cloud AI is not connected. These replies use simple rules and the training saved on this phone.")
+              Text(L10n.text("Cloud AI is not connected. These replies use simple rules and the training saved on this phone."))
                 .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.vertical, 10)
@@ -43,7 +43,7 @@ struct CoachView: View {
             }
             ForEach(store.state.messages) { message in
               VStack(alignment: .leading, spacing: 9) {
-                Text(message.isAthlete ? "YOU" : "HYBRD · ON DEVICE")
+                Text(message.isAthlete ? L10n.text("YOU") : L10n.text("HYBRD · ON DEVICE"))
                   .font(.caption2.bold()).tracking(1).foregroundStyle(.secondary)
                 Text(message.text).font(.body).textSelection(.enabled)
               }
@@ -62,19 +62,19 @@ struct CoachView: View {
         }
       }
       .background(HybrdStyle.background)
-      .navigationTitle("Coach")
+      .navigationTitle(L10n.text("Coach"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .safeAreaInset(edge: .bottom) {
         HStack(alignment: .bottom, spacing: 12) {
-          TextField("Ask about your training…", text: $question, axis: .vertical)
+          TextField(L10n.text("Ask about your training…"), text: $question, axis: .vertical)
             .lineLimit(1...5)
             .focused($composing)
             .padding(14)
             .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
             .submitLabel(.send)
             .onSubmit(send)
-          Button("Send question", systemImage: "arrow.up") { send() }
+          Button(L10n.text("Send question"), systemImage: "arrow.up") { send() }
             .labelStyle(.iconOnly)
             .font(.headline)
             .buttonStyle(.borderedProminent)

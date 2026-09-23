@@ -18,6 +18,8 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   var isOptional: Bool?
   var runType: RunWorkoutType?
 
+  var localizedTitle: String { L10n.content(title) }
+  var localizedPurpose: String { L10n.content(purpose) }
   var resolvedRunType: RunWorkoutType {
     runType ?? RunWorkoutType.legacyType(for: title)
   }
@@ -33,16 +35,16 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   }
 
   var heartRateTargetCaption: String {
-    workZones.count > 1 ? "highest work target" : segments.contains { $0.phase == .work } ? "work target" : "main HR target"
+    workZones.count > 1 ? L10n.text("highest work target") : segments.contains { $0.phase == .work } ? L10n.text("work target") : L10n.text("main HR target")
   }
 
   var prescriptionTarget: String {
-    guard kind == .run else { return effort }
+    guard kind == .run else { return L10n.content(effort) }
     if let first = workZones.first, let last = workZones.last, first != last {
-      return "\(first.shortTitle)–\(last.shortTitle) work"
+      return L10n.text("\(first.shortTitle)–\(last.shortTitle) work")
     }
-    guard let zone = primaryHeartRateZone else { return "HR target not set" }
-    return zone.title + (segments.contains { $0.phase == .work } ? " work" : " focus")
+    guard let zone = primaryHeartRateZone else { return L10n.text("HR target not set") }
+    return segments.contains { $0.phase == .work } ? L10n.text("\(zone.title) work") : L10n.text("\(zone.title) focus")
   }
 
   var scheduledTimeLabel: String? {
@@ -51,8 +53,8 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   }
 
   var summary: String {
-    if kind == .run && distanceMeters == 0 { return "\(minutes) min · Time-based run" }
-    return kind == .run ? "\(Double(distanceMeters) / 1_000, specifier: "%.1f") km · \(minutes) min" : "\(exercises.count) exercises · \(minutes) min"
+    if kind == .run && distanceMeters == 0 { return L10n.text("\(minutes) min · Time-based run") }
+    return kind == .run ? L10n.text("\(Double(distanceMeters) / 1_000, specifier: "%.1f") km · \(minutes) min") : L10n.text("\(exercises.count) exercises · \(minutes) min")
   }
 
   func reidentified() -> TrainingWorkout {
@@ -78,6 +80,7 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
 }
 
 enum WorkoutKind: String, Codable, CaseIterable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
   case run = "Run"
   case strength = "Strength"
   var id: String { rawValue }
@@ -88,6 +91,8 @@ struct ExercisePrescription: Codable, Identifiable, Equatable {
   var id = UUID()
   var name: String
   var note: String
+  var localizedName: String { L10n.content(name) }
+  var localizedNote: String { L10n.content(note) }
   var restSeconds = 90
   var sets: [SetPrescription]
 }
@@ -108,9 +113,11 @@ struct RunSegment: Codable, Identifiable, Equatable {
   var target: String?
   var heartRateZone: HeartRateZone?
 
+  var localizedTitle: String { L10n.content(title) }
+  var localizedCue: String { L10n.content(cue) }
   var displayTitle: String {
-    if let repetitions, repetitions > 1 { return title + " × " + String(repetitions) }
-    return title
+    if let repetitions, repetitions > 1 { return localizedTitle + " × " + String(repetitions) }
+    return localizedTitle
   }
 
   var targetSummary: String {
@@ -118,8 +125,8 @@ struct RunSegment: Codable, Identifiable, Equatable {
   }
 
   var durationTargetSummary: String {
-    let duration = seconds.isMultiple(of: 60) ? "\(seconds / 60) min" : "\(seconds / 60):\(String(format: "%02d", seconds % 60)) min"
-    return duration + (target.map { " " + $0 } ?? "")
+    let duration = seconds.isMultiple(of: 60) ? L10n.text("\(seconds / 60) min") : L10n.text("\(seconds / 60):\(String(format: "%02d", seconds % 60)) min")
+    return duration + (target.map { " " + L10n.content($0) } ?? "")
   }
 
   var totalSeconds: Int { seconds * max(1, repetitions ?? 1) }

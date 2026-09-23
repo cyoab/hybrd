@@ -8,28 +8,28 @@ struct StrengthPrescriptionView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
       HStack(alignment: .firstTextBaseline) {
-        Text("Your lineup").font(.title3.weight(.semibold))
+        Text(L10n.text("Your lineup")).font(.title3.weight(.semibold))
         Spacer()
-        Text("\(exercises.reduce(0) { $0 + $1.sets.count }) sets")
+        Text(L10n.text("\(exercises.reduce(0) { $0 + $1.sets.count }) sets"))
           .font(.subheadline).foregroundStyle(HybrdStyle.muted)
       }.padding(.bottom, 8)
 
       ForEach(Array(exercises.enumerated()), id: \.element.id) { index, exercise in
         DisclosureGroup {
           VStack(alignment: .leading, spacing: 14) {
-            Text(exercise.note).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+            Text(exercise.localizedNote).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { setIndex, set in
               HStack {
-                Text("Set \(setIndex + 1)").foregroundStyle(HybrdStyle.muted)
+                Text(L10n.text("Set \(setIndex + 1)")).foregroundStyle(HybrdStyle.muted)
                 Spacer()
-                Text("\(set.reps) reps")
-                Text("· \(set.targetRIR) RIR").foregroundStyle(HybrdStyle.muted)
+                Text(L10n.text("\(set.reps) reps"))
+                Text(L10n.text("· \(set.targetRIR) RIR")).foregroundStyle(HybrdStyle.muted)
               }.font(.subheadline).monospacedDigit()
                 .accessibilityElement(children: .combine)
             }
-            Text("RIR = reps left in reserve.").font(.caption).foregroundStyle(HybrdStyle.muted)
+            Text(L10n.text("RIR = reps left in reserve.")).font(.caption).foregroundStyle(HybrdStyle.muted)
             if let previous = store.previousSets(for: exercise.name).first {
-              Label("Last time: " + units.weightText(previous.kilograms) + " × \(previous.reps)", systemImage: "clock.arrow.circlepath")
+              Label(L10n.text("Last time: ") + units.weightText(previous.kilograms) + " × \(previous.reps)", systemImage: "clock.arrow.circlepath")
                 .font(.caption).foregroundStyle(HybrdStyle.muted)
             }
           }.padding(.top, 12).padding(.bottom, 8)
@@ -41,7 +41,7 @@ struct StrengthPrescriptionView: View {
               .frame(minWidth: 30, alignment: .leading)
               .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 9) {
-              Text(exercise.name).font(.headline).foregroundStyle(HybrdStyle.ink)
+              Text(exercise.localizedName).font(.headline).foregroundStyle(HybrdStyle.ink)
               Text(setSummary(exercise))
                 .font(.subheadline).foregroundStyle(HybrdStyle.muted)
               HStack(spacing: 8) {
@@ -51,7 +51,7 @@ struct StrengthPrescriptionView: View {
                   }
                 }.accessibilityHidden(true)
                 Text("·")
-                Label("\(exercise.restSeconds)s rest", systemImage: "timer")
+                Label(L10n.text("\(exercise.restSeconds)s rest"), systemImage: "timer")
               }.font(.caption).foregroundStyle(HybrdStyle.muted)
             }.frame(maxWidth: .infinity, alignment: .leading)
           }.padding(.vertical, 14)
@@ -65,8 +65,8 @@ struct StrengthPrescriptionView: View {
   private func setSummary(_ exercise: ExercisePrescription) -> String {
     let reps = Set(exercise.sets.map(\.reps))
     if reps.count == 1, let count = reps.first {
-      return "\(exercise.sets.count) sets × \(count) reps"
+      return L10n.text("\(exercise.sets.count) sets × \(count) reps")
     }
-    return "\(exercise.sets.count) sets · varied reps"
+    return L10n.text("\(exercise.sets.count) sets · varied reps")
   }
 }

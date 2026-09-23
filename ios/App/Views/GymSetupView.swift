@@ -9,10 +9,10 @@ struct GymSetupView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 24) {
         VStack(alignment: .leading, spacing: 10) {
-          Text("Your space to get stronger.").font(.system(.title, design: .rounded, weight: .semibold))
-          Text("Select the equipment you can use regularly. Bodyweight exercises are always included.")
+          Text(L10n.text("Your space to get stronger.")).font(.system(.title, design: .rounded, weight: .semibold))
+          Text(L10n.text("Select the equipment you can use regularly. Bodyweight exercises are always included."))
             .font(.subheadline).foregroundStyle(HybrdStyle.muted)
-          Button("Use bodyweight only", systemImage: "figure.stand") {
+          Button(L10n.text("Use bodyweight only"), systemImage: "figure.stand") {
             editor.details.equipment = []
             editor.details.gymConfigured = true
           }
@@ -50,10 +50,10 @@ struct GymSetupView: View {
       .padding(20).frame(maxWidth: 760).frame(maxWidth: .infinity)
     }
     .background(HybrdStyle.background)
-    .searchable(text: $search, prompt: "Find equipment")
-    .navigationTitle("Your gym").navigationBarTitleDisplayMode(.inline)
+    .searchable(text: $search, prompt: L10n.text("Find equipment"))
+    .navigationTitle(L10n.text("Your gym")).navigationBarTitleDisplayMode(.inline)
     .safeAreaInset(edge: .bottom) {
-      Text(editor.details.gymConfigured ? "\(editor.details.equipment.count) equipment types · bodyweight included" : "Choose your setup")
+      Text(editor.details.gymConfigured ? L10n.text("\(editor.details.equipment.count) equipment types · bodyweight included") : L10n.text("Choose your setup"))
         .font(.subheadline.weight(.medium)).padding().frame(maxWidth: .infinity).background(HybrdStyle.surface)
     }
   }

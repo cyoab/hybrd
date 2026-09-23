@@ -33,6 +33,7 @@ enum HeartRatePlanUpgrade {
     updated.id = UUID()
     updated.basePlanID = plan.id
     updated.createdAt = today
+    updated.change = nil
     updated.reason = "Heart-rate targets added to upcoming built-in runs"
     updated.workouts = workouts
     return updated

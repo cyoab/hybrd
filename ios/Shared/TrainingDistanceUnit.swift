@@ -4,8 +4,8 @@ enum TrainingDistanceUnit: String, Codable, CaseIterable, Identifiable {
   case kilometers, miles
   var id: String { rawValue }
   var symbol: String { self == .kilometers ? "km" : "mi" }
-  var title: String { self == .kilometers ? "Kilometers" : "Miles" }
-  var singular: String { self == .kilometers ? "kilometer" : "mile" }
+  var title: String { self == .kilometers ? L10n.text("Kilometers") : L10n.text("Miles") }
+  var singular: String { self == .kilometers ? L10n.text("kilometer") : L10n.text("mile") }
   var metersPerUnit: Double { self == .kilometers ? 1_000 : 1_609.344 }
   func value(fromMeters value: Double) -> Double { value / metersPerUnit }
   func meters(from value: Double) -> Double { value * metersPerUnit }

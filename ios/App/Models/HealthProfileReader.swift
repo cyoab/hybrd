@@ -55,5 +55,5 @@ struct HealthMeasurement {
 
 private enum HealthImportError: LocalizedError {
   case unavailable
-  var errorDescription: String? { "Apple Health isn’t available on this device. You can enter your details manually." }
+  var errorDescription: String? { L10n.text("Apple Health isn’t available on this device. You can enter your details manually.") }
 }

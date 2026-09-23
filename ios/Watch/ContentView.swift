@@ -25,15 +25,15 @@ struct ContentView: View {
     List {
       if companion.queuedRunCount > 0 {
         Section {
-          Label("\(companion.queuedRunCount) run(s) saved on Watch", systemImage: "checkmark.seal")
-          Text("Waiting for iPhone confirmation").font(.caption2).foregroundStyle(.secondary)
-          Button("Retry transfer") { companion.retryTransfers() }
+          Label(L10n.text("\(companion.queuedRunCount) runs saved on Watch"), systemImage: "checkmark.seal")
+          Text(L10n.text("Waiting for iPhone confirmation")).font(.caption2).foregroundStyle(.secondary)
+          Button(L10n.text("Retry transfer")) { companion.retryTransfers() }
         }
       }
       if let snapshot = companion.snapshot {
         Section {
-          Text(snapshot.isSample ? "Sample plan" : snapshot.name + "’s plan").font(.caption)
-          Text("Updated " + snapshot.updatedAt.formatted(date: .abbreviated, time: .shortened))
+          Text(snapshot.isSample ? L10n.text("Sample plan") : L10n.text("\(snapshot.name)’s plan")).font(.caption)
+          Text(L10n.text("Updated \(snapshot.updatedAt.formatted(date: .abbreviated, time: .shortened))"))
             .font(.caption2).foregroundStyle(.secondary)
         }
         ForEach(snapshot.workouts) { workout in
@@ -43,12 +43,12 @@ struct ContentView: View {
           .listRowBackground(RoundedRectangle(cornerRadius: 20).fill(
             WatchRunStyle.workoutColor(workout).opacity(0.16).gradient))
         }
-        if snapshot.workouts.isEmpty { Text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.").font(.footnote) }
+        if snapshot.workouts.isEmpty { Text(L10n.text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.")).font(.footnote) }
       } else {
         Section {
           Image(systemName: "iphone.and.arrow.forward").font(.largeTitle).foregroundStyle(WatchRunStyle.terra)
-          Text("Your run, on your wrist").font(.headline)
-          Text("Open hybrd on your paired iPhone, then send your plan from Athlete. Once synced, you can run without your phone.").font(.footnote).foregroundStyle(.secondary)
+          Text(L10n.text("Your run, on your wrist")).font(.headline)
+          Text(L10n.text("Open hybrd on your paired iPhone, then send your plan from Athlete. Once synced, you can run without your phone.")).font(.footnote).foregroundStyle(.secondary)
         }
       }
     }.navigationTitle("hybrd")
@@ -66,13 +66,13 @@ private struct WatchSessionReadyView: View {
           .padding(10)
           .background(WatchRunStyle.workoutColor(workout).opacity(0.14), in: RoundedRectangle(cornerRadius: 18))
         if workout.kind == .run {
-          Button(recorder.preparing ? "Preparing…" : "Start run", systemImage: "play.fill") {
+          Button(recorder.preparing ? L10n.text("Preparing…") : L10n.text("Start run"), systemImage: "play.fill") {
             Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones, units: companion.snapshot?.units ?? .metric) }
           }.buttonStyle(.borderedProminent).disabled(recorder.preparing)
           if let error = recorder.errorMessage {
             Text(error).font(.caption2).foregroundStyle(.orange)
           }
-          Text("GPS, heart rate and laps record on this Watch. Your phone can stay behind.").font(.caption2).foregroundStyle(.secondary)
+          Text(L10n.text("GPS, heart rate and laps record on this Watch. Your phone can stay behind.")).font(.caption2).foregroundStyle(.secondary)
           ForEach(workout.segments) { segment in
             VStack(alignment: .leading, spacing: 3) {
               Text(segment.displayTitle).font(.footnote.weight(.semibold))
@@ -80,16 +80,16 @@ private struct WatchSessionReadyView: View {
             }
           }
         } else {
-          Text("Use iPhone to enter weight, reps and RIR. Your prescription is here for a quick glance.").font(.footnote).foregroundStyle(.secondary)
+          Text(L10n.text("Use iPhone to enter weight, reps and RIR. Your prescription is here for a quick glance.")).font(.footnote).foregroundStyle(.secondary)
           ForEach(workout.exercises) { exercise in
             VStack(alignment: .leading, spacing: 4) {
-              Text(exercise.name).font(.headline)
-              Text("\(exercise.sets.count) sets · \(exercise.sets.first?.reps ?? 0) reps").font(.caption)
-              Text(exercise.note).font(.caption2).foregroundStyle(.secondary)
+              Text(exercise.localizedName).font(.headline)
+              Text(L10n.text("\(exercise.sets.count) sets · \(exercise.sets.first?.reps ?? 0) reps")).font(.caption)
+              Text(exercise.localizedNote).font(.caption2).foregroundStyle(.secondary)
             }
           }
         }
       }.padding(.horizontal, 8).frame(maxWidth: .infinity, alignment: .leading)
-    }.navigationTitle(workout.kind.rawValue)
+    }.navigationTitle(workout.kind.displayName)
   }
 }

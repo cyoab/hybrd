@@ -8,9 +8,9 @@ struct SessionHeroView: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .center, spacing: 6) {
         VStack(alignment: .leading, spacing: 10) {
-          Text((workout.isKey ? "KEY SESSION · " : workout.isOptional == true ? "OPTIONAL · " : "") + (workout.kind == .run ? workout.resolvedRunType.title : workout.kind.rawValue).uppercased())
+          Text((workout.isKey ? L10n.text("KEY SESSION · ") : workout.isOptional == true ? L10n.text("OPTIONAL · ") : "") + (workout.kind == .run ? workout.resolvedRunType.title : workout.kind.displayName).uppercased())
             .font(.caption.weight(.semibold)).tracking(1.3)
-          Text(workout.title)
+          Text(workout.localizedTitle)
             .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
             .fixedSize(horizontal: false, vertical: true)
           Text(workout.date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())

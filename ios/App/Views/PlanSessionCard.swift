@@ -13,7 +13,7 @@ struct PlanSessionCard: View {
   private var accent: Color { workout.kind == .run ? RunPalette.color(workout.resolvedRunType) : SessionPalette.violet }
   private var ink: Color { workout.kind == .run ? RunPalette.ink(workout.resolvedRunType) : SessionPalette.ink(.violet) }
   private var wash: Color { workout.kind == .run ? RunPalette.wash(workout.resolvedRunType) : SessionPalette.wash(.violet) }
-  private var categoryTitle: String { workout.kind == .run ? workout.resolvedRunType.title : workout.kind.rawValue }
+  private var categoryTitle: String { workout.kind == .run ? workout.resolvedRunType.title : workout.kind.displayName }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -31,7 +31,7 @@ struct PlanSessionCard: View {
           }
           HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 8) {
-              Text(workout.title)
+              Text(workout.localizedTitle)
                 .font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-0.6)
                 .fixedSize(horizontal: false, vertical: true)
               Text(units.summary(workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
@@ -49,7 +49,7 @@ struct PlanSessionCard: View {
             Label(workout.prescriptionTarget, systemImage: "heart")
               .font(.caption.weight(.semibold)).foregroundStyle(ink)
           } else if expanded {
-            Text("\(workout.exercises.flatMap(\.sets).count) sets planned")
+            Text(L10n.text("\(workout.exercises.flatMap(\.sets).count) sets planned"))
               .font(.caption.weight(.semibold)).foregroundStyle(ink)
           }
         }
@@ -58,16 +58,16 @@ struct PlanSessionCard: View {
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
-      .accessibilityHint("Opens session details")
+      .accessibilityHint(L10n.text("Opens session details"))
 
       if let result {
-        Label(result.status.rawValue, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
+        Label(result.status.displayName, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
           .font(.subheadline.weight(.medium)).foregroundStyle(ink)
       } else if expanded {
         if typeSize.isAccessibilitySize {
           VStack(spacing: 8) {
             openButton
-            if canMove { Button("Move session", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
+            if canMove { Button(L10n.text("Move session"), action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
           }
         } else {
           sessionActions
@@ -90,26 +90,26 @@ struct PlanSessionCard: View {
     ViewThatFits(in: .horizontal) {
       HStack(spacing: 8) {
         openButton
-        if canMove { Button("Move", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
+        if canMove { Button(L10n.text("Move"), action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
       }
       VStack(spacing: 8) {
         openButton
-        if canMove { Button("Move session", action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
+        if canMove { Button(L10n.text("Move session"), action: move).buttonStyle(HybrdSecondaryButtonStyle()) }
       }
     }
   }
 
   private var category: String {
-    if let result { return result.status.rawValue + " · " + categoryTitle }
-    if store.hasDraft(for: workout) { return "In progress · " + categoryTitle }
-    return (workout.isKey ? "Key session · " : workout.isOptional == true ? "Optional · " : "") + categoryTitle
+    if let result { return result.status.displayName + " · " + categoryTitle }
+    if store.hasDraft(for: workout) { return L10n.text("In progress · ") + categoryTitle }
+    return (workout.isKey ? L10n.text("Key session · ") : workout.isOptional == true ? L10n.text("Optional · ") : "") + categoryTitle
   }
 
   private var openButton: some View {
     NavigationLink {
       WorkoutDetailView(workout: workout)
     } label: {
-      Text(store.hasDraft(for: workout) ? "Continue session" : "Open session")
+      Text(store.hasDraft(for: workout) ? L10n.text("Continue session") : L10n.text("Open session"))
     }
     .buttonStyle(HybrdPrimaryButtonStyle())
   }

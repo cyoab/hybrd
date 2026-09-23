@@ -16,6 +16,6 @@ struct RunZoneBadge: View {
       .foregroundStyle(SessionPalette.ink(tone))
       .padding(.horizontal, 10).padding(.vertical, 7)
       .background(SessionPalette.wash(tone), in: RoundedRectangle(cornerRadius: 14))
-      .accessibilityLabel("Target heart rate: " + title)
+      .accessibilityLabel(L10n.text("Target heart rate: ") + title)
   }
 }

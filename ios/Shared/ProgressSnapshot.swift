@@ -20,12 +20,12 @@ struct ProgressSnapshot {
   var nextLevelIn: Int { 10 - levelSteps }
   var levelTitle: String {
     switch level {
-    case 1: "First steps"
-    case 2: "Finding rhythm"
-    case 3: "Building momentum"
-    case 4: "Showing up"
-    case 5: "In your stride"
-    default: "The long game"
+    case 1: L10n.text("First steps")
+    case 2: L10n.text("Finding rhythm")
+    case 3: L10n.text("Building momentum")
+    case 4: L10n.text("Showing up")
+    case 5: L10n.text("In your stride")
+    default: L10n.text("The long game")
     }
   }
   var latestMilestone: ProgressMilestone? {
@@ -160,13 +160,13 @@ struct ProgressSnapshot {
       guard comparable(points) else { return nil }
       return ProgressComparison(kind: .run,
         title: "\((Double(key.meters) / 1_000).formatted(.number.precision(.fractionLength(0...3)))) km · \(key.type.title)",
-        subtitle: "Same distance & run type", points: points, runDistanceMeters: key.meters, runType: key.type)
+        subtitle: L10n.text("Same distance & run type"), points: points, runDistanceMeters: key.meters, runType: key.type)
     }.sorted {
       $0.latestDate == $1.latestDate ? $0.title < $1.title : $0.latestDate > $1.latestDate
     }.first
     let lifting = lifts.compactMap { key, points -> ProgressComparison? in
       guard comparable(points) else { return nil }
-      return ProgressComparison(kind: .strength, title: key.name, subtitle: "Same lift · \(key.reps) reps", points: points)
+      return ProgressComparison(kind: .strength, title: key.name, subtitle: L10n.text("Same lift · \(key.reps) reps"), points: points)
     }.sorted {
       $0.latestDate == $1.latestDate ? $0.title + $0.subtitle < $1.title + $1.subtitle : $0.latestDate > $1.latestDate
     }.first

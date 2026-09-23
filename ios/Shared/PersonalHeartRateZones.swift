@@ -13,11 +13,11 @@ struct PersonalHeartRateZones: Codable, Equatable {
   }
   func label(for zone: HeartRateZone) -> String {
     switch zone {
-    case .one: "Below \(zone2) bpm"
-    case .two: "\(zone2)–\(zone3 - 1) bpm"
-    case .three: "\(zone3)–\(zone4 - 1) bpm"
-    case .four: "\(zone4)–\(zone5 - 1) bpm"
-    case .five: "\(zone5)+ bpm"
+    case .one: L10n.text("Below \(zone2) bpm")
+    case .two: L10n.text("\(zone2)–\(zone3 - 1) bpm")
+    case .three: L10n.text("\(zone3)–\(zone4 - 1) bpm")
+    case .four: L10n.text("\(zone4)–\(zone5 - 1) bpm")
+    case .five: L10n.text("\(zone5)+ bpm")
     }
   }
 }

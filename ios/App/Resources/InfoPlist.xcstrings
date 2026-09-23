@@ -1,0 +1,93 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSHealthShareUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd reads heart rate and running distance during your workouts. On iPhone, you can also review and import your birth date, height, and weight into your athlete profile."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd lee tu frecuencia cardíaca y la distancia durante los entrenamientos. En el iPhone también puedes revisar e importar tu fecha de nacimiento, altura y peso al perfil de atleta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O hybrd lê sua frequência cardíaca e distância durante os treinos. No iPhone, você também pode revisar e importar data de nascimento, altura e peso para o perfil do atleta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd lit votre fréquence cardiaque et votre distance pendant les entraînements. Sur iPhone, vous pouvez aussi vérifier et importer votre date de naissance, votre taille et votre poids dans votre profil d’athlète."
+          }
+        }
+      }
+    },
+    "NSHealthUpdateUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd saves the runs you record, including their distance and route, to Apple Health."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd guarda las carreras que grabas, incluida su distancia y ruta, en Salud de Apple."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O hybrd salva as corridas que você grava, incluindo distância e rota, no Saúde da Apple."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd enregistre vos courses, y compris leur distance et leur parcours, dans Santé d’Apple."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd usa tu ubicación precisa durante una carrera para medir ritmo, distancia y ruta, incluso con la pantalla bloqueada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O hybrd usa sua localização precisa durante a corrida para medir ritmo, distância e rota, inclusive com a tela bloqueada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd utilise votre position précise pendant une course pour mesurer l’allure, la distance et le parcours, même lorsque l’écran est verrouillé."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -4,6 +4,9 @@ import Foundation
 enum RunWorkoutTemplate: String, CaseIterable, Identifiable {
   case easyThirty, recoveryTwenty, longSixty, tempoRepeats, steadyTempo, twoMinuteIntervals, hillRepeats, progression
 
+  var localizedTitle: String { L10n.content(title) }
+  var localizedSubtitle: String { L10n.content(subtitle) }
+  var localizedPurpose: String { L10n.content(purpose) }
   var id: String { rawValue }
 
   var type: RunWorkoutType {
@@ -99,7 +102,7 @@ enum RunWorkoutTemplate: String, CaseIterable, Identifiable {
   func workout(on date: Date) -> TrainingWorkout {
     TrainingWorkout(date: Calendar.current.startOfDay(for: date), kind: .run, title: title,
       purpose: purpose, minutes: minutes,
-      effort: type.title, isKey: ![.easy, .recovery].contains(type),
+      effort: type.storageTitle, isKey: ![.easy, .recovery].contains(type),
       segments: segments, runType: type)
   }
 }

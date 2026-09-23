@@ -3,6 +3,7 @@ import Foundation
 @main
 enum TrainingEngineChecks {
   static func main() throws {
+    try LocalizationChecks.run()
     try TrainingUnitsChecks.run()
     try LiveWorkoutChecks.run()
     ProgressChecks.run()

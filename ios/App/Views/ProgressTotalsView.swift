@@ -9,9 +9,9 @@ struct ProgressTotalsView: View {
     let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
     layout {
       tile(value: units.distanceNumber(Double(snapshot.current.runMeters)),
-        unit: units.distance.symbol + " running", current: snapshot.current.runMeters, previous: snapshot.previous.runMeters,
+        unit: L10n.text("\(units.distance.symbol) running"), current: snapshot.current.runMeters, previous: snapshot.previous.runMeters,
         image: "SessionShoe", tone: .terra)
-      tile(value: snapshot.current.strengthSets.formatted(), unit: "strength sets",
+      tile(value: snapshot.current.strengthSets.formatted(), unit: L10n.text("strength sets"),
         current: snapshot.current.strengthSets, previous: snapshot.previous.strengthSets,
         image: "SessionDumbbell", tone: .violet)
     }
@@ -32,9 +32,9 @@ struct ProgressTotalsView: View {
     .accessibilityElement(children: .combine)
   }
   private func change(_ current: Int, _ previous: Int) -> String {
-    guard previous > 0 else { return current > 0 ? "A new baseline" : "Your next chapter awaits" }
+    guard previous > 0 else { return current > 0 ? L10n.text("A new baseline") : L10n.text("Your next chapter awaits") }
     let change = Double(current - previous) / Double(previous)
-    if abs(change) < 0.005 { return "Holding steady" }
-    return abs(change).formatted(.percent.precision(.fractionLength(0))) + (change > 0 ? " more logged" : " less logged")
+    if abs(change) < 0.005 { return L10n.text("Holding steady") }
+    return change > 0 ? L10n.text("\(abs(change).formatted(.percent.precision(.fractionLength(0)))) more logged") : L10n.text("\(abs(change).formatted(.percent.precision(.fractionLength(0)))) less logged")
   }
 }

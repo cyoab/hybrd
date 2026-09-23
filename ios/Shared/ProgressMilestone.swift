@@ -13,14 +13,14 @@ struct ProgressMilestone: Identifiable {
     var id: String { rawValue }
     var title: String {
       switch self {
-      case .firstDay: "First footprint"
-      case .bothDisciplines: "Two lanes"
-      case .tenKilometers: "Into your stride"
-      case .twentyFiveSets: "Solid foundation"
-      case .tenDays: "Finding rhythm"
-      case .fiftyKilometers: "Going the distance"
-      case .hundredSets: "Built, set by set"
-      case .fiftyDays: "The long game"
+      case .firstDay: L10n.text("First footprint")
+      case .bothDisciplines: L10n.text("Two lanes")
+      case .tenKilometers: L10n.text("Into your stride")
+      case .twentyFiveSets: L10n.text("Solid foundation")
+      case .tenDays: L10n.text("Finding rhythm")
+      case .fiftyKilometers: L10n.text("Going the distance")
+      case .hundredSets: L10n.text("Built, set by set")
+      case .fiftyDays: L10n.text("The long game")
       }
     }
     var symbol: String {
@@ -49,19 +49,19 @@ struct ProgressMilestone: Identifiable {
     }
     var requirement: String {
       switch self {
-      case .firstDay: "Log your first training day."
-      case .bothDisciplines: "Log a run and a strength session, on any days."
-      case .tenKilometers: "Reach 10 km of logged running."
-      case .twentyFiveSets: "Complete 25 strength sets."
-      case .tenDays: "Train on 10 different days."
-      case .fiftyKilometers: "Reach 50 km of logged running."
-      case .hundredSets: "Complete 100 strength sets."
-      case .fiftyDays: "Train on 50 different days."
+      case .firstDay: L10n.text("Log your first training day.")
+      case .bothDisciplines: L10n.text("Log a run and a strength session, on any days.")
+      case .tenKilometers: L10n.text("Reach 10 km of logged running.")
+      case .twentyFiveSets: L10n.text("Complete 25 strength sets.")
+      case .tenDays: L10n.text("Train on 10 different days.")
+      case .fiftyKilometers: L10n.text("Reach 50 km of logged running.")
+      case .hundredSets: L10n.text("Complete 100 strength sets.")
+      case .fiftyDays: L10n.text("Train on 50 different days.")
       }
     }
     func requirement(in units: TrainingUnits) -> String {
       if self == .tenKilometers || self == .fiftyKilometers {
-        return "Reach " + units.distanceText(Double(target), decimals: 2) + " of logged running."
+        return L10n.text("Reach \(units.distanceText(Double(target), decimals: 2)) of logged running.")
       }
       return requirement
     }
@@ -69,9 +69,9 @@ struct ProgressMilestone: Identifiable {
       switch self {
       case .tenKilometers, .fiftyKilometers:
         units.distanceNumber(Double(value), decimals: 2) + " / " + units.distanceText(Double(target), decimals: 2)
-      case .twentyFiveSets, .hundredSets: "\(value) / \(target) sets"
-      case .bothDisciplines: "\(value) / 2 disciplines"
-      default: "\(value) / \(target) training days"
+      case .twentyFiveSets, .hundredSets: L10n.text("\(value) / \(target) sets")
+      case .bothDisciplines: L10n.text("\(value) / 2 disciplines")
+      default: L10n.text("\(value) / \(target) training days")
       }
     }
   }

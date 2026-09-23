@@ -14,13 +14,13 @@ struct MoveSessionView: View {
   var body: some View {
     NavigationStack {
       Form {
-        Section("Review the change") {
-          LabeledContent("Session", value: workout.title)
-          LabeledContent("From", value: workout.date.formatted(date: .abbreviated, time: .omitted))
-          DatePicker("Move to", selection: $newDate, in: Calendar.current.startOfDay(for: Date())..., displayedComponents: .date)
+        Section(L10n.text("Review the change")) {
+          LabeledContent(L10n.text("Session"), value: workout.localizedTitle)
+          LabeledContent(L10n.text("From"), value: workout.date.formatted(date: .abbreviated, time: .omitted))
+          DatePicker(L10n.text("Move to"), selection: $newDate, in: Calendar.current.startOfDay(for: Date())..., displayedComponents: .date)
         }
         if !conflicts.isEmpty {
-          Section("Consider your recovery") {
+          Section(L10n.text("Consider your recovery")) {
             ForEach(conflicts, id: \.self) { concern in
               Label(concern, systemImage: "exclamationmark.triangle")
                 .font(.subheadline).foregroundStyle(.orange)
@@ -28,17 +28,17 @@ struct MoveSessionView: View {
           }
         }
         Section {
-          Text("Only this session’s date changes. Your previous plan and completed training stay in your history.")
+          Text(L10n.text("Only this session’s date changes. Your previous plan and completed training stay in your history."))
             .font(.subheadline).foregroundStyle(.secondary)
-          Button("Accept change") {
+          Button(L10n.text("Accept change")) {
             if store.move(workout, to: newDate, expectedPlanID: expectedPlanID) { dismiss() }
           }.disabled(Calendar.current.isDate(newDate, inSameDayAs: workout.date))
         }
       }
-      .navigationTitle("Move session")
+      .navigationTitle(L10n.text("Move session"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+        ToolbarItem(placement: .cancellationAction) { Button(L10n.text("Cancel")) { dismiss() } }
       }
       .onAppear { newDate = max(workout.date, Calendar.current.startOfDay(for: Date())) }
     }

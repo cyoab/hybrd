@@ -14,7 +14,7 @@ struct WatchWorkoutCardView: View {
         if workout.isKey { Image(systemName: "star.fill") }
       }.font(.caption2.weight(.semibold)).foregroundStyle(accent)
       HStack(spacing: 0) {
-        Text(workout.title).font(.headline).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
+        Text(workout.localizedTitle).font(.headline).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
         Image(workout.kind == .run ? "SessionShoe" : "SessionDumbbell")
           .resizable().scaledToFit().frame(width: 54, height: 50).accessibilityHidden(true)
       }
@@ -29,7 +29,7 @@ struct WatchWorkoutCardView: View {
               .overlay { Text("\(exercise.sets.count)").hidden() }
           }
         }.accessibilityHidden(true)
-        Text("\(workout.exercises.reduce(0) { $0 + $1.sets.count }) planned sets").font(.caption2).foregroundStyle(accent)
+        Text(L10n.text("\(workout.exercises.reduce(0) { $0 + $1.sets.count }) planned sets")).font(.caption2).foregroundStyle(accent)
       }
     }
     .padding(.vertical, 5)

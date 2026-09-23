@@ -4,77 +4,79 @@ struct TrainingPreferencesView: View {
   @Bindable var editor: AthleteProfileEditor
   @Environment(\.dynamicTypeSize) private var typeSize
   @FocusState private var distanceFocused: Bool
-  private let weekdays = [(2, "Mon", "Monday"), (3, "Tue", "Tuesday"), (4, "Wed", "Wednesday"),
-    (5, "Thu", "Thursday"), (6, "Fri", "Friday"), (7, "Sat", "Saturday"), (1, "Sun", "Sunday")]
+  private var weekdays: [(Int, String, String)] {
+    let calendar = Calendar.current
+    return [2, 3, 4, 5, 6, 7, 1].map { ($0, calendar.shortWeekdaySymbols[$0 - 1], calendar.weekdaySymbols[$0 - 1]) }
+  }
 
   var body: some View {
     Form {
       Section {
-        ProfileSectionHero(eyebrow: "Goals & rhythm", title: "Find your flow.",
-          subtitle: "Set your direction, then make room for training in your week.",
+        ProfileSectionHero(eyebrow: L10n.text("Goals & rhythm"), title: L10n.text("Find your flow."),
+          subtitle: L10n.text("Set your direction, then make room for training in your week."),
           artwork: .rhythm, tone: .gold)
           .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
       }
 
       Section {
-        illustratedChoice("Running goal", artwork: .running, tone: .terra) {
-          Picker("Running goal", selection: $editor.profile.runningGoal) {
-            ForEach(RunningGoal.allCases) { Text($0.rawValue).tag($0) }
+        illustratedChoice(L10n.text("Running goal"), artwork: .running, tone: .terra) {
+          Picker(L10n.text("Running goal"), selection: $editor.profile.runningGoal) {
+            ForEach(RunningGoal.allCases) { Text($0.displayName).tag($0) }
           }.pickerStyle(.menu).labelsHidden()
         }
-        illustratedChoice("Strength goal", artwork: .strength, tone: .violet) {
-          Picker("Strength goal", selection: $editor.profile.strengthGoal) {
-            ForEach(StrengthGoal.allCases) { Text($0.rawValue).tag($0) }
+        illustratedChoice(L10n.text("Strength goal"), artwork: .strength, tone: .violet) {
+          Picker(L10n.text("Strength goal"), selection: $editor.profile.strengthGoal) {
+            ForEach(StrengthGoal.allCases) { Text($0.displayName).tag($0) }
           }.pickerStyle(.menu).labelsHidden()
         }
-        illustratedChoice("Training focus", artwork: .experience, tone: .mint) {
-          Picker("Training focus", selection: $editor.profile.priority) {
-            ForEach(TrainingPriority.allCases) { Text($0.rawValue).tag($0) }
+        illustratedChoice(L10n.text("Training focus"), artwork: .experience, tone: .mint) {
+          Picker(L10n.text("Training focus"), selection: $editor.profile.priority) {
+            ForEach(TrainingPriority.allCases) { Text($0.displayName).tag($0) }
           }.pickerStyle(.menu).labelsHidden()
         }
-      } header: { Text("Your direction") }
+      } header: { Text(L10n.text("Your direction")) }
 
       Section {
         VStack(alignment: .leading, spacing: 6) {
-          ProfileMetricField(title: "Weekly running distance", text: $editor.weeklyDistance,
-            unit: editor.units.distance.symbol + " / week", tone: .terra, placeholder: "e.g. " + editor.units.distanceNumber(70_000, decimals: 0))
+          ProfileMetricField(title: L10n.text("Weekly running distance"), text: $editor.weeklyDistance,
+            unit: editor.units.distance.symbol + L10n.text(" / week"), tone: .terra, placeholder: L10n.text("e.g. ") + editor.units.distanceNumber(70_000, decimals: 0))
             .keyboardType(.decimalPad).focused($distanceFocused)
             .accessibilityHint(editor.weeklyDistanceError)
           if editor.parsedWeeklyKilometers == nil {
             Label(editor.weeklyDistanceError, systemImage: "exclamationmark.circle")
               .font(.caption).foregroundStyle(HybrdStyle.terraText)
           } else {
-            Text("Tap the number to edit. Decimals welcome.")
+            Text(L10n.text("Tap the number to edit. Decimals welcome."))
               .font(.caption).foregroundStyle(HybrdStyle.muted)
           }
         }
         .padding(.bottom, 6).modifier(ProfileTintedRow(tone: .terra))
-      } header: { Text("Your weekly rhythm") } footer: {
-        Text("Use a recent, comfortable weekly distance. Your available days and session length may limit the distance in your starter block.")
+      } header: { Text(L10n.text("Your weekly rhythm")) } footer: {
+        Text(L10n.text("Use a recent, comfortable weekly distance. Your available days and session length may limit the distance in your starter block."))
       }
 
       Section {
         VStack(alignment: .leading, spacing: 16) {
           HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
-              Text("Strength sessions").font(.headline)
-              Text("Each week").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+              Text(L10n.text("Strength sessions")).font(.headline)
+              Text(L10n.text("Each week")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
             Spacer(minLength: 0)
             Text(String(editor.profile.strengthDays))
               .font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
               .foregroundStyle(SessionPalette.ink(.violet)).accessibilityHidden(true)
           }
-          Picker("Strength sessions per week", selection: $editor.profile.strengthDays) {
+          Picker(L10n.text("Strength sessions per week"), selection: $editor.profile.strengthDays) {
             ForEach(1...4, id: \.self) { Text("\($0)").tag($0) }
           }.pickerStyle(.segmented).labelsHidden()
         }.padding(.vertical, 8).modifier(ProfileTintedRow(tone: .violet))
       }
 
       Section {
-        illustratedChoice("Time per session", artwork: .rhythm, tone: .sky) {
-          Picker("Time per session", selection: $editor.profile.sessionMinutes) {
-            ForEach([30, 45, 60, 75, 90], id: \.self) { Text("\($0) minutes").tag($0) }
+        illustratedChoice(L10n.text("Time per session"), artwork: .rhythm, tone: .sky) {
+          Picker(L10n.text("Time per session"), selection: $editor.profile.sessionMinutes) {
+            ForEach([30, 45, 60, 75, 90], id: \.self) { Text(L10n.text("\($0) minutes")).tag($0) }
           }.pickerStyle(.menu).labelsHidden()
         }
       }
@@ -84,9 +86,9 @@ struct TrainingPreferencesView: View {
           let heading = typeSize.isAccessibilitySize ?
             AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
           heading {
-            Text("Your training days").font(.headline)
+            Text(L10n.text("Your training days")).font(.headline)
             if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
-            Text("\(editor.profile.availableDays.count) selected")
+            Text(L10n.text("\(editor.profile.availableDays.count) selected"))
               .font(.caption.weight(.medium)).foregroundStyle(SessionPalette.ink(.mint))
           }
           LazyVGrid(columns: [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 88 : 62))], spacing: 10) {
@@ -116,21 +118,21 @@ struct TrainingPreferencesView: View {
             }
           }
           if editor.profile.availableDays.count < 2 {
-            Label("Choose at least two training days.", systemImage: "exclamationmark.circle")
+            Label(L10n.text("Choose at least two training days."), systemImage: "exclamationmark.circle")
               .font(.caption).foregroundStyle(HybrdStyle.terraText)
           }
         }.padding(.vertical, 8).modifier(ProfileTintedRow(tone: .mint))
-      } header: { Text("Make room for training") } footer: {
-        Text("Choose days that work for you. Your starter block keeps at least one for running and fits strength into the remaining days.")
+      } header: { Text(L10n.text("Make room for training")) } footer: {
+        Text(L10n.text("Choose days that work for you. Your starter block keeps at least one for running and fits strength into the remaining days."))
       }
     }
     .scrollContentBackground(.hidden).background(HybrdStyle.background)
-    .navigationTitle("Goals & rhythm").navigationBarTitleDisplayMode(.inline)
+    .navigationTitle(L10n.text("Goals & rhythm")).navigationBarTitleDisplayMode(.inline)
     .scrollDismissesKeyboard(.interactively)
     .toolbar {
       ToolbarItemGroup(placement: .keyboard) {
         Spacer()
-        Button("Done") { distanceFocused = false }
+        Button(L10n.text("Done")) { distanceFocused = false }
       }
     }
   }

@@ -21,6 +21,7 @@ struct RunningPersonalBest: Codable, Equatable, Identifiable {
 }
 
 enum RunRecordDistance: String, Codable, CaseIterable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
   case mile = "1 mile", fiveK = "5K", tenK = "10K", half = "Half marathon", marathon = "Marathon"
   var id: String { rawValue }
 }

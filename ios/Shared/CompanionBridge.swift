@@ -6,7 +6,7 @@ import WatchConnectivity
 @Observable
 final class CompanionBridge: NSObject, WCSessionDelegate {
   private(set) var snapshot: CompanionSnapshot?
-  private(set) var connectionMessage = "Waiting for iPhone"
+  private(set) var connectionMessage = L10n.text("Waiting for iPhone")
   private var pending: Data?
   private(set) var receivedRuns: [RunRecording] = []
   private(set) var queuedRunCount = 0
@@ -36,15 +36,15 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     guard let pending, WCSession.default.activationState == .activated else { return }
     #if os(iOS)
     guard WCSession.default.isPaired, WCSession.default.isWatchAppInstalled else {
-      connectionMessage = "Install hybrd on your paired Apple Watch"
+      connectionMessage = L10n.text("Install hybrd on your paired Apple Watch")
       return
     }
     #endif
     do {
       try WCSession.default.updateApplicationContext(["snapshot": pending])
-      connectionMessage = "Plan queued for Apple Watch"
+      connectionMessage = L10n.text("Plan queued for Apple Watch")
     } catch {
-      connectionMessage = "Watch transfer will retry when connected"
+      connectionMessage = L10n.text("Watch transfer will retry when connected")
     }
   }
 
@@ -65,7 +65,7 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     guard let decoded = try? JSONDecoder().decode(CompanionSnapshot.self, from: data) else { return }
     snapshot = decoded
     UserDefaults.standard.set(data, forKey: "companion.snapshot")
-    connectionMessage = "Plan received"
+    connectionMessage = L10n.text("Plan received")
   }
 
   /// The application-level receipt is sent only after the iPhone transaction is durable.
@@ -75,9 +75,9 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
       _ = try RunArchive.save(run, in: "outbox")
       queuedRunCount = RunArchive.load("outbox").count
       retryTransfers()
-      connectionMessage = "Run saved on Watch · transfer queued"
+      connectionMessage = L10n.text("Run saved on Watch · transfer queued")
       return true
-    } catch { connectionMessage = "Couldn’t save the transfer. Your run remains in the recorder."; return false }
+    } catch { connectionMessage = L10n.text("Couldn’t save the transfer. Your run remains in the recorder."); return false }
   }
   func retryTransfers() {
     guard WCSession.default.activationState == .activated else { return }
@@ -100,7 +100,7 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
       if WCSession.default.activationState == .activated {
         WCSession.default.transferUserInfo(["runReceipt": run.id.uuidString])
       }
-    } catch { connectionMessage = "Saved run; receipt will retry." }
+    } catch { connectionMessage = L10n.text("Saved run; receipt will retry.") }
   }
   nonisolated func session(_ session: WCSession, didReceive file: WCSessionFile) {
     // WC owns this temporary URL and removes it after the callback returns.
@@ -110,7 +110,7 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     do { _ = try RunArchive.save(run, in: "inbox") } catch { return }
     Task { @MainActor in
       self.receivedRuns = RunArchive.load("inbox")
-      self.connectionMessage = "Run received from Apple Watch"
+      self.connectionMessage = L10n.text("Run received from Apple Watch")
       self.retryTransfers()
     }
   }
@@ -120,8 +120,8 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
       do {
         try RunArchive.remove(id, from: "outbox")
         self.queuedRunCount = RunArchive.load("outbox").count
-        self.connectionMessage = "Run saved on iPhone"
-      } catch { self.connectionMessage = "Receipt cleanup will retry" }
+        self.connectionMessage = L10n.text("Run saved on iPhone")
+      } catch { self.connectionMessage = L10n.text("Receipt cleanup will retry") }
     }
   }
   nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
@@ -129,8 +129,8 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
   }
   nonisolated func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
     Task { @MainActor in
-      if error != nil { self.connectionMessage = "Run is safe on Watch. Transfer will retry." }
-      else { self.connectionMessage = "Run delivered · awaiting iPhone save" }
+      if error != nil { self.connectionMessage = L10n.text("Run is safe on Watch. Transfer will retry.") }
+      else { self.connectionMessage = L10n.text("Run delivered · awaiting iPhone save") }
     }
   }
 

@@ -55,9 +55,9 @@ struct PlanWeekRow: View {
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(day.formatted(date: .complete, time: .omitted) + (today ? ", today" : ""))
-    .accessibilityValue(daySessions.isEmpty ? "Recovery day" : daySessions.map { workout in
-      workout.title + (results.first { $0.logicalWorkoutID == workout.logicalID }.map { ", " + $0.status.rawValue } ?? "")
+    .accessibilityLabel(day.formatted(date: .complete, time: .omitted) + (today ? L10n.text(", today") : ""))
+    .accessibilityValue(daySessions.isEmpty ? L10n.text("Recovery day") : daySessions.map { workout in
+      workout.localizedTitle + (results.first { $0.logicalWorkoutID == workout.logicalID }.map { ", " + $0.status.displayName } ?? "")
     }.joined(separator: ". "))
     .accessibilityAddTraits(selected ? [.isSelected] : [])
   }

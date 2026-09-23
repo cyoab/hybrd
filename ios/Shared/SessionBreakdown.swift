@@ -16,7 +16,7 @@ struct SessionBreakdown {
         guard amount > 0 else { return nil }
         let segments = workout.segments.filter { $0.heartRateZone == zone }
         return Part(id: zone.map { "zone\($0.rawValue)" } ?? "unassigned",
-          title: zone?.title ?? "Unassigned", subtitle: zone?.name ?? "No HR target",
+          title: zone?.title ?? L10n.text("Unassigned"), subtitle: zone?.name ?? L10n.text("No HR target"),
           amount: amount, tone: Self.tone(for: zone),
           detail: segments.map { $0.displayTitle + " · " + $0.targetSummary }.joined(separator: "\n"))
       }
@@ -24,9 +24,9 @@ struct SessionBreakdown {
       let palette: [Tone] = [.violet, .sky, .mint, .terra, .gold]
       parts = workout.exercises.enumerated().compactMap { index, exercise in
         guard !exercise.sets.isEmpty else { return nil }
-        return Part(id: exercise.id.uuidString, title: exercise.name,
+        return Part(id: exercise.id.uuidString, title: exercise.localizedName,
           amount: exercise.sets.count, tone: palette[index % palette.count],
-          detail: "\(exercise.sets.reduce(0) { $0 + $1.reps }) prescribed reps · \(exercise.restSeconds) sec between sets\n\(exercise.note)")
+          detail: L10n.text("\(exercise.sets.reduce(0) { $0 + $1.reps }) prescribed reps · \(exercise.restSeconds) sec between sets\n\(exercise.localizedNote)"))
       }
     }
   }
@@ -40,16 +40,16 @@ struct SessionBreakdown {
   }
 
   func unit(for amount: Int) -> String {
-    if kind == .strength { return amount == 1 ? "set" : "sets" }
-    return amount.isMultiple(of: 60) ? "min" : "min:sec"
+    if kind == .strength { return amount == 1 ? L10n.text("set") : L10n.text("sets") }
+    return amount.isMultiple(of: 60) ? L10n.text("min") : L10n.text("min:sec")
   }
 
   func spokenValue(for amount: Int) -> String {
     if kind == .strength { return "\(amount) " + unit(for: amount) }
     let minutes = amount / 60
     let seconds = amount % 60
-    let minuteText = "\(minutes) " + (minutes == 1 ? "minute" : "minutes")
-    return seconds == 0 ? minuteText : minuteText + ", \(seconds) " + (seconds == 1 ? "second" : "seconds")
+    let minuteText = "\(minutes) " + (minutes == 1 ? L10n.text("minute") : L10n.text("minutes"))
+    return seconds == 0 ? minuteText : minuteText + ", \(seconds) " + (seconds == 1 ? L10n.text("second") : L10n.text("seconds"))
   }
 
   static func tone(for zone: HeartRateZone?) -> Tone {

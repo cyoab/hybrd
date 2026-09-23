@@ -40,8 +40,8 @@ final class AthleteProfileEditor {
     return units.weight.parse(weight, kilograms: 20...400)
   }
   var canChangeWeightUnit: Bool { weight.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || parsedWeightKilograms != nil }
-  var weeklyDistanceError: String { "Weekly distance: enter " + units.distanceText(3_000) + "–" + units.distanceText(150_000) + "." }
-  var weightError: String { "Weight: enter " + units.weightText(20) + "–" + units.weightText(400) + " or leave it blank." }
+  var weeklyDistanceError: String { L10n.text("Weekly distance: enter \(units.distanceText(3_000))–\(units.distanceText(150_000)).") }
+  var weightError: String { L10n.text("Weight: enter \(units.weightText(20))–\(units.weightText(400)) or leave it blank.") }
 
   func setWeightUnit(_ unit: TrainingWeightUnit) {
     guard canChangeWeightUnit, unit != units.weight else { return }
@@ -67,10 +67,10 @@ final class AthleteProfileEditor {
     if !weight.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
        parsedWeightKilograms == nil { return weightError }
     if !height.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-       TrainingProfile.parseDecimal(height, range: 80...250) == nil { return "Height: enter 80–250 cm or leave it blank." }
-    if zoneStarts.contains(where: { !$0.isEmpty }) && zones == nil { return "HR zones: enter four increasing boundaries from 30–250 bpm, or clear all." }
+       TrainingProfile.parseDecimal(height, range: 80...250) == nil { return L10n.text("Height: enter 80–250 cm or leave it blank.") }
+    if zoneStarts.contains(where: { !$0.isEmpty }) && zones == nil { return L10n.text("HR zones: enter four increasing boundaries from 30–250 bpm, or clear all.") }
     if runningTimes.values.contains(where: { !$0.isEmpty && RunningPersonalBest.parse($0) == nil }) {
-      return "Running PRs: use mm:ss or h:mm:ss, such as 24:30."
+      return L10n.text("Running PRs: use mm:ss or h:mm:ss, such as 24:30.")
     }
     return assembledProfile.validationMessage
   }

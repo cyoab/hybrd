@@ -8,9 +8,9 @@ struct MuscleFocusView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 22) {
         VStack(alignment: .leading, spacing: 8) {
-          Text("Where do you want to grow?")
+          Text(L10n.text("Where do you want to grow?"))
             .font(.system(.title, design: .rounded, weight: .semibold))
-          Text("Choose the areas you’d like to prioritize. Leave all unselected for a balanced focus.")
+          Text(L10n.text("Choose the areas you’d like to prioritize. Leave all unselected for a balanced focus."))
             .font(.subheadline).foregroundStyle(HybrdStyle.muted)
         }
         HStack(spacing: 42) {
@@ -20,13 +20,13 @@ struct MuscleFocusView: View {
         .frame(maxWidth: .infinity).padding(20)
         .background(SessionPalette.wash(.violet), in: RoundedRectangle(cornerRadius: 26))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Muscle focus diagram")
+        .accessibilityLabel(L10n.text("Muscle focus diagram"))
         .accessibilityValue(selectionSummary)
 
         HStack {
-          Text("Focus areas").font(.headline)
+          Text(L10n.text("Focus areas")).font(.headline)
           Spacer()
-          Text("\(editor.details.focusMuscles.count) selected").font(.caption).foregroundStyle(HybrdStyle.muted)
+          Text(L10n.text("\(editor.details.focusMuscles.count) selected")).font(.caption).foregroundStyle(HybrdStyle.muted)
         }
         LazyVGrid(columns: [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 260 : 145))], spacing: 12) {
           ForEach(MuscleGroup.allCases) { muscle in
@@ -58,17 +58,17 @@ struct MuscleFocusView: View {
       }
       .padding(20).frame(maxWidth: 760).frame(maxWidth: .infinity)
     }
-    .background(HybrdStyle.background).navigationTitle("Muscle focus").navigationBarTitleDisplayMode(.inline)
+    .background(HybrdStyle.background).navigationTitle(L10n.text("Muscle focus")).navigationBarTitleDisplayMode(.inline)
   }
 
   private var selectionSummary: String {
     let names = MuscleGroup.allCases.filter { editor.details.focusMuscles.contains($0) }.map(\.title)
-    return names.isEmpty ? "Balanced, no priority muscles" : names.joined(separator: ", ")
+    return names.isEmpty ? L10n.text("Balanced, no priority muscles") : names.joined(separator: ", ")
   }
   private func diagram(posterior: Bool) -> some View {
     VStack(spacing: 10) {
       MuscleIllustration(selected: editor.details.focusMuscles, posterior: posterior).frame(height: 200)
-      Text(posterior ? "BACK" : "FRONT").font(.caption2.weight(.medium)).tracking(1.2).foregroundStyle(HybrdStyle.muted)
+      Text(posterior ? L10n.text("BACK") : L10n.text("FRONT")).font(.caption2.weight(.medium)).tracking(1.2).foregroundStyle(HybrdStyle.muted)
     }
   }
 }

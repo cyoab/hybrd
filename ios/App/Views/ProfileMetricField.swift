@@ -6,7 +6,7 @@ struct ProfileMetricField: View {
   @Binding var text: String
   var unit: String
   var tone: SessionBreakdown.Tone
-  var placeholder = "Not set"
+  var placeholder = L10n.text("Not set")
   var accessibilityTitle: String?
 
   var body: some View {

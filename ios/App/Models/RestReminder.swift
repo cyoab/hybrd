@@ -23,8 +23,8 @@ import UserNotifications
       let remaining = rest.remaining(at: Date())
       guard remaining > 0 else { return }
       let content = UNMutableNotificationContent()
-      content.title = "Ready for your next set"
-      content.body = rest.exerciseName + " · Your rest timer is complete."
+      content.title = L10n.text("Ready for your next set")
+      content.body = L10n.text("\(L10n.content(rest.exerciseName)) · Your rest timer is complete.")
       content.sound = .default
       try? await center.add(UNNotificationRequest(identifier: id, content: content,
         trigger: UNTimeIntervalNotificationTrigger(timeInterval: max(1, remaining), repeats: false)))

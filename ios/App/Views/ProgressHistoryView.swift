@@ -11,19 +11,19 @@ struct ProgressHistoryView: View {
     NavigationStack {
       List {
         if results.isEmpty {
-          ContentUnavailableView("Space to recover", systemImage: "leaf", description: Text("No training logged for this day. Rest is part of your rhythm."))
+          ContentUnavailableView(L10n.text("Space to recover"), systemImage: "leaf", description: Text(L10n.text("No training logged for this day. Rest is part of your rhythm.")))
         }
         ForEach(results.prefix(limit)) { result in
           NavigationLink {
-            ProgressResultDetailView(result: result, title: workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue)
-          } label: { ProgressHistoryRow(result: result, title: workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue) }
+            ProgressResultDetailView(result: result, title: workoutTitles[result.plannedWorkoutID] ?? result.kind.displayName)
+          } label: { ProgressHistoryRow(result: result, title: workoutTitles[result.plannedWorkoutID] ?? result.kind.displayName) }
         }
-        if results.count > limit { Button("Show more sessions") { limit += 50 } }
+        if results.count > limit { Button(L10n.text("Show more sessions")) { limit += 50 } }
       }
       .scrollContentBackground(.hidden).background(HybrdStyle.background)
-      .navigationTitle(day?.formatted(date: .abbreviated, time: .omitted) ?? "Training history")
+      .navigationTitle(day?.formatted(date: .abbreviated, time: .omitted) ?? L10n.text("Training history"))
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Close", systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly) } }
+      .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.text("Close"), systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly) } }
     }
   }
 }
@@ -40,11 +40,11 @@ struct ProgressHistoryRow: View {
         .background(SessionPalette.wash(result.kind == .run ? .terra : .violet), in: RoundedRectangle(cornerRadius: 13))
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 5) {
-        Text(title).font(.subheadline.weight(.semibold))
-        Text(result.completedAt.formatted(date: .abbreviated, time: .omitted) + " · " + result.status.rawValue)
+        Text(L10n.content(title)).font(.subheadline.weight(.semibold))
+        Text(result.completedAt.formatted(date: .abbreviated, time: .omitted) + " · " + result.status.displayName)
           .font(.caption).foregroundStyle(HybrdStyle.muted)
-        Text(result.kind == .run ? units.distanceText(Double(result.distanceMeters ?? 0)) + " · \(result.durationSeconds / 60) min" :
-          "\(ProgressSnapshot.validSets(result).count) completed sets")
+        Text(result.kind == .run ? units.distanceText(Double(result.distanceMeters ?? 0)) + L10n.text(" · \(result.durationSeconds / 60) min") :
+          L10n.text("\(ProgressSnapshot.validSets(result).count) completed sets"))
           .font(.caption.weight(.medium))
       }.frame(maxWidth: .infinity, alignment: .leading)
     }.padding(.vertical, 5).accessibilityElement(children: .combine)

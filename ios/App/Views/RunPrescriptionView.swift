@@ -7,16 +7,16 @@ struct RunPrescriptionView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       VStack(alignment: .leading, spacing: 14) {
-        Text("Step by step").font(.title3.weight(.semibold))
+        Text(L10n.text("Step by step")).font(.title3.weight(.semibold))
         rhythm
         HStack {
           Text("0")
           Spacer()
-          Text("\(timeline.totalSeconds / 60) min")
+          Text(L10n.text("\(timeline.totalSeconds / 60) min"))
         }
         .font(.caption2).monospacedDigit().foregroundStyle(HybrdStyle.muted)
         .accessibilityHidden(true)
-        Text("Planned sequence · bar width shows time")
+        Text(L10n.text("Planned sequence · bar width shows time"))
           .font(.caption).foregroundStyle(HybrdStyle.muted)
       }
 
@@ -47,9 +47,9 @@ struct RunPrescriptionView: View {
     }
     .frame(height: 16)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("Planned running sequence")
+    .accessibilityLabel(L10n.text("Planned running sequence"))
     .accessibilityValue(timeline.steps.map { step in
-      step.segment.title + ", " + step.segment.targetSummary
+      step.segment.localizedTitle + ", " + step.segment.targetSummary
     }.joined(separator: ". "))
   }
 
@@ -69,23 +69,23 @@ struct RunPrescriptionView: View {
       }.frame(width: 34).accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 10) {
         HStack(alignment: .firstTextBaseline) {
-          Text(recovery == nil ? segment.displayTitle : "Repeat \(segment.repetitions ?? 1) times")
+          Text(recovery == nil ? segment.displayTitle : L10n.text("Repeat \(segment.repetitions ?? 1) times"))
             .font(.headline)
           Spacer(minLength: 8)
           if work {
-            Text("WORK").font(.caption2.weight(.semibold)).tracking(1)
+            Text(L10n.text("WORK")).font(.caption2.weight(.semibold)).tracking(1)
               .foregroundStyle(HybrdStyle.terraText)
           }
         }
         Text(segment.durationTargetSummary).font(.title3.weight(.medium)).monospacedDigit()
         if let zone = segment.heartRateZone { RunZoneBadge(zone: zone) }
-        Text(segment.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+        Text(segment.localizedCue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
         if let recovery {
           HStack(alignment: .top, spacing: 10) {
             Image(systemName: "arrow.turn.down.right").font(.subheadline)
               .foregroundStyle(HybrdStyle.muted).padding(.top, 2)
             VStack(alignment: .leading, spacing: 5) {
-              Text(recovery.durationTargetSummary + " recovery").font(.subheadline.weight(.medium))
+              Text(L10n.text("\(recovery.durationTargetSummary) recovery")).font(.subheadline.weight(.medium))
               if let zone = recovery.heartRateZone { RunZoneBadge(zone: zone) }
               Text(recovery.cue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }

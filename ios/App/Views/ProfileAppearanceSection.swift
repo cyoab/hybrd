@@ -11,14 +11,14 @@ struct ProfileAppearanceSection: View {
         .padding(.vertical, 4)
         .listRowBackground(HybrdStyle.surface)
     } header: {
-      Text("Appearance")
+      Text(L10n.text("Appearance"))
     } footer: {
-      Text("System follows your device settings. Appearance changes are saved automatically.")
+      Text(L10n.text("System follows your device settings. Appearance changes are saved automatically."))
     }
   }
 
   private var appearancePicker: some View {
-    Picker("Appearance", selection: $appearance) {
+    Picker(L10n.text("Appearance"), selection: $appearance) {
       ForEach(AppAppearance.allCases) { option in
         Label(option.title, systemImage: option.symbol)
           .labelStyle(.iconOnly)

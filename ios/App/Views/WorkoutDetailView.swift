@@ -24,7 +24,7 @@ struct WorkoutDetailView: View {
             Image(systemName: "scope").font(.title3).foregroundStyle(HybrdStyle.terraText)
               .padding(.top, 2).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 7) {
-              Text("Why this session").font(.subheadline.weight(.semibold))
+              Text(L10n.text("Why this session")).font(.subheadline.weight(.semibold))
               Text(current.purpose).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
           }
@@ -43,14 +43,14 @@ struct WorkoutDetailView: View {
     .toolbar(.visible, for: .navigationBar)
     .toolbarBackground(current.kind == .run ? RunPalette.top(current.resolvedRunType) : SessionPalette.liftTop, for: .navigationBar)
     .toolbarBackground(.visible, for: .navigationBar)
-    .navigationTitle(current.kind == .run ? "Run session" : "Strength session")
+    .navigationTitle(current.kind == .run ? L10n.text("Run session") : L10n.text("Strength session"))
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       if result == nil && !store.hasDraft(for: current) {
         ToolbarItem(placement: .primaryAction) {
-          Menu("Session options", systemImage: "ellipsis") {
-            Button("Move session", systemImage: "calendar.badge.clock") { moving = true }
-            Button("Skip session", systemImage: "forward.end", role: .destructive) { confirmSkip = true }
+          Menu(L10n.text("Session options"), systemImage: "ellipsis") {
+            Button(L10n.text("Move session"), systemImage: "calendar.badge.clock") { moving = true }
+            Button(L10n.text("Skip session"), systemImage: "forward.end", role: .destructive) { confirmSkip = true }
           }.labelStyle(.iconOnly)
         }
       }
@@ -58,7 +58,7 @@ struct WorkoutDetailView: View {
     .safeAreaInset(edge: .bottom) {
       if result == nil {
         Button { logging = true } label: {
-          Label(store.hasDraft(for: current) ? "Continue session" : (current.kind == .strength ? "Start workout" : "Start run"),
+          Label(store.hasDraft(for: current) ? L10n.text("Continue session") : (current.kind == .strength ? L10n.text("Start workout") : L10n.text("Start run")),
             systemImage: "play.fill")
         }
         .buttonStyle(HybrdPrimaryButtonStyle())
@@ -72,35 +72,35 @@ struct WorkoutDetailView: View {
       else { WorkoutLoggerView(draft: store.draft(for: current)) }
     }
     .sheet(isPresented: $moving) { MoveSessionView(workout: current, expectedPlanID: store.plan.id) }
-    .confirmationDialog("Skip this session?", isPresented: $confirmSkip, titleVisibility: .visible) {
-      Button("Skip session", role: .destructive) { store.skip(current) }
+    .confirmationDialog(L10n.text("Skip this session?"), isPresented: $confirmSkip, titleVisibility: .visible) {
+      Button(L10n.text("Skip session"), role: .destructive) { store.skip(current) }
     } message: {
-      Text("It will stay in your history as skipped. We won’t stack it onto another day.")
+      Text(L10n.text("It will stay in your history as skipped. We won’t stack it onto another day."))
     }
   }
 
   private func resultCard(_ result: WorkoutResult) -> some View {
     VStack(alignment: .leading, spacing: 14) {
-      Label(result.status.rawValue, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
+      Label(result.status.displayName, systemImage: result.status == .skipped ? "forward.end" : "checkmark")
         .font(.headline).foregroundStyle(HybrdStyle.terraText)
       if result.status != .skipped {
-        LabeledContent("Actual duration", value: "\(result.durationSeconds / 60) min")
+        LabeledContent(L10n.text("Actual duration"), value: L10n.text("\(result.durationSeconds / 60) min"))
         if let meters = result.distanceMeters {
-          LabeledContent("Actual distance", value: units.distanceText(Double(meters), decimals: 2))
+          LabeledContent(L10n.text("Actual distance"), value: units.distanceText(Double(meters), decimals: 2))
         } else {
-          LabeledContent("Sets completed", value: "\(result.sets.count)")
-          DisclosureGroup("Recorded sets") {
+          LabeledContent(L10n.text("Sets completed"), value: "\(result.sets.count)")
+          DisclosureGroup(L10n.text("Recorded sets")) {
             ForEach(result.sets) { set in
-              LabeledContent(set.exerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
+              LabeledContent(set.localizedExerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { L10n.text(" · \($0) RIR") } ?? ""))
                 .font(.subheadline).padding(.vertical, 3)
             }
           }
         }
-        if result.effort > 0 { LabeledContent("How it felt", value: "\(result.effort)/10") }
-        if let run = result.run { NavigationLink("Route, heart rate & splits") { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } }
+        if result.effort > 0 { LabeledContent(L10n.text("How it felt"), value: "\(result.effort)/10") }
+        if let run = result.run { NavigationLink(L10n.text("Route, heart rate & splits")) { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } }
         if !result.notes.isEmpty { Text(result.notes).font(.subheadline) }
       } else {
-        Text("Your next sessions have not been moved.").font(.subheadline)
+        Text(L10n.text("Your next sessions have not been moved.")).font(.subheadline)
       }
     }
     .font(.subheadline).padding(18)

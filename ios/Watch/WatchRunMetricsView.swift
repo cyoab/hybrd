@@ -15,41 +15,41 @@ struct WatchRunMetricsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 5) {
-        Text(run.isPaused ? "PAUSED" : run.step(at: now)?.segment.title.uppercased() ?? "RUNNING")
+        Text(run.isPaused ? L10n.text("PAUSED") : run.step(at: now)?.segment.localizedTitle.uppercased() ?? L10n.text("RUNNING"))
           .font(.caption2.weight(.bold)).foregroundStyle(WatchRunStyle.terra).lineLimit(2)
         HStack(alignment: .firstTextBaseline, spacing: 4) {
           Text(units.paceNumber(shownPace)).font(.system(size: paceSize, weight: .bold, design: .rounded)).monospacedDigit().minimumScaleFactor(0.7).lineLimit(1)
           VStack(alignment: .leading, spacing: 0) {
-            Text("PACE").font(.system(size: 9, weight: .semibold))
+            Text(L10n.text("PACE")).font(.system(size: 9, weight: .semibold))
             Text("/" + units.distance.symbol).font(.caption2)
           }.foregroundStyle(.secondary)
         }.accessibilityElement(children: .ignore)
-          .accessibilityLabel("Current pace")
-          .accessibilityValue(shownPace.map { units.paceNumber($0) + " per " + units.distance.singular } ?? "Unavailable")
+          .accessibilityLabel(L10n.text("Current pace"))
+          .accessibilityValue(shownPace.map { L10n.text("\(units.paceNumber($0)) per \(units.distance.singular)") } ?? L10n.text("Unavailable"))
         HStack(alignment: .firstTextBaseline, spacing: 5) {
           Image(systemName: "heart.fill").font(.caption).foregroundStyle(WatchRunStyle.terra)
           Text(heartRate.map { Int($0.rounded()).formatted() } ?? "—")
             .font(.system(.title2, design: .rounded, weight: .bold)).monospacedDigit()
-          Text("bpm").font(.caption2).foregroundStyle(.secondary)
+          Text(L10n.text("bpm")).font(.caption2).foregroundStyle(.secondary)
           Spacer(minLength: 0)
           Text(zone?.shortTitle ?? "—").font(.headline).foregroundStyle(zone.map(WatchRunStyle.zoneColor) ?? .secondary)
         }.accessibilityElement(children: .ignore)
-          .accessibilityLabel("Heart rate")
-          .accessibilityValue(heartRate.map { "\(Int($0.rounded())) beats per minute, " + (zone?.title ?? "zone unavailable") } ?? "Unavailable")
+          .accessibilityLabel(L10n.text("Heart rate"))
+          .accessibilityValue(heartRate.map { L10n.text("\(Int($0.rounded())) beats per minute, ") + (zone?.title ?? L10n.text("zone unavailable")) } ?? L10n.text("Unavailable"))
         WatchHeartRateZoneView(current: zone, target: target)
         HStack(alignment: .firstTextBaseline) {
           Text(RunRecording.clock(run.seconds(at: now))).foregroundStyle(.yellow)
-            .accessibilityLabel("Active time, " + RunRecording.clock(run.seconds(at: now)))
+            .accessibilityLabel(L10n.text("Active time, \(RunRecording.clock(run.seconds(at: now)))"))
           Spacer(minLength: 3)
           Text(units.distanceText(run.meters, decimals: 2))
-            .accessibilityLabel("Distance, " + units.distanceNumber(run.meters, decimals: 2) + " " + units.distance.title.lowercased())
+            .accessibilityLabel(L10n.text("Distance, \(units.distanceNumber(run.meters, decimals: 2)) \(units.distance.title.lowercased())"))
         }.font(.system(.footnote, design: .rounded, weight: .semibold)).monospacedDigit().padding(.top, 2)
         if let target {
-          Text("Target " + target.shortTitle + (run.zones.flatMap { $0.isValid ? " · " + $0.label(for: target) : nil } ?? ""))
+          Text(L10n.text("Target \(target.shortTitle)") + (run.zones.flatMap { $0.isValid ? " · " + $0.label(for: target) : nil } ?? ""))
             .font(.caption2).foregroundStyle(WatchRunStyle.zoneColor(target))
         }
-        if run.zones?.isValid != true { Text("Set your zones on iPhone").font(.caption2).foregroundStyle(.secondary) }
-        if gps != "GPS connected" && !run.isPaused { Text(gps).font(.caption2).foregroundStyle(.secondary) }
+        if run.zones?.isValid != true { Text(L10n.text("Set your zones on iPhone")).font(.caption2).foregroundStyle(.secondary) }
+        if gps != L10n.text("GPS connected") && !run.isPaused { Text(gps).font(.caption2).foregroundStyle(.secondary) }
       }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 5).padding(.bottom, 10)
     }
   }

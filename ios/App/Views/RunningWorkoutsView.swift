@@ -16,10 +16,10 @@ struct RunningWorkoutsView: View {
       ScrollView {
         VStack(alignment: .leading, spacing: 24) {
           VStack(alignment: .leading, spacing: 10) {
-            Eyebrow(text: "A run for your rhythm")
-            Text("Find your next run.")
+            Eyebrow(text: L10n.text("A run for your rhythm"))
+            Text(L10n.text("Find your next run."))
               .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
-            Text("Choose a session, explore its HR targets, and find a place for it in your week.")
+            Text(L10n.text("Choose a session, explore its HR targets, and find a place for it in your week."))
               .font(.subheadline).foregroundStyle(HybrdStyle.muted)
           }
           LazyVGrid(columns: columns, spacing: 12) {
@@ -30,20 +30,20 @@ struct RunningWorkoutsView: View {
                 RunWorkoutCard(template: template)
               }
               .buttonStyle(.plain)
-              .accessibilityHint("Review workout steps and choose a date")
+              .accessibilityHint(L10n.text("Review workout steps and choose a date"))
             }
           }
-          Text("Card colors identify the run type. The zone colors inside a session show its heart-rate targets.")
+          Text(L10n.text("Card colors identify the run type. The zone colors inside a session show its heart-rate targets."))
             .font(.caption).foregroundStyle(HybrdStyle.muted)
         }
         .padding(20).frame(maxWidth: 760).frame(maxWidth: .infinity)
       }
       .background(HybrdStyle.background)
-      .navigationTitle("Running workouts")
+      .navigationTitle(L10n.text("Running workouts"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Close", systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly)
+          Button(L10n.text("Close"), systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly)
         }
       }
     }
@@ -65,13 +65,13 @@ private struct RunWorkoutCard: View {
       VStack(alignment: .leading, spacing: 5) {
         Text(template.type.title).font(.headline)
         if typeSize.isAccessibilitySize {
-          Text(template.title).font(.subheadline).fixedSize(horizontal: false, vertical: true)
+          Text(template.localizedTitle).font(.subheadline).fixedSize(horizontal: false, vertical: true)
         } else {
-          Text(template.title).font(.subheadline).lineLimit(2, reservesSpace: true)
+          Text(template.localizedTitle).font(.subheadline).lineLimit(2, reservesSpace: true)
         }
       }
       RunRhythmView(segments: template.segments, type: template.type)
-      Text("\(template.minutes) min").font(.caption.weight(.semibold)).monospacedDigit()
+      Text(L10n.text("\(template.minutes) min")).font(.caption.weight(.semibold)).monospacedDigit()
     }
     .foregroundStyle(RunPalette.ink(template.type))
     .padding(17).frame(maxWidth: .infinity, alignment: .leading)

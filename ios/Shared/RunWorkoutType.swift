@@ -5,7 +5,9 @@ enum RunWorkoutType: String, Codable, CaseIterable, Identifiable {
 
   var id: String { rawValue }
 
-  var title: String {
+  var title: String { L10n.content(storageTitle) }
+
+  var storageTitle: String {
     switch self {
     case .easy: "Easy run"
     case .recovery: "Recovery run"

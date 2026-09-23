@@ -16,13 +16,13 @@ struct TrainingProfile: Codable, Equatable {
 
   var validationMessage: String? {
     guard weeklyKilometers.isFinite, (3...150).contains(weeklyKilometers) else {
-      return "Enter a weekly distance from " + trainingUnits.distanceText(3_000) + " to " + trainingUnits.distanceText(150_000) + "."
+      return L10n.text("Enter a weekly distance from \(trainingUnits.distanceText(3_000)) to \(trainingUnits.distanceText(150_000)).")
     }
     guard availableDays.count >= 2, availableDays.isSubset(of: Set(1...7)) else {
-      return "Choose at least two valid training days."
+      return L10n.text("Choose at least two valid training days.")
     }
     guard (1...4).contains(strengthDays), [30, 45, 60, 75, 90].contains(sessionMinutes) else {
-      return "Choose a strength frequency and session length from the available options."
+      return L10n.text("Choose a strength frequency and session length from the available options.")
     }
     return athlete?.validationMessage
   }
@@ -48,6 +48,7 @@ struct TrainingProfile: Codable, Equatable {
 }
 
 enum RunningGoal: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
   case fitness = "General fitness"
   case fiveK = "5K"
   case tenK = "10K"
@@ -57,6 +58,7 @@ enum RunningGoal: String, CaseIterable, Codable, Identifiable {
 }
 
 enum StrengthGoal: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
   case build = "Build strength"
   case muscle = "Build muscle"
   case maintain = "Maintain strength"
@@ -64,6 +66,7 @@ enum StrengthGoal: String, CaseIterable, Codable, Identifiable {
 }
 
 enum TrainingPriority: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
   case balanced = "Balanced"
   case running = "Running first"
   case strength = "Strength first"

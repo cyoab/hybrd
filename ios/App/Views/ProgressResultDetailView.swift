@@ -7,24 +7,24 @@ struct ProgressResultDetailView: View {
   var body: some View {
     List {
       Section {
-        LabeledContent("Status", value: result.status.rawValue)
-        LabeledContent("Logged", value: result.completedAt.formatted(date: .abbreviated, time: .shortened))
-        LabeledContent("Active time", value: RunningPersonalBest.format(max(0, result.durationSeconds)))
+        LabeledContent(L10n.text("Status"), value: result.status.displayName)
+        LabeledContent(L10n.text("Logged"), value: result.completedAt.formatted(date: .abbreviated, time: .shortened))
+        LabeledContent(L10n.text("Active time"), value: RunningPersonalBest.format(max(0, result.durationSeconds)))
         if result.kind == .run, let meters = result.distanceMeters {
-          LabeledContent("Distance", value: units.distanceText(Double(meters), decimals: 2))
+          LabeledContent(L10n.text("Distance"), value: units.distanceText(Double(meters), decimals: 2))
         }
       }
       if result.kind == .strength {
-        Section("Completed sets") {
+        Section(L10n.text("Completed sets")) {
           ForEach(ProgressSnapshot.validSets(result)) { set in
-            LabeledContent(set.exerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { " · \($0) RIR" } ?? ""))
+            LabeledContent(set.localizedExerciseName, value: units.weightText(set.kilograms) + " × \(set.reps)" + (set.rir.map { L10n.text(" · \($0) RIR") } ?? ""))
           }
         }
       }
-      if let run = result.run { Section { NavigationLink("Route, heart rate & splits") { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } } }
-      if !result.notes.isEmpty { Section("Your notes") { Text(result.notes) } }
+      if let run = result.run { Section { NavigationLink(L10n.text("Route, heart rate & splits")) { ScrollView { RunSummaryView(run: run).padding(20) }.background(HybrdStyle.background) } } }
+      if !result.notes.isEmpty { Section(L10n.text("Your notes")) { Text(result.notes) } }
     }
     .scrollContentBackground(.hidden).background(HybrdStyle.background)
-    .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+    .navigationTitle(L10n.content(title)).navigationBarTitleDisplayMode(.inline)
   }
 }

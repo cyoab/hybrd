@@ -37,11 +37,11 @@ struct SessionInfographicView: View {
       }
 
       HStack(alignment: .center) {
-        Text(workout.kind == .run ? "Planned time by HR zone" : "Your working sets")
+        Text(workout.kind == .run ? L10n.text("Planned time by HR zone") : L10n.text("Your working sets"))
           .font(.subheadline.weight(.semibold))
         Spacer(minLength: 4)
         if workout.kind == .run {
-          Button("About heart-rate zones", systemImage: "info.circle") { showingZones = true }
+          Button(L10n.text("About heart-rate zones"), systemImage: "info.circle") { showingZones = true }
             .labelStyle(.iconOnly).font(.body)
             .foregroundStyle(HybrdStyle.ink)
             .frame(width: 44, height: 44)
@@ -49,7 +49,7 @@ struct SessionInfographicView: View {
       }
 
       if breakdown.parts.isEmpty {
-        Text("A detailed breakdown hasn’t been prescribed for this session.")
+        Text(L10n.text("A detailed breakdown hasn’t been prescribed for this session."))
           .font(.subheadline).foregroundStyle(HybrdStyle.muted)
       } else {
         if !typeSize.isAccessibilitySize {
@@ -69,15 +69,15 @@ struct SessionInfographicView: View {
             Text(selectedPart.detail).font(.subheadline).foregroundStyle(HybrdStyle.muted)
           } else {
             Text(workout.kind == .run
-              ? "Tap a zone to explore its intervals."
-              : "Tap an exercise to explore its sets.")
+              ? L10n.text("Tap a zone to explore its intervals.")
+              : L10n.text("Tap an exercise to explore its sets."))
               .font(.caption).foregroundStyle(HybrdStyle.muted)
           }
           if workout.kind == .run {
-            Text(store.profile.athlete?.heartRateZones == nil ? "Add personal BPM ranges in your athlete profile." : "Your personal BPM ranges are shown in the run steps.")
+            Text(store.profile.athlete?.heartRateZones == nil ? L10n.text("Add personal BPM ranges in your athlete profile.") : L10n.text("Your personal BPM ranges are shown in the run steps."))
               .font(.caption).foregroundStyle(HybrdStyle.muted)
             if breakdown.total != workout.minutes * 60 {
-              Text("Session estimate: \(workout.minutes) min. The ring shows timed segments only.")
+              Text(L10n.text("Session estimate: \(workout.minutes) min. The ring shows timed segments only."))
                 .font(.caption).foregroundStyle(HybrdStyle.muted)
             }
           }
@@ -100,7 +100,7 @@ struct SessionInfographicView: View {
       Circle().stroke(HybrdStyle.ink.opacity(0.07), lineWidth: 17).padding(11)
       if !breakdown.parts.isEmpty {
         Chart(breakdown.parts) { part in
-          SectorMark(angle: .value("Planned amount", part.amount),
+          SectorMark(angle: .value(L10n.text("Planned amount"), part.amount),
             innerRadius: .ratio(0.81), outerRadius: .ratio(0.98),
             angularInset: breakdown.parts.count > 1 ? 2.5 : 0)
             .cornerRadius(4)
@@ -110,7 +110,7 @@ struct SessionInfographicView: View {
         .chartLegend(.hidden).allowsHitTesting(false).accessibilityHidden(true)
       }
       VStack(spacing: 4) {
-        Text(selectedPart == nil ? "PLANNED" : "SELECTED")
+        Text(selectedPart == nil ? L10n.text("PLANNED") : L10n.text("SELECTED"))
           .font(.system(size: 10, weight: .semibold)).tracking(1.5)
           .foregroundStyle(HybrdStyle.ink.opacity(0.75))
         Text(breakdown.total == 0 ? "—" : breakdown.value(for: displayedAmount))
@@ -121,8 +121,8 @@ struct SessionInfographicView: View {
       }
       .foregroundStyle(HybrdStyle.ink)
       .accessibilityElement(children: .ignore)
-      .accessibilityLabel(selectedPart?.title ?? "Planned session")
-      .accessibilityValue(breakdown.total == 0 ? "No breakdown available" : breakdown.spokenValue(for: displayedAmount))
+      .accessibilityLabel(selectedPart?.title ?? L10n.text("Planned session"))
+      .accessibilityValue(breakdown.total == 0 ? L10n.text("No breakdown available") : breakdown.spokenValue(for: displayedAmount))
     }
   }
 
@@ -131,13 +131,13 @@ struct SessionInfographicView: View {
     return metric(value: hasDistance
       ? units.distanceNumber(Double(workout.distanceMeters))
       : workout.minutes.formatted(),
-      label: hasDistance ? units.distance.symbol + " planned" : "min planned",
+      label: hasDistance ? L10n.text("\(units.distance.symbol) planned") : L10n.text("min planned"),
       symbol: hasDistance ? "point.bottomleft.forward.to.point.topright.scurvepath" : "clock")
   }
 
   private var secondMetric: some View {
     metric(value: workout.kind == .run ? workout.primaryHeartRateZone?.shortTitle ?? "—" : workout.exercises.count.formatted(),
-      label: workout.kind == .run ? (workout.primaryHeartRateZone == nil ? "HR not set" : workout.heartRateTargetCaption) : "exercises",
+      label: workout.kind == .run ? (workout.primaryHeartRateZone == nil ? L10n.text("HR not set") : workout.heartRateTargetCaption) : L10n.text("exercises"),
       symbol: workout.kind == .run ? "heart.fill" : "dumbbell")
   }
 
@@ -182,7 +182,7 @@ struct SessionInfographicView: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(part.title + (part.subtitle.map { ", " + $0 } ?? ""))
     .accessibilityValue(accessibleValue(part))
-    .accessibilityHint("Shows this breakdown. Select again to show the full session.")
+    .accessibilityHint(L10n.text("Shows this breakdown. Select again to show the full session."))
     .accessibilityAddTraits(selectedID == part.id ? .isSelected : [])
   }
 
@@ -207,7 +207,7 @@ struct SessionInfographicView: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(part.title)
     .accessibilityValue(accessibleValue(part))
-    .accessibilityHint("Shows this breakdown. Select again to show the full session.")
+    .accessibilityHint(L10n.text("Shows this breakdown. Select again to show the full session."))
     .accessibilityAddTraits(selectedID == part.id ? .isSelected : [])
   }
 
@@ -224,6 +224,6 @@ struct SessionInfographicView: View {
 
   private func accessibleValue(_ part: SessionBreakdown.Part) -> String {
     breakdown.spokenValue(for: part.amount) + ", "
-      + breakdown.share(of: part).formatted(.percent.precision(.fractionLength(0))) + " of the planned session"
+      + breakdown.share(of: part).formatted(.percent.precision(.fractionLength(0))) + L10n.text(" of the planned session")
   }
 }

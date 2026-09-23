@@ -25,21 +25,21 @@ struct WorkoutLoggerView: View {
         }
       }
       .background(HybrdStyle.background)
-      .navigationTitle(draft.workout.kind == .run ? "Log run" : "Workout")
+      .navigationTitle(draft.workout.kind == .run ? L10n.text("Log run") : L10n.text("Workout"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Save for later", systemImage: "chevron.down") { pauseAndClose() }
+          Button(L10n.text("Save for later"), systemImage: "chevron.down") { pauseAndClose() }
             .labelStyle(.iconOnly)
         }
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Finish") { showFinish = true }
+          Button(L10n.text("Finish")) { showFinish = true }
             .fontWeight(.semibold)
             .disabled(!draft.canFinish)
         }
         ToolbarItemGroup(placement: .keyboard) {
           Spacer()
-          Button("Done") { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
+          Button(L10n.text("Done")) { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
         }
       }
       .safeAreaInset(edge: .bottom) {
@@ -55,7 +55,7 @@ struct WorkoutLoggerView: View {
         store.saveDraft(draft)
         if restAlerts { Task {
           restAlerts = await RestReminder.requestPermission()
-          if !restAlerts { restMessage = "Rest alerts are off in Settings." }
+          if !restAlerts { restMessage = L10n.text("Rest alerts are off in Settings.") }
           RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts)
         } }
       }
@@ -70,8 +70,8 @@ struct WorkoutLoggerView: View {
       }
       .sensoryFeedback(.success, trigger: completionFeedback)
       .sheet(isPresented: $showSessionNotes) { notesSheet }
-      .confirmationDialog("Finish this session?", isPresented: $showFinish, titleVisibility: .visible) {
-        Button("Save completed work") {
+      .confirmationDialog(L10n.text("Finish this session?"), isPresented: $showFinish, titleVisibility: .visible) {
+        Button(L10n.text("Save completed work")) {
           draft.pause()
           if store.finish(draft) {
             finished = true
@@ -81,7 +81,7 @@ struct WorkoutLoggerView: View {
           }
         }
       } message: {
-        Text(draft.workout.kind == .strength ? "\(completedSets) sets will be saved. Unchecked sets won’t be recorded, and your prescription stays unchanged." : "Your actual distance, time, effort, and notes will be saved.")
+        Text(draft.workout.kind == .strength ? L10n.text("\(completedSets) sets will be saved. Unchecked sets won’t be recorded, and your prescription stays unchanged.") : L10n.text("Your actual distance, time, effort, and notes will be saved."))
       }
     }
     .tint(HybrdStyle.terraText)
@@ -92,23 +92,23 @@ struct WorkoutLoggerView: View {
       VStack(alignment: .leading, spacing: 24) {
         workoutHeader
         if draft.workout.exercises.indices.contains(exerciseIndex) {
-          Picker("Current exercise", selection: $exerciseIndex) {
+          Picker(L10n.text("Current exercise"), selection: $exerciseIndex) {
             ForEach(Array(draft.workout.exercises.enumerated()), id: \.element.id) { index, exercise in
-              Text("\(index + 1). " + exercise.name).tag(index)
+              Text("\(index + 1). " + exercise.localizedName).tag(index)
             }
           }.pickerStyle(.menu).labelsHidden().tint(SessionPalette.ink(.violet))
           let exercise = draft.workout.exercises[exerciseIndex]
           exerciseCard(exercise)
           if exerciseIndex + 1 < draft.workout.exercises.count {
-            Button("Next exercise", systemImage: "arrow.right") { exerciseIndex += 1 }
+            Button(L10n.text("Next exercise"), systemImage: "arrow.right") { exerciseIndex += 1 }
               .buttonStyle(.bordered).frame(maxWidth: .infinity)
           }
         }
         Button { showSessionNotes = true } label: {
           HStack {
-            Label(draft.notes.isEmpty ? "Effort & session notes" : "Edit effort & notes", systemImage: "square.and.pencil")
+            Label(draft.notes.isEmpty ? L10n.text("Effort & session notes") : L10n.text("Edit effort & notes"), systemImage: "square.and.pencil")
             Spacer()
-            Text("RPE \(draft.effort)").foregroundStyle(HybrdStyle.muted)
+            Text(L10n.text("RPE \(draft.effort)")).foregroundStyle(HybrdStyle.muted)
           }
           .font(.subheadline).padding(17)
           .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 16))
@@ -116,9 +116,9 @@ struct WorkoutLoggerView: View {
         if let validation = draft.validationMessage(in: units), completedSets > 0 {
           Text(validation).font(.caption).foregroundStyle(.red)
         }
-        Button("Finish workout") { showFinish = true }
+        Button(L10n.text("Finish workout")) { showFinish = true }
           .buttonStyle(HybrdPrimaryButtonStyle()).disabled(!draft.canFinish)
-        Text("Check only the sets you performed. Press and hold a row to remove it from your log.")
+        Text(L10n.text("Check only the sets you performed. Press and hold a row to remove it from your log."))
           .font(.caption).foregroundStyle(HybrdStyle.muted)
       }
       .padding(.horizontal, 16).padding(.vertical, 18)
@@ -129,15 +129,15 @@ struct WorkoutLoggerView: View {
 
   private var workoutHeader: some View {
     VStack(alignment: .leading, spacing: 18) {
-      Text(draft.workout.title).font(.system(.title, design: .rounded, weight: .semibold)).tracking(-0.7)
+      Text(draft.workout.localizedTitle).font(.system(.title, design: .rounded, weight: .semibold)).tracking(-0.7)
       TimelineView(.periodic(from: .now, by: 1)) { context in
         HStack(alignment: .top, spacing: 18) {
-          smallMetric(value: clock(draft.activeSeconds(at: context.date)), label: draft.runningSince == nil ? "PAUSED" : "DURATION")
+          smallMetric(value: clock(draft.activeSeconds(at: context.date)), label: draft.runningSince == nil ? L10n.text("PAUSED") : L10n.text("DURATION"))
           Spacer(minLength: 0)
-          smallMetric(value: units.weightText(volume), label: "VOLUME")
+          smallMetric(value: units.weightText(volume), label: L10n.text("VOLUME"))
           Spacer(minLength: 0)
-          smallMetric(value: "\(completedSets)", label: "SETS")
-          Button(draft.runningSince == nil ? "Resume workout" : "Pause workout",
+          smallMetric(value: "\(completedSets)", label: L10n.text("SETS"))
+          Button(draft.runningSince == nil ? L10n.text("Resume workout") : L10n.text("Pause workout"),
             systemImage: draft.runningSince == nil ? "play.fill" : "pause.fill") {
               if draft.runningSince == nil { draft.resume() } else { draft.pause() }
             }
@@ -147,7 +147,7 @@ struct WorkoutLoggerView: View {
       }
       ProgressView(value: Double(completedSets), total: Double(max(1, draft.sets.count)))
         .tint(HybrdStyle.terra)
-        .accessibilityLabel("\(completedSets) of \(draft.sets.count) sets completed")
+        .accessibilityLabel(L10n.text("\(completedSets) of \(draft.sets.count) sets completed"))
     }
   }
 
@@ -170,23 +170,23 @@ struct WorkoutLoggerView: View {
         Image("SessionDumbbell").resizable().scaledToFit().frame(width: 62, height: 62)
           .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 5) {
-          Text(exercise.name).font(.system(.title2, design: .rounded, weight: .semibold)).foregroundStyle(SessionPalette.ink(.violet))
-          Text("\(exercise.sets.count) prescribed sets · \(exercise.sets.first?.reps ?? 0) reps · \(exercise.sets.first?.targetRIR ?? 3) target RIR")
+          Text(exercise.localizedName).font(.system(.title2, design: .rounded, weight: .semibold)).foregroundStyle(SessionPalette.ink(.violet))
+          Text(L10n.text("\(exercise.sets.count) prescribed sets · \(exercise.sets.first?.reps ?? 0) reps · \(exercise.sets.first?.targetRIR ?? 3) target RIR"))
             .font(.caption).foregroundStyle(HybrdStyle.muted)
         }
         Spacer(minLength: 0)
       }
-      Text(exercise.note).font(.caption).foregroundStyle(HybrdStyle.muted)
-      Button("Rest timer: \(exercise.restSeconds) sec", systemImage: "timer") {
+      Text(exercise.localizedNote).font(.caption).foregroundStyle(HybrdStyle.muted)
+      Button(L10n.text("Rest timer: \(exercise.restSeconds) sec"), systemImage: "timer") {
         beginRest(exercise)
       }.font(.caption.weight(.medium)).buttonStyle(.plain).foregroundStyle(HybrdStyle.terraText)
 
       if !dynamicType.isAccessibilitySize {
         HStack(spacing: 8) {
-          Text("SET").frame(width: 22)
+          Text(L10n.text("SET")).frame(width: 22)
           Text(units.weight.symbol.uppercased()).frame(maxWidth: .infinity)
-          Text("REPS").frame(maxWidth: .infinity)
-          Text("RIR").frame(width: 48)
+          Text(L10n.text("REPS")).frame(maxWidth: .infinity)
+          Text(L10n.text("RIR")).frame(width: 48)
           Image(systemName: "checkmark").frame(width: 44)
         }
         .font(.system(size: 9, weight: .medium)).foregroundStyle(HybrdStyle.muted)
@@ -209,7 +209,7 @@ struct WorkoutLoggerView: View {
       Button {
         draft.addSet(for: exercise)
       } label: {
-        Label("Add set", systemImage: "plus")
+        Label(L10n.text("Add set"), systemImage: "plus")
           .font(.subheadline.weight(.medium))
           .frame(maxWidth: .infinity, minHeight: 44)
           .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 10))
@@ -240,20 +240,20 @@ struct WorkoutLoggerView: View {
           VStack(alignment: .leading, spacing: 10) {
             HStack {
               VStack(alignment: .leading, spacing: 4) {
-                Text(remaining > 0 ? "REST & RESET" : "READY WHEN YOU ARE").font(.caption2.weight(.semibold)).tracking(1)
-                Text(remaining > 0 ? clock(ceil(remaining)) : "Next set").font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
+                Text(remaining > 0 ? L10n.text("REST & RESET") : L10n.text("READY WHEN YOU ARE")).font(.caption2.weight(.semibold)).tracking(1)
+                Text(remaining > 0 ? clock(ceil(remaining)) : L10n.text("Next set")).font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
               }
               Spacer()
-              Button("Add 15 seconds", systemImage: "plus") { draft.rest?.extend(by: 15) }.labelStyle(.iconOnly).frame(width: 44, height: 44)
-              Button(remaining > 0 ? "Skip rest" : "Done", systemImage: "forward.end.fill") { draft.rest = nil }.labelStyle(.iconOnly).frame(width: 44, height: 44)
+              Button(L10n.text("Add 15 seconds"), systemImage: "plus") { draft.rest?.extend(by: 15) }.labelStyle(.iconOnly).frame(width: 44, height: 44)
+              Button(remaining > 0 ? L10n.text("Skip rest") : L10n.text("Done"), systemImage: "forward.end.fill") { draft.rest = nil }.labelStyle(.iconOnly).frame(width: 44, height: 44)
             }
             ProgressView(value: min(1, remaining / max(1, rest.duration))).tint(SessionPalette.violet)
-              .accessibilityLabel("Rest time remaining")
+              .accessibilityLabel(L10n.text("Rest time remaining"))
             if !restAlerts {
-              Button("Enable rest alerts", systemImage: "bell") {
+              Button(L10n.text("Enable rest alerts"), systemImage: "bell") {
                 Task {
                   restAlerts = await RestReminder.requestPermission()
-                  restMessage = restAlerts ? nil : "Rest alerts are off. You can allow notifications for hybrd in Settings."
+                  restMessage = restAlerts ? nil : L10n.text("Rest alerts are off. You can allow notifications for hybrd in Settings.")
                   RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts)
                 }
               }.font(.caption)
@@ -270,32 +270,32 @@ struct WorkoutLoggerView: View {
     Form {
       Section {
         VStack(alignment: .leading, spacing: 10) {
-          Text(draft.workout.title).font(.title2.weight(.semibold))
-          Text("Prescribed: " + units.summary(draft.workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          Text(draft.workout.localizedTitle).font(.title2.weight(.semibold))
+          Text(L10n.text("Prescribed: ") + units.summary(draft.workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
           if let zone = draft.workout.primaryHeartRateZone { RunZoneBadge(zone: zone) }
-          Text("Enter the run you completed.").font(.subheadline)
+          Text(L10n.text("Enter the run you completed.")).font(.subheadline)
         }.padding(.vertical, 8)
       }
-      Section("Actual results") {
-        LabeledContent("Distance · " + units.distance.symbol) {
+      Section(L10n.text("Actual results")) {
+        LabeledContent(L10n.text("Distance · ") + units.distance.symbol) {
           TextField("0.0", value: Binding(get: { units.distance.value(fromMeters: draft.distanceKilometers * 1_000) }, set: { draft.distanceKilometers = units.distance.meters(from: $0) / 1_000 }), format: .number.precision(.fractionLength(0...2)))
             .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-            .accessibilityLabel("Actual distance in " + units.distance.title.lowercased())
+            .accessibilityLabel(L10n.text("Actual distance in ") + units.distance.title.lowercased())
         }
-        LabeledContent("Duration · min") {
+        LabeledContent(L10n.text("Duration · min")) {
           TextField("0", value: $draft.durationMinutes, format: .number)
             .keyboardType(.numberPad).multilineTextAlignment(.trailing)
-            .accessibilityLabel("Actual duration in minutes")
+            .accessibilityLabel(L10n.text("Actual duration in minutes"))
         }
         if draft.distanceKilometers > 0 && draft.durationMinutes > 0 {
-          LabeledContent("Average pace", value: paceLabel)
+          LabeledContent(L10n.text("Average pace"), value: paceLabel)
         }
       }
       effortSection
       Section {
-        Button("Save run") { showFinish = true }.fontWeight(.semibold).disabled(!draft.canFinish)
+        Button(L10n.text("Save run")) { showFinish = true }.fontWeight(.semibold).disabled(!draft.canFinish)
       } footer: {
-        Text("Use Start run for GPS recording. This form logs a run you already completed.")
+        Text(L10n.text("Use Start run for GPS recording. This form logs a run you already completed."))
       }
     }
     .scrollContentBackground(.hidden)
@@ -307,16 +307,16 @@ struct WorkoutLoggerView: View {
   }
 
   private var effortSection: some View {
-    Section("How did it feel?") {
-      LabeledContent("How it felt", value: "\(draft.effort) / 10")
+    Section(L10n.text("How did it feel?")) {
+      LabeledContent(L10n.text("How it felt"), value: "\(draft.effort) / 10")
       Slider(value: Binding(get: { Double(draft.effort) }, set: { draft.effort = Int($0) }), in: 1...10, step: 1) {
-        Text("Session effort")
+        Text(L10n.text("Session effort"))
       } minimumValueLabel: {
-        Text("Easy").font(.caption)
+        Text(L10n.text("Easy")).font(.caption)
       } maximumValueLabel: {
-        Text("Max").font(.caption)
+        Text(L10n.text("Max")).font(.caption)
       }
-      TextField("Session notes", text: $draft.notes, axis: .vertical).lineLimit(3...6)
+      TextField(L10n.text("Session notes"), text: $draft.notes, axis: .vertical).lineLimit(3...6)
     }
   }
 
@@ -324,16 +324,16 @@ struct WorkoutLoggerView: View {
     NavigationStack {
       Form {
         effortSection
-        Section("Rest timer") {
-          Toggle("Rest alerts", isOn: $restAlerts).onChange(of: restAlerts) { _, enabled in
+        Section(L10n.text("Rest timer")) {
+          Toggle(L10n.text("Rest alerts"), isOn: $restAlerts).onChange(of: restAlerts) { _, enabled in
             if enabled { Task { restAlerts = await RestReminder.requestPermission(); RestReminder.schedule(draft.rest, workoutID: draft.id, enabled: restAlerts) } }
             else { RestReminder.schedule(nil, workoutID: draft.id, enabled: false) }
           }
-          Text("RIR means reps in reserve: how many more good repetitions you could have completed. Leave it blank when you’re unsure.").font(.caption)
+          Text(L10n.text("RIR means reps in reserve: how many more good repetitions you could have completed. Leave it blank when you’re unsure.")).font(.caption)
         }
       }
-        .navigationTitle("Effort & notes").navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showSessionNotes = false } } }
+        .navigationTitle(L10n.text("Effort & notes")).navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.text("Done")) { showSessionNotes = false } } }
     }.presentationDetents([.medium, .large])
   }
 

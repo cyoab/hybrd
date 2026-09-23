@@ -15,6 +15,7 @@ enum ExerciseCatalog {
 struct CatalogExercise: Codable, Identifiable {
   var id: String
   var name: String
+  var localizedName: String { L10n.content(name) }
   var level: String
   var equipment: String?
   var primaryMuscles: [String]

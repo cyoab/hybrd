@@ -17,18 +17,18 @@ struct ProgressComparison: Identifiable {
   var change: Double { abs(latest - first) }
   var changeLabel: String { changeLabel(in: .metric) }
   func displayTitle(in units: TrainingUnits) -> String {
-    guard let meters = runDistanceMeters, let runType else { return title }
+    guard let meters = runDistanceMeters, let runType else { return L10n.content(title) }
     return units.distanceText(Double(meters), decimals: 3) + " · " + runType.title
   }
   func displayValue(_ value: Double, in units: TrainingUnits) -> Double {
     kind == .run ? units.distance.pace(fromSecondsPerKilometer: value) : units.weight.value(fromKilograms: value)
   }
   func changeLabel(in units: TrainingUnits) -> String {
-    guard change > (kind == .run ? 0.5 : 0.01) else { return "Holding steady" }
+    guard change > (kind == .run ? 0.5 : 0.01) else { return L10n.text("Holding steady") }
     if kind == .run {
-      return "\(Int(displayValue(change, in: units).rounded())) sec/" + units.distance.symbol + (improved ? " faster" : " slower")
+      return improved ? L10n.text("\(Int(displayValue(change, in: units).rounded())) sec/\(units.distance.symbol) faster") : L10n.text("\(Int(displayValue(change, in: units).rounded())) sec/\(units.distance.symbol) slower")
     }
-    return units.weightText(change) + (improved ? " more" : " less")
+    return improved ? L10n.text("\(units.weightText(change)) more") : L10n.text("\(units.weightText(change)) less")
   }
   func formatted(_ value: Double, units: TrainingUnits = .metric) -> String {
     kind == .run ? units.paceText(value) : units.weightText(value)

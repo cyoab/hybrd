@@ -123,7 +123,7 @@ struct RunLap: Codable, Identifiable, Equatable {
   var number: Int
   var meters: Double
   var seconds: Double
-  var title: String { kind == .manual ? "Lap \(number)" : (kind == .mile ? "Mile \(number)" : "Kilometer \(number)") }
+  var title: String { kind == .manual ? L10n.text("Lap \(number)") : (kind == .mile ? L10n.text("Mile \(number)") : L10n.text("Kilometer \(number)")) }
   var pace: Double? { meters > 0 ? seconds * 1_000 / meters : nil }
 }
 

@@ -4,7 +4,7 @@ enum TrainingWeightUnit: String, Codable, CaseIterable, Identifiable {
   case kilograms, pounds
   var id: String { rawValue }
   var symbol: String { self == .kilograms ? "kg" : "lb" }
-  var title: String { self == .kilograms ? "Kilograms" : "Pounds" }
+  var title: String { self == .kilograms ? L10n.text("Kilograms") : L10n.text("Pounds") }
   private var kilogramsPerUnit: Double { self == .kilograms ? 1 : 0.45359237 }
   func value(fromKilograms value: Double) -> Double { value / kilogramsPerUnit }
   func kilograms(from value: Double) -> Double { value * kilogramsPerUnit }

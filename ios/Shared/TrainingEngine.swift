@@ -74,6 +74,7 @@ enum TrainingEngine {
     next.id = UUID()
     next.basePlanID = plan.id
     next.createdAt = Date()
+    next.change = .init(kind: .added, workoutTitle: workout.title, date: workout.date)
     next.reason = "Added \(workout.title) on \(workout.date.formatted(date: .abbreviated, time: .omitted))"
     next.workouts = plan.workouts.map { $0.reidentified() } + [workout]
     return next
@@ -84,6 +85,7 @@ enum TrainingEngine {
     next.id = UUID()
     next.basePlanID = plan.id
     next.createdAt = Date()
+    next.change = .init(kind: .moved, workoutTitle: workout.title, date: date)
     next.reason = "Moved \(workout.title) to \(date.formatted(date: .abbreviated, time: .omitted))"
     next.workouts = plan.workouts.map { old in
       var new = old.reidentified()
@@ -96,9 +98,9 @@ enum TrainingEngine {
   static func conflicts(for workout: TrainingWorkout, on day: Date, in plan: TrainingPlan) -> [String] {
     plan.workouts.filter { $0.logicalID != workout.logicalID }.compactMap { other in
       let gap = abs(Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: day), to: other.date).day ?? 99)
-      if gap == 0 { return "This day already has \(other.title.lowercased()). Consider the combined duration before moving." }
+      if gap == 0 { return L10n.text("This day already has \(other.localizedTitle.lowercased()). Consider the combined duration before moving.") }
       if gap <= 1 && workout.isKey && other.isKey && workout.kind != other.kind {
-        return "\(other.title) is within a day. Lower-body fatigue may affect your key run."
+        return L10n.text("\(other.localizedTitle) is within a day. Lower-body fatigue may affect your key run.")
       }
       return nil
     }

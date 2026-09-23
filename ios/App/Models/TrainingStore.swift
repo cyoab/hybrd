@@ -69,7 +69,7 @@ final class TrainingStore {
       loadError = nil
       shareWithWatch()
     } catch {
-      loadError = "Your training data could not be opened. It has not been reset. \(error.localizedDescription)"
+      loadError = L10n.text("Your training data could not be opened. It has not been reset. \(error.localizedDescription)")
     }
   }
 
@@ -88,7 +88,7 @@ final class TrainingStore {
       return true
     } catch {
       container.mainContext.rollback()
-      errorMessage = "Your changes could not be saved. Please try again. \(error.localizedDescription)"
+      errorMessage = L10n.text("Your changes could not be saved. Please try again. \(error.localizedDescription)")
       return false
     }
   }
@@ -128,16 +128,16 @@ final class TrainingStore {
   }
 
   func status(of workout: TrainingWorkout) -> String {
-    if let result = result(for: workout) { return result.status.rawValue }
-    if hasDraft(for: workout) { return "In progress" }
-    if workout.date < Calendar.current.startOfDay(for: Date()) { return "Not logged" }
-    return workout.isKey ? "Key session" : "Planned"
+    if let result = result(for: workout) { return result.status.displayName }
+    if hasDraft(for: workout) { return L10n.text("In progress") }
+    if workout.date < Calendar.current.startOfDay(for: Date()) { return L10n.text("Not logged") }
+    return workout.isKey ? L10n.text("Key session") : L10n.text("Planned")
   }
 
   @discardableResult
   func saveProfile(_ profile: TrainingProfile, replacing expected: TrainingProfile) -> Bool {
     guard state.profile == expected else {
-      errorMessage = "Your profile changed while you were editing. Reopen it to use the latest details."
+      errorMessage = L10n.text("Your profile changed while you were editing. Reopen it to use the latest details.")
       return false
     }
     guard profile.validationMessage == nil else {
@@ -170,7 +170,7 @@ final class TrainingStore {
   @discardableResult
   func accept(proposal: TrainingPlan) -> Bool {
     guard proposal.basePlanID == plan.id else {
-      errorMessage = "Your plan changed while you were reviewing. Return to your profile and review the latest block."
+      errorMessage = L10n.text("Your plan changed while you were reviewing. Return to your profile and review the latest block.")
       return false
     }
     guard proposal.profile.validationMessage == nil else {
@@ -221,7 +221,7 @@ final class TrainingStore {
   @discardableResult
   func move(_ workout: TrainingWorkout, to date: Date, expectedPlanID: UUID) -> Bool {
     guard plan.id == expectedPlanID else {
-      errorMessage = "The plan changed while you were reviewing. Open the session again to review the current plan."
+      errorMessage = L10n.text("The plan changed while you were reviewing. Open the session again to review the current plan.")
       return false
     }
     guard result(for: workout) == nil, !hasDraft(for: workout) else { return false }
@@ -233,12 +233,12 @@ final class TrainingStore {
   @discardableResult
   func addRun(_ template: RunWorkoutTemplate, on date: Date, expectedPlanID: UUID) -> Bool {
     guard isLoaded, plan.id == expectedPlanID else {
-      errorMessage = "Your plan changed while you were reviewing. Reopen this workout to review the latest schedule."
+      errorMessage = L10n.text("Your plan changed while you were reviewing. Reopen this workout to review the latest schedule.")
       return false
     }
     guard date.timeIntervalSinceReferenceDate.isFinite,
           Calendar.current.startOfDay(for: date) >= Calendar.current.startOfDay(for: Date()) else {
-      errorMessage = "Choose today or a future date for this session."
+      errorMessage = L10n.text("Choose today or a future date for this session.")
       return false
     }
     var next = state
@@ -257,7 +257,7 @@ final class TrainingStore {
 
   @discardableResult
   func saveRecordedRun(_ run: RunRecording, asSeparate: Bool = false) -> Bool {
-    guard run.isFinished, run.canSave else { errorMessage = "This recording needs a positive distance and time before saving."; return false }
+    guard run.isFinished, run.canSave else { errorMessage = L10n.text("This recording needs a positive distance and time before saving."); return false }
     if state.results.contains(where: { $0.id == run.id }) { return true }
     if !asSeparate && state.results.contains(where: { $0.logicalWorkoutID == run.workout.logicalID }) { return false }
     var result = run.result()

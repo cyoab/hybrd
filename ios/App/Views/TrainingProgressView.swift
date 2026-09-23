@@ -18,10 +18,10 @@ struct TrainingProgressView: View {
         ScrollView {
           VStack(alignment: .leading, spacing: 28) {
             VStack(alignment: .leading, spacing: 7) {
-              Eyebrow(text: "The work becomes you")
-              Text(snapshot.lifetime.sessions == 0 ? "Your next chapter." : "Look at you go.")
+              Eyebrow(text: L10n.text("The work becomes you"))
+              Text(snapshot.lifetime.sessions == 0 ? L10n.text("Your next chapter.") : L10n.text("Look at you go."))
                 .font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1)
-              Text("Running and strength. One evolving story.").font(.subheadline).foregroundStyle(HybrdStyle.muted)
+              Text(L10n.text("Running and strength. One evolving story.")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             }
             ProgressJourneyView(snapshot: snapshot) { showingJourney = true }
             if let latest = snapshot.latestMilestone {
@@ -29,7 +29,7 @@ struct TrainingProgressView: View {
                 HStack(spacing: 12) {
                   Image(systemName: "sparkles").font(.title2).foregroundStyle(SessionPalette.ink(.gold))
                   VStack(alignment: .leading, spacing: 4) {
-                    Text("Latest milestone · " + latest.kind.title).font(.subheadline.weight(.semibold))
+                    Text(L10n.text("Latest milestone · ") + latest.kind.title).font(.subheadline.weight(.semibold))
                     Text(latest.earnedAt!.formatted(date: .abbreviated, time: .omitted)).font(.caption).foregroundStyle(HybrdStyle.muted)
                   }
                   Spacer(minLength: 0)
@@ -39,33 +39,33 @@ struct TrainingProgressView: View {
               }.buttonStyle(.plain)
             }
             VStack(alignment: .leading, spacing: 16) {
-              Picker("Progress period", selection: $period) {
+              Picker(L10n.text("Progress period"), selection: $period) {
                 ForEach(ProgressPeriod.allCases) { Text($0.title).tag($0) }
               }.pickerStyle(.segmented).labelsHidden()
               ProgressTotalsView(snapshot: snapshot)
               HStack {
-                Label("\(snapshot.current.sessions) sessions", systemImage: "checkmark.seal")
+                Label(L10n.text("\(snapshot.current.sessions) sessions"), systemImage: "checkmark.seal")
                 Spacer()
-                Text("\(snapshot.current.activeDays) active days")
+                Text(L10n.text("\(snapshot.current.activeDays) active days"))
               }.font(.caption.weight(.medium)).foregroundStyle(HybrdStyle.muted)
               ProgressTrendView(snapshot: snapshot)
             }
             VStack(alignment: .leading, spacing: 16) {
-              Text("See your change").font(.title3.weight(.semibold))
+              Text(L10n.text("See your change")).font(.title3.weight(.semibold))
               if snapshot.comparisons.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                   ProfileIllustration(artwork: .experience).frame(height: 112)
-                  Text("A baseline worth building.").font(.headline)
-                  Text("Repeat a logged run distance and type, or a lift at the same rep count on another day. Your first-to-latest comparison will appear here.")
+                  Text(L10n.text("A baseline worth building.")).font(.headline)
+                  Text(L10n.text("Repeat a logged run distance and type, or a lift at the same rep count on another day. Your first-to-latest comparison will appear here."))
                     .font(.subheadline).foregroundStyle(HybrdStyle.muted)
                   if snapshot.lifetime.sessions == 0, let next = store.workouts.first(where: { $0.date >= Calendar.current.startOfDay(for: Date()) && store.result(for: $0) == nil }) {
-                    NavigationLink("Open your next session") { WorkoutDetailView(workout: next) }
+                    NavigationLink(L10n.text("Open your next session")) { WorkoutDetailView(workout: next) }
                       .buttonStyle(HybrdPrimaryButtonStyle())
                   }
                 }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
                   .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 25))
               } else {
-                Text("First to latest comparable efforts · all time").font(.caption).foregroundStyle(HybrdStyle.muted)
+                Text(L10n.text("First to latest comparable efforts · all time")).font(.caption).foregroundStyle(HybrdStyle.muted)
                 ForEach(snapshot.comparisons) { ProgressComparisonView(comparison: $0) }
               }
             }
@@ -74,19 +74,19 @@ struct TrainingProgressView: View {
             if !snapshot.results.isEmpty {
               VStack(alignment: .leading, spacing: 14) {
                 HStack {
-                  Text("The work behind it").font(.title3.weight(.semibold))
+                  Text(L10n.text("The work behind it")).font(.title3.weight(.semibold))
                   Spacer()
-                  Button("View all") { showingHistory = true }.font(.subheadline)
+                  Button(L10n.text("View all")) { showingHistory = true }.font(.subheadline)
                 }
                 ForEach(snapshot.results.prefix(3)) { result in
                   Button { selectedResult = result } label: {
-                    ProgressHistoryRow(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue)
+                    ProgressHistoryRow(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.displayName)
                       .padding(12).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
                   }.buttonStyle(.plain)
                 }
               }
             }
-            Text("Built from your logged activity. Partial sessions include only completed work. More volume isn’t automatically better fitness.")
+            Text(L10n.text("Built from your logged activity. Partial sessions include only completed work. More volume isn’t automatically better fitness."))
               .font(.caption).foregroundStyle(HybrdStyle.muted)
           }
           .padding(20).padding(.bottom, 16).frame(maxWidth: 760).frame(maxWidth: .infinity)
@@ -95,15 +95,15 @@ struct TrainingProgressView: View {
         .sheet(isPresented: $showingHistory) { ProgressHistoryView(results: snapshot.results, workoutTitles: snapshot.workoutTitles) }
         .sheet(item: $selectedResult) { result in
           NavigationStack {
-            ProgressResultDetailView(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.rawValue)
+            ProgressResultDetailView(result: result, title: snapshot.workoutTitles[result.plannedWorkoutID] ?? result.kind.displayName)
               .toolbar { ToolbarItem(placement: .confirmationAction) {
-                Button("Close", systemImage: "xmark") { selectedResult = nil }.labelStyle(.iconOnly)
+                Button(L10n.text("Close"), systemImage: "xmark") { selectedResult = nil }.labelStyle(.iconOnly)
               } }
           }
         }
         .sheet(item: $selectedDay) { day in ProgressHistoryView(results: day.results.reversed(), workoutTitles: snapshot.workoutTitles, day: day.date) }
       }
-      .navigationTitle("Progress").navigationBarTitleDisplayMode(.inline)
+      .navigationTitle(L10n.text("Progress")).navigationBarTitleDisplayMode(.inline)
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .sheet(item: $selectedMilestone) { ProgressMilestoneDetailView(milestone: $0) }
       .sheet(isPresented: $showingJourney) { ProgressJourneyExplanation() }
@@ -120,16 +120,16 @@ private struct ProgressJourneyExplanation: View {
       ScrollView {
         VStack(alignment: .leading, spacing: 22) {
           ProgressMedalView(symbol: "sparkles", tone: .gold, level: 1).frame(height: 170)
-          Text("A journey built one day at a time.").font(.system(.title, design: .rounded, weight: .semibold))
-          Text("Each distinct day with a logged run or completed strength sets adds one step. Every 10 training days opens another level.")
-          Text("Two workouts on the same day still count as one training day. Rest days don’t take away steps. Your level reflects logged consistency, not fitness or a ranking against other athletes.")
-          Text("The calendar currently uses the date you log a result in your device’s time zone. It does not backdate activity to its planned date.").font(.subheadline).foregroundStyle(HybrdStyle.muted)
-          Text("Milestones are calculated from your current records. Correcting or deleting a record can update the totals and awards attached to it.")
+          Text(L10n.text("A journey built one day at a time.")).font(.system(.title, design: .rounded, weight: .semibold))
+          Text(L10n.text("Each distinct day with a logged run or completed strength sets adds one step. Every 10 training days opens another level."))
+          Text(L10n.text("Two workouts on the same day still count as one training day. Rest days don’t take away steps. Your level reflects logged consistency, not fitness or a ranking against other athletes."))
+          Text(L10n.text("The calendar currently uses the date you log a result in your device’s time zone. It does not backdate activity to its planned date.")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
+          Text(L10n.text("Milestones are calculated from your current records. Correcting or deleting a record can update the totals and awards attached to it."))
             .font(.subheadline).foregroundStyle(HybrdStyle.muted)
         }.padding(24).frame(maxWidth: 600).frame(maxWidth: .infinity)
       }
-      .background(HybrdStyle.background).navigationTitle("Your journey").navigationBarTitleDisplayMode(.inline)
-      .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Close", systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly) } }
+      .background(HybrdStyle.background).navigationTitle(L10n.text("Your journey")).navigationBarTitleDisplayMode(.inline)
+      .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.text("Close"), systemImage: "xmark") { dismiss() }.labelStyle(.iconOnly) } }
     }
   }
 }

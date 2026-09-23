@@ -28,9 +28,9 @@ struct PlanView: View {
   }
   private var isInBlock: Bool { (1...weekCount).contains(weekNumber) }
   private var phase: String {
-    if !isInBlock { return "Calendar" }
-    if weekNumber == weekCount { return "Recovery" }
-    return store.profile.isSample ? "Build" : "Base"
+    if !isInBlock { return L10n.text("Calendar") }
+    if weekNumber == weekCount { return L10n.text("Recovery") }
+    return store.profile.isSample ? L10n.text("Build") : L10n.text("Base")
   }
   private var weekSummary: WeeklyTrainingSummary {
     WeeklyTrainingSummary(workouts: sessions, results: store.state.results)
@@ -47,7 +47,7 @@ struct PlanView: View {
               WeekCalendarView(selectedDate: $selectedDate, workouts: store.workouts, results: store.state.results)
             }
             VStack(alignment: .leading, spacing: 10) {
-              Text("Logged this week").font(.subheadline.weight(.medium)).foregroundStyle(HybrdStyle.muted)
+              Text(L10n.text("Logged this week")).font(.subheadline.weight(.medium)).foregroundStyle(HybrdStyle.muted)
               WeeklyProgressView(summary: weekSummary)
             }
             .padding(.horizontal, 20)
@@ -118,7 +118,7 @@ struct PlanView: View {
       HybrdWordmark()
       Spacer(minLength: 8)
       if !dynamicType.isAccessibilitySize {
-        Text(store.profile.isSample ? "SAMPLE · \(phase.uppercased())" : isInBlock ? "\(phase.uppercased()) · WK \(weekNumber) OF \(weekCount)" : "YOUR PLAN")
+        Text(store.profile.isSample ? L10n.text("SAMPLE · \(phase.uppercased())") : isInBlock ? L10n.text("\(phase.uppercased()) · WK \(weekNumber) OF \(weekCount)") : L10n.text("YOUR PLAN"))
           .font(.caption2.weight(.medium)).tracking(0.8).foregroundStyle(HybrdStyle.muted)
           .lineLimit(2).multilineTextAlignment(.trailing)
       }
@@ -132,7 +132,7 @@ struct PlanView: View {
           .contentShape(Circle())
       }
       .buttonStyle(.plain)
-      .accessibilityLabel("Athlete profile")
+      .accessibilityLabel(L10n.text("Athlete profile"))
     }
   }
 
@@ -144,7 +144,7 @@ struct PlanView: View {
   private var weekHeading: some View {
     HStack(spacing: 12) {
       VStack(alignment: .leading, spacing: 6) {
-        Text(isInBlock ? "Week \(weekNumber)" : "Your calendar")
+        Text(isInBlock ? L10n.text("Week \(weekNumber)") : L10n.text("Your calendar"))
           .font(.system(.title2, design: .rounded, weight: .semibold))
         Text(weekRange)
           .font(.caption.weight(.medium)).foregroundStyle(HybrdStyle.terraText)
@@ -157,7 +157,7 @@ struct PlanView: View {
           .frame(width: 48, height: 48)
           .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 16))
       }
-      .buttonStyle(.plain).accessibilityLabel("Choose a date")
+      .buttonStyle(.plain).accessibilityLabel(L10n.text("Choose a date"))
     }
   }
 
@@ -178,7 +178,7 @@ struct PlanView: View {
       Text(day.formatted(.dateTime.weekday(.abbreviated).day()))
         .font(.system(.title, design: .rounded, weight: .semibold)).tracking(-0.7)
       if Calendar.current.isDateInToday(day) {
-        Text("TODAY").font(.caption.weight(.medium)).tracking(1.4).foregroundStyle(HybrdStyle.terraText)
+        Text(L10n.text("TODAY")).font(.caption.weight(.medium)).tracking(1.4).foregroundStyle(HybrdStyle.terraText)
       }
       Spacer(minLength: 0)
     }
@@ -196,13 +196,13 @@ struct PlanView: View {
 
   private var note: String {
     if store.plan.basePlanID != nil, store.plan.reason.hasPrefix("Moved") {
-      return store.plan.reason + ". Your earlier plan is saved in plan history."
+      return store.plan.localizedReason + L10n.text(". Your earlier plan is saved in plan history.")
     }
     if selectedSessions.contains(where: { $0.kind == .run && $0.isKey }) &&
        selectedSessions.contains(where: { $0.kind == .strength && $0.isOptional == true }) {
-      return "Your key run comes first. Upper-body strength is optional today, so you can leave room for recovery."
+      return L10n.text("Your key run comes first. Upper-body strength is optional today, so you can leave room for recovery.")
     }
-    return selectedSessions.first?.purpose ?? "Recovery is part of the plan."
+    return selectedSessions.first?.localizedPurpose ?? L10n.text("Recovery is part of the plan.")
   }
 
   private var recoveryCard: some View {
@@ -210,8 +210,8 @@ struct PlanView: View {
       Image(systemName: "leaf").font(.title).foregroundStyle(SessionPalette.ink(.mint))
         .frame(width: 64, height: 64).background(SessionPalette.mint.opacity(0.12), in: Circle())
         .accessibilityHidden(true)
-      Text("Space to recover.").font(.title2.weight(.semibold))
-      Text("No session scheduled. Let the work settle in, and come back ready for what’s next.")
+      Text(L10n.text("Space to recover.")).font(.title2.weight(.semibold))
+      Text(L10n.text("No session scheduled. Let the work settle in, and come back ready for what’s next."))
         .font(.subheadline).foregroundStyle(HybrdStyle.muted)
     }
     .padding(22).frame(maxWidth: .infinity, alignment: .leading)
@@ -227,8 +227,8 @@ struct PlanView: View {
             .frame(width: 48, height: 48).background(RunPalette.top(.easy), in: RoundedRectangle(cornerRadius: 16))
             .accessibilityHidden(true)
           VStack(alignment: .leading, spacing: 5) {
-            Text("Running workouts").font(.headline)
-            Text("Find a run for your day").font(.caption).foregroundStyle(HybrdStyle.muted)
+            Text(L10n.text("Running workouts")).font(.headline)
+            Text(L10n.text("Find a run for your day")).font(.caption).foregroundStyle(HybrdStyle.muted)
           }
           Spacer(minLength: 0)
           Image(systemName: "chevron.right").font(.caption.weight(.semibold)).accessibilityHidden(true)
@@ -243,8 +243,8 @@ struct PlanView: View {
         Button { showProfile = true } label: {
           HStack {
             VStack(alignment: .leading, spacing: 5) {
-              Text("Make this plan yours").font(.subheadline.weight(.semibold))
-              Text("You’re exploring a sample block.").font(.caption).foregroundStyle(HybrdStyle.muted)
+              Text(L10n.text("Make this plan yours")).font(.subheadline.weight(.semibold))
+              Text(L10n.text("You’re exploring a sample block.")).font(.caption).foregroundStyle(HybrdStyle.muted)
             }
             Spacer()
             Image(systemName: "arrow.up.right").font(.subheadline)
@@ -254,15 +254,15 @@ struct PlanView: View {
         .buttonStyle(.plain)
       }
       HStack {
-        Button(weekMode ? "Show selected day" : "See the full week", systemImage: weekMode ? "calendar" : "list.bullet") { weekMode.toggle() }
+        Button(weekMode ? L10n.text("Show selected day") : L10n.text("See the full week"), systemImage: weekMode ? "calendar" : "list.bullet") { weekMode.toggle() }
           .frame(minHeight: 44)
         Spacer()
         NavigationLink { PlanHistoryView() } label: { Image(systemName: "clock.arrow.circlepath") }
-          .frame(minWidth: 44, minHeight: 44).accessibilityLabel("Plan history")
+          .frame(minWidth: 44, minHeight: 44).accessibilityLabel(L10n.text("Plan history"))
       }
       .font(.subheadline).foregroundStyle(HybrdStyle.muted)
       if !Calendar.current.isDateInToday(selectedDate) {
-        Button("Back to today") { selectedDate = Calendar.current.startOfDay(for: Date()) }
+        Button(L10n.text("Back to today")) { selectedDate = Calendar.current.startOfDay(for: Date()) }
           .font(.subheadline.weight(.medium)).foregroundStyle(HybrdStyle.terraText).frame(minHeight: 44)
       }
     }
@@ -271,14 +271,14 @@ struct PlanView: View {
   private var calendarSheet: some View {
     NavigationStack {
       VStack {
-        DatePicker("Training date", selection: $selectedDate, displayedComponents: .date)
+        DatePicker(L10n.text("Training date"), selection: $selectedDate, displayedComponents: .date)
           .datePickerStyle(.graphical).padding()
-        Button("Go to today") { selectedDate = Calendar.current.startOfDay(for: Date()); showCalendar = false }
+        Button(L10n.text("Go to today")) { selectedDate = Calendar.current.startOfDay(for: Date()); showCalendar = false }
         Spacer()
       }
-      .navigationTitle("Choose a day")
+      .navigationTitle(L10n.text("Choose a day"))
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showCalendar = false } } }
+      .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.text("Done")) { showCalendar = false } } }
     }.presentationDetents([.medium, .large])
   }
 

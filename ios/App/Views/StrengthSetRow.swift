@@ -12,11 +12,11 @@ struct StrengthSetRow: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 5) {
       if dynamicType.isAccessibilitySize {
-        HStack { Text("Set \(number)").font(.headline); Spacer(); completionToggle }
+        HStack { Text(L10n.text("Set \(number)")).font(.headline); Spacer(); completionToggle }
         VStack(spacing: 10) {
-          LabeledContent("Weight · " + units.weight.symbol) { weightField }
-          LabeledContent("Reps") { repsField }
-          LabeledContent("Reps in reserve") { rirField }
+          LabeledContent(L10n.text("Weight · ") + units.weight.symbol) { weightField }
+          LabeledContent(L10n.text("Reps")) { repsField }
+          LabeledContent(L10n.text("Reps in reserve")) { rirField }
         }
       } else {
         HStack(spacing: 7) {
@@ -25,29 +25,29 @@ struct StrengthSetRow: View {
         }
       }
       if let previous {
-        Text("Last time · " + units.weightText(previous.kilograms) + " × \(previous.reps)" + (previous.rir.map { " · \($0) RIR" } ?? ""))
+        Text(L10n.text("Last time · ") + units.weightText(previous.kilograms) + " × \(previous.reps)" + (previous.rir.map { L10n.text(" · \($0) RIR") } ?? ""))
           .font(.caption2).foregroundStyle(HybrdStyle.muted).padding(.leading, dynamicType.isAccessibilitySize ? 0 : 29)
       }
     }
     .padding(10)
     .background(loggedSet.isComplete ? SessionPalette.wash(.violet) : HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 14))
-    .contextMenu { Button("Remove logged set", systemImage: "trash", role: .destructive, action: remove) }
-    .accessibilityAction(named: Text("Remove set"), remove)
+    .contextMenu { Button(L10n.text("Remove logged set"), systemImage: "trash", role: .destructive, action: remove) }
+    .accessibilityAction(named: Text(L10n.text("Remove set")), remove)
   }
   private var weightField: some View {
     TextField("0", value: Binding(get: { units.weight.value(fromKilograms: loggedSet.kilograms) }, set: { loggedSet.kilograms = units.weight.kilograms(from: $0) }), format: .number.precision(.fractionLength(0...1)))
-      .keyboardType(.decimalPad).accessibilityLabel("\(loggedSet.exerciseName), set \(number), \(units.weight.title.lowercased())")
+      .keyboardType(.decimalPad).accessibilityLabel(L10n.text("\(loggedSet.localizedExerciseName), set \(number), \(units.weight.title.lowercased())"))
       .multilineTextAlignment(.center).font(.body.monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
   }
   private var repsField: some View {
-    TextField("Reps", value: $loggedSet.reps, format: .number).keyboardType(.numberPad)
-      .accessibilityLabel("\(loggedSet.exerciseName), set \(number), reps")
+    TextField(L10n.text("Reps"), value: $loggedSet.reps, format: .number).keyboardType(.numberPad)
+      .accessibilityLabel(L10n.text("\(loggedSet.localizedExerciseName), set \(number), reps"))
       .multilineTextAlignment(.center).font(.body.monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
   }
   private var rirField: some View {
-    Picker("Set \(number), reps in reserve", selection: $loggedSet.rir) {
+    Picker(L10n.text("Set \(number), reps in reserve"), selection: $loggedSet.rir) {
       Text("—").tag(Int?.none)
       ForEach(0...10, id: \.self) { Text($0 == 10 ? "10+" : "\($0)").tag(Int?.some($0)) }
     }.pickerStyle(.menu).labelsHidden().frame(maxWidth: .infinity, minHeight: 44)
@@ -59,7 +59,7 @@ struct StrengthSetRow: View {
         .font(.title2).foregroundStyle(loggedSet.isComplete ? SessionPalette.ink(.violet) : HybrdStyle.muted)
         .frame(width: 44, height: 44).contentShape(Rectangle())
     }.toggleStyle(.button).buttonStyle(.plain).disabled(!valid && !loggedSet.isComplete)
-      .accessibilityLabel("\(loggedSet.exerciseName), set \(number) completed")
-      .accessibilityValue(loggedSet.isComplete ? "Completed" : "Not completed")
+      .accessibilityLabel(L10n.text("\(loggedSet.localizedExerciseName), set \(number) completed"))
+      .accessibilityValue(loggedSet.isComplete ? L10n.text("Completed") : L10n.text("Not completed"))
   }
 }

@@ -31,8 +31,8 @@ struct TrainingUnits: Codable, Equatable {
   func paceText(_ secondsPerKilometer: Double?) -> String { paceNumber(secondsPerKilometer) + " /" + distance.symbol }
   func summary(_ workout: TrainingWorkout) -> String {
     guard workout.kind == .run else { return workout.summary }
-    guard workout.distanceMeters > 0 else { return "\(workout.minutes) min · Time-based run" }
-    return distanceText(Double(workout.distanceMeters)) + " · \(workout.minutes) min"
+    guard workout.distanceMeters > 0 else { return L10n.text("\(workout.minutes) min · Time-based run") }
+    return distanceText(Double(workout.distanceMeters)) + L10n.text(" · \(workout.minutes) min")
   }
-  func lapTitle(_ lap: RunLap) -> String { lap.kind == .manual ? "Lap \(lap.number)" : "Split \(lap.number)" }
+  func lapTitle(_ lap: RunLap) -> String { lap.kind == .manual ? L10n.text("Lap \(lap.number)") : L10n.text("Split \(lap.number)") }
 }

@@ -9,8 +9,8 @@ struct ProgressRhythmView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Every day leaves a mark.").font(.title3.weight(.semibold))
-      Text("Last 4 weeks · tap a day to revisit your work")
+      Text(L10n.text("Every day leaves a mark.")).font(.title3.weight(.semibold))
+      Text(L10n.text("Last 4 weeks · tap a day to revisit your work"))
         .font(.caption).foregroundStyle(HybrdStyle.muted)
       LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: typeSize.isAccessibilitySize ? 4 : 7), spacing: 6) {
         if !typeSize.isAccessibilitySize { ForEach(days.prefix(7)) { day in
@@ -35,7 +35,7 @@ struct ProgressRhythmView: View {
           }
           .buttonStyle(.plain)
           .accessibilityLabel(day.date.formatted(date: .complete, time: .omitted))
-          .accessibilityValue(day.results.isEmpty ? "No training logged" : "\(day.results.count) sessions, \(units.distanceText(Double(day.runMeters))) and \(day.strengthSets) strength sets")
+          .accessibilityValue(day.results.isEmpty ? L10n.text("No training logged") : L10n.text("\(day.results.count) sessions, \(units.distanceText(Double(day.runMeters))) and \(day.strengthSets) strength sets"))
         }
       }
       ViewThatFits {
@@ -52,8 +52,8 @@ struct ProgressRhythmView: View {
       lift ? SessionPalette.wash(.violet) : run ? SessionPalette.wash(.terra) : HybrdStyle.field], startPoint: .topLeading, endPoint: .bottomTrailing)
   }
   @ViewBuilder private var legend: some View {
-    Label("Run", systemImage: "circle.fill").foregroundStyle(HybrdStyle.terraText)
-    Label("Lift", systemImage: "square.fill").foregroundStyle(SessionPalette.ink(.violet))
-    Text("Rest counts, too.").foregroundStyle(HybrdStyle.muted)
+    Label(L10n.text("Run"), systemImage: "circle.fill").foregroundStyle(HybrdStyle.terraText)
+    Label(L10n.text("Lift"), systemImage: "square.fill").foregroundStyle(SessionPalette.ink(.violet))
+    Text(L10n.text("Rest counts, too.")).foregroundStyle(HybrdStyle.muted)
   }
 }

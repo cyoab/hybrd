@@ -9,24 +9,24 @@ struct WeeklyProgressView: View {
     let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) :
       AnyLayout(HStackLayout(alignment: .top, spacing: 10))
     layout {
-      tile(title: "Running", symbol: "figure.run",
+      tile(title: L10n.text("Running"), symbol: "figure.run",
         value: distanceNumber(summary.loggedMeters), unit: units.distance.symbol,
         goal: runningGoal,
         progress: summary.runningProgress, tone: .terra,
-        accessibility: "\(distanceNumber(summary.loggedMeters)) \(units.distance.title.lowercased()) logged. " + runningGoal + " this week")
-      tile(title: "Strength", symbol: "dumbbell",
-        value: "\(summary.loggedLifts)", unit: "logged",
-        goal: "of \(summary.plannedLifts) sessions",
+        accessibility: L10n.text("\(distanceNumber(summary.loggedMeters)) \(units.distance.title.lowercased()) logged. ") + runningGoal + L10n.text(" this week"))
+      tile(title: L10n.text("Strength"), symbol: "dumbbell",
+        value: "\(summary.loggedLifts)", unit: L10n.text("logged"),
+        goal: L10n.text("of \(summary.plannedLifts) sessions"),
         progress: summary.liftingProgress, tone: .violet,
-        accessibility: "\(summary.loggedLifts) strength sessions logged of \(summary.plannedLifts) planned this week")
+        accessibility: L10n.text("\(summary.loggedLifts) strength sessions logged of \(summary.plannedLifts) planned this week"))
     }
   }
 
   private var runningGoal: String {
-    let distance = "of \(distanceNumber(summary.plannedMeters)) \(units.distance.symbol) planned"
+    let distance = L10n.text("of \(distanceNumber(summary.plannedMeters)) \(units.distance.symbol) planned")
     guard summary.timedRuns > 0 else { return distance }
-    let timed = "\(summary.timedRuns) timed " + (summary.timedRuns == 1 ? "run" : "runs")
-    return summary.plannedMeters > 0 ? distance + " + " + timed : timed + " planned"
+    let timed = L10n.text("\(summary.timedRuns) timed runs")
+    return summary.plannedMeters > 0 ? distance + " + " + timed : L10n.text("\(timed) planned")
   }
 
   private func distanceNumber(_ meters: Int) -> String {

@@ -12,9 +12,9 @@ struct AthleteProfileHeader: View {
           .frame(width: 64, height: 64).background(HybrdStyle.primaryButton, in: Circle())
           .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 6) {
-          Text("ATHLETE PROFILE").font(.caption2.weight(.semibold)).tracking(1)
+          Text(L10n.text("ATHLETE PROFILE")).font(.caption2.weight(.semibold)).tracking(1)
             .fixedSize(horizontal: false, vertical: true).foregroundStyle(SessionPalette.ink(.violet))
-          Text(profile.name.isEmpty ? "Athlete" : profile.name)
+          Text((profile.name.isEmpty || profile.name == "Athlete") ? L10n.text("Athlete") : profile.name)
             .font(.system(.title, design: .rounded, weight: .semibold)).fixedSize(horizontal: false, vertical: true)
         }
       }
@@ -25,7 +25,7 @@ struct AthleteProfileHeader: View {
         stat(profile.athlete?.weightKilograms.map { profile.trainingUnits.weightNumber($0) } ?? "—", label: profile.trainingUnits.weight.symbol)
         stat(profile.athlete?.heightCentimeters.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "—", label: "cm")
       }
-      Text("Your starting point. Your next personal best.")
+      Text(L10n.text("Your starting point. Your next personal best."))
         .font(.subheadline).foregroundStyle(HybrdStyle.muted)
     }
     .padding(22).frame(maxWidth: .infinity, alignment: .leading)

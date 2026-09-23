@@ -59,3 +59,7 @@ Build and run the iPhone and Watch targets using Bitrig.
 ### Measurement preferences
 
 Open **Athlete profile → Units**, choose **kg / lb** and **km / miles** independently, and tap **Save profile**. Preferences apply to entries, pace, charts, history and the synced Watch plan. Older data defaults to kg/km. Actual measurements stay in canonical kg/meters, so changing units preserves the original training data. New runs use the selected distance unit for automatic splits; an already-started run keeps its split interval.
+
+## Languages
+
+English, Spanish, Brazilian Portuguese, and French are bundled for iPhone and Apple Watch. Language follows the device/per-app preference, with English fallback; unit choices stay independent. See [LOCALIZATION.md](LOCALIZATION.md) for the resource workflow, coverage, and checks.

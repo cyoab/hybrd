@@ -13,7 +13,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
   private(set) var preparing = false
   private(set) var ending = false
   private(set) var currentPace: Double?
-  private(set) var gpsMessage = "GPS not started"
+  private(set) var gpsMessage = L10n.text("GPS not started")
   private(set) var lastLocationAt: Date?
   private(set) var cue = 0
   var errorMessage: String?
@@ -35,7 +35,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     super.init()
     recording = RunArchive.loadActive()
     routeCheckpointCount = recording?.route.count ?? 0
-    if recording == nil && RunArchive.hasCheckpoint { errorMessage = "A saved run could not be read. It has been preserved and will not be overwritten." }
+    if recording == nil && RunArchive.hasCheckpoint { errorMessage = L10n.text("A saved run could not be read. It has been preserved and will not be overwritten.") }
     location.delegate = self
     location.activityType = .fitness
     location.desiredAccuracy = kCLLocationAccuracyBest
@@ -50,16 +50,16 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     preparing = true; errorMessage = nil
     defer { preparing = false }
     do {
-      guard HKHealthStore.isHealthDataAvailable() else { throw RecorderError.message("Apple Health isn’t available on this device. You can still log a completed run on iPhone.") }
+      guard HKHealthStore.isHealthDataAvailable() else { throw RecorderError.message(L10n.text("Apple Health isn’t available on this device. You can still log a completed run on iPhone.")) }
       let distance = HKQuantityType(.distanceWalkingRunning)
       try await health.requestAuthorization(toShare: [HKObjectType.workoutType(), HKSeriesType.workoutRoute(), distance],
         read: [HKQuantityType(.heartRate), distance, HKObjectType.workoutType()])
       guard health.authorizationStatus(for: HKObjectType.workoutType()) == .sharingAuthorized else {
-        throw RecorderError.message("Allow hybrd to save workouts in Apple Health to start recording, or log your completed run manually on iPhone.")
+        throw RecorderError.message(L10n.text("Allow hybrd to save workouts in Apple Health to start recording, or log your completed run manually on iPhone."))
       }
       let granted = await locationPermission()
       guard granted, location.accuracyAuthorization == .fullAccuracy else {
-        throw RecorderError.message("Enable Precise Location for hybrd in Settings to record an outdoor run.")
+        throw RecorderError.message(L10n.text("Enable Precise Location for hybrd in Settings to record an outdoor run."))
       }
       let config = HKWorkoutConfiguration(); config.activityType = .running; config.locationType = .outdoor
       let session = try HKWorkoutSession(healthStore: health, configuration: config)
@@ -89,7 +89,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       let completion: @Sendable (Bool, Error?) -> Void = { success, error in
         if let error { continuation.resume(throwing: error) }
         else if success { continuation.resume() }
-        else { continuation.resume(throwing: RecorderError.message("Apple Health could not update workout recording.")) }
+        else { continuation.resume(throwing: RecorderError.message(L10n.text("Apple Health could not update workout recording."))) }
       }
       if let start { builder.beginCollection(withStart: start, completion: completion) }
       else if let end { builder.endCollection(withEnd: end, completion: completion) }
@@ -178,12 +178,12 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
         self.permission?.resume(returning: status == .authorizedAlways || status == .authorizedWhenInUse); self.permission = nil
       }
       if status == .denied || status == .restricted {
-        self.gpsMessage = "Location unavailable"; self.currentPace = nil; self.gpsFilter.reset()
+        self.gpsMessage = L10n.text("Location unavailable"); self.currentPace = nil; self.gpsFilter.reset()
       }
     }
   }
   private func startSensors() {
-    gpsFilter.reset(); speeds = []; currentPace = nil; gpsMessage = "Finding GPS…"
+    gpsFilter.reset(); speeds = []; currentPace = nil; gpsMessage = L10n.text("Finding GPS…")
     #if os(iOS)
     location.allowsBackgroundLocationUpdates = true
     location.showsBackgroundLocationIndicator = true
@@ -203,12 +203,12 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     guard let value = recording, !value.isPaused, !value.isFinished else { return }
     let step = value.step(at: Date())?.id
     if step != previousStep { previousStep = step; feedback() }
-    if lastLocationAt.map({ Date().timeIntervalSince($0) > 12 }) ?? true { currentPace = nil; gpsMessage = "Waiting for GPS" }
+    if lastLocationAt.map({ Date().timeIntervalSince($0) > 12 }) ?? true { currentPace = nil; gpsMessage = L10n.text("Waiting for GPS") }
     if Date().timeIntervalSince(lastCheckpoint) >= 5 { checkpoint() }
   }
   func pauseOrResume() {
     guard let value = recording, !value.isFinished, !ending else { return }
-    guard let session else { errorMessage = "This recovered record is ready to finish. Start a new run after saving it."; return }
+    guard let session else { errorMessage = L10n.text("This recovered record is ready to finish. Start a new run after saving it."); return }
     if value.isPaused { session.resume() } else { session.pause() }
   }
   func lap() { recording?.markLap(at: Date()); checkpoint(); feedback() }
@@ -238,7 +238,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
           builder.add([sample]) { success, error in
             if let error { continuation.resume(throwing: error) }
             else if success { continuation.resume() }
-            else { continuation.resume(throwing: RecorderError.message("Distance could not be added to Apple Health.")) }
+            else { continuation.resume(throwing: RecorderError.message(L10n.text("Distance could not be added to Apple Health."))) }
           }
         }
       }
@@ -286,18 +286,18 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     guard !ending, recording != nil else { return }
     stopSensors(); builder?.discardWorkout(); session?.end(); session = nil; builder = nil
     do { try RunArchive.removeCheckpoint(recording!.id); recording = nil }
-    catch { errorMessage = "The saved checkpoint could not be removed. Please try again." }
+    catch { errorMessage = L10n.text("The saved checkpoint could not be removed. Please try again.") }
   }
   @discardableResult func clearAfterSaving() -> Bool {
     guard recording?.isFinished == true, !ending else { return false }
     do { try RunArchive.removeCheckpoint(recording!.id); recording = nil; return true }
-    catch { errorMessage = "Your run was saved, but its checkpoint could not be cleared. Retry Done."; return false }
+    catch { errorMessage = L10n.text("Your run was saved, but its checkpoint could not be cleared. Retry Done."); return false }
   }
   @discardableResult private func checkpoint() -> Bool {
     guard var value = recording else { return true }
     value.checkpointAt = Date(); recording = value
     do { _ = try RunArchive.checkpoint(value, points: Array(value.route.dropFirst(routeCheckpointCount))); routeCheckpointCount = value.route.count; lastCheckpoint = Date(); return true }
-    catch { errorMessage = "Couldn’t save the run checkpoint. Keep this session open and free up device storage."; return false }
+    catch { errorMessage = L10n.text("Couldn’t save the run checkpoint. Keep this session open and free up device storage."); return false }
   }
   private func feedback() {
     cue += 1
@@ -317,7 +317,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       if let previous = gpsFilter.previous, (0...25).contains(point.accuracy),
         abs(point.timestamp.timeIntervalSinceNow) <= 12, point.timestamp > previous.timestamp,
         RunGPSFilter.distance(previous, point) < 3 {
-        lastLocationAt = point.timestamp; gpsMessage = "GPS connected"; currentPace = nil; speeds = []
+        lastLocationAt = point.timestamp; gpsMessage = L10n.text("GPS connected"); currentPace = nil; speeds = []
         continue
       }
       guard let accepted = gpsFilter.accept(point, now: Date(), after: value.runningSince ?? value.startedAt) else { continue }
@@ -333,12 +333,12 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       } else { currentPace = nil; speeds = [] }
       if value.route.count < 30_000, accepted.point.startsSegment || value.route.last.map({ fix.timestamp.timeIntervalSince($0.timestamp) >= 3 }) ?? true { value.route.append(accepted.point) }
       if value.route.count == 30_000 { value.recoveryMessage = "The route reached its point limit. Distance and time continued recording." }
-      lastLocationAt = fix.timestamp; gpsMessage = "GPS connected"
+      lastLocationAt = fix.timestamp; gpsMessage = L10n.text("GPS connected")
     }
     recording = value
   }
   nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-    Task { @MainActor in self.gpsMessage = "GPS interrupted"; self.gpsFilter.reset(); self.currentPace = nil }
+    Task { @MainActor in self.gpsMessage = L10n.text("GPS interrupted"); self.gpsFilter.reset(); self.currentPace = nil }
   }
   nonisolated func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
     Task { @MainActor in
@@ -356,7 +356,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
   nonisolated func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
     Task { @MainActor in
       guard self.session === workoutSession else { return }
-      self.errorMessage = "Workout interrupted: " + error.localizedDescription
+      self.errorMessage = L10n.text("Workout interrupted: ") + error.localizedDescription
       self.recording?.recoveryMessage = "Recording was interrupted. Review the measurements captured so far."
       await self.finishCollection(at: Date())
     }

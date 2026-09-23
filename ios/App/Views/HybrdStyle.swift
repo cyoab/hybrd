@@ -100,12 +100,12 @@ struct SessionRow: View {
         .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 12))
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 5) {
-        Text(workout.title).font(.headline)
+        Text(workout.localizedTitle).font(.headline)
         Text(units.summary(workout)).font(.subheadline).foregroundStyle(HybrdStyle.muted)
         Text(status).font(.caption).foregroundStyle(HybrdStyle.muted)
       }
       Spacer(minLength: 0)
-      if status == "Completed" {
+      if status == L10n.text("Completed") {
         Image(systemName: "checkmark").foregroundStyle(HybrdStyle.terraText)
       }
     }

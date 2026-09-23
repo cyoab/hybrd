@@ -32,40 +32,40 @@ struct WatchRunView: View {
           .onChange(of: run.isPaused) { wasPaused, isPaused in
             if wasPaused && !isPaused { page = .metrics }
           }
-          .accessibilityAction(named: "Show controls") { page = .controls }
-          .accessibilityAction(named: "Show live metrics") { page = .metrics }
-          .accessibilityAction(named: "Show workout guidance") { page = .guidance }
+          .accessibilityAction(named: L10n.text("Show controls")) { page = .controls }
+          .accessibilityAction(named: L10n.text("Show live metrics")) { page = .metrics }
+          .accessibilityAction(named: L10n.text("Show workout guidance")) { page = .guidance }
         }
       }
     }
     .navigationBarBackButtonHidden()
-    .confirmationDialog("Finish your run?", isPresented: $finish, titleVisibility: .visible) {
-      Button("Finish and review") { recorder.finish() }
-      Button("Cancel", role: .cancel) {}
+    .confirmationDialog(L10n.text("Finish your run?"), isPresented: $finish, titleVisibility: .visible) {
+      Button(L10n.text("Finish and review")) { recorder.finish() }
+      Button(L10n.text("Cancel"), role: .cancel) {}
     }
-    .confirmationDialog("Discard recording?", isPresented: $discard, titleVisibility: .visible) {
-      Button("Discard", role: .destructive) { recorder.discard() }
+    .confirmationDialog(L10n.text("Discard recording?"), isPresented: $discard, titleVisibility: .visible) {
+      Button(L10n.text("Discard"), role: .destructive) { recorder.discard() }
     }
   }
   private func summary(_ run: RunRecording) -> some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 13) {
         Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(WatchRunStyle.mint)
-        Text("Run complete.").font(.title3.bold())
+        Text(L10n.text("Run complete.")).font(.title3.bold())
         Text(units.distanceText(run.meters, decimals: 2)).font(.system(.title, design: .rounded, weight: .bold))
         Text(RunRecording.clock(run.elapsed) + " · " + units.paceText(run.averagePace)).font(.footnote.monospacedDigit())
-        if let heart = run.averageHeartRate { Label("\(Int(heart.rounded())) bpm average", systemImage: "heart.fill").font(.caption) }
-        if let message = run.healthSaveMessage { Text(message).font(.caption2).foregroundStyle(.secondary) }
-        if let message = run.recoveryMessage { Text(message).font(.caption2).foregroundStyle(.orange) }
-        if recorder.ending { ProgressView("Saving…") }
+        if let heart = run.averageHeartRate { Label(L10n.text("\(Int(heart.rounded())) bpm average"), systemImage: "heart.fill").font(.caption) }
+        if let message = run.healthSaveMessage { Text(L10n.content(message)).font(.caption2).foregroundStyle(.secondary) }
+        if let message = run.recoveryMessage { Text(L10n.content(message)).font(.caption2).foregroundStyle(.orange) }
+        if recorder.ending { ProgressView(L10n.text("Saving…")) }
         else if run.canSave {
-          Button("Save & sync", systemImage: "checkmark") {
+          Button(L10n.text("Save & sync"), systemImage: "checkmark") {
             if companion.queueRun(run) { _ = recorder.clearAfterSaving() }
           }.buttonStyle(.borderedProminent)
-          Text("Your run stays on Watch until iPhone confirms it is saved.").font(.caption2).foregroundStyle(.secondary)
+          Text(L10n.text("Your run stays on Watch until iPhone confirms it is saved.")).font(.caption2).foregroundStyle(.secondary)
         } else {
-          Text("No measurable distance was captured.").font(.caption)
-          Button("Discard empty run", role: .destructive) { discard = true }
+          Text(L10n.text("No measurable distance was captured.")).font(.caption)
+          Button(L10n.text("Discard empty run"), role: .destructive) { discard = true }
         }
         if let error = recorder.errorMessage { Text(error).font(.caption2).foregroundStyle(.orange) }
       }.frame(maxWidth: .infinity, alignment: .leading)

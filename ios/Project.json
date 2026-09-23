@@ -10,10 +10,12 @@
     "deploymentTarget": {
       "iOS": "26.0",
       "watchOS": "26.0"
-    }
+    },
+    "developmentLanguage": "en"
   },
   "settings": {
-    "CODE_SIGN_IDENTITY": "-"
+    "CODE_SIGN_IDENTITY": "-",
+    "SWIFT_EMIT_LOC_STRINGS": "YES"
   },
   "targets": {
     "hybrd": {
@@ -42,7 +44,14 @@
           "NSLocationWhenInUseUsageDescription": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.",
           "UIBackgroundModes": [
             "location"
-          ]
+          ],
+          "CFBundleLocalizations": [
+            "en",
+            "es",
+            "pt-BR",
+            "fr"
+          ],
+          "CFBundleDevelopmentRegion": "en"
         }
       },
       "platform": "iOS",
@@ -88,7 +97,14 @@
           "WKBackgroundModes": [
             "workout-processing",
             "location"
-          ]
+          ],
+          "CFBundleLocalizations": [
+            "en",
+            "es",
+            "pt-BR",
+            "fr"
+          ],
+          "CFBundleDevelopmentRegion": "en"
         }
       },
       "platform": "watchOS",
