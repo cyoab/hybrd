@@ -23,6 +23,15 @@ const envSchema = z
     APPLE_CLIENT_ID: optionalString,
     APPLE_CLIENT_SECRET: optionalString,
     APPLE_APP_BUNDLE_IDENTIFIER: optionalString,
+    GOOGLE_CLIENT_ID: optionalString,
+    GOOGLE_CLIENT_SECRET: optionalString,
+    GOOGLE_IOS_CLIENT_ID: optionalString,
+    AUTH_EMAIL_TRANSPORT: z
+      .enum(["disabled", "mailpit", "resend"])
+      .default("disabled"),
+    AUTH_EMAIL_FROM: z.email().default("signin@hybrd.test"),
+    MAILPIT_URL: z.url().default("http://localhost:8025"),
+    RESEND_API_KEY: optionalString,
     OPENROUTER_API_KEY: optionalString,
     OPENROUTER_JEV_MODEL: z.string().default("~typesafe/jev-latest"),
     OPENROUTER_LLM_MODEL: optionalString,
@@ -50,6 +59,12 @@ const envSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production") {
+      if (env.AUTH_EMAIL_TRANSPORT === "mailpit")
+        ctx.addIssue({
+          code: "custom",
+          path: ["AUTH_EMAIL_TRANSPORT"],
+          message: "Mailpit is forbidden in production.",
+        });
       if (env.DEV_AUTH_ENABLED)
         ctx.addIssue({
           code: "custom",
@@ -72,6 +87,28 @@ const envSchema = z
           message: "Set a unique production secret.",
         });
     }
+    if (
+      (env.GOOGLE_CLIENT_ID ||
+        env.GOOGLE_CLIENT_SECRET ||
+        env.GOOGLE_IOS_CLIENT_ID) &&
+      !(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["GOOGLE_CLIENT_ID"],
+        message:
+          "Set Google client ID and secret together; the iOS client ID is optional.",
+      });
+    if (
+      env.AUTH_EMAIL_TRANSPORT === "resend" &&
+      (!env.RESEND_API_KEY || env.AUTH_EMAIL_FROM.endsWith(".test"))
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["AUTH_EMAIL_TRANSPORT"],
+        message:
+          "Resend requires RESEND_API_KEY and a sender on your verified domain.",
+      });
     try {
       const products = JSON.parse(env.STOREKIT_PRODUCTS);
       if (

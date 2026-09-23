@@ -8,9 +8,9 @@ Generate the client from `contracts/openapi.yaml` (OpenAPI 3.1); `make openapi` 
 
 Development API: `http://localhost:3000`. Override the server URL in the client; see `development.md` for physical-device access.
 
-Better Auth owns `/api/auth/*` separately from the domain OpenAPI. Native Apple ID-token exchange uses `POST /api/auth/sign-in/social` with `{"provider":"apple","idToken":{"token":"APPLE_IDENTITY_TOKEN","nonce":"ORIGINAL_NONCE"}}`. Coordinate the nonce with the configured Apple provider; do not skip signature/audience validation. Preserve Apple's one-time user name locally where appropriate. Supply real `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` and `APPLE_APP_BUNDLE_IDENTIFIER` server-side before exercising this flow.
+Authentication supports Google, Apple and passwordless email codes. Call public `GET /api/auth/methods` for configured options. Request a code with `POST /api/auth/email-otp/send-verification-otp` (`email`, `type:"sign-in"`) and submit it to `POST /api/auth/sign-in/email-otp` (`email`, `otp`). The same flow registers new users. Codes have six digits, a ten-minute expiry, five attempts and a 60-second resend cooldown (three sends/hour). Honor `Retry-After` on 429. Development codes appear at `http://localhost:8025` in Mailpit.
 
-Local development supports `POST /api/auth/sign-up/email` with `name`, `email`, `password`, and subsequent `POST /api/auth/sign-in/email`. Use the response token as `Authorization: Bearer TOKEN`, store it in Keychain, and call `POST /api/auth/sign-out` to revoke it. Development password auth is forbidden in production.
+Google/Apple native ID-token exchange uses `POST /api/auth/sign-in/social` with `provider` and `idToken:{token,nonce}`. Use the original random nonce supplied to the SDK (Apple's request can carry its SHA256 hash). All three flows return a session token: store it in Keychain, use `Authorization: Bearer TOKEN`, and call `POST /api/auth/sign-out` to revoke it. Login contracts are now in OpenAPI; follow [authentication.md](authentication.md) for exact payloads, SDK nonce/name handling, account linking, errors and required provider configuration. Password sign-in is disabled in standard development and production.
 
 ## Initial setup and restore
 

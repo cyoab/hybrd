@@ -17,6 +17,7 @@ This creates a private, ignored `.env` with a unique auth secret, builds the Bun
 - API: <http://localhost:3000>
 - Readiness: <http://localhost:3000/health/ready>
 - OpenAPI: <http://localhost:3000/openapi.json>
+- Local OTP email inbox: <http://localhost:8025>
 - PostgreSQL: `localhost:54329`, database/user `hybrd`, local password from `.env`
 
 API and database ports bind to loopback by default. Change `API_PORT` or `POSTGRES_PORT` in `.env` if occupied. If changing the API port, update `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` too. See [local development](docs/development.md) for physical-device access and host-side Bun.
@@ -46,6 +47,7 @@ docker compose up --build --detach --wait
 
 ## Backend capabilities
 
+- Google, Apple and email OTP registration/sign-in, verified account linking and bearer sessions. See the [authentication and iOS contract](docs/authentication.md); Docker captures codes in Mailpit.
 - Athlete onboarding data, a versioned exercise/equipment catalog and remote training policy.
 - Transactional sync with idempotency, revision conflicts, paging, restore and tombstones.
 - Immutable run/strength plans, explicit plan activation/audit history and separate actual workout results.

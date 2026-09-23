@@ -6157,12 +6157,488 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+  /api/auth/methods:
+    get:
+      tags: &a1
+        - Authentication
+      security: &a2 []
+      operationId: getAuthMethods
+      responses:
+        "200":
+          description: Configured sign-in options; no credentials are exposed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  google:
+                    type: boolean
+                  apple:
+                    type: boolean
+                  emailOtp:
+                    type: boolean
+                  otp:
+                    type: object
+                    properties:
+                      length:
+                        type: number
+                        enum:
+                          - 6
+                      expiresInSeconds:
+                        type: number
+                        enum:
+                          - 600
+                      resendAfterSeconds:
+                        type: number
+                        enum:
+                          - 60
+                      maxSendsPerHour:
+                        type: number
+                        enum:
+                          - 3
+                    required:
+                      - length
+                      - expiresInSeconds
+                      - resendAfterSeconds
+                      - maxSendsPerHour
+                required:
+                  - google
+                  - apple
+                  - emailOtp
+                  - otp
+  /api/auth/email-otp/send-verification-otp:
+    post:
+      tags: *a1
+      security: *a2
+      operationId: sendSignInCode
+      description: Works for both first-time registration and returning sign-in.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - sign-in
+              required:
+                - email
+                - type
+              additionalProperties: false
+      responses:
+        "200":
+          description: "Success. Store a returned session token in Keychain and use Authorization: Bearer
+            <token>."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                required:
+                  - success
+        "400":
+          description: Invalid input, incorrect/expired/consumed code, or unavailable provider.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "401":
+          description: Invalid identity token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "403":
+          description: Unverified identity, disallowed origin, or too many code attempts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "429":
+          description: Rate limited; honor Retry-After in seconds.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "503":
+          description: Email delivery unavailable. A new request is needed after the cooldown.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+  /api/auth/sign-in/email-otp:
+    post:
+      tags: *a1
+      security: *a2
+      operationId: verifySignInCode
+      description: Works for both first-time registration and returning sign-in.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                otp:
+                  type: string
+                  pattern: ^\d{6}$
+                name:
+                  type: string
+                  maxLength: 100
+              required:
+                - email
+                - otp
+              additionalProperties: false
+      responses:
+        "200":
+          description: "Success. Store a returned session token in Keychain and use Authorization: Bearer
+            <token>."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      emailVerified:
+                        type: boolean
+                      name:
+                        type: string
+                      image:
+                        type:
+                          - string
+                          - "null"
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                    required:
+                      - id
+                      - email
+                      - emailVerified
+                      - name
+                      - createdAt
+                      - updatedAt
+                required:
+                  - token
+                  - user
+        "400":
+          description: Invalid input, incorrect/expired/consumed code, or unavailable provider.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "401":
+          description: Invalid identity token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "403":
+          description: Unverified identity, disallowed origin, or too many code attempts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "429":
+          description: Rate limited; honor Retry-After in seconds.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "503":
+          description: Email delivery unavailable. A new request is needed after the cooldown.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+  /api/auth/sign-in/social:
+    post:
+      tags: *a1
+      security: *a2
+      operationId: signInWithNativeProvider
+      description: Native Google/Apple ID-token exchange. Include the nonce supplied to the provider SDK.
+        Better Auth also supports its browser redirect flow on this path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  enum:
+                    - google
+                    - apple
+                idToken:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      minLength: 1
+                      maxLength: 16384
+                    nonce:
+                      type: string
+                      minLength: 16
+                      maxLength: 256
+                    user:
+                      type: object
+                      properties:
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              maxLength: 100
+                            lastName:
+                              type: string
+                              maxLength: 100
+                      additionalProperties: false
+                  required:
+                    - token
+                    - nonce
+                  additionalProperties: false
+              required:
+                - provider
+                - idToken
+              additionalProperties: false
+      responses:
+        "200":
+          description: "Success. Store a returned session token in Keychain and use Authorization: Bearer
+            <token>."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      emailVerified:
+                        type: boolean
+                      name:
+                        type: string
+                      image:
+                        type:
+                          - string
+                          - "null"
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                    required:
+                      - id
+                      - email
+                      - emailVerified
+                      - name
+                      - createdAt
+                      - updatedAt
+                  redirect:
+                    type: boolean
+                    enum:
+                      - false
+                required:
+                  - token
+                  - user
+                  - redirect
+        "400":
+          description: Invalid input, incorrect/expired/consumed code, or unavailable provider.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "401":
+          description: Invalid identity token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "403":
+          description: Unverified identity, disallowed origin, or too many code attempts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "429":
+          description: Rate limited; honor Retry-After in seconds.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+        "503":
+          description: Email delivery unavailable. A new request is needed after the cooldown.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
   /v1/bootstrap:
     get:
       operationId: getBootstrap
       tags:
         - Athlete
-      security: &a1
+      security: &a3
         - bearerAuth: []
       parameters:
         - schema:
@@ -6219,7 +6695,7 @@ paths:
       operationId: getTrainingPolicy
       tags:
         - Configuration
-      security: *a1
+      security: *a3
       parameters:
         - schema:
             type: string
@@ -6280,7 +6756,7 @@ paths:
       operationId: registerDevice
       tags:
         - Devices
-      security: *a1
+      security: *a3
       parameters:
         - schema:
             type: string
@@ -6347,7 +6823,7 @@ paths:
       operationId: revokeDevice
       tags:
         - Devices
-      security: *a1
+      security: *a3
       parameters:
         - schema:
             type: string
@@ -6399,7 +6875,7 @@ paths:
       operationId: getEntitlements
       tags:
         - Billing
-      security: *a1
+      security: *a3
       responses:
         "200":
           description: Canonical entitlement records; an empty array grants no access.
@@ -6455,7 +6931,7 @@ paths:
       operationId: pushSync
       tags:
         - Sync
-      security: *a1
+      security: *a3
       summary: Apply each mutation atomically; replay identical mutation IDs.
       requestBody:
         required: true
@@ -6511,7 +6987,7 @@ paths:
       operationId: pullSync
       tags:
         - Sync
-      security: *a1
+      security: *a3
       summary: Read ordered events containing the current canonical aggregate or a tombstone.
       parameters:
         - schema:
@@ -6583,7 +7059,7 @@ paths:
       operationId: acknowledgeSync
       tags:
         - Sync
-      security: *a1
+      security: *a3
       requestBody:
         required: true
         content:
@@ -6634,7 +7110,7 @@ paths:
       operationId: getProgressSummary
       tags:
         - Progress
-      security: *a1
+      security: *a3
       summary: Current canonical progress on stored local training dates; no historical asOf queries.
       parameters:
         - schema:
@@ -6700,7 +7176,7 @@ paths:
       operationId: getProgressComparison
       tags:
         - Progress
-      security: *a1
+      security: *a3
       summary: Lifetime exact comparison history in ascending date/occurrence/result order. Edits expire
         cursors.
       parameters:
@@ -6792,7 +7268,7 @@ paths:
       operationId: getProgressActivity
       tags:
         - Progress
-      security: *a1
+      security: *a3
       summary: Eligible canonical activity in descending training-date/result-ID order, at most 366 days
         per query.
       parameters:
@@ -6884,7 +7360,7 @@ paths:
       operationId: requestDecision
       tags:
         - Intelligence
-      security: *a1
+      security: *a3
       parameters:
         - schema:
             type: string
@@ -6964,7 +7440,7 @@ paths:
       operationId: sendCoachMessage
       tags:
         - Intelligence
-      security: *a1
+      security: *a3
       parameters:
         - schema:
             type: string
@@ -7048,7 +7524,7 @@ paths:
       operationId: submitAppleTransaction
       tags:
         - Billing
-      security: *a1
+      security: *a3
       requestBody:
         required: true
         content:
@@ -7170,7 +7646,7 @@ paths:
       operationId: deleteAccount
       tags:
         - Account
-      security: *a1
+      security: *a3
       summary: Permanently delete the account and its data; requires a session created in the last 10
         minutes.
       responses:
@@ -7217,7 +7693,7 @@ paths:
       operationId: getCatalog
       tags:
         - Catalog
-      security: *a1
+      security: *a3
       responses:
         "200":
           description: Versioned exercise, muscle and equipment reference catalog.
@@ -7260,7 +7736,7 @@ paths:
       operationId: exportAccount
       tags:
         - Account
-      security: *a1
+      security: *a3
       responses:
         "200":
           description: Canonical training and coaching data export. Excludes credentials and operational logs.

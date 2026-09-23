@@ -2,7 +2,7 @@
 
 ## Docker workflow
 
-Run `make up` from the repository root. Only two long-running development services are started: `api` and `postgres`. `migrate` runs once per Compose startup and exits successfully before the API starts. It uses a frozen Bun lockfile, applies reviewed SQL, and inserts the development policy and exercise catalog if missing.
+Run `make up` from the repository root. Three long-running development services are started: `api`, `postgres`, and `mailpit` for local OTP emails. Open `http://localhost:8025` to retrieve sign-in codes; no real email is sent. `migrate` runs once per Compose startup and exits successfully before the API starts. It uses a frozen Bun lockfile, applies reviewed SQL, and inserts the development policy and exercise catalog if missing.
 
 Source is bind-mounted, so `server/src` edits restart Bun automatically. `node_modules` lives in a named Linux container volume rather than using host dependencies. The hoisted workspace layout is explicitly configured in `bunfig.toml`. PostgreSQL data lives in the project's `postgres_data` volume and survives `make down`.
 
@@ -43,14 +43,14 @@ To run the API on the host for debugging, stop any containerized API first, then
 
 ```sh
 make setup
-docker compose up --detach --wait postgres
+docker compose up --detach --wait postgres mailpit
 bun install --frozen-lockfile
 bun --env-file=.env run db:migrate
 bun --env-file=.env run db:seed
 bun --env-file=.env run dev
 ```
 
-The host process reads `DATABASE_URL` from `.env`. If `POSTGRES_PORT` changes, update that URL too. `API_PORT` controls Docker's published port; host Bun reads `PORT` instead.
+The host process reads `DATABASE_URL` from `.env`. If `POSTGRES_PORT` changes, update that URL too. For OTP email, set `AUTH_EMAIL_TRANSPORT=mailpit` and `MAILPIT_URL=http://localhost:8025`. `API_PORT` controls Docker's published port; host Bun reads `PORT` instead.
 
 ## iOS Simulator and physical iPhone
 
@@ -65,7 +65,7 @@ services:
       - "0.0.0.0:3000:3000"
 ```
 
-Use Compose 2.24.4+ for `!override`, set `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` to the Mac's reachable development origin, restart Compose, and use that origin on the phone. Keep PostgreSQL on loopback. Restore the loopback API binding after testing. Apple browser OAuth callbacks require a registered HTTPS domain; native ID-token exchange and local email/password sessions are described in the handoff.
+Use Compose 2.24.4+ for `!override`, set `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` to the Mac's reachable development origin, restart Compose, and use that origin on the phone. Keep PostgreSQL and Mailpit on loopback. Restore the loopback API binding after testing. Apple browser OAuth callbacks require a registered HTTPS domain; native Google/Apple exchange and local email OTP sessions are described in [authentication.md](authentication.md).
 
 ## Troubleshooting
 

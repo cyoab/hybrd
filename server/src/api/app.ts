@@ -4,6 +4,7 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { secureHeaders } from "hono/secure-headers";
+import { registerAuthContract } from "../auth/contract";
 import { registerBillingRoutes } from "../billing/routes";
 import { CatalogSchema } from "../domain/records";
 import { registerIntelligenceRoutes } from "../intelligence/routes";
@@ -93,7 +94,7 @@ export function createApp(
     cors({
       origin: options.trustedOrigins ?? [],
       credentials: true,
-      exposeHeaders: ["X-Request-Id", "ETag", "set-auth-token"],
+      exposeHeaders: ["X-Request-Id", "ETag", "set-auth-token", "Retry-After"],
     }),
   );
   app.use(
@@ -211,6 +212,7 @@ export function createApp(
     webhookLimit(options.peerAddress?.(c.req.raw) ?? "local");
     await next();
   });
+  registerAuthContract(app);
   app.all("/api/auth/*", (c) => deps.handleAuth(c.req.raw));
   app.use("/v1/*", async (c, next) => {
     c.header("Cache-Control", "private, no-store");
