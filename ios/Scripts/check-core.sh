@@ -19,6 +19,8 @@ swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/ProgressComparison.swift \
   Shared/ProgressSnapshot.swift \
   Shared/RunGPSFilter.swift \
+  Shared/RunPaceReading.swift \
+  Shared/RunLiveMetrics.swift \
   Shared/RunGuidance.swift \
   Shared/RunRecording.swift \
   Shared/StrengthRestTimer.swift \

@@ -17,6 +17,7 @@ struct RunRecording: Codable, Identifiable, Equatable {
   var meters: Double = 0
   var route: [RunLocation] = []
   var laps: [RunLap] = []
+  var lastPace: RunPaceReading?
   var heartRate: Double?
   var heartRateAt: Date?
   var averageHeartRate: Double?
@@ -39,6 +40,12 @@ struct RunRecording: Codable, Identifiable, Equatable {
 
   func seconds(at date: Date = Date()) -> Double {
     elapsed + (runningSince.map { max(0, date.timeIntervalSince($0)) } ?? 0)
+  }
+  mutating func rememberPace(_ secondsPerKilometer: Double, at date: Date) {
+    let reading = RunPaceReading(secondsPerKilometer: secondsPerKilometer, recordedAt: date)
+    guard reading.isValid, date >= startedAt,
+      lastPace.map({ date >= $0.recordedAt }) ?? true else { return }
+    lastPace = reading
   }
   mutating func pause(at date: Date) {
     elapsed = seconds(at: date); runningSince = nil; checkpointAt = date

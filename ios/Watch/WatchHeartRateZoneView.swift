@@ -3,24 +3,25 @@ import SwiftUI
 struct WatchHeartRateZoneView: View {
   var current: HeartRateZone?
   var target: HeartRateZone?
+  @ScaledMetric(relativeTo: .caption2) private var labelSize = 10
 
   var body: some View {
     HStack(spacing: 3) {
       ForEach(HeartRateZone.allCases) { zone in
-        VStack(spacing: 2) {
-          RoundedRectangle(cornerRadius: 3)
-            .fill(WatchRunStyle.zoneColor(zone).opacity(current == zone ? 1 : 0.28))
-            .overlay {
-              if current == zone { RoundedRectangle(cornerRadius: 3).strokeBorder(.white, lineWidth: 1.5) }
+        let selected = current == zone
+        Text(zone.shortTitle)
+          .font(.system(size: labelSize, weight: selected ? .heavy : .medium, design: .rounded))
+          .foregroundStyle(selected ? .black : .white.opacity(0.65))
+          .frame(maxWidth: .infinity).padding(.vertical, 3)
+          .background(WatchRunStyle.zoneColor(zone).opacity(selected ? 1 : 0.16), in: RoundedRectangle(cornerRadius: 5))
+          .overlay {
+            if selected { RoundedRectangle(cornerRadius: 5).strokeBorder(.white, lineWidth: 2) }
+          }
+          .overlay(alignment: .top) {
+            if selected {
+              Image(systemName: "arrowtriangle.down.fill").font(.system(size: 6)).foregroundStyle(.white).offset(y: -5)
             }
-            .overlay {
-              if current == zone { Image(systemName: "circle.fill").font(.system(size: 4)).foregroundStyle(.black) }
-            }
-            .frame(height: 9)
-          Text(zone.shortTitle).font(.system(size: 9, weight: target == zone ? .bold : .medium, design: .rounded))
-            .foregroundStyle(target == zone ? .white : .white.opacity(0.6))
-            .underline(target == zone)
-        }.frame(maxWidth: .infinity)
+          }
       }
     }
     .accessibilityElement(children: .ignore)

@@ -329,7 +329,9 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       let speed = fix.speed >= 0 ? fix.speed : accepted.seconds > 0 ? accepted.meters / accepted.seconds : 0
       if !accepted.point.startsSegment, (0.5...12).contains(speed) {
         speeds.append(speed); speeds = Array(speeds.suffix(5))
-        currentPace = 1_000 / (speeds.reduce(0, +) / Double(speeds.count))
+        let pace = 1_000 / (speeds.reduce(0, +) / Double(speeds.count))
+        currentPace = pace
+        value.rememberPace(pace, at: fix.timestamp)
       } else { currentPace = nil; speeds = [] }
       if value.route.count < 30_000, accepted.point.startsSegment || value.route.last.map({ fix.timestamp.timeIntervalSince($0.timestamp) >= 3 }) ?? true { value.route.append(accepted.point) }
       if value.route.count == 30_000 { value.recoveryMessage = "The route reached its point limit. Distance and time continued recording." }

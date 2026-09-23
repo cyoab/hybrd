@@ -6,6 +6,7 @@ enum TrainingEngineChecks {
     try LocalizationChecks.run()
     try TrainingUnitsChecks.run()
     try LiveWorkoutChecks.run()
+    try RunLiveMetricsChecks.run()
     ProgressChecks.run()
     HomePlanChecks.run()
     try RunWorkoutChecks.run()

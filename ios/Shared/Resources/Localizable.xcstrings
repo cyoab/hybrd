@@ -4589,6 +4589,35 @@
         }
       }
     },
+    "AVG PACE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AVG PACE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RITMO MED."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RITMO MÉD."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALL. MOY."
+          }
+        }
+      }
+    },
     "About heart-rate zones": {
       "extractionState": "manual",
       "comment": "Used in: SessionInfographicView.swift",
@@ -9899,6 +9928,64 @@
         }
       }
     },
+    "Distance covered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance covered"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distancia recorrida"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distância percorrida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance parcourue"
+          }
+        }
+      }
+    },
+    "Distance remaining": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance remaining"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distancia restante"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distância restante"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance restante"
+          }
+        }
+      }
+    },
     "Distance unit": {
       "extractionState": "manual",
       "comment": "Used in: ProfileUnitsSection.swift",
@@ -14759,6 +14846,35 @@
         }
       }
     },
+    "LAST PACE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LAST PACE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ÚLT. RITMO"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ÚLT. RITMO"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DERN. ALL."
+          }
+        }
+      }
+    },
     "LEVEL %lld": {
       "extractionState": "manual",
       "comment": "Used in: ProgressJourneyView.swift",
@@ -14905,6 +15021,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dernière importation"
+          }
+        }
+      }
+    },
+    "Last recorded pace": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last recorded pace"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Último ritmo registrado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Último ritmo registrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière allure enregistrée"
           }
         }
       }
@@ -17129,6 +17274,35 @@
         }
       }
     },
+    "No target": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No target"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin objetivo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem meta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun objectif"
+          }
+        }
+      }
+    },
     "No training logged": {
       "extractionState": "manual",
       "comment": "Used in: ProgressRhythmView.swift",
@@ -19075,6 +19249,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "QUAND VOUS VOULEZ"
+          }
+        }
+      }
+    },
+    "REMAINING": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REMAINING"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTANTE"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTANTE"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTANT"
           }
         }
       }
@@ -24737,6 +24940,35 @@
         }
       }
     },
+    "TIME LEFT": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIME LEFT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIEMPO"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TEMPO"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TEMPS"
+          }
+        }
+      }
+    },
     "TODAY": {
       "extractionState": "manual",
       "comment": "Used in: PlanView.swift",
@@ -28037,6 +28269,35 @@
         }
       }
     },
+    "Workout time remaining": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout time remaining"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo restante del entrenamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo restante do treino"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temps restant de la séance"
+          }
+        }
+      }
+    },
     "YOU": {
       "extractionState": "manual",
       "comment": "Used in: CoachView.swift",
@@ -29893,6 +30154,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les cibles de zone décrivent l’intensité prévue dans un système à cinq zones. L’anneau affiche le temps prévu, pas la fréquence cardiaque enregistrée."
+          }
+        }
+      }
+    },
+    "Zone —": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone —"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zona —"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zona —"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone —"
           }
         }
       }
