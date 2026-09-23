@@ -8,6 +8,7 @@ struct ProfileView: View {
   @State private var confirmDiscard = false
   @State private var saveError: String?
   @State private var proposal: TrainingPlan?
+  @State private var showOnboarding = false
 
   var body: some View {
     NavigationStack {
@@ -42,6 +43,10 @@ struct ProfileView: View {
     }
     // Apply here as well because the profile is a separate sheet presentation.
     .preferredColorScheme(appearance.colorScheme)
+    .fullScreenCover(isPresented: $showOnboarding) {
+      OnboardingEntryView { showOnboarding = false }
+        .preferredColorScheme(appearance.colorScheme)
+    }
   }
 
   private func profileForm(_ editor: AthleteProfileEditor) -> some View {
@@ -103,6 +108,12 @@ struct ProfileView: View {
         .disabled(editor.validationMessage != nil)
       } footer: {
         Text(L10n.text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences."))
+      }
+
+      Section {
+        Button(L10n.text("Try sign-up & onboarding"), systemImage: "sparkles") { showOnboarding = true }
+      } footer: {
+        Text(L10n.text("Preview the new athlete journey and membership screen. No account changes or charges."))
       }
 
       ProfileUnitsSection(editor: editor)

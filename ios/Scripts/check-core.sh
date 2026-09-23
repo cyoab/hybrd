@@ -43,6 +43,7 @@ swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/TrainingWorkout.swift \
   Shared/WeeklyTrainingSummary.swift \
   Shared/WorkoutResult.swift \
+  App/Models/Onboarding/*.swift \
   App/Models/AthleteProfileEditor.swift \
   App/Models/TrainingState.swift \
   App/Models/LocalCoach.swift \

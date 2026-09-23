@@ -4,10 +4,12 @@ import SwiftUI
 struct HybrdApp: App {
   @State private var recorder = RunRecorder.shared
   @State private var store = TrainingStore()
+  @State private var onboarding = OnboardingStore()
 
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      AppEntryView()
+        .environment(onboarding)
         .environment(store)
         .environment(\.trainingUnits, store.profile.trainingUnits)
         .environment(recorder)

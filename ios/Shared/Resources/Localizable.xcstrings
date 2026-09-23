@@ -241,6 +241,64 @@
         }
       }
     },
+    "%@ / month equivalent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / month equivalent"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equivale a %@ al mes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equivale a %@ por mês"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équivalent à %@ par mois"
+          }
+        }
+      }
+    },
+    "%@ cm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ cm"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ cm"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ cm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ cm"
+          }
+        }
+      }
+    },
     "%@ focus": {
       "extractionState": "manual",
       "comment": "Used in: TrainingWorkout.swift",
@@ -507,6 +565,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ par %@"
+          }
+        }
+      }
+    },
+    "%@ per week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ per week"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ por semana"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ por semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ par semaine"
           }
         }
       }
@@ -1357,6 +1444,83 @@
         }
       }
     },
+    "%lld days per week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld day per week"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld days per week"
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld día por semana"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld días por semana"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld dia por semana"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld dias por semana"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld jour par semaine"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld jours par semaine"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld equipment types": {
       "extractionState": "manual",
       "comment": "Used in: ProfileView.swift, StarterReviewView.swift",
@@ -1631,6 +1795,123 @@
         }
       }
     },
+    "%lld lifting days · %lld min per session": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@days@ · %2$lld min per session"
+          },
+          "substitutions": {
+            "days": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld lifting day"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld lifting days"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@days@ · %2$lld min por sesión"
+          },
+          "substitutions": {
+            "days": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld día de fuerza"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld días de fuerza"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@days@ · %2$lld min por sessão"
+          },
+          "substitutions": {
+            "days": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld dia de força"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld dias de força"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@days@ · %2$lld min par séance"
+          },
+          "substitutions": {
+            "days": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld jour de musculation"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld jours de musculation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld lifts": {
       "extractionState": "manual",
       "comment": "Used in: ProgressJourneyView.swift",
@@ -1843,6 +2124,35 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld of %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld"
           }
         }
       }
@@ -4289,6 +4599,35 @@
         }
       }
     },
+    "A flexible monthly commitment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A flexible monthly commitment"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un compromiso mensual flexible"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um compromisso mensal flexível"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un engagement mensuel flexible"
+          }
+        }
+      }
+    },
     "A journey built one day at a time.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingProgressView.swift",
@@ -4315,6 +4654,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un parcours construit jour après jour."
+          }
+        }
+      }
+    },
+    "A little more about you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A little more about you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un poco más sobre ti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um pouco mais sobre você."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un peu plus sur vous."
           }
         }
       }
@@ -4375,6 +4743,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Une allure permettant de parler en phrases complètes."
+          }
+        }
+      }
+    },
+    "A reflection of what you told us. Tap any section to make it more you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A reflection of what you told us. Tap any section to make it more you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un reflejo de lo que nos contaste. Toca cualquier sección para ajustarla."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um reflexo do que você contou. Toque em qualquer seção para ajustar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le reflet de vos réponses. Touchez une section pour l’ajuster."
           }
         }
       }
@@ -4495,6 +4892,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Une cible pour chaque étape de votre course."
+          }
+        }
+      }
+    },
+    "A training rhythm built around your goals, your starting point, and your real life.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A training rhythm built around your goals, your starting point, and your real life."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un ritmo de entrenamiento adaptado a tus metas, tu punto de partida y tu vida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um ritmo de treino pensado para suas metas, seu ponto de partida e sua vida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rythme d’entraînement adapté à vos objectifs, à votre point de départ et à votre vie."
+          }
+        }
+      }
+    },
+    "A typical recent week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A typical recent week"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una semana reciente típica"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma semana recente típica"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une semaine récente habituelle"
+          }
+        }
+      }
+    },
+    "A useful workout starts with what’s available. You can update your setup whenever it changes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A useful workout starts with what’s available. You can update your setup whenever it changes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un buen entrenamiento parte de lo que tienes. Puedes actualizar tu equipo cuando cambie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um bom treino começa com o que você tem. Atualize seu equipamento sempre que mudar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un entraînement utile commence avec le matériel disponible. Vous pourrez le mettre à jour à tout moment."
           }
         }
       }
@@ -4794,6 +5278,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Accessoires"
+          }
+        }
+      }
+    },
+    "Account sign-in isn’t connected in this preview. You can test creating your plan or return to the existing app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account sign-in isn’t connected in this preview. You can test creating your plan or return to the existing app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El inicio de sesión no está conectado en esta vista previa. Puedes probar la creación de tu plan o volver a la app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O login não está conectado nesta prévia. Você pode testar a criação do seu plano ou voltar ao app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion au compte n’est pas activée dans cet aperçu. Vous pouvez tester la création de votre plan ou revenir à l’app."
           }
         }
       }
@@ -5154,6 +5667,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ajoutez un exercice et votre meilleure série pour commencer votre liste de records."
+          }
+        }
+      }
+    },
+    "Add details later": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add details later"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agregar datos después"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar detalhes depois"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter les détails plus tard"
           }
         }
       }
@@ -5608,6 +6150,35 @@
         }
       }
     },
+    "Already have an account? Sign in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already have an account? Sign in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Ya tienes cuenta? Inicia sesión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já tem uma conta? Entre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjà un compte ? Connectez-vous"
+          }
+        }
+      }
+    },
     "Already recorded · dismiss duplicate": {
       "extractionState": "manual",
       "comment": "Used in: WatchRunInboxView.swift",
@@ -5698,6 +6269,64 @@
         }
       }
     },
+    "And your strength training?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "And your strength training?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Y tu entrenamiento de fuerza?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E o seu treino de força?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et votre entraînement de musculation ?"
+          }
+        }
+      }
+    },
+    "Annual": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annual"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuel"
+          }
+        }
+      }
+    },
     "Another key session is within a day. Consider leaving more recovery between them.": {
       "extractionState": "manual",
       "comment": "Used in: RunWorkoutPreviewView.swift",
@@ -5724,6 +6353,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Une autre séance clé a lieu à moins d’un jour d’intervalle. Prévoyez davantage de récupération entre les deux."
+          }
+        }
+      }
+    },
+    "Anything else we should understand?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything else we should understand?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Hay algo más que debamos saber?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais alguma coisa que devemos saber?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autre chose à nous faire savoir ?"
           }
         }
       }
@@ -6778,6 +7436,64 @@
         }
       }
     },
+    "Billed annually": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Billed annually"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cobro anual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cobrança anual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facturation annuelle"
+          }
+        }
+      }
+    },
+    "Billed monthly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Billed monthly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cobro mensual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cobrança mensal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facturation mensuelle"
+          }
+        }
+      }
+    },
     "Body measurements": {
       "extractionState": "manual",
       "comment": "Used in: AthleteInfoView.swift",
@@ -6804,6 +7520,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mensurations"
+          }
+        }
+      }
+    },
+    "Body measurements and workout history, with your permission.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body measurements and workout history, with your permission."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medidas corporales e historial de entrenamiento, con tu permiso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medidas corporais e histórico de treinos, com sua permissão."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensurations et historique d’entraînement, avec votre autorisation."
           }
         }
       }
@@ -6894,6 +7639,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Squat au poids du corps"
+          }
+        }
+      }
+    },
+    "Bring your story with you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring your story with you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trae tu historia contigo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traga sua história com você."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre parcours vous accompagne."
           }
         }
       }
@@ -7678,6 +8452,35 @@
         }
       }
     },
+    "Check your weight and selected unit, or leave it blank.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your weight and selected unit, or leave it blank."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa tu peso y la unidad elegida, o déjalo en blanco."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confira seu peso e a unidade escolhida ou deixe em branco."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez le poids et l’unité choisis, ou laissez le champ vide."
+          }
+        }
+      }
+    },
     "Chest": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -7764,6 +8567,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisir"
+          }
+        }
+      }
+    },
+    "Choose 0–7 lifting sessions per week.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose 0–7 lifting sessions per week."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige de 0 a 7 sesiones de fuerza por semana."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha de 0 a 7 sessões de força por semana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez de 0 à 7 séances de musculation par semaine."
           }
         }
       }
@@ -7858,6 +8690,64 @@
         }
       }
     },
+    "Choose a direction for each discipline. You can always change it as you grow.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a direction for each discipline. You can always change it as you grow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una dirección para cada disciplina. Puedes cambiarla a medida que avanzas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um caminho para cada modalidade. Você pode mudá-lo conforme evolui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une direction pour chaque discipline. Vous pourrez la changer en progressant."
+          }
+        }
+      }
+    },
+    "Choose a few priorities, or keep a balanced focus by leaving these unselected.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a few priorities, or keep a balanced focus by leaving these unselected."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige algunas prioridades o deja todo sin seleccionar para un enfoque equilibrado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha algumas prioridades ou deixe tudo desmarcado para um foco equilibrado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez quelques priorités, ou ne sélectionnez rien pour un travail équilibré."
+          }
+        }
+      }
+    },
     "Choose a load that leaves 3 reps in reserve.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -7888,6 +8778,93 @@
         }
       }
     },
+    "Choose a race date from today onward.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a race date from today onward."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una fecha de carrera a partir de hoy."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma data de prova a partir de hoje."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une date de course à partir d’aujourd’hui."
+          }
+        }
+      }
+    },
+    "Choose a running goal and a strength goal.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a running goal and a strength goal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una meta de running y una de fuerza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma meta de corrida e uma de força."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un objectif de course et un de musculation."
+          }
+        }
+      }
+    },
+    "Choose a session length.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a session length."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige la duración de tus sesiones."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha a duração das sessões."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez la durée des séances."
+          }
+        }
+      }
+    },
     "Choose a session, explore its HR targets, and find a place for it in your week.": {
       "extractionState": "manual",
       "comment": "Used in: RunningWorkoutsView.swift",
@@ -7914,6 +8891,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisissez une séance, explorez ses cibles cardiaques et trouvez-lui une place dans votre semaine."
+          }
+        }
+      }
+    },
+    "Choose a setup or select your available equipment.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a setup or select your available equipment."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una configuración o selecciona tu equipo disponible."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma configuração ou selecione o equipamento disponível."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une configuration ou votre matériel disponible."
           }
         }
       }
@@ -8098,6 +9104,35 @@
         }
       }
     },
+    "Choose how you’re approaching training right now.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose how you’re approaching training right now."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige cómo te sientes para entrenar ahora."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha como você está encarando o treino agora."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez votre état d’esprit actuel pour l’entraînement."
+          }
+        }
+      }
+    },
     "Choose lift": {
       "extractionState": "manual",
       "comment": "Used in: StrengthExercisePicker.swift",
@@ -8128,6 +9163,35 @@
         }
       }
     },
+    "Choose lifting days within your weekly availability.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose lifting days within your weekly availability."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige días de fuerza dentro de tu disponibilidad semanal."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha dias de força dentro da sua disponibilidade semanal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez des jours de musculation selon vos disponibilités."
+          }
+        }
+      }
+    },
     "Choose the areas you’d like to prioritize. Leave all unselected for a balanced focus.": {
       "extractionState": "manual",
       "comment": "Used in: MuscleFocusView.swift",
@@ -8154,6 +9218,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisissez les zones à privilégier. Ne sélectionnez rien pour un travail équilibré."
+          }
+        }
+      }
+    },
+    "Choose the balance that feels right for you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the balance that feels right for you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige el equilibrio que mejor se adapte a ti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha o equilíbrio que combina com você."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez l’équilibre qui vous convient."
+          }
+        }
+      }
+    },
+    "Choose the days that fit your life. Rest belongs in the plan, too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the days that fit your life. Rest belongs in the plan, too."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige los días que encajen con tu vida. El descanso también forma parte del plan."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha os dias que cabem na sua vida. O descanso também faz parte do plano."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez les jours qui vous conviennent. Le repos fait aussi partie du plan."
           }
         }
       }
@@ -8248,6 +9370,35 @@
         }
       }
     },
+    "Choose what you’d like to connect later. You’ll review any imported data before using it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose what you’d like to connect later. You’ll review any imported data before using it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige qué te gustaría conectar después. Revisarás los datos importados antes de usarlos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha o que gostaria de conectar depois. Você revisará os dados importados antes de usá-los."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez ce que vous aimeriez connecter plus tard. Vous vérifierez les données importées avant de les utiliser."
+          }
+        }
+      }
+    },
     "Choose your available equipment": {
       "extractionState": "manual",
       "comment": "Used in: ProfileView.swift",
@@ -8274,6 +9425,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisissez votre équipement disponible"
+          }
+        }
+      }
+    },
+    "Choose your current lifting experience.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your current lifting experience."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige tu experiencia actual en fuerza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha sua experiência atual em musculação."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez votre expérience actuelle en musculation."
+          }
+        }
+      }
+    },
+    "Choose your current running experience.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your current running experience."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige tu experiencia actual corriendo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha sua experiência atual em corrida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez votre expérience actuelle en course."
           }
         }
       }
@@ -8818,6 +10027,35 @@
         }
       }
     },
+    "Connect later": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect later"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar después"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar depois"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter plus tard"
+          }
+        }
+      }
+    },
     "Consider your recovery": {
       "extractionState": "manual",
       "comment": "Used in: MoveSessionView.swift",
@@ -8848,6 +10086,64 @@
         }
       }
     },
+    "Consistency beats a perfect week. Choose what you can repeat, with room to recover.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency beats a perfect week. Choose what you can repeat, with room to recover."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La constancia vale más que una semana perfecta. Elige lo que puedas repetir, con espacio para recuperarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A constância vale mais que uma semana perfeita. Escolha o que consegue repetir, com espaço para se recuperar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La régularité vaut mieux qu’une semaine parfaite. Choisissez un rythme durable, avec du temps pour récupérer."
+          }
+        }
+      }
+    },
+    "Continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        }
+      }
+    },
     "Continue session": {
       "extractionState": "manual",
       "comment": "Used in: PlanSessionCard.swift, WorkoutDetailView.swift",
@@ -8874,6 +10170,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reprendre la séance"
+          }
+        }
+      }
+    },
+    "Continue setup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue setup"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar configuración"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar configuração"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre la configuration"
+          }
+        }
+      }
+    },
+    "Continue with annual": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with annual"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con el plan anual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com o anual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec l’offre annuelle"
+          }
+        }
+      }
+    },
+    "Continue with monthly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with monthly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con el plan mensual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com o mensal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec l’offre mensuelle"
           }
         }
       }
@@ -9178,6 +10561,35 @@
         }
       }
     },
+    "Create account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create account"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear cuenta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar conta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un compte"
+          }
+        }
+      }
+    },
     "Current ": {
       "extractionState": "manual",
       "comment": "Used in: WatchHeartRateZoneView.swift",
@@ -9268,6 +10680,35 @@
         }
       }
     },
+    "Current lifting days per week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current lifting days per week"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Días de fuerza actuales por semana"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dias atuais de força por semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours actuels de musculation par semaine"
+          }
+        }
+      }
+    },
     "Current pace": {
       "extractionState": "manual",
       "comment": "Used in: WatchRunMetricsView.swift",
@@ -9324,6 +10765,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zone actuelle indisponible"
+          }
+        }
+      }
+    },
+    "Customize my equipment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customize my equipment"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizar mi equipo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizar meu equipamento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personnaliser mon matériel"
           }
         }
       }
@@ -9508,6 +10978,35 @@
         }
       }
     },
+    "Days you can train": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days you can train"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Días en los que puedes entrenar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dias em que você pode treinar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours où vous pouvez vous entraîner"
+          }
+        }
+      }
+    },
     "Dead bug": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -9538,6 +11037,35 @@
         }
       }
     },
+    "Decide later": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decide later"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decidir después"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decidir depois"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décider plus tard"
+          }
+        }
+      }
+    },
     "Develop sustained running with a steady middle block. Stay controlled from the first minute to the last.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -9564,6 +11092,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Développez votre capacité à soutenir l’effort avec un bloc central régulier. Gardez le contrôle du début à la fin."
+          }
+        }
+      }
+    },
+    "Different starting points, one athlete. Your running experience won’t decide your lifting level.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Different starting points, one athlete. Your running experience won’t decide your lifting level."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distintos puntos de partida, un mismo atleta. Tu experiencia corriendo no define tu nivel de fuerza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pontos de partida diferentes, um só atleta. Sua experiência na corrida não define seu nível na musculação."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Différents points de départ, une même personne. Votre expérience en course ne détermine pas votre niveau en musculation."
           }
         }
       }
@@ -10016,6 +11573,35 @@
         }
       }
     },
+    "Distance units": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance units"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de distancia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de distância"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unités de distance"
+          }
+        }
+      }
+    },
     "Distance · ": {
       "extractionState": "manual",
       "comment": "Used in: ProgressTrendView.swift, WorkoutLoggerView.swift",
@@ -10432,6 +12018,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Haltères"
+          }
+        }
+      }
+    },
+    "Dumbbells, a bench and resistance bands.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dumbbells, a bench and resistance bands."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mancuernas, un banco y bandas de resistencia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halteres, um banco e elásticos de resistência."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltères, banc et bandes de résistance."
           }
         }
       }
@@ -10886,6 +12501,35 @@
         }
       }
     },
+    "Edit this answer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit this answer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar esta respuesta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar esta resposta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier cette réponse"
+          }
+        }
+      }
+    },
     "Edit this personal record": {
       "extractionState": "manual",
       "comment": "Used in: StrengthBestsView.swift",
@@ -11156,6 +12800,64 @@
         }
       }
     },
+    "Enter a name with 1–40 characters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a name with 1–40 characters."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe un nombre de 1 a 40 caracteres."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite um nome com 1 a 40 caracteres."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez un nom de 1 à 40 caractères."
+          }
+        }
+      }
+    },
+    "Enter a valid age, or leave it blank.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a valid age, or leave it blank."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe una edad válida o déjala en blanco."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite uma idade válida ou deixe em branco."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez un âge valide, ou laissez le champ vide."
+          }
+        }
+      }
+    },
     "Enter a weekly distance from %@ to %@.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingProfile.swift",
@@ -11306,6 +13008,35 @@
         }
       }
     },
+    "Enter your recent weekly distance, including zero if you’re starting out.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your recent weekly distance, including zero if you’re starting out."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe tu distancia semanal reciente, incluso cero si estás empezando."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite sua distância semanal recente, incluindo zero se estiver começando."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez votre distance hebdomadaire récente, y compris zéro si vous débutez."
+          }
+        }
+      }
+    },
     "Entered by you": {
       "extractionState": "manual",
       "comment": "Used in: StrengthBestsView.swift",
@@ -11452,6 +13183,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Niveau d’expérience"
+          }
+        }
+      }
+    },
+    "Explore hybrd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore hybrd"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorar hybrd"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorar o hybrd"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrir hybrd"
+          }
+        }
+      }
+    },
+    "Explore the app": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore the app"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorar la app"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorar o app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrir l’app"
           }
         }
       }
@@ -11846,6 +13635,35 @@
         }
       }
     },
+    "Finding my rhythm again": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding my rhythm again"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recuperando mi ritmo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retomando meu ritmo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retrouver mon rythme"
+          }
+        }
+      }
+    },
     "Finding rhythm": {
       "extractionState": "manual",
       "comment": "Used in: ProgressMilestone.swift, ProgressSnapshot.swift",
@@ -12236,6 +14054,35 @@
         }
       }
     },
+    "First, what should we call you?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First, what should we call you?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Primero, ¿cómo te llamas?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Primeiro, como podemos chamar você?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour commencer, comment vous appelez-vous ?"
+          }
+        }
+      }
+    },
     "Five personal zones": {
       "extractionState": "manual",
       "comment": "Used in: ProfileView.swift",
@@ -12262,6 +14109,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cinq zones personnelles"
+          }
+        }
+      }
+    },
+    "Flexibility belongs in your training. Your plan should fit your life as it changes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexibility belongs in your training. Your plan should fit your life as it changes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La flexibilidad tiene lugar en tu entrenamiento. Tu plan debe adaptarse a los cambios de tu vida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A flexibilidade faz parte do treino. Seu plano deve acompanhar as mudanças da sua vida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La souplesse a sa place dans l’entraînement. Votre plan doit s’adapter à votre vie."
           }
         }
       }
@@ -12326,6 +14202,35 @@
         }
       }
     },
+    "For %@, and the athlete you’re becoming.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For %@, and the athlete you’re becoming."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para %@ y el atleta en quien te estás convirtiendo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para %@ e o atleta que você está se tornando."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour %@ et la personne sportive que vous devenez."
+          }
+        }
+      }
+    },
     "Four weeks of easy running and foundational strength. Here’s how your first week fits together.": {
       "extractionState": "manual",
       "comment": "Used in: StarterReviewView.swift",
@@ -12382,6 +14287,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Poids libres"
+          }
+        }
+      }
+    },
+    "Free weights, benches, cables and machines.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free weights, benches, cables and machines."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesas libres, bancos, poleas y máquinas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesos livres, bancos, cabos e máquinas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids libres, bancs, poulies et machines."
           }
         }
       }
@@ -12472,6 +14406,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "D’après vos séries enregistrées"
+          }
+        }
+      }
+    },
+    "Full gym": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full gym"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gimnasio completo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Academia completa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salle complète"
           }
         }
       }
@@ -13706,6 +15669,64 @@
         }
       }
     },
+    "Home essentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home essentials"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo esencial en casa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O essencial em casa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’essentiel à la maison"
+          }
+        }
+      }
+    },
+    "How are you feeling coming in?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How are you feeling coming in?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo te sientes al empezar?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como você está se sentindo para começar?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous sentez-vous pour commencer ?"
+          }
+        }
+      }
+    },
     "How did it feel?": {
       "extractionState": "manual",
       "comment": "Used in: WorkoutLoggerView.swift",
@@ -13882,6 +15903,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Je peux expliquer votre programme, mais pas évaluer une douleur ou une blessure. Évitez de forcer un mouvement douloureux et consultez un professionnel de santé. Vous pouvez ignorer une séance depuis ses détails ; elle ne s’ajoutera pas à l’entraînement du lendemain."
+          }
+        }
+      }
+    },
+    "I have a race date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I have a race date"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tengo una fecha de carrera"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenho uma data de prova"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J’ai une date de course"
+          }
+        }
+      }
+    },
+    "I need some flexibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I need some flexibility"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesito flexibilidad"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preciso de flexibilidade"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J’ai besoin de souplesse"
           }
         }
       }
@@ -14246,6 +16325,64 @@
         }
       }
     },
+    "I’m starting fresh or coming back after a break.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’m starting fresh or coming back after a break."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estoy empezando de nuevo o regresando tras una pausa."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estou começando ou voltando depois de uma pausa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je débute ou je reprends après une pause."
+          }
+        }
+      }
+    },
+    "I’m training regularly and ready for structure.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’m training regularly and ready for structure."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entreno con regularidad y busco estructura."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino regularmente e quero mais estrutura."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je m’entraîne régulièrement et je recherche un cadre."
+          }
+        }
+      }
+    },
     "Jog easily after each block.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -14336,6 +16473,35 @@
         }
       }
     },
+    "Just me and some space to move.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just me and some space to move."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo yo y un espacio para moverme."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só eu e um espaço para me movimentar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juste moi et un peu d’espace pour bouger."
+          }
+        }
+      }
+    },
     "Just starting": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -14392,6 +16558,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "SÉANCE CLÉ · "
+          }
+        }
+      }
+    },
+    "Keep a balanced focus": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep a balanced focus"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantener un enfoque equilibrado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter um foco equilibrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder un travail équilibré"
           }
         }
       }
@@ -14662,6 +16857,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gardez une intensité permettant de parler. La course facile complète la semaine sans concurrencer vos séances de musculation."
+          }
+        }
+      }
+    },
+    "Keep your note within 300 characters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep your note within 300 characters."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limita tu nota a 300 caracteres."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite sua observação a 300 caracteres."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limitez votre note à 300 caractères."
           }
         }
       }
@@ -15474,6 +17698,35 @@
         }
       }
     },
+    "Lifting right now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifting right now"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu fuerza actual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua musculação hoje"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre musculation actuelle"
+          }
+        }
+      }
+    },
     "Lifting, body weight & strength PRs": {
       "extractionState": "manual",
       "comment": "Used in: ProfileUnitsSection.swift",
@@ -16044,6 +18297,35 @@
         }
       }
     },
+    "Make room for progress.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make room for progress."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz espacio para progresar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra espaço para evoluir."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites place aux progrès."
+          }
+        }
+      }
+    },
     "Make room for training": {
       "extractionState": "manual",
       "comment": "Used in: TrainingPreferencesView.swift",
@@ -16100,6 +18382,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Faites place aux deux."
+          }
+        }
+      }
+    },
+    "Make steady progress in both.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make steady progress in both."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avanzar de forma constante en ambas disciplinas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evoluir com constância nas duas modalidades."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progresser régulièrement dans les deux disciplines."
           }
         }
       }
@@ -16554,6 +18865,35 @@
         }
       }
     },
+    "Monthly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensuel"
+          }
+        }
+      }
+    },
     "Move": {
       "extractionState": "manual",
       "comment": "Used in: PlanSessionCard.swift",
@@ -16790,6 +19130,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schéma des priorités musculaires"
+          }
+        }
+      }
+    },
+    "My energy, schedule, or physical limitations can vary.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My energy, schedule, or physical limitations can vary."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi energía, mis horarios o mis limitaciones físicas pueden variar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minha energia, meus horários ou minhas limitações físicas podem variar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon énergie, mes horaires ou mes limitations physiques peuvent varier."
+          }
+        }
+      }
+    },
+    "My running goal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My running goal"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi meta de running"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minha meta de corrida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon objectif de course"
+          }
+        }
+      }
+    },
+    "My strength goal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My strength goal"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi meta de fuerza"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minha meta de força"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon objectif de musculation"
           }
         }
       }
@@ -17633,6 +20060,151 @@
         }
       }
     },
+    "Onboarding answers stay on this device in a separate preview draft. Nothing is sent to a server, Apple Health, or Strava. Start over from the welcome screen to clear these answers. Your existing training data is separate.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onboarding answers stay on this device in a separate preview draft. Nothing is sent to a server, Apple Health, or Strava. Start over from the welcome screen to clear these answers. Your existing training data is separate."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus respuestas quedan en este dispositivo en un borrador de vista previa. No se envía nada a un servidor, Apple Health ni Strava. Vuelve a empezar desde la bienvenida para borrarlas. Tus datos de entrenamiento están separados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas respostas ficam neste dispositivo em um rascunho separado. Nada é enviado a um servidor, Apple Health ou Strava. Recomece na tela de boas-vindas para apagá-las. Seus dados de treino ficam separados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos réponses restent sur cet appareil dans un brouillon distinct. Rien n’est envoyé à un serveur, à Apple Santé ou à Strava. Recommencez depuis l’accueil pour les effacer. Vos données d’entraînement restent séparées."
+          }
+        }
+      }
+    },
+    "Onboarding progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onboarding progress"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso de configuración"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progresso da configuração"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progression de la configuration"
+          }
+        }
+      }
+    },
+    "One athlete. Both worlds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One athlete. Both worlds."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un atleta. Ambos mundos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um atleta. Dois mundos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un athlète. Deux univers."
+          }
+        }
+      }
+    },
+    "One membership. All of you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One membership. All of you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una membresía. Todo tu potencial."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma assinatura. Você por inteiro."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un abonnement. Tout votre potentiel."
+          }
+        }
+      }
+    },
+    "One place for your training and progress.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One place for your training and progress."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu entrenamiento y progreso en un solo lugar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu treino e progresso em um só lugar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos entraînements et vos progrès au même endroit."
+          }
+        }
+      }
+    },
     "One sustained effort": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -17993,6 +20565,35 @@
         }
       }
     },
+    "Optional · schedule, preferences, or movements to avoid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional · schedule, preferences, or movements to avoid"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcional · horarios, preferencias o movimientos que evitar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcional · horários, preferências ou movimentos a evitar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facultatif · horaires, préférences ou mouvements à éviter"
+          }
+        }
+      }
+    },
     "Optional. Enter your current measurements or import what you choose to share from Apple Health.": {
       "extractionState": "manual",
       "comment": "Used in: AthleteInfoView.swift",
@@ -18169,6 +20770,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "PRÉVU"
+          }
+        }
+      }
+    },
+    "PREVIEW": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PREVIEW"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VISTA PREVIA"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PRÉVIA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APERÇU"
           }
         }
       }
@@ -18803,6 +21433,35 @@
         }
       }
     },
+    "Preferred lifting days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferred lifting days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Días de fuerza preferidos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dias de força desejados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours de musculation souhaités"
+          }
+        }
+      }
+    },
     "Preparing…": {
       "extractionState": "manual",
       "comment": "Used in: ContentView.swift, RunSessionView.swift",
@@ -18863,6 +21522,93 @@
         }
       }
     },
+    "Preview only · No account or payment required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview only · No account or payment required"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo vista previa · Sin cuenta ni pago"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas uma prévia · Sem conta ou pagamento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu uniquement · Aucun compte ni paiement requis"
+          }
+        }
+      }
+    },
+    "Preview only. You won’t be charged.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview only. You won’t be charged."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo vista previa. No se te cobrará."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas uma prévia. Você não será cobrado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu uniquement. Aucun montant ne sera débité."
+          }
+        }
+      }
+    },
+    "Preview the new athlete journey and membership screen. No account changes or charges.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview the new athlete journey and membership screen. No account changes or charges."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba la nueva configuración y la pantalla de membresía. Sin cambios en la cuenta ni cobros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste a nova jornada e a tela de assinatura. Sem alterações na conta ou cobranças."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testez le nouveau parcours et l’écran d’abonnement. Aucun changement de compte ni paiement."
+          }
+        }
+      }
+    },
     "Previous week": {
       "extractionState": "manual",
       "comment": "Used in: WeekCalendarView.swift",
@@ -18889,6 +21635,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Semaine précédente"
+          }
+        }
+      }
+    },
+    "Prioritize lifting while keeping my engine strong.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prioritize lifting while keeping my engine strong."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorizar la fuerza y mantener mi resistencia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorizar a força e manter minha resistência."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilégier la musculation tout en entretenant mon endurance."
+          }
+        }
+      }
+    },
+    "Privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidade"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité"
           }
         }
       }
@@ -19073,6 +21877,35 @@
         }
       }
     },
+    "Protect my running goal and support it with strength.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protect my running goal and support it with strength."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorizar mi meta de running y apoyarla con fuerza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorizar minha meta de corrida com apoio da força."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilégier mon objectif de course et le soutenir par la musculation."
+          }
+        }
+      }
+    },
     "Pull-up": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -19159,6 +21992,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tractions"
+          }
+        }
+      }
+    },
+    "Purchases aren’t connected in this preview, so there’s nothing to restore. Real subscriptions will be verified through the App Store.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchases aren’t connected in this preview, so there’s nothing to restore. Real subscriptions will be verified through the App Store."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las compras no están conectadas en esta vista previa, así que no hay nada que restaurar. Las suscripciones reales se verificarán con App Store."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As compras não estão conectadas nesta prévia, então não há nada para restaurar. As assinaturas reais serão verificadas pela App Store."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les achats ne sont pas activés dans cet aperçu : il n’y a rien à restaurer. Les abonnements réels seront vérifiés via l’App Store."
           }
         }
       }
@@ -19552,6 +22414,35 @@
         }
       }
     },
+    "Race date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Race date"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha de carrera"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data da prova"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date de course"
+          }
+        }
+      }
+    },
     "Reach %@ of logged running.": {
       "extractionState": "manual",
       "comment": "Used in: ProgressMilestone.swift",
@@ -19732,6 +22623,35 @@
         }
       }
     },
+    "Ready to build": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to build"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo para avanzar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronto para evoluir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prêt à progresser"
+          }
+        }
+      }
+    },
     "Ready when you are": {
       "extractionState": "manual",
       "comment": "Used in: RunSessionView.swift",
@@ -19788,6 +22708,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le nettoyage de la confirmation sera réessayé"
+          }
+        }
+      }
+    },
+    "Recent running history to help describe your baseline.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent running history to help describe your baseline."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu historial reciente de running para describir tu punto de partida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu histórico recente de corrida para descrever seu ponto de partida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre historique de course récent pour préciser votre point de départ."
           }
         }
       }
@@ -20860,6 +23809,35 @@
         }
       }
     },
+    "Restore purchases": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore purchases"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar compras"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar compras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer les achats"
+          }
+        }
+      }
+    },
     "Resume": {
       "extractionState": "manual",
       "comment": "Used in: RunSessionView.swift, WatchRunControlsView.swift",
@@ -21126,6 +24104,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérifier le dernier calendrier"
+          }
+        }
+      }
+    },
+    "Review my answers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review my answers"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar mis respuestas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar minhas respostas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoir mes réponses"
           }
         }
       }
@@ -21640,6 +24647,35 @@
         }
       }
     },
+    "Run stronger.\nLift with purpose.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run stronger.\nLift with purpose."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corre más fuerte.\nEntrena con propósito."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corra mais forte.\nTreine com propósito."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courez plus fort.\nSoulevez avec intention."
+          }
+        }
+      }
+    },
     "Run tall with short, controlled steps. Heart rate is a guide, not a number to chase during a short climb.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -21820,6 +24856,35 @@
         }
       }
     },
+    "Running and strength, moving in the same direction.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running and strength, moving in the same direction."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running y fuerza, avanzando en la misma dirección."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrida e força, na mesma direção."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Course et musculation, dans la même direction."
+          }
+        }
+      }
+    },
     "Running and strength. One evolving story.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingProgressView.swift",
@@ -21910,6 +24975,35 @@
         }
       }
     },
+    "Running right now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running right now"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu running actual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua corrida hoje"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre course actuelle"
+          }
+        }
+      }
+    },
     "Running volume stays steady for three weeks, then eases in week four. Session time limits may reduce your requested distance. This is a starter block, not a race-specific plan.": {
       "extractionState": "manual",
       "comment": "Used in: StarterReviewView.swift",
@@ -21936,6 +25030,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le volume de course reste stable pendant trois semaines, puis diminue la quatrième. La durée maximale des séances peut réduire la distance demandée. Il s’agit d’un bloc initial, pas d’un programme pour une course précise."
+          }
+        }
+      }
+    },
+    "Running with direction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running with direction"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running con rumbo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrida com direção"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courir avec un objectif"
           }
         }
       }
@@ -22240,6 +25363,64 @@
         }
       }
     },
+    "Save %lld%%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save %lld%%"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahorra %lld%%"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Economize %lld%%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Économisez %lld%%"
+          }
+        }
+      }
+    },
+    "Save & review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save & review"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar y revisar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar e revisar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer et revoir"
+          }
+        }
+      }
+    },
     "Save & sync": {
       "extractionState": "manual",
       "comment": "Used in: WatchRunView.swift",
@@ -22266,6 +25447,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enregistrer et synchroniser"
+          }
+        }
+      }
+    },
+    "Save and close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save and close"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar y cerrar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar e fechar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer et fermer"
           }
         }
       }
@@ -22780,6 +25990,35 @@
         }
       }
     },
+    "See membership options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See membership options"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver opciones de membresía"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver opções de assinatura"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir les abonnements"
+          }
+        }
+      }
+    },
     "See the full week": {
       "extractionState": "manual",
       "comment": "Used in: PlanView.swift",
@@ -22806,6 +26045,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Voir la semaine complète"
+          }
+        }
+      }
+    },
+    "See the work add up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the work add up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mira cómo avanzas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veja seu esforço render"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voyez vos efforts s’accumuler"
           }
         }
       }
@@ -23350,6 +26618,35 @@
         }
       }
     },
+    "Setup preview complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup preview complete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa completada"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prévia concluída"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu terminé"
+          }
+        }
+      }
+    },
     "Several years of structured training": {
       "extractionState": "manual",
       "comment": "Used in: AthleteDetails.swift",
@@ -23646,6 +26943,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Affiche ce détail. Sélectionnez à nouveau pour voir la séance complète."
+          }
+        }
+      }
+    },
+    "Sign in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar sesión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        }
+      }
+    },
+    "Skip for now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip for now"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir por ahora"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular por enquanto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer pour l’instant"
           }
         }
       }
@@ -24100,6 +27455,35 @@
         }
       }
     },
+    "Start a new onboarding preview?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a new onboarding preview?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Empezar una nueva vista previa?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começar uma nova prévia?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer un nouvel aperçu ?"
+          }
+        }
+      }
+    },
     "Start gently; settle into your rhythm.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -24160,6 +27544,35 @@
         }
       }
     },
+    "Start over": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start over"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empezar de nuevo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recomeçar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommencer"
+          }
+        }
+      }
+    },
     "Start run": {
       "extractionState": "manual",
       "comment": "Used in: ContentView.swift, WorkoutDetailView.swift",
@@ -24186,6 +27599,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Démarrer la course"
+          }
+        }
+      }
+    },
+    "Start with a setup, then adjust what you actually have access to.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start with a setup, then adjust what you actually have access to."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza con una configuración y ajusta el equipo al que tienes acceso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comece com uma configuração e ajuste o equipamento disponível."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une configuration, puis adaptez-la au matériel disponible."
           }
         }
       }
@@ -24790,6 +28232,35 @@
         }
       }
     },
+    "Strength that belongs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strength that belongs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuerza que encaja contigo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Força que combina com você"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une musculation adaptée"
+          }
+        }
+      }
+    },
     "Strong finish": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -24816,6 +28287,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fin soutenue"
+          }
+        }
+      }
+    },
+    "Structured sessions and Watch guidance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Structured sessions and Watch guidance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesiones estructuradas y guía en el Watch."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sessões estruturadas e orientação no Watch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des séances structurées et un guidage sur Watch."
+          }
+        }
+      }
+    },
+    "Subscription preview · Prices in USD. The selected plan would renew automatically until canceled. No free trial is included.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscription preview · Prices in USD. The selected plan would renew automatically until canceled. No free trial is included."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa de suscripción · Precios en USD. El plan elegido se renovaría automáticamente hasta cancelarlo. No incluye prueba gratuita."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prévia de assinatura · Preços em USD. O plano escolhido seria renovado automaticamente até o cancelamento. Sem teste grátis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu d’abonnement · Prix en USD. L’offre choisie serait renouvelée automatiquement jusqu’à résiliation. Aucun essai gratuit inclus."
           }
         }
       }
@@ -25239,6 +28768,64 @@
         }
       }
     },
+    "Terms": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Términos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conditions"
+          }
+        }
+      }
+    },
+    "Terms · Preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms · Preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Términos · Vista previa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termos · Prévia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conditions · Aperçu"
+          }
+        }
+      }
+    },
     "The calendar currently uses the date you log a result in your device’s time zone. It does not backdate activity to its planned date.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingProgressView.swift",
@@ -25479,6 +29066,35 @@
         }
       }
     },
+    "The saved preview couldn’t be opened. Start again to save a new draft.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved preview couldn’t be opened. Start again to save a new draft."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo abrir la vista previa guardada. Empieza de nuevo para guardar otro borrador."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir a prévia salva. Recomece para salvar um novo rascunho."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’ouvrir l’aperçu enregistré. Recommencez pour créer un nouveau brouillon."
+          }
+        }
+      }
+    },
     "The session couldn’t be saved. Please try again.": {
       "extractionState": "manual",
       "comment": "Used in: RunWorkoutPreviewView.swift",
@@ -25629,6 +29245,64 @@
         }
       }
     },
+    "There’s no perfect starting point. Tell us what a sustainable start looks like for you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There’s no perfect starting point. Tell us what a sustainable start looks like for you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No existe un punto de partida perfecto. Cuéntanos cómo sería un comienzo sostenible para ti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não existe ponto de partida perfeito. Conte como seria um começo sustentável para você."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n’existe pas de point de départ parfait. Dites-nous à quoi ressemblerait un début durable pour vous."
+          }
+        }
+      }
+    },
+    "These are preferences for later. No permissions are requested and no services are connected in this preview.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These are preferences for later. No permissions are requested and no services are connected in this preview."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son preferencias para después. Esta vista previa no solicita permisos ni conecta servicios."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "São preferências para depois. Esta prévia não solicita permissões nem conecta serviços."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce sont des préférences pour plus tard. Aucune autorisation n’est demandée et aucun service n’est connecté dans cet aperçu."
+          }
+        }
+      }
+    },
     "These are the current BPM boundaries you saved in your athlete profile. They can be edited there at any time.": {
       "extractionState": "manual",
       "comment": "Used in: HeartRateZoneGuideView.swift",
@@ -25689,6 +29363,93 @@
         }
       }
     },
+    "These details are optional. Share what you’re comfortable with, or add them later.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These details are optional. Share what you’re comfortable with, or add them later."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estos datos son opcionales. Comparte lo que quieras o agrégalos después."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esses dados são opcionais. Compartilhe o que quiser ou adicione depois."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces informations sont facultatives. Partagez ce qui vous convient, ou ajoutez-les plus tard."
+          }
+        }
+      }
+    },
+    "Think about the last few weeks, not a future target. Enter 0 if you aren’t running yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Think about the last few weeks, not a future target. Enter 0 if you aren’t running yet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piensa en las últimas semanas, no en una meta futura. Escribe 0 si todavía no corres."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pense nas últimas semanas, não em uma meta futura. Digite 0 se ainda não está correndo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pensez aux dernières semaines, pas à un objectif futur. Saisissez 0 si vous ne courez pas encore."
+          }
+        }
+      }
+    },
+    "This clears only the saved onboarding answers. Your training history stays in place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This clears only the saved onboarding answers. Your training history stays in place."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto solo borra las respuestas de configuración. Tu historial de entrenamiento se conserva."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso apaga apenas as respostas da configuração. Seu histórico de treino permanece."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seules les réponses de configuration seront effacées. Votre historique d’entraînement sera conservé."
+          }
+        }
+      }
+    },
     "This day already has %@. Consider the combined duration before moving.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingEngine.swift",
@@ -25719,6 +29480,64 @@
         }
       }
     },
+    "This is a conversation about where you are, not a test of where you should be.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a conversation about where you are, not a test of where you should be."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hablemos de dónde estás, sin juzgar dónde deberías estar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vamos conversar sobre onde você está, sem julgar onde deveria estar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parlons de votre situation actuelle, sans juger où vous devriez en être."
+          }
+        }
+      }
+    },
+    "This is a subscription design preview. No purchase or subscription agreement is created. Final terms of use will be linked before payments are enabled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a subscription design preview. No purchase or subscription agreement is created. Final terms of use will be linked before payments are enabled."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta es una vista previa del diseño de suscripción. No se crea ninguna compra ni acuerdo. Los términos definitivos se enlazarán antes de habilitar pagos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta é uma prévia do design da assinatura. Nenhuma compra ou contrato é criado. Os termos finais serão vinculados antes de habilitar pagamentos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceci est un aperçu de l’abonnement. Aucun achat ni contrat n’est créé. Les conditions définitives seront accessibles avant l’activation des paiements."
+          }
+        }
+      }
+    },
     "This is longer than your usual %lld-minute session limit.": {
       "extractionState": "manual",
       "comment": "Used in: RunWorkoutPreviewView.swift",
@@ -25745,6 +29564,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cela dépasse votre limite habituelle de %lld minutes par séance."
+          }
+        }
+      }
+    },
+    "This is your onboarding summary, not a generated training prescription. We’ll connect plan creation after this flow is tested.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is your onboarding summary, not a generated training prescription. We’ll connect plan creation after this flow is tested."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este es el resumen de tus respuestas, no una prescripción de entrenamiento. Conectaremos la creación del plan después de probar este flujo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este é o resumo das suas respostas, não uma prescrição de treino. A criação do plano será conectada após os testes deste fluxo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voici le résumé de vos réponses, pas une prescription d’entraînement. La création du plan sera connectée après les tests de ce parcours."
+          }
+        }
+      }
+    },
+    "This is your starting line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is your starting line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta es tu línea de salida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta é sua linha de partida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voici votre ligne de départ."
+          }
+        }
+      }
+    },
+    "This note is saved for review. It doesn’t automatically change workout prescriptions in this preview.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This note is saved for review. It doesn’t automatically change workout prescriptions in this preview."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta nota se guarda para revisarla. No cambia automáticamente los entrenamientos en esta vista previa."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta observação fica salva para revisão. Ela não altera automaticamente os treinos nesta prévia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette note est enregistrée pour être revue. Elle ne modifie pas automatiquement les entraînements dans cet aperçu."
           }
         }
       }
@@ -26525,6 +30431,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "Try sign-up & onboarding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try sign-up & onboarding"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probar registro y configuración"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testar cadastro e configuração"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tester l’inscription et l’accueil"
+          }
+        }
+      }
+    },
+    "Two disciplines. Your balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two disciplines. Your balance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos disciplinas. Tu equilibrio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duas modalidades. Seu equilíbrio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux disciplines. Votre équilibre."
           }
         }
       }
@@ -27909,6 +31873,35 @@
         }
       }
     },
+    "Weight units": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight units"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de peso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de peso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unités de poids"
+          }
+        }
+      }
+    },
     "Weight · ": {
       "extractionState": "manual",
       "comment": "Used in: StrengthSetRow.swift",
@@ -27969,6 +31962,151 @@
         }
       }
     },
+    "We’ll get to know the athlete behind the numbers. One small step at a time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll get to know the athlete behind the numbers. One small step at a time."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conoceremos al atleta detrás de los números. Un pequeño paso a la vez."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vamos conhecer o atleta por trás dos números. Um pequeno passo de cada vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrons la personne derrière les chiffres. Un petit pas à la fois."
+          }
+        }
+      }
+    },
+    "We’ll make room to rebuild your rhythm. Your starting point is enough.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll make room to rebuild your rhythm. Your starting point is enough."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haremos espacio para recuperar tu ritmo. Tu punto de partida es suficiente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vamos abrir espaço para retomar seu ritmo. Seu ponto de partida já basta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous ferons place à la reprise de votre rythme. Votre point de départ suffit."
+          }
+        }
+      }
+    },
+    "What are you working toward?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What are you working toward?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué quieres lograr?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que você quer alcançar?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vers quoi voulez-vous avancer ?"
+          }
+        }
+      }
+    },
+    "What you like to be called": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you like to be called"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cómo te gusta que te llamen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como você gosta de ser chamado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le nom que vous préférez"
+          }
+        }
+      }
+    },
+    "When life gets busy, which goal should your training protect first?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When life gets busy, which goal should your training protect first?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando la vida se complica, ¿qué meta debe priorizar tu entrenamiento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando a vida fica corrida, qual meta seu treino deve priorizar?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand la vie s’accélère, quel objectif votre entraînement doit-il privilégier ?"
+          }
+        }
+      }
+    },
     "Where do you want to grow?": {
       "extractionState": "manual",
       "comment": "Used in: MuscleFocusView.swift",
@@ -27995,6 +32133,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Où souhaitez-vous progresser ?"
+          }
+        }
+      }
+    },
+    "Where is your running today?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where is your running today?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo está tu running hoy?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como está sua corrida hoje?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Où en êtes-vous en course ?"
+          }
+        }
+      }
+    },
+    "Where would you like to grow?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where would you like to grow?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿En qué te gustaría mejorar?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onde você gostaria de evoluir?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Où aimeriez-vous progresser ?"
           }
         }
       }
@@ -28448,6 +32644,35 @@
         }
       }
     },
+    "You don’t have to choose one kind of athlete. We’ll make space for both.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don’t have to choose one kind of athlete. We’ll make space for both."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tienes que elegir un solo tipo de atleta. Haremos espacio para ambos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você não precisa escolher um só tipo de atleta. Vamos abrir espaço para os dois."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n’avez pas à choisir un seul profil sportif. Nous ferons place aux deux."
+          }
+        }
+      }
+    },
     "You don’t need to make up every missed session. Your plan combines running and lifting, so adding extra work can crowd recovery. Open a session in Plan to skip it or review a move. You’ll see any nearby key-session conflicts before accepting. No changes have been made.": {
       "extractionState": "manual",
       "comment": "Used in: LocalCoach.swift",
@@ -28598,6 +32823,64 @@
         }
       }
     },
+    "Your answers and membership choice are saved on this device for testing. No account was created and no payment was made.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your answers and membership choice are saved on this device for testing. No account was created and no payment was made."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus respuestas y tu elección de membresía se guardaron en este dispositivo para pruebas. No se creó ninguna cuenta ni se hizo ningún pago."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas respostas e escolha de assinatura foram salvas neste dispositivo para testes. Nenhuma conta foi criada e nenhum pagamento foi feito."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos réponses et votre choix d’abonnement sont enregistrés sur cet appareil pour les tests. Aucun compte n’a été créé et aucun paiement n’a été effectué."
+          }
+        }
+      }
+    },
+    "Your balance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your balance"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu equilibrio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu equilíbrio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre équilibre"
+          }
+        }
+      }
+    },
     "Your benchmarks": {
       "extractionState": "manual",
       "comment": "Used in: ProfileView.swift",
@@ -28624,6 +32907,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vos références"
+          }
+        }
+      }
+    },
+    "Your body measurements aren’t a score. They’re optional context that you control.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your body measurements aren’t a score. They’re optional context that you control."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus medidas no son una calificación. Son datos opcionales que tú controlas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas medidas não são uma nota. São informações opcionais que você controla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos mensurations ne sont pas une note. Ce sont des informations facultatives que vous maîtrisez."
           }
         }
       }
@@ -28744,6 +33056,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre direction"
+          }
+        }
+      }
+    },
+    "Your existing profile and workouts stay as they are during this preview.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your existing profile and workouts stay as they are during this preview."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu perfil y tus entrenamientos actuales se mantienen durante esta vista previa."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu perfil e seus treinos atuais permanecem iguais durante esta prévia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil et vos entraînements existants restent inchangés pendant cet aperçu."
           }
         }
       }
@@ -28928,6 +33269,64 @@
         }
       }
     },
+    "Your goals": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your goals"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus metas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas metas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos objectifs"
+          }
+        }
+      }
+    },
+    "Your goals, equipment, and focus areas.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your goals, equipment, and focus areas."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus metas, equipo y áreas prioritarias."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas metas, equipamento e áreas prioritárias."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos objectifs, votre matériel et vos priorités."
+          }
+        }
+      }
+    },
     "Your gym": {
       "extractionState": "manual",
       "comment": "Used in: GymSetupView.swift, ProfileView.swift",
@@ -28954,6 +33353,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre salle"
+          }
+        }
+      }
+    },
+    "Your gym. Your possibilities.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your gym. Your possibilities."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu gimnasio. Tus posibilidades."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua academia. Suas possibilidades."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre salle. Vos possibilités."
           }
         }
       }
@@ -29044,6 +33472,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre course clé passe en premier. La musculation du haut du corps est facultative aujourd’hui pour laisser place à la récupération."
+          }
+        }
+      }
+    },
+    "Your lifting gets the spotlight. Running helps build your engine alongside it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your lifting gets the spotlight. Running helps build your engine alongside it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu fuerza toma protagonismo. El running desarrolla tu resistencia a su lado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua força ganha destaque. A corrida desenvolve sua resistência junto com ela."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre musculation passe au premier plan. La course développe votre endurance en parallèle."
           }
         }
       }
@@ -29254,6 +33711,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre prochain chapitre vous attend"
+          }
+        }
+      }
+    },
+    "Your next chapter, %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your next chapter, %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu siguiente capítulo, %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu próximo capítulo, %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre prochain chapitre, %@."
           }
         }
       }
@@ -29528,6 +34014,64 @@
         }
       }
     },
+    "Your preview couldn’t be saved. Keep this screen open and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your preview couldn’t be saved. Keep this screen open and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar la vista previa. Mantén esta pantalla abierta e inténtalo de nuevo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar a prévia. Mantenha esta tela aberta e tente novamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer votre aperçu. Gardez cet écran ouvert et réessayez."
+          }
+        }
+      }
+    },
+    "Your preview data": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your preview data"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus datos de vista previa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seus dados da prévia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données d’aperçu"
+          }
+        }
+      }
+    },
     "Your profile changed while you were editing. Reopen it to use the latest details.": {
       "extractionState": "manual",
       "comment": "Used in: TrainingStore.swift",
@@ -29554,6 +34098,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre profil a changé pendant la modification. Rouvrez-le pour utiliser les dernières données."
+          }
+        }
+      }
+    },
+    "Your real life": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your real life"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu vida real"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua vida real"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre quotidien"
+          }
+        }
+      }
+    },
+    "Your recent routine matters more than your best-ever week. Zero is a valid starting point.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your recent routine matters more than your best-ever week. Zero is a valid starting point."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu rutina reciente importa más que tu mejor semana. Cero es un punto de partida válido."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua rotina recente importa mais que sua melhor semana. Zero é um ponto de partida válido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre routine récente compte plus que votre meilleure semaine. Zéro est un point de départ valable."
+          }
+        }
+      }
+    },
+    "Your rhythm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your rhythm"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu ritmo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu ritmo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre rythme"
           }
         }
       }
@@ -29648,6 +34279,35 @@
         }
       }
     },
+    "Your running and lifting experience can be completely different. We’ll treat them that way.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your running and lifting experience can be completely different. We’ll treat them that way."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu experiencia corriendo y levantando pesas puede ser muy distinta. La trataremos por separado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua experiência na corrida e na musculação pode ser bem diferente. Vamos respeitar isso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre expérience en course et en musculation peut être très différente. Nous en tiendrons compte."
+          }
+        }
+      }
+    },
     "Your running and lifting experience can be different. Set each at your own pace.": {
       "extractionState": "manual",
       "comment": "Used in: AthleteLevelsView.swift",
@@ -29674,6 +34334,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre expérience en course et en musculation peut différer. Définissez chacune à votre rythme."
+          }
+        }
+      }
+    },
+    "Your running leads the way. Strength supports the athlete behind every run.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your running leads the way. Strength supports the athlete behind every run."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu running marca el camino. La fuerza apoya al atleta detrás de cada carrera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua corrida aponta o caminho. A força apoia o atleta por trás de cada corrida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La course montre la voie. La musculation soutient l’athlète derrière chaque sortie."
           }
         }
       }
@@ -29734,6 +34423,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vos temps intermédiaires"
+          }
+        }
+      }
+    },
+    "Your starting mindset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your starting mindset"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu actitud al empezar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua disposição para começar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre état d’esprit de départ"
           }
         }
       }
@@ -30393,6 +35111,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "hybrd"
+          }
+        }
+      }
+    },
+    "hybrd membership": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hybrd membership"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Membresía hybrd"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assinatura hybrd"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnement hybrd"
           }
         }
       }
@@ -31101,6 +35848,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "cible d’effort"
+          }
+        }
+      }
+    },
+    "years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "years"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "años"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ans"
           }
         }
       }
