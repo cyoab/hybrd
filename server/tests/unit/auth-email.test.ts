@@ -24,7 +24,7 @@ test("Google and email configuration fail closed when incomplete or unsafe", () 
       NODE_ENV: "production",
       AUTH_EMAIL_TRANSPORT: "mailpit",
     }),
-  ).toThrow("Mailpit");
+  ).toThrow("AUTH_EMAIL_TRANSPORT");
   expect(
     readEnv({
       ...base,
@@ -42,21 +42,26 @@ test("email has accessible HTML, plain text, clear expiry and no code in subject
   expect(message.html).toContain('lang="en"');
   expect(() => otpMessage("<script>")).toThrow();
 });
-test("Mailpit captures email through its local API without credentials", async () => {
+test("Resend receives the authenticated sender, recipient and both email formats", async () => {
   const env = readEnv({
     ...base,
-    AUTH_EMAIL_TRANSPORT: "mailpit",
-    MAILPIT_URL: "http://mailpit:8025",
+    AUTH_EMAIL_TRANSPORT: "resend",
+    AUTH_EMAIL_FROM: "signin@example.com",
+    RESEND_API_KEY: "test-key",
   });
   await createOtpMailer(
     env,
     fake((url, init) => {
-      expect(url).toBe("http://mailpit:8025/api/v1/send");
+      expect(url).toBe("https://api.resend.com/emails");
       const body = JSON.parse(String(init?.body));
-      expect(body.To).toEqual([{ Email: "athlete@example.test" }]);
-      expect(body.Text).toContain("123456");
-      expect(new Headers(init?.headers).has("authorization")).toBe(false);
-      return Response.json({ ID: "mail-id" });
+      expect(body.from).toBe("hybrd <signin@example.com>");
+      expect(body.to).toEqual(["athlete@example.test"]);
+      expect(body.text).toContain("123456");
+      expect(body.html).toContain("123456");
+      expect(new Headers(init?.headers).get("authorization")).toBe(
+        "Bearer test-key",
+      );
+      return Response.json({ id: "mail-id" });
     }),
   )("athlete@example.test", "123456");
 });

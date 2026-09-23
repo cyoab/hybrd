@@ -4,7 +4,7 @@
 
 help:
 	@echo "setup        Create .env without overwriting existing values"
-	@echo "up           Start PostgreSQL, the API with hot reload, and the OTP inbox"
+	@echo "up           Start PostgreSQL and the API with hot reload (email via Resend)"
 	@echo "down         Stop services (preserves database volume)"
 	@echo "logs / ps    View API logs / service status"
 	@echo "shell        Open a shell in the API container"

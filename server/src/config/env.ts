@@ -26,11 +26,8 @@ const envSchema = z
     GOOGLE_CLIENT_ID: optionalString,
     GOOGLE_CLIENT_SECRET: optionalString,
     GOOGLE_IOS_CLIENT_ID: optionalString,
-    AUTH_EMAIL_TRANSPORT: z
-      .enum(["disabled", "mailpit", "resend"])
-      .default("disabled"),
+    AUTH_EMAIL_TRANSPORT: z.enum(["disabled", "resend"]).default("disabled"),
     AUTH_EMAIL_FROM: z.email().default("signin@hybrd.test"),
-    MAILPIT_URL: z.url().default("http://localhost:8025"),
     RESEND_API_KEY: optionalString,
     STRAVA_CLIENT_ID: optionalString,
     STRAVA_CLIENT_SECRET: optionalString,
@@ -105,12 +102,6 @@ const envSchema = z
           "Configure Strava webhook verification and a path secret of at least 32 characters with an enabled Strava provider. Add the subscription ID after verification.",
       });
     if (env.NODE_ENV === "production") {
-      if (env.AUTH_EMAIL_TRANSPORT === "mailpit")
-        ctx.addIssue({
-          code: "custom",
-          path: ["AUTH_EMAIL_TRANSPORT"],
-          message: "Mailpit is forbidden in production.",
-        });
       if (env.DEV_AUTH_ENABLED)
         ctx.addIssue({
           code: "custom",

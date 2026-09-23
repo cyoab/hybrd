@@ -1,6 +1,6 @@
 # hybrd
 
-Local-first hybrid training: a native iOS app backed by a Bun/Hono control plane and PostgreSQL. This repository contains the backend MVP. `ios/` is reserved for the separate iOS implementation.
+Local-first hybrid training: a native iOS app backed by a Bun/Hono control plane and PostgreSQL. This repository contains the backend MVP and the separately developed native iPhone/Watch app under `ios/`.
 
 The original [product requirements](hybrd_mvp_product_design_requirements.md) and [technical architecture](hybrd_technical_architecture_v0.1.md) remain at the repository root.
 
@@ -17,7 +17,6 @@ This creates a private, ignored `.env` with a unique auth secret, builds the Bun
 - API: <http://localhost:3000>
 - Readiness: <http://localhost:3000/health/ready>
 - OpenAPI: <http://localhost:3000/openapi.json>
-- Local OTP email inbox: <http://localhost:8025>
 - PostgreSQL: `localhost:54329`, database/user `hybrd`, local password from `.env`
 
 API and database ports bind to loopback by default. Change `API_PORT` or `POSTGRES_PORT` in `.env` if occupied. If changing the API port, update `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` too. See [local development](docs/development.md) for physical-device access and host-side Bun.
@@ -28,6 +27,8 @@ The direct Compose equivalent is:
 sh scripts/setup.sh
 docker compose up --build --detach --wait
 ```
+
+Configure `AUTH_EMAIL_TRANSPORT=resend`, `RESEND_API_KEY` and a verified `AUTH_EMAIL_FROM` in `.env` for real email sign-in, then run `make up`. Until configured, email auth stays explicitly disabled while the API runs. The only long-running development containers are API and PostgreSQL.
 
 ## Daily commands
 
@@ -47,7 +48,7 @@ docker compose up --build --detach --wait
 
 ## Backend capabilities
 
-- Google, Apple and email OTP registration/sign-in, verified account linking and bearer sessions. See the [authentication and iOS contract](docs/authentication.md); Docker captures codes in Mailpit.
+- Google, Apple and email OTP registration/sign-in, verified account linking and bearer sessions. See the [authentication and iOS contract](docs/authentication.md); Resend delivers OTP emails in development and production.
 - Athlete onboarding data, a versioned exercise/equipment catalog and remote training policy.
 - Transactional sync with idempotency, revision conflicts, paging, restore and tombstones.
 - Immutable run/strength plans, explicit plan activation/audit history and separate actual workout results.
@@ -63,7 +64,7 @@ Run `make check` for the complete suite. Tests use injected external providers, 
 ## Repository map
 
 ```text
-ios/                         Reserved for the iOS agent
+ios/                         Native iPhone/Watch app and local training models
 server/
   src/
     api/                     App factory, errors, schemas, service wiring

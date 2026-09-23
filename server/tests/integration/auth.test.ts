@@ -11,7 +11,9 @@ import { createDatabase } from "../../src/db/client";
 const env = readEnv({
   ...process.env,
   DEV_AUTH_ENABLED: "false",
-  AUTH_EMAIL_TRANSPORT: "mailpit",
+  AUTH_EMAIL_TRANSPORT: "resend",
+  AUTH_EMAIL_FROM: "signin@example.com",
+  RESEND_API_KEY: "test-only-injected-mailer-no-network",
   GOOGLE_CLIENT_ID: "google-web-test",
   GOOGLE_IOS_CLIENT_ID: "google-ios-test",
   GOOGLE_CLIENT_SECRET: "google-secret-test",

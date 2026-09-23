@@ -21,36 +21,20 @@ export function createOtpMailer(
     if (env.AUTH_EMAIL_TRANSPORT === "disabled")
       throw new Error("Email delivery unavailable.");
     const message = otpMessage(otp);
-    const resend = env.AUTH_EMAIL_TRANSPORT === "resend";
-    const url = resend
-      ? "https://api.resend.com/emails"
-      : new URL("/api/v1/send", env.MAILPIT_URL).href;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Idempotency-Key": `auth-otp/${crypto.randomUUID()}`,
     };
-    if (resend) {
-      headers.Authorization = `Bearer ${env.RESEND_API_KEY}`;
-      headers["Idempotency-Key"] = `auth-otp/${crypto.randomUUID()}`;
-    }
-    const body = JSON.stringify(
-      resend
-        ? {
-            from: `hybrd <${env.AUTH_EMAIL_FROM}>`,
-            to: [email],
-            ...message,
-          }
-        : {
-            From: { Email: env.AUTH_EMAIL_FROM, Name: "hybrd" },
-            To: [{ Email: email }],
-            Subject: message.subject,
-            Text: message.text,
-            HTML: message.html,
-          },
-    );
-    // Only Resend guarantees idempotency on an ambiguous network failure.
-    for (let attempt = 0; attempt < (resend ? 2 : 1); attempt++) {
+    const body = JSON.stringify({
+      from: `hybrd <${env.AUTH_EMAIL_FROM}>`,
+      to: [email],
+      ...message,
+    });
+    // Reuse this request's idempotency key if delivery has an uncertain outcome.
+    for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const response = await fetcher(url, {
+        const response = await fetcher("https://api.resend.com/emails", {
           method: "POST",
           headers,
           body,
@@ -62,7 +46,7 @@ export function createOtpMailer(
       } catch {
         /* Retry once using the same idempotency key. */
       }
-      if (resend && attempt === 0) await Bun.sleep(250);
+      if (attempt === 0) await Bun.sleep(250);
     }
     throw new Error("Email delivery unavailable.");
   };

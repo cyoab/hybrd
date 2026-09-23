@@ -4,7 +4,7 @@ The backend now implements the control-plane responsibilities in the two origina
 
 | Area | Implemented |
 | --- | --- |
-| Authentication | Google/Apple native token verification, email OTP signup/sign-in through Resend (Mailpit in development), verified account linking and Better Auth bearer sessions |
+| Authentication | Google/Apple native token verification, email OTP signup/sign-in through Resend in development and production, verified account linking and Better Auth bearer sessions |
 | Athlete | Profile/consent, goals, priority weights, availability/overrides, immutable baseline and planning context, exercise/equipment preferences |
 | Catalog | Versioned stable IDs for 28 exercises, equipment, aliases, movement patterns and primary/secondary muscles |
 | Plans | Blocks, immutable plan aggregates, repeatable run blocks/steps, strength exercises/sets/substitutions, expected-head activation, accepted before/after audit |

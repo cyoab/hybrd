@@ -78,7 +78,7 @@ Set `BETTER_AUTH_URL` to the public HTTPS API origin and register its host in St
 
 Create the app's Strava push subscription using the configured callback and verify token, following the official webhook documentation. Initial GET verification works before a subscription ID exists. Save the returned numeric ID in `STRAVA_WEBHOOK_SUBSCRIPTION_ID`, then restart the API; POST delivery is rejected until that ID matches. No live subscription or provider credentials are provisioned automatically. Strava allows one subscription per application, so use separate apps for isolated environments or route events deliberately.
 
-`make up` applies migration 0005 and starts the usual API, PostgreSQL and Mailpit. The API process starts the Strava worker only with configured client credentials. `make check` runs mocked provider tests and isolated real PostgreSQL tests; it never contacts Strava. `make build` produces the same production API image with the worker included.
+`make up` applies migration 0005 and starts the API and PostgreSQL. Email delivery uses Resend when configured; no local mail container is required. The API process starts the Strava worker only with configured client credentials. `make check` runs mocked provider tests and isolated real PostgreSQL tests; it never contacts Strava. `make build` produces the same production API image with the worker included.
 
 ## Retention and operations
 
