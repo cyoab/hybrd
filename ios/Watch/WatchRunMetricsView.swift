@@ -20,11 +20,11 @@ struct WatchRunMetricsView: View {
         metricPair {
           metric(metrics.paceIsLast ? L10n.text("LAST PACE") : L10n.text("PACE"),
             value: units.paceNumber(metrics.pace), unit: "/" + units.distance.symbol,
-            color: metrics.paceIsLast ? .yellow : .white, size: paceSize,
+            color: metrics.paceIsLast ? .yellow : WatchRunStyle.mint, size: paceSize,
             accessibility: metrics.paceIsLast ? L10n.text("Last recorded pace") : L10n.text("Current pace"),
             spokenValue: metrics.pace.map { L10n.text("\(units.paceNumber($0)) per \(units.distance.singular)") } ?? L10n.text("Unavailable"))
           metric(L10n.text("AVG PACE"), value: units.paceNumber(metrics.averagePace), unit: "/" + units.distance.symbol,
-            color: WatchRunStyle.mint, size: metricSize,
+            color: .white, size: metricSize,
             accessibility: L10n.text("Average pace"),
             spokenValue: metrics.averagePace.map { L10n.text("\(units.paceNumber($0)) per \(units.distance.singular)") } ?? L10n.text("Unavailable"))
         }
