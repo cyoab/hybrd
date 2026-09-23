@@ -7,9 +7,9 @@ struct WatchRunMetricsView: View {
   var now: Date
   var pace: Double?
   var gps: String
-  @ScaledMetric(relativeTo: .title) private var paceSize = 36
-  @ScaledMetric(relativeTo: .title2) private var metricSize = 31
-  @ScaledMetric(relativeTo: .title2) private var heartSize = 27
+  @ScaledMetric(relativeTo: .title) private var paceSize = 38
+  @ScaledMetric(relativeTo: .title2) private var metricSize = 33
+  @ScaledMetric(relativeTo: .title2) private var heartSize = 29
   @ScaledMetric(relativeTo: .caption2) private var labelSize = 10
   private var metrics: RunLiveMetrics { RunLiveMetrics(run: run, at: now, currentPace: pace) }
   private var target: HeartRateZone? { run.step(at: now)?.segment.heartRateZone }
