@@ -4,12 +4,20 @@ struct OnboardingJourneyView: View {
   @Environment(OnboardingStore.self) private var onboarding
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var attempted = false
+  @State private var preparingPlan = false
   var onClose: () -> Void
   var onFinish: () -> Void
 
   var body: some View {
     Group {
       if onboarding.completed { completion }
+      else if preparingPlan {
+        OnboardingPreparationView(draft: onboarding.draft, onCancel: { preparingPlan = false }) {
+          preparingPlan = false
+          guard onboarding.step == .summary else { return }
+          _ = onboarding.advance()
+        }
+      }
       else {
         ScrollViewReader { proxy in
           ScrollView {
@@ -82,11 +90,13 @@ struct OnboardingJourneyView: View {
       Button(buttonTitle) {
         hideKeyboard(); attempted = true
         if onboarding.step == .paywall { _ = onboarding.finishPreview() }
-        else { _ = onboarding.advance() }
+        else if onboarding.step == .summary {
+          if onboarding.draft.validation(for: .summary) == nil { preparingPlan = true }
+        } else { _ = onboarding.advance() }
       }.buttonStyle(HybrdPrimaryButtonStyle())
       if onboarding.step == .body {
         Button(L10n.text("Skip for now")) {
-          onboarding.draft.age = ""; onboarding.draft.weight = ""; onboarding.draft.height = ""
+          onboarding.draft.clearBodyDetails()
           _ = onboarding.advance()
         }.font(.caption).padding(.top, 3)
       }
@@ -95,7 +105,7 @@ struct OnboardingJourneyView: View {
   }
   private var buttonTitle: String {
     if onboarding.reviewing { return L10n.text("Save & review") }
-    if onboarding.step == .summary { return L10n.text("See membership options") }
+    if onboarding.step == .summary { return L10n.text("Build my plan") }
     if onboarding.step == .paywall {
       return onboarding.draft.membership == .annual ? L10n.text("Continue with annual") : L10n.text("Continue with monthly")
     }

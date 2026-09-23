@@ -40,8 +40,9 @@ struct OnboardingPaywallView: View {
               Text(plan.billing).font(.caption.weight(.semibold))
               Text(plan.equivalent).font(.caption).foregroundStyle(HybrdStyle.muted)
               if plan == .annual {
-                Text(L10n.text("Save \(OnboardingMembership.annualSavingsPercent)%"))
+                Text(L10n.text("Get 2 months free"))
                   .font(.caption.weight(.bold)).foregroundStyle(SessionPalette.ink(.mint))
+                Text(L10n.text("Compared with monthly billing")).font(.caption2).foregroundStyle(HybrdStyle.muted)
               }
             }.frame(maxWidth: .infinity, alignment: .leading)
           }.padding(16).frame(maxWidth: .infinity, alignment: .leading).foregroundStyle(HybrdStyle.ink)

@@ -93,9 +93,11 @@ struct OnboardingQuestionView: View {
     VStack(alignment: .leading, spacing: 16) {
       Image("SessionDumbbell").resizable().scaledToFit().frame(height: 115).frame(maxWidth: .infinity).accessibilityHidden(true)
       experience(onboarding.draft.strengthLevel, tone: .violet) { onboarding.draft.strengthLevel = $0 }
-      Picker(L10n.text("Current lifting days per week"), selection: draft.currentLiftDays) {
-        ForEach(0..<8) { Text($0.formatted()).tag($0) }
-      }.pickerStyle(.menu).padding(18).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+      pickerCard(L10n.text("Current lifting days per week"), detail: L10n.text("How many days do you lift in a typical week right now?")) {
+        Picker(L10n.text("Current lifting days per week"), selection: draft.currentLiftDays) {
+          ForEach(0..<8) { Text(L10n.text("\($0) days per week")).tag($0) }
+        }.pickerStyle(.menu).labelsHidden()
+      }
       note(L10n.text("Different starting points, one athlete. Your running experience won’t decide your lifting level."), tone: .violet)
     }
   }
@@ -113,7 +115,21 @@ struct OnboardingQuestionView: View {
         ForEach(TrainingWeightUnit.allCases) { Text($0.title).tag($0) }
       }.pickerStyle(.segmented)
       numberField(L10n.text("Weight"), text: draft.weight, unit: onboarding.draft.units.weight.symbol)
-      numberField(L10n.text("Height"), text: draft.height, unit: "cm")
+      VStack(alignment: .leading, spacing: 12) {
+        Text(L10n.text("Height")).font(.headline)
+        Picker(L10n.text("Height units"), selection: Binding(get: { onboarding.draft.selectedHeightUnit }, set: { onboarding.draft.setHeightUnit($0) })) {
+          ForEach(OnboardingHeightUnit.allCases) { Text($0.title).tag($0) }
+        }.pickerStyle(.segmented)
+        if onboarding.draft.selectedHeightUnit == .centimeters {
+          numberField(L10n.text("Height"), text: draft.height, unit: "cm")
+        } else {
+          let columns = [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 250 : 120))]
+          LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            numberField(L10n.text("Feet"), text: Binding(get: { onboarding.draft.heightFeet ?? "" }, set: { onboarding.draft.heightFeet = $0 }), unit: "ft", keyboard: .numberPad)
+            numberField(L10n.text("Inches"), text: Binding(get: { onboarding.draft.heightInches ?? "" }, set: { onboarding.draft.heightInches = $0 }), unit: "in")
+          }
+        }
+      }
       note(L10n.text("Your body measurements aren’t a score. They’re optional context that you control."), tone: .terra)
     }
   }
@@ -137,12 +153,16 @@ struct OnboardingQuestionView: View {
           }
         }
       }.scrollIndicators(.hidden)
-      Picker(L10n.text("Preferred lifting days"), selection: draft.strengthDays) {
-        ForEach(1..<5) { Text($0.formatted()).tag($0) }
-      }.pickerStyle(.menu)
-      Picker(L10n.text("Time per session"), selection: draft.sessionMinutes) {
-        ForEach([30, 45, 60, 75, 90], id: \.self) { Text(L10n.text("\($0) min")).tag($0) }
-      }.pickerStyle(.menu)
+      pickerCard(L10n.text("Preferred lifting days"), detail: L10n.text("How many days would you like to lift each week? Running and lifting can share a day.")) {
+        Picker(L10n.text("Preferred lifting days"), selection: draft.strengthDays) {
+          ForEach(1..<5) { Text(L10n.text("\($0) days per week")).tag($0) }
+        }.pickerStyle(.menu).labelsHidden()
+      }
+      pickerCard(L10n.text("Time per session"), detail: L10n.text("How much time can you usually set aside for one workout?")) {
+        Picker(L10n.text("Time per session"), selection: draft.sessionMinutes) {
+          ForEach([30, 45, 60, 75, 90], id: \.self) { Text(L10n.text("\($0) min")).tag($0) }
+        }.pickerStyle(.menu).labelsHidden()
+      }
       note(L10n.text("Consistency beats a perfect week. Choose what you can repeat, with room to recover."), tone: .mint)
     }
   }
@@ -237,6 +257,14 @@ struct OnboardingQuestionView: View {
         Text(unit).font(.subheadline).foregroundStyle(HybrdStyle.muted)
       }.padding(18).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
     }
+  }
+  private func pickerCard<Content: View>(_ title: String, detail: String, @ViewBuilder content: () -> Content) -> some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Text(title).font(.headline)
+      Text(detail).font(.subheadline).foregroundStyle(HybrdStyle.muted).fixedSize(horizontal: false, vertical: true)
+      content().frame(minHeight: 44).font(.headline)
+    }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
+      .background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
   }
   private func note(_ text: String, tone: SessionBreakdown.Tone) -> some View {
     HStack(alignment: .top, spacing: 10) {

@@ -15,6 +15,11 @@ struct OnboardingDraft: Codable, Equatable {
   var age = ""
   var weight = ""
   var height = ""
+  // Optional additions keep previews saved before imperial height support readable.
+  var heightUnit: OnboardingHeightUnit?
+  var heightFeet: String?
+  var heightInches: String?
+  var heightConversion: HeightConversion?
   var units = TrainingUnits.metric
   var availableDays: Set<Int> = []
   var strengthDays = 2
@@ -42,7 +47,59 @@ struct OnboardingDraft: Codable, Equatable {
     if weight == weightBaselineText { return weightBaseline }
     return units.weight.parse(weight, kilograms: 20...400)
   }
-  var heightCentimeters: Double? { TrainingProfile.parseDecimal(height, range: 80...250) }
+  var selectedHeightUnit: OnboardingHeightUnit { heightUnit ?? .centimeters }
+  var hasHeightEntry: Bool {
+    selectedHeightUnit == .centimeters ? !height.isEmpty : !(heightFeet ?? "").isEmpty || !(heightInches ?? "").isEmpty
+  }
+  var heightCentimeters: Double? {
+    if let saved = heightConversion, saved.unit == selectedHeightUnit,
+       saved.centimetersText == height, saved.feetText == heightFeet, saved.inchesText == heightInches {
+      return saved.centimeters
+    }
+    if selectedHeightUnit == .centimeters { return TrainingProfile.parseDecimal(height, range: 80...250) }
+    guard let feet = Int((heightFeet ?? "").trimmingCharacters(in: .whitespacesAndNewlines)), (0...8).contains(feet) else { return nil }
+    let inchesText = (heightInches ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    guard let inches = inchesText.isEmpty ? 0 : TrainingProfile.parseDecimal(inchesText, range: 0...12), inches < 12 else { return nil }
+    let centimeters = (Double(feet) * 12 + inches) * 2.54
+    return (80...250).contains(centimeters) ? centimeters : nil
+  }
+  var heightSummary: String? {
+    guard let cm = heightCentimeters else { return nil }
+    if selectedHeightUnit == .centimeters { return L10n.text("\(cm.formatted()) cm") }
+    let parts = Self.imperialHeight(cm)
+    return L10n.text("\(parts.feet) ft \(parts.inches) in")
+  }
+  mutating func setHeightUnit(_ unit: OnboardingHeightUnit) {
+    guard unit != selectedHeightUnit else { return }
+    let cm = heightCentimeters
+    heightUnit = unit
+    heightConversion = nil
+    // Invalid/empty input never restores an old value from the other unit.
+    guard let cm else { height = ""; heightFeet = nil; heightInches = nil; return }
+    if unit == .centimeters { height = cm.formatted(.number.grouping(.never).precision(.fractionLength(0...2))) }
+    else {
+      let parts = Self.imperialHeight(cm)
+      heightFeet = String(parts.feet); heightInches = parts.inches
+    }
+    heightConversion = HeightConversion(centimeters: cm, unit: unit, centimetersText: height, feetText: heightFeet, inchesText: heightInches)
+  }
+  mutating func clearBodyDetails() {
+    age = ""; weight = ""; height = ""; heightFeet = nil; heightInches = nil
+    heightConversion = nil; weightBaseline = nil; weightBaselineText = nil
+  }
+  private static func imperialHeight(_ centimeters: Double) -> (feet: Int, inches: String) {
+    let totalInches = (centimeters / 2.54 * 10).rounded() / 10
+    let feet = Int(totalInches / 12)
+    let inches = (totalInches - Double(feet * 12)).formatted(.number.grouping(.never).precision(.fractionLength(0...1)))
+    return (feet, inches)
+  }
+  struct HeightConversion: Codable, Equatable {
+    var centimeters: Double
+    var unit: OnboardingHeightUnit
+    var centimetersText: String
+    var feetText: String?
+    var inchesText: String?
+  }
   var ageYears: Int? { Int(age.trimmingCharacters(in: .whitespacesAndNewlines)) }
 
   mutating func setDistanceUnit(_ unit: TrainingDistanceUnit) {
@@ -85,7 +142,7 @@ struct OnboardingDraft: Codable, Equatable {
     case .body:
       if !age.isEmpty && !(ageYears.map { (1...120).contains($0) } ?? false) { return L10n.text("Enter a valid age, or leave it blank.") }
       if !weight.isEmpty && weightKilograms == nil { return L10n.text("Check your weight and selected unit, or leave it blank.") }
-      if !height.isEmpty && heightCentimeters == nil { return L10n.text("Enter a height from 80 to 250 cm, or leave it blank.") }
+      if hasHeightEntry && heightCentimeters == nil { return L10n.text("Check your height and selected units, or leave it blank.") }
     case .rhythm:
       if availableDays.count < 2 || !availableDays.isSubset(of: Set(1...7)) { return L10n.text("Choose at least two training days.") }
       if !(1...4).contains(strengthDays) || strengthDays > availableDays.count { return L10n.text("Choose lifting days within your weekly availability.") }

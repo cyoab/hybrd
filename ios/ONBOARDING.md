@@ -17,16 +17,16 @@ The iPhone sign-up entry now opens a local, resumable athlete journey ending in 
 3. Balance between disciplines.
 4. Running experience and recent weekly distance, including zero.
 5. Lifting experience and current frequency.
-6. Optional age, weight, and height.
+6. Optional age, weight, and height in centimeters or feet/inches.
 7. Available weekdays, desired lifting frequency, and session length.
 8. Gym presets and an illustrated equipment selection.
 9. Illustrated muscle priorities, or a balanced focus.
 10. Readiness and an optional context note.
 11. Preferences for connecting Health and Strava later; no permission prompts.
-12. Personal recap with direct editing of every answer group.
+12. Personal recap with direct editing of every answer group. **Build my plan** starts a fixed four-second preview animation before membership selection; going back cancels it.
 13. Annual/monthly membership selection, followed by a clearly identified preview completion.
 
-Progress indicates actual position; there are no simulated AI generation delays or invented performance promises. Answers can be edited from the recap and returned directly to it. Body details can be skipped.
+Question progress indicates actual position. The requested four-second preparation animation reflects the selected goals, starting point, and rhythm, and is explicitly labeled as a preview; no account or plan is created. It respects Reduce Motion and cancels on dismissal. There are no invented performance promises. Answers can be edited from the recap and returned directly to it. Body details can be skipped.
 
 ## Membership presentation
 
@@ -35,7 +35,9 @@ The user confirmed USD prices:
 | Option | Total | Supporting comparison |
 | --- | --- | --- |
 | Monthly | US$10.99 each month | Flexible monthly commitment |
-| Annual | US$99.99 each year | Approximately US$8.33/month; 24% less than twelve monthly payments |
+| Annual | US$99.99 each year | Approximately US$8.33/month; “Get 2 months free” compared with monthly billing |
+
+The two-month message is a billing comparison, not a free trial: US$99.99 is lower than ten monthly payments at US$10.99.
 
 Annual is initially selected. Total charge and billing interval remain prominent. The copy explicitly states that this is a preview, no charge occurs, and no free trial is included. Completing the screen saves only the selected offer and the local preview-completion flag. It does **not** grant a subscription entitlement.
 
@@ -44,7 +46,7 @@ Annual is initially selected. Total charge and billing interval remain prominent
 - `OnboardingDraft` contains typed goals, experience, preferences, optional body details, and selected membership.
 - `OnboardingStore` owns navigation, validation, review mode, and versioned persistence under `hybrd.onboarding.preview.v1` in UserDefaults.
 - The store never reads or writes `TrainingStore` or billing/authentication state. `AppEntryView` preserves access to an active or recovered run.
-- Display units are independent of the live athlete settings. Distance and body-weight conversions retain exact canonical quantities while toggling; clearing a field invalidates the previous conversion baseline.
+- Display units are independent of the live athlete settings. Height supports separate feet/inches fields and preserves centimeters as its physical value. Legacy drafts without a height preference decode as centimeters. Distance, height, and body-weight conversions retain exact canonical quantities while toggling; clearing a field invalidates the previous conversion baseline.
 - An unreadable saved preview is preserved until an explicit restart. Restart also leaves unrelated UserDefaults values intact.
 - Running baseline accepts 0–250 km/week. This describes the athlete's recent activity; it is not the existing local planner's 3–150 km prescription target. A future planner must handle zero and higher-volume baselines deliberately rather than clamping them silently.
 - Copy is included in English, Spanish, Brazilian Portuguese, and French, including native plural handling.
@@ -55,14 +57,19 @@ Real memberships need App Store Connect products, StoreKit product-provided pric
 
 ## Validation
 
-`bash ios/Scripts/check-core.sh` covers validation, zero/high mileage, repeated unit conversions, cleared-input conversion, all step transitions, recap editing, persistence/resume, isolated restart, corrupt draft recovery, USD offer math, and four-language formatting. The existing workout, profile, progress, and localization regression checks also pass.
+`bash ios/Scripts/check-core.sh` covers validation, zero/high mileage, repeated unit conversions, imperial height input/validation and legacy height drafts, cleared-input conversion, all step transitions, recap editing, persistence/resume, isolated restart, corrupt draft recovery, USD offer math, and four-language formatting. The existing workout, profile, progress, and localization regression checks also pass.
+
+An isolated SwiftUI fixture also verified that the preparation callback occurs after approximately four seconds and that removing the preparation view cancels the callback. The timer is presentation-only; future real account/plan creation must use verified backend success, including error handling, rather than treating timer completion as success.
 
 Bitrig builds pass for the configured iPhone/Watch project. The welcome screen was inspected in the native iPhone preview. Isolated SwiftUI layout fixtures were reviewed in light/dark appearance and at narrow widths; these supplement rather than replace iPhone interaction testing. The current Bitrig iPhone automation reports that simulator state is unsupported, and native automation taps fail with `noWindowsAvailable`, so a complete automated tap-through and native keyboard/VoiceOver/Dynamic Type checks remain unverified.
 
 Suggested device review:
 
 - Finish a new-user journey with zero mileage and skipped body details.
+- Confirm steps 5 and 7 show permanent labels for current lifting frequency, desired frequency, and time per workout.
 - Enter 70 km directly, toggle miles and back, clear the field, switch units, and enter another value.
+- Enter 5 ft 10 in, switch to centimeters and back, then skip body details.
+- Tap **Build my plan** on the recap; check the four-second transition and cancel/back behavior.
 - Close/reopen mid-flow, edit the name and balance from the recap, then restart.
 - Try both memberships; confirm completion leaves the live athlete and workout history unchanged.
 - Review long names, translated copy, keyboard visibility, large text, VoiceOver, light/dark appearance, and small phones.

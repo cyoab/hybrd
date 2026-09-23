@@ -11,7 +11,6 @@ enum OnboardingMembership: String, CaseIterable, Codable, Identifiable {
   var equivalent: String {
     self == .annual ? L10n.text("\(Self.price(cents: 833)) / month equivalent") : L10n.text("A flexible monthly commitment")
   }
-  static var annualSavingsPercent: Int { Int((1 - Double(annual.cents) / Double(monthly.cents * 12)) * 100) }
   static func price(cents: Int) -> String {
     "US$" + (Double(cents) / 100).formatted(.number.precision(.fractionLength(2)))
   }

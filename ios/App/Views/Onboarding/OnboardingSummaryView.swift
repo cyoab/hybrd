@@ -41,7 +41,7 @@ struct OnboardingSummaryView: View {
       .filter { draft.availableDays.contains($0) }.map { Calendar.current.shortWeekdaySymbols[$0 - 1] }.joined(separator: " · ")
   }
   private var bodySummary: String {
-    let parts: [String?] = [draft.ageYears.map { L10n.text("\($0) years") }, draft.weightKilograms.map { draft.units.weightText($0) }, draft.heightCentimeters.map { L10n.text("\($0.formatted()) cm") }]
+    let parts: [String?] = [draft.ageYears.map { L10n.text("\($0) years") }, draft.weightKilograms.map { draft.units.weightText($0) }, draft.heightSummary]
     let known = parts.compactMap { $0 }
     return known.isEmpty ? L10n.text("Add details later") : known.joined(separator: " · ")
   }

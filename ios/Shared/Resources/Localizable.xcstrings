@@ -718,6 +718,35 @@
         }
       }
     },
+    "%@ running · %@ lifting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ running · %@ lifting"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running: %@ · Fuerza: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrida: %@ · Musculação: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Course : %@ · Musculation : %@"
+          }
+        }
+      }
+    },
     "%@ work": {
       "extractionState": "manual",
       "comment": "Used in: TrainingWorkout.swift",
@@ -1791,6 +1820,35 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld ft %@ in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ft %@ in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pies %@ pulg"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pés %@ pol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pi %@ po"
           }
         }
       }
@@ -7792,6 +7850,35 @@
         }
       }
     },
+    "Build my plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build my plan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear mi plan"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar meu plano"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer mon programme"
+          }
+        }
+      }
+    },
     "Build smoothly. Heart rate can lag on short reps; do not sprint to chase the zone.": {
       "extractionState": "manual",
       "comment": "Persisted English key; localize for display only. Used in: Persisted content",
@@ -8058,6 +8145,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’élan se construit"
+          }
+        }
+      }
+    },
+    "Building your hybrid plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Building your hybrid plan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creando tu plan híbrido"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criando seu plano híbrido"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Création de votre programme hybride"
           }
         }
       }
@@ -8362,6 +8478,35 @@
         }
       }
     },
+    "Centimeters": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centimeters"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centímetros"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centímetros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centimètres"
+          }
+        }
+      }
+    },
     "Check at least one completed set.": {
       "extractionState": "manual",
       "comment": "Used in: WorkoutResult.swift",
@@ -8448,6 +8593,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérifiez la charge et les répétitions de vos records de musculation."
+          }
+        }
+      }
+    },
+    "Check your height and selected units, or leave it blank.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your height and selected units, or leave it blank."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa tu altura y las unidades seleccionadas, o deja el campo vacío."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confira sua altura e as unidades selecionadas, ou deixe em branco."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez votre taille et les unités choisies, ou laissez le champ vide."
           }
         }
       }
@@ -9843,6 +10017,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Efforts comparables enregistrés au fil du temps"
+          }
+        }
+      }
+    },
+    "Compared with monthly billing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compared with monthly billing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En comparación con el pago mensual"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em comparação com a cobrança mensal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par rapport à la facturation mensuelle"
           }
         }
       }
@@ -13275,6 +13478,64 @@
         }
       }
     },
+    "Feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pies"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pés"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieds"
+          }
+        }
+      }
+    },
+    "Feet & inches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet & inches"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pies y pulgadas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pés e polegadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieds et pouces"
+          }
+        }
+      }
+    },
     "Fill in your age, height, and weight from the health details you choose to share.": {
       "extractionState": "manual",
       "comment": "Used in: ProfileConnectionsView.swift",
@@ -14619,6 +14880,35 @@
         }
       }
     },
+    "Get 2 months free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get 2 months free"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtén 2 meses gratis"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganhe 2 meses grátis"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profitez de 2 mois offerts"
+          }
+        }
+      }
+    },
     "Give every run a personal effort range. Enter the boundaries you already use.": {
       "extractionState": "manual",
       "comment": "Used in: AthleteHeartRateView.swift",
@@ -15549,6 +15839,35 @@
         }
       }
     },
+    "Height units": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Height units"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de altura"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unidades de altura"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unités de taille"
+          }
+        }
+      }
+    },
     "Height: enter 80–250 cm or leave it blank.": {
       "extractionState": "manual",
       "comment": "Used in: AthleteProfileEditor.swift",
@@ -15847,6 +16166,93 @@
         }
       }
     },
+    "How many days do you lift in a typical week right now?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How many days do you lift in a typical week right now?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cuántos días haces entrenamiento de fuerza en una semana normal actualmente?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em quantos dias de uma semana típica você faz musculação atualmente?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actuellement, combien de jours faites-vous de la musculation dans une semaine habituelle ?"
+          }
+        }
+      }
+    },
+    "How many days would you like to lift each week? Running and lifting can share a day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How many days would you like to lift each week? Running and lifting can share a day."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cuántos días te gustaría entrenar fuerza por semana? Puedes correr y entrenar fuerza el mismo día."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quantos dias por semana você gostaria de fazer musculação? Corrida e musculação podem ser no mesmo dia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combien de jours par semaine souhaitez-vous faire de la musculation ? Course et musculation peuvent se faire le même jour."
+          }
+        }
+      }
+    },
+    "How much time can you usually set aside for one workout?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much time can you usually set aside for one workout?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cuánto tiempo puedes dedicar normalmente a una sesión de entrenamiento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto tempo você costuma ter disponível para um treino?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combien de temps pouvez-vous généralement consacrer à une séance d’entraînement ?"
+          }
+        }
+      }
+    },
     "I can explain this week, summarize logged progress, or help you think through a missed session using the data on this phone. Try “Why is my week arranged this way?” Cloud AI isn’t connected in this build, so I won’t invent an answer or change your plan.": {
       "extractionState": "manual",
       "comment": "Used in: LocalCoach.swift",
@@ -16111,6 +16517,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dans votre rythme"
+          }
+        }
+      }
+    },
+    "Inches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inches"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulgadas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polegadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pouces"
           }
         }
       }
@@ -21462,6 +21897,35 @@
         }
       }
     },
+    "Preparing your plan preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing your plan preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparando la vista previa de tu plan"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparando a prévia do seu plano"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation de l’aperçu de votre programme"
+          }
+        }
+      }
+    },
     "Preparing…": {
       "extractionState": "manual",
       "comment": "Used in: ContentView.swift, RunSessionView.swift",
@@ -21518,6 +21982,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prescription : "
+          }
+        }
+      }
+    },
+    "Preview animation · No account or plan is created yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview animation · No account or plan is created yet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animación de prueba · Aún no se crea ninguna cuenta ni plan."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animação de prévia · Nenhuma conta ou plano é criado ainda."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animation d’aperçu · Aucun compte ni programme n’est encore créé."
           }
         }
       }
@@ -24852,6 +25345,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Course et musculation, dans la même conversation."
+          }
+        }
+      }
+    },
+    "Running and strength, made for %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running and strength, made for %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running y fuerza, a tu medida, %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrida e força, feitas para você, %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Course et musculation, pensées pour vous, %@."
           }
         }
       }
