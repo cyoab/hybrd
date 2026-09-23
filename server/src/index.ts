@@ -3,6 +3,8 @@ import { createServices } from "./api/services";
 import { createAuth } from "./auth";
 import { readEnv } from "./config/env";
 import { createDatabase } from "./db/client";
+import { stravaProvider } from "./strava/provider";
+import { startStravaWorker } from "./strava/worker";
 import { log } from "./telemetry/logger";
 
 const env = readEnv();
@@ -25,6 +27,9 @@ const server = Bun.serve({
   fetch: app.fetch,
 });
 log({ event: "server_started", port: server.port });
+const stopStrava = env.STRAVA_CLIENT_ID
+  ? startStravaWorker(database.client, env, stravaProvider(env))
+  : async () => {};
 
 let stopping = false;
 async function shutdown() {
@@ -33,6 +38,7 @@ async function shutdown() {
   const deadline = setTimeout(() => process.exit(1), 35000);
   deadline.unref();
   await server.stop();
+  await stopStrava();
   await database.close();
   clearTimeout(deadline);
 }

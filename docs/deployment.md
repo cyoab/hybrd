@@ -28,10 +28,14 @@ bun run ops notify AUTH_USER_ID DEVICE_UUID DELIVERY_UUID sync_hint
 
 `notify` is an explicit operator action, with idempotency by delivery UUID. It sends either a generic `coach_ready` alert or a background `sync_hint`; it never includes training data. There is no public notification-send API. APNs errors invalidate only the token that actually failed, leaving sync registration intact. Retry a failed delivery with a new UUID only after inspecting its outcome; an unknown transport outcome may already have delivered.
 
-Run `prune-operational-data` daily through deployment operations. No worker/Redis is required. It removes compact AI context after 30 days and response cache copies after 90 days while retaining training history, canonical conversations, quota metadata and replay protection. No scheduler is installed automatically.
+Run `prune-operational-data` daily through deployment operations. No separate worker service or Redis is required. Strava runs its durable job processor inside the API process when configured. It removes compact AI context after 30 days and response cache copies after 90 days while retaining training history, canonical conversations, quota metadata and replay protection. No scheduler is installed automatically.
 
 ## Backup and recovery
 
 Enable managed PostgreSQL backups/PITR appropriate to your retention policy before taking real user data. Verify restorations in an isolated database, run migrations/readiness and the API smoke flows there, then switch the API connection only after checking consistency. Example logical backup/restore tools are `pg_dump --format=custom` and `pg_restore --no-owner`; keep credentials in environment/config, encrypt backup storage, and do not commit dumps. Test restoration periodically and after schema changes. If a backup predates a device cursor, pull returns `CURSOR_AHEAD`; rebuild that local replica from cursor zero. Restoring deleted accounts from old backups requires replaying deletion records from your operational process before exposing the restored database.
 
 Account deletion hard-purges the live database. Backups expire according to infrastructure retention; configure and disclose that period. Deletion does not cancel Apple subscriptions. No actual production backups, monitoring or provider credentials are created by this repository.
+
+## Strava
+
+Configure the approved Strava application, public callback, phone return link and webhook subscription using [strava-integration.md](strava-integration.md). Tokens remain encrypted server-side. The API's built-in worker handles history, publication, revocation, expiry and retries through PostgreSQL; no additional Compose service is required. Account deletion retains only an encrypted grant-revocation envelope for up to seven days, normally removed after the next worker pass. Complete the documented live-provider acceptance before release.

@@ -52,6 +52,7 @@ docker compose up --build --detach --wait
 - Transactional sync with idempotency, revision conflicts, paging, restore and tombstones.
 - Immutable run/strength plans, explicit plan activation/audit history and separate actual workout results.
 - HealthKit activity provenance, matching references and duplicate detection.
+- Strava connection, reviewed onboarding history (HR zones, volume, pace and observed best efforts), and automatic workout summary publishing. See the [Strava contract and setup](docs/strava-integration.md).
 - Progress summaries, revocable milestones, exact run/strength comparisons and paginated activity, with transactional projections and private conditional caching. See the [progress implementation and client contract](docs/progress-metrics-implementation.md).
 - Jev bounded decisions and a structured AI coach with consent, entitlements, quotas and accepted proposals.
 - Verified StoreKit subscriptions/server notifications, APNs delivery and account export/deletion.
@@ -72,6 +73,7 @@ server/
     plans/                   Immutable prescriptions, activation and history
     workouts/                Actual results and activity provenance
     progress/                Versioned metrics, projections, cache and history
+    strava/                  OAuth, history previews, durable jobs and publishing
     intelligence/jev/        Versioned bounded-decision registry
     intelligence/llm/        Server-controlled model selection
     catalog/                 Versioned exercises, muscles and equipment

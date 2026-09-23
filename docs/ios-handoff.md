@@ -75,3 +75,7 @@ HealthKit normalization, local feature computation, candidate generation, interf
 The [Progress metrics handoff](progress-metrics-handoff.md) is now implemented on the backend. See the [implementation and client contract](progress-metrics-implementation.md) for summary, comparison-history and activity endpoints; date/identity migration fields; cursor and cache behavior; and measured performance. The generated OpenAPI contains `ProgressSummary`, `ProgressComparisonPage`, and `ProgressActivityPage`.
 
 The native Progress screen can keep computing offline until it persists canonical training dates/timezones, revisions and exercise IDs. Legacy logs must explicitly send `dateBasis:loggedDate`; unknown performed instants stay null. Select one authoritative local/server snapshot per render rather than summing overlapping histories.
+
+## Strava onboarding and automatic publishing
+
+The [Strava implementation and native handoff](strava-integration.md) documents connection, reviewed HR-zone/volume/pace/best-effort previews, baseline acceptance and automatic publication after normal workout sync. The backend owns tokens and durable jobs. Start with `GET /v1/integrations/strava`; complete the system authorization flow, poll history, and use `source:"strava"` for an accepted baseline. Supply real workout start/duration for export. This MVP publishes summary activities; GPS/HR streams are not part of the current canonical contract. No Swift changes were made by the backend implementation.

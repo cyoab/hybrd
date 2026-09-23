@@ -12,6 +12,8 @@ import {
 } from "../intelligence/provider";
 import { intelligenceServices } from "../intelligence/service";
 import { type ProgressOptions, progressServices } from "../progress/service";
+import { type StravaProvider, stravaProvider } from "../strava/provider";
+import { stravaServices } from "../strava/service";
 import { exportTraining, syncServices } from "../sync/service";
 import type { AppDependencies } from "./dependencies";
 import { ApiError } from "./errors";
@@ -25,6 +27,7 @@ export function createServices(
     intelligence?: IntelligenceProvider;
     apple?: AppleVerifier;
     progress?: ProgressOptions;
+    strava?: StravaProvider;
   } = {},
 ): AppDependencies {
   const { client } = database;
@@ -37,6 +40,7 @@ export function createServices(
     return policy ? TrainingPolicySchema.parse(wire(policy)) : null;
   }
   return {
+    strava: stravaServices(client, env, options.strava ?? stravaProvider(env)),
     progress: progressServices(
       client,
       env.BETTER_AUTH_SECRET,
@@ -60,7 +64,8 @@ export function createServices(
           "REAUTHENTICATION_REQUIRED",
           "Sign in again before deleting your account.",
         );
-      await withAthlete(client, authUserId, async (sql) => {
+      await withAthlete(client, authUserId, async (sql, athlete) => {
+        await sql`insert into strava_revocations (owner,tokens) select athlete_id,tokens from strava_connections where athlete_id=${String(athlete.id)} and tokens is not null on conflict(owner) do nothing`;
         await sql`delete from auth_user where id=${authUserId}`;
       });
     },

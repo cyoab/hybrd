@@ -7,6 +7,27 @@ function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    strava: {
+      status: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      connect: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      complete: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      refreshHistory: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      settings: async () => {},
+      disconnect: async () => {},
+      retry: async () => {},
+      reconcile: async () => {},
+      callback: async () => "",
+      verifyWebhook: () => {},
+      webhook: async () => {},
+    },
     progress: {
       summary: async () => {
         throw new Error("Unexpected progress");

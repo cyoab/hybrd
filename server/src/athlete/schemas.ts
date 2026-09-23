@@ -131,7 +131,7 @@ export const BaselineInput = z
     schemaVersion: z.literal(1),
     metrics: Features,
     confidence: Features,
-    source: z.enum(["healthkit", "manual", "mixed"]),
+    source: z.enum(["healthkit", "strava", "manual", "mixed"]),
     confirmedAt: optionalInstant,
   })
   .strict()

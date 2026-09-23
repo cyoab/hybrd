@@ -24,6 +24,7 @@ import {
 import { entityTables } from "../domain/read";
 import { BlockInput } from "../plans/schemas";
 import { activatePlan, createPlan } from "../plans/service";
+import { queueWorkout } from "../strava/queue";
 import { SourceInput, WorkoutInput } from "../workouts/schemas";
 import { writeWorkoutChildren } from "../workouts/service";
 import {
@@ -303,8 +304,10 @@ export async function applyMutation(sql: Tx, athlete: Row, mutation: Mutation) {
       deletedAt: null,
     });
   else await insertRow(sql, table, { ...data, id, athleteId });
-  if (mutation.entityType === "workout_result")
+  if (mutation.entityType === "workout_result") {
     await writeWorkoutChildren(sql, athleteId, id, mutation.payload);
+    await queueWorkout(sql, athleteId, id);
+  }
   await emit(sql, athleteId, mutation.entityType, id, "upsert", revision);
   return revision;
 }

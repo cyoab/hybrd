@@ -9,6 +9,7 @@ import { registerBillingRoutes } from "../billing/routes";
 import { CatalogSchema } from "../domain/records";
 import { registerIntelligenceRoutes } from "../intelligence/routes";
 import { registerProgressRoutes } from "../progress/routes";
+import { registerStravaRoutes } from "../strava/routes";
 import { registerSyncRoutes } from "../sync/routes";
 import { log } from "../telemetry/logger";
 import type { AppDependencies, AppEnv } from "./dependencies";
@@ -452,6 +453,7 @@ export function createApp(
     }),
     async (c) => c.json(await deps.exportAccount(c.get("authUserId")), 200),
   );
+  registerStravaRoutes(app, deps);
   app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
     type: "http",
     scheme: "bearer",

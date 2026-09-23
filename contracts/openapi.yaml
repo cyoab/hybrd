@@ -1703,6 +1703,7 @@ components:
           type: string
           enum:
             - healthkit
+            - strava
             - manual
             - mixed
         confirmedAt:
@@ -3520,6 +3521,7 @@ components:
           type: string
           enum:
             - healthkit
+            - strava
             - manual
             - mixed
         confirmedAt:
@@ -6111,6 +6113,232 @@ components:
         - aliases
         - exerciseMuscles
         - exerciseEquipment
+    StravaConnectionStatus:
+      type: object
+      properties:
+        available:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - not_connected
+            - connected
+            - reauthentication_required
+            - disconnecting
+            - disconnected
+        remoteAthleteId:
+          type:
+            - string
+            - "null"
+        autoPublish:
+          type: boolean
+        scopes:
+          type: array
+          items:
+            type: string
+        history:
+          $ref: "#/components/schemas/StravaHistoryPreview"
+        jobs:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              kind:
+                type: string
+                enum:
+                  - history
+                  - publish
+                  - revoke
+              workoutId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              state:
+                type: string
+              remoteId:
+                type:
+                  - string
+                  - "null"
+              errorCode:
+                type:
+                  - string
+                  - "null"
+              updatedAt:
+                type: string
+                format: date-time
+            required:
+              - id
+              - kind
+              - workoutId
+              - state
+              - remoteId
+              - errorCode
+              - updatedAt
+      required:
+        - available
+        - status
+        - remoteAthleteId
+        - autoPublish
+        - scopes
+        - history
+        - jobs
+    StravaHistoryPreview:
+      type:
+        - object
+        - "null"
+      properties:
+        source:
+          type: string
+          enum:
+            - strava
+        generatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        periodStart:
+          type: string
+          format: date-time
+        periodEnd:
+          type: string
+          format: date-time
+        activityCount:
+          type: integer
+        historyComplete:
+          type: boolean
+        heartRateZones:
+          type:
+            - object
+            - "null"
+          properties:
+            custom:
+              type: boolean
+            ranges:
+              type: array
+              items:
+                type: object
+                properties:
+                  minBpm:
+                    type: number
+                  maxBpm:
+                    type:
+                      - number
+                      - "null"
+                required:
+                  - minBpm
+                  - maxBpm
+          required:
+            - custom
+            - ranges
+        running:
+          type: array
+          items:
+            type: object
+            properties:
+              days:
+                type: integer
+              runs:
+                type: integer
+              distanceM:
+                type: number
+              elapsedSeconds:
+                type: number
+              movingSeconds:
+                type: number
+              averageMovingPaceSecondsPerKm:
+                type:
+                  - number
+                  - "null"
+              averageWeeklyDistanceM:
+                type: number
+              averageRunsPerWeek:
+                type: number
+            required:
+              - days
+              - runs
+              - distanceM
+              - elapsedSeconds
+              - movingSeconds
+              - averageMovingPaceSecondsPerKm
+              - averageWeeklyDistanceM
+              - averageRunsPerWeek
+        strengthSessions:
+          type: integer
+        longestRunM:
+          type:
+            - number
+            - "null"
+        observedBestEfforts:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              distanceM:
+                type: number
+              elapsedSeconds:
+                type: integer
+              activityId:
+                type: string
+              performedAt:
+                type: string
+                format: date-time
+            required:
+              - name
+              - distanceM
+              - elapsedSeconds
+              - activityId
+              - performedAt
+        bestEffortCoverage:
+          type: object
+          properties:
+            scope:
+              type: string
+              enum:
+                - sampled_runs_within_period
+            inspectedRuns:
+              type: integer
+            totalRuns:
+              type: integer
+            allTimePersonalBests:
+              type: boolean
+              enum:
+                - false
+          required:
+            - scope
+            - inspectedRuns
+            - totalRuns
+            - allTimePersonalBests
+        missing:
+          type: array
+          items:
+            type: string
+        requiresReview:
+          type: boolean
+          enum:
+            - true
+      required:
+        - source
+        - generatedAt
+        - expiresAt
+        - periodStart
+        - periodEnd
+        - activityCount
+        - historyComplete
+        - heartRateZones
+        - running
+        - strengthSessions
+        - longestRunM
+        - observedBestEfforts
+        - bestEffortCoverage
+        - missing
+        - requiresReview
   parameters: {}
 paths:
   /health/live:
@@ -7770,6 +7998,760 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava:
+    get:
+      operationId: getStravaConnection
+      tags:
+        - Strava
+      security: *a3
+      responses:
+        "200":
+          description: Connection, reviewed-history suggestions and recent background jobs; never includes
+            tokens.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StravaConnectionStatus"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateStravaSettings
+      tags:
+        - Strava
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autoPublish:
+                  type: boolean
+                  default: true
+              additionalProperties: false
+      responses:
+        "204":
+          description: Auto-publish preference updated. Turning it on never publishes old history.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: disconnectStrava
+      tags:
+        - Strava
+      security: *a3
+      responses:
+        "202":
+          description: Stopped new sync, purged imported preview, and queued token revocation.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava/connect:
+    post:
+      operationId: connectStrava
+      tags:
+        - Strava
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autoPublish:
+                  type: boolean
+                  default: true
+              additionalProperties: false
+      responses:
+        "200":
+          description: Open authorizationUrl in a system authentication session. Auto-publish applies to
+            future workout saves.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authorizationUrl:
+                    type: string
+                    format: uri
+                  state:
+                    type: string
+                  expiresInSeconds:
+                    type: number
+                required:
+                  - authorizationUrl
+                  - state
+                  - expiresInSeconds
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava/complete:
+    post:
+      operationId: completeStravaConnection
+      tags:
+        - Strava
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  type: string
+                  minLength: 32
+                  maxLength: 128
+                code:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                scope:
+                  type: string
+                  maxLength: 1000
+              required:
+                - state
+                - code
+                - scope
+              additionalProperties: false
+      responses:
+        "200":
+          description: Optional native code handoff; the standard server callback completes this automatically.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connected:
+                    type: boolean
+                    enum:
+                      - true
+                required:
+                  - connected
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava/history:
+    post:
+      operationId: refreshStravaHistory
+      tags:
+        - Strava
+      security: *a3
+      responses:
+        "202":
+          description: Coalesced background refresh of the previous 365 days; poll connection status for
+            suggestions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    format: uuid
+                required:
+                  - jobId
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava/jobs/{jobId}/retry:
+    post:
+      operationId: retryStravaJob
+      tags:
+        - Strava
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: jobId
+          in: path
+      responses:
+        "202":
+          description: Queued a safe retry. Ambiguous activity creation is never automatically retried.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/integrations/strava/jobs/{jobId}/reconcile:
+    post:
+      operationId: reconcileStravaPublish
+      tags:
+        - Strava
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: jobId
+          in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                remoteActivityId:
+                  type: string
+                  maxLength: 30
+                  pattern: ^\d+$
+              required:
+                - remoteActivityId
+              additionalProperties: false
+      responses:
+        "202":
+          description: Verify a suspected Strava activity against this workout's reference. Never creates an
+            activity.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /integrations/strava/callback:
+    get:
+      operationId: stravaOAuthCallback
+      tags:
+        - Strava
+      parameters:
+        - schema:
+            type: string
+            maxLength: 128
+          required: false
+          name: state
+          in: query
+        - schema:
+            type: string
+            maxLength: 2000
+          required: false
+          name: code
+          in: query
+        - schema:
+            type: string
+            maxLength: 1000
+          required: false
+          name: scope
+          in: query
+        - schema:
+            type: string
+            maxLength: 100
+          required: false
+          name: error
+          in: query
+      responses:
+        "302":
+          description: Return to the configured app link with status only. One-time OAuth state binds the
+            callback to a signed-in athlete.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /webhooks/strava/{secret}:
+    get:
+      operationId: verifyStravaWebhook
+      tags:
+        - Strava
+      parameters:
+        - schema:
+            type: string
+            maxLength: 200
+          required: true
+          name: secret
+          in: path
+        - schema:
+            type: string
+            enum:
+              - subscribe
+          required: true
+          name: hub.mode
+          in: query
+        - schema:
+            type: string
+            maxLength: 200
+          required: true
+          name: hub.verify_token
+          in: query
+        - schema:
+            type: string
+            maxLength: 500
+          required: true
+          name: hub.challenge
+          in: query
+      responses:
+        "200":
+          description: Strava subscription verification.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hub.challenge:
+                    type: string
+                required:
+                  - hub.challenge
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: receiveStravaEvent
+      tags:
+        - Strava
+      parameters:
+        - schema:
+            type: string
+            maxLength: 200
+          required: true
+          name: secret
+          in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                object_type:
+                  type: string
+                  enum:
+                    - activity
+                    - athlete
+                aspect_type:
+                  type: string
+                  enum:
+                    - create
+                    - update
+                    - delete
+                object_id:
+                  anyOf:
+                    - type: integer
+                    - type: string
+                      pattern: ^\d+$
+                owner_id:
+                  anyOf:
+                    - type: integer
+                    - type: string
+                      pattern: ^\d+$
+                subscription_id:
+                  anyOf:
+                    - type: integer
+                    - type: string
+                      pattern: ^\d+$
+                event_time:
+                  type: integer
+                  exclusiveMinimum: 0
+                updates:
+                  type: object
+                  additionalProperties:
+                    anyOf:
+                      - type: string
+                      - type: boolean
+                  default: {}
+              required:
+                - object_type
+                - aspect_type
+                - object_id
+                - owner_id
+                - subscription_id
+                - event_time
+      responses:
+        "200":
+          description: Event durably handled; no Strava network calls in this request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    enum:
+                      - true
+                required:
+                  - received
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

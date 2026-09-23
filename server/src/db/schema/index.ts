@@ -3,5 +3,6 @@ export * from "./billing";
 export * from "./foundation";
 export * from "./intelligence";
 export * from "./progress";
+export * from "./strava";
 export * from "./sync";
 export * from "./training";
