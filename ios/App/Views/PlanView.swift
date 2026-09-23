@@ -53,10 +53,6 @@ struct PlanView: View {
             .padding(.horizontal, 20)
           }
           .padding(.top, 14)
-          .background {
-            LinearGradient(colors: [HybrdStyle.terraWash.opacity(0.7), HybrdStyle.background],
-              startPoint: .top, endPoint: .bottom)
-          }
 
           VStack(alignment: .leading, spacing: 24) {
             if weekMode {
@@ -96,7 +92,16 @@ struct PlanView: View {
         .frame(maxWidth: 760)
         .frame(maxWidth: .infinity)
       }
-      .background(HybrdStyle.background.ignoresSafeArea())
+      .background {
+        // Paint behind the entire viewport, including the status bar and sensor housing.
+        // Content keeps its safe-area insets; only the background extends to the edges.
+        LinearGradient(stops: [
+          .init(color: HybrdStyle.terraWash.opacity(0.7), location: 0),
+          .init(color: HybrdStyle.background, location: 0.5)
+        ], startPoint: .top, endPoint: .bottom)
+        .background(HybrdStyle.background)
+        .ignoresSafeArea(.container)
+      }
       .toolbar(.hidden, for: .navigationBar)
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .sheet(isPresented: $showProfile) { ProfileView() }
