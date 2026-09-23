@@ -7730,6 +7730,35 @@
         }
       }
     },
+    "Bringing your week together": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bringing your week together"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu semana va tomando forma"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua semana vai ganhando forma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre semaine prend forme"
+          }
+        }
+      }
+    },
     "Build": {
       "extractionState": "manual",
       "comment": "Used in: PlanView.swift",
@@ -8174,6 +8203,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Création de votre programme hybride"
+          }
+        }
+      }
+    },
+    "Built around you, %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built around you, %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pensado para ti, %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feito para você, %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pensé pour vous, %@."
           }
         }
       }
@@ -13955,6 +14013,35 @@
         }
       }
     },
+    "Finding your running rhythm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding your running rhythm"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrando tu ritmo de carrera"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrando seu ritmo de corrida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouver votre rythme de course"
+          }
+        }
+      }
+    },
     "Finish": {
       "extractionState": "manual",
       "comment": "Used in: RunSessionView.swift, WatchRunControlsView.swift, WorkoutLoggerView.swift",
@@ -18906,6 +18993,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Personnalisez ce programme"
+          }
+        }
+      }
+    },
+    "Making room for strength": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Making room for strength"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haciendo espacio para la fuerza"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrindo espaço para a força"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire place à la musculation"
           }
         }
       }
@@ -30982,6 +31098,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tester l’inscription et l’accueil"
+          }
+        }
+      }
+    },
+    "Two disciplines. One plan.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two disciplines. One plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos disciplinas. Un plan."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duas modalidades. Um plano."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux disciplines. Un programme."
           }
         }
       }

@@ -28,6 +28,21 @@ The iPhone sign-up entry now opens a local, resumable athlete journey ending in 
 
 Question progress indicates actual position. The requested four-second preparation animation reflects the selected goals, starting point, and rhythm, and is explicitly labeled as a preview; no account or plan is created. It respects Reduce Motion and cancels on dismissal. There are no invented performance promises. Answers can be edited from the recap and returned directly to it. Body details can be skipped.
 
+## Preparation animation
+
+The four-second transition uses one visual story instead of a loading ring and checklist:
+
+- 0–1 seconds: the running shoe enters along a terra trail; the caption reflects the running goal.
+- 1–2 seconds: the dumbbell joins on a violet trail; the caption reflects the strength goal.
+- 2–3 seconds: both illustrations settle above a layered week card, and the athlete's selected weekdays appear in sequence.
+- 3–4 seconds: the week settles, a mint seal and small sparkles appear, and a success haptic marks the final beat. The membership screen follows at the four-second deadline.
+
+`OnboardingPreparationPhase` owns the four captions and personalized details. `OnboardingPlanArtwork` draws the illustration; its weekdays represent availability, not assigned workouts. `OnboardingPreparationView` owns the cancellable presentation task. Reduce Motion keeps the artwork settled and updates the caption and progress without travel, rotation, or spring effects. The preview disclosure remains visible.
+
+Mobbin references: [Runna's finalizing screen](https://mobbin.com/screens/22bcb7e4-13aa-46e0-92eb-2eea43bcdf06) informed the single visual focus and short status line; [Speak's personalized setup](https://mobbin.com/screens/4f4cad1c-c29a-48d7-b3ac-6524ff40d44d) informed making the assembled content part of the illustration. These results expose screen references, not playable animation footage; the motion is an original SwiftUI sequence using hybrd assets.
+
+The isolated layout fixture captured all four beats in light/dark appearance, at 320-point width, and with the reduced-motion path enabled. Completion callbacks occurred at approximately 4–4.3 seconds including initial host setup; dismissing mid-animation canceled the callback. Native iPhone interaction coverage remains subject to the simulator limitation below.
+
 ## Membership presentation
 
 The user confirmed USD prices:
