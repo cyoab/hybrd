@@ -4,7 +4,7 @@ The backend owns OAuth credentials, history retrieval, metric previews, token re
 
 The product owner confirmed Strava approval for this use. The implemented history workflow is a bounded import for the connected athlete's onboarding and planning: it does not scrape pages, build a cross-user dataset or train a model. Imported previews are not automatically submitted to the AI providers.
 
-For the next onboarding phase, see the [onboarding → backend handoff](onboarding-backend-handoff.md). Name/weight import and independently usable profile-only previews are requested additions; the current implementation below imports zones and activity history. Strava does not provide documented height/age fields.
+For the next onboarding phase, see the [onboarding → backend handoff](onboarding-backend-handoff.md). Apple Health and Strava should both prefill onboarding where data is available. Name/weight import and independently usable Strava profile-only previews are requested additions; the current implementation below imports zones and activity history. Strava does not provide documented height/age fields.
 
 ## Implementation
 

@@ -4,7 +4,7 @@ Updated 23 September 2026. **Implementation brief; proposed additions below are 
 
 ## Outcome and decisions
 
-An athlete should connect Strava **during onboarding**, review useful imported information, and answer only the remaining questions before choosing a membership. Connecting Strava is part of setup, not a promise to connect later. Offer it early, before running baseline and body questions. Keep a manual route for people without Strava, declined permissions, missing data, or a provider outage.
+Onboarding should **auto-fill as much relevant information as possible from Apple Health, Strava, or both**, then ask the athlete to review it and answer only what is missing or subjective. Offer both connections early, before body and training-baseline questions; neither requires connecting the other. Connection is part of setup, not a promise to connect later. Keep a manual route for unavailable services, missing data, and people who choose not to connect.
 
 The current iOS journey remains a disconnected prototype until native integration is implemented. This document does not authorize background uploads of existing sample plans, local workouts, or onboarding drafts. Applying a draft to an authenticated athlete requires the athlete's review.
 
@@ -12,7 +12,8 @@ Implementation decisions for the next phase:
 
 - Authenticate the hybrd account before starting Strava OAuth. Strava is an attached training source, **not a hybrd sign-in provider**. Reuse the existing auth/session and connection routes.
 - Request read access for onboarding. Send `autoPublish:false` explicitly; workout publishing is a separate opt-in. The current connect schema defaults to `true` when omitted.
-- Treat imported information as suggestions with provenance. Never overwrite an edited or confirmed answer when a background import finishes.
+- Prefill untouched answers from available, valid imported data, with source/date labels and a review action. Do not make athletes retype known values or revisit fully answered forms. Confirmation can happen on one editable recap; conflicting, stale, or uncertain values need focused review. Never overwrite an edited or confirmed answer when a background import finishes.
+- Use Apple Health and Strava as complementary sources. Resolve each field independently; an unavailable source must not block the other. Import observations, not invented goals or experience levels.
 - Use the last 28 days to suggest recent weekly running volume; show its period and coverage. Keep goals, availability, equipment, focus muscles, and experience as athlete answers.
 - Persist the reviewed setup independently of purchase. Membership selection, verified entitlement, a saved profile, and an activated plan are separate states.
 - Keep plan candidate generation in the existing local iOS engine. The server validates, persists, and activates plans; this brief does not introduce server-side plan generation.
@@ -31,19 +32,49 @@ The documented athlete model exposes name and weight, but **does not expose heig
 | Recent running volume | Use the imported 28-day window's `averageWeeklyDistanceM`, not a prescribed target. | Implemented alongside 7- and 365-day windows. |
 | Running frequency, pace, longest run | Explain these as observations from imported activity history. | Implemented. Pace is a moving-pace aggregate, not a race prediction or prescribed pace. |
 | Running records | Offer returned efforts as observed best efforts with dates and coverage, not guaranteed all-time PRs. | Implemented as a bounded sample of runs within the imported year. |
-| Lifting frequency | Ask the athlete about current frequency. A yearly count is insufficient. | `strengthSessions` counts the full import period, not current sessions/week. |
+| Lifting frequency | Suggest recent frequency from appropriately classified workouts, then confirm it represents the athlete's current routine. A yearly count is insufficient. | `strengthSessions` counts the full import period; add a recent-window calculation for this suggestion. |
 | Lifting records, experience, goals, schedule, equipment, muscle priorities | Athlete input. Do not infer strength level or sets/reps/load from a WeightTraining activity. | No complete source in the existing import. |
 
-Apple Health reads belong on iPhone, with separate permission and review. It offers types for [height](https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/height), [body mass](https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/bodymass), and [date of birth](https://developer.apple.com/documentation/healthkit/hkhealthstore/dateofbirthcomponents()). Keep a manual fallback whenever a value is unavailable. A preference toggle is not evidence that Health permission was granted or data was imported.
+## Apple Health is a primary import path
+
+Apple Health reads run on iPhone, after the athlete chooses to share the relevant data. Reuse the existing `HealthProfileReader` and review behavior: today it imports DOB, latest weight and height for the athlete profile. It is **not yet connected to onboarding**, and does not read workout history or zone settings. Extend it through a dedicated onboarding import adapter rather than duplicating profile conversion logic.
+
+| Information | Apple Health contribution | Review / limitation |
+| --- | --- | --- |
+| Age / date of birth | Read the shared date-of-birth characteristic and derive current age for display. | Preserve the actual date; do not invent DOB from an entered age. |
+| Weight and height | Latest valid body-mass and height samples, with measurement dates. | Prefer a recent dated measurement over an undated suggestion; let the athlete resolve conflicts and stale readings. |
+| Running volume and frequency | Query running workouts within the same bounded 7/28/365-day windows; use associated workout distance. | Daily walking/running distance also includes walking and must not become training mileage. Missing workout distance is unknown, not zero. |
+| Running pace and longest run | Use valid running-workout distances and durations, with the duration basis recorded. | Health workout active duration is not automatically equivalent to Strava moving time; label it accurately and compare only like metrics. |
+| Current lifting frequency | Count appropriate traditional/functional strength workouts in the recent 28-day window. | Suggest recorded sessions/week and ask whether this reflects lifting; generic workouts may not be lifting, and sessions are not necessarily distinct days. |
+| HR zones | On iOS 27, read `HKHealthStore.preferredWorkoutZoneConfiguration(for:)` for heart rate. | Preserve system/user source and exact boundaries. Use Strava or manual values when the API/data is unavailable. |
+| Running records | Derive observed efforts only when sufficient workout/segment data supports the distance and duration. | A workout's average pace does not prove a faster-distance PR. Keep candidates attributed and reviewable. |
+| Name | Use Strava or a name explicitly supplied by the sign-in provider, if available. | Do not promise a HealthKit name field. Keep preferred-name editing. |
+| Exercise-level lifting PRs, experience, goals, equipment, muscle priorities and future schedule | Keep explicit athlete answers unless a supported source actually supplies the fact. | A strength workout summary does not establish exercise, weight, reps, RIR, or lifting ability. |
+
+Apple references: [height](https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/height), [body mass](https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/bodymass), [date of birth](https://developer.apple.com/documentation/healthkit/hkhealthstore/dateofbirthcomponents()), [workout data](https://developer.apple.com/documentation/healthkit/hkworkout), and [active workout duration](https://developer.apple.com/documentation/healthkit/hkworkout/duration).
+
+The installed iOS 27 SDK declares `preferredWorkoutZoneConfiguration(for:)` as available from OS 27. Guard it with `if #available(iOS 27.0, *)`; shared Watch code needs the corresponding watchOS guard. The app's older deployment target must retain a working fallback. Read the preferred configuration, not an arbitrary old workout's app-defined zones. Health boundaries can be fractional and open-ended, so preserve precision in the new typed contract and update the native integer-only zone model deliberately. See [preferred zones](https://developer.apple.com/documentation/healthkit/hkhealthstore/preferredworkoutzoneconfiguration(for:)) and [zone data/source semantics](https://developer.apple.com/documentation/healthkit/accessing-workout-zone-data).
+
+Request only data types used by onboarding: DOB, height, body mass, workouts, workout distance and heart rate for the selected import features. No Health writes or GPS routes are required to fill these fields. A preference toggle or completed authorization request does not establish that data was shared. HealthKit deliberately does not expose whether read permission was denied: show “No shared data available” when appropriate, not an asserted denial or zero training volume. [Apple authorization behavior](https://developer.apple.com/documentation/healthkit/hkhealthstore/authorizationstatus(for:)).
+
+### Health import contract and ownership
+
+There is no backend OAuth connection to Apple Health. iOS queries and normalizes shared data locally; the backend stores the athlete-reviewed canonical fields and bounded baseline summaries through the proposed draft/completion routes.
+
+- Add a source-neutral import candidate type on iOS: field key, canonical value/unit, `healthkit | strava`, source identifier, observation/measurement time (nullable), fetch time, window, coverage, and review decision. Use source-specific references: a server preview ID/revision for Strava; a local import batch ID and relevant sample/workout identities for Health. Do not require a Strava preview ID for Health-only completion.
+- Keep unreviewed Health candidates local. Save accepted values after the athlete reviews what will be applied to their account. The server validates types, ranges, ownership of the draft and supported calculation versions; client-reported Health provenance is not server-verified access to HealthKit.
+- Preserve measurement dates, metric duration basis, aggregation version and observed coverage in typed metadata. A completed Health query means it processed returned records, not that every real workout or every Health record was shared.
+- Upload only the accepted profile facts, compact summaries and source references needed for this setup. Bulk raw samples, routes and full workout history are a separate sync scope, not a prerequisite for onboarding. Do not misuse the existing workout `activity_source_record` as body-profile storage.
+- Run Health and Strava imports independently. Render available fields progressively, cancel local queries when appropriate, and retain a reviewed draft across interruptions. Revoked/unavailable reads must not erase already reviewed answers.
 
 ## Recommended connected journey
 
 This changes the order of the production journey; do not bind the backend contract to prototype step numbers.
 
 1. **Create account / sign in.** Use configured email OTP, Apple, or Google. Successful auth already creates/restores the athlete. Store the hybrd session in Keychain; bootstrap, register the installation, and restore account data before attaching a local draft. Existing accounts resume their setup instead of overwriting their profile.
-2. **Connect your training history.** Explain that Strava can help fill name, weight, HR zones, and running history where available. Start read-only OAuth or continue manually. Apple Health is a separate option.
-3. **Review quick suggestions.** Name/body details/zones should become available independently of the longer history import. Keep navigating while history runs; show an honest pending/partial state. A late result produces an optional review action.
-4. **Goals and starting point.** Capture both disciplines' goals, balance, separate experience levels, confirmed recent mileage and current lifting frequency. Fill suitable untouched fields with clearly attributed suggestions.
+2. **Fill your starting point automatically.** Offer Apple Health and Strava with clear explanations of what each can supply. Let the athlete use either, both, or continue manually. Request separate permissions and start the available imports independently.
+3. **Review quick suggestions.** Prefill name/body details/zones as each source becomes available, independently of longer history queries. Skip redundant input forms when valid data already fills them, while retaining editing in the recap. Keep navigating during imports; show pending/partial states. A late result produces a review action instead of overwriting an answer.
+4. **Goals and starting point.** Ask for both disciplines' goals, balance and separate experience levels. Confirm the imported mileage and recent lifting-frequency suggestions if present; ask for manual values only where missing, unrepresentative, or incompatible with the input model.
 5. **Life and training preferences.** Capture body details if desired, weekdays, desired lifting frequency, time per session, gym equipment, focus muscles, readiness, and an optional context note.
 6. **Review your starting point.** Show every selected value, its source where relevant, missing optional fields, and any partial-history warning. Let the athlete accept, edit, or reject each import. Include HR zones and observed efforts here; they are not currently fields in `OnboardingDraft`.
 7. **Build my plan.** Persist the reviewed setup reliably and start local candidate preparation. Retain the four-second visual sequence, but do not use its timer as a backend success signal. If saving/preparation takes longer, show a truthful waiting/retry state; preserve answers on failure. Account creation has already happened, so do not claim to be creating it again.
@@ -131,9 +162,9 @@ The setup and read-only import routes must be usable by an authenticated athlete
 | --- | --- |
 | `GET /v1/onboarding` | Return `schemaVersion`, `status` (`not_started`, `draft`, `completed`), nullable `draft`/`draftRevision`, semantic current step, and nullable completion receipt. Include enough state to resume on another phone; account identity comes from bearer auth. |
 | `PUT /v1/onboarding/draft` | Save a full typed draft with nullable incomplete answers, `baseRevision` (`null` on first create), semantic step, canonical numeric values, and per-field import decisions. Return the new decimal-string revision. Require a UUID `Idempotency-Key`; reject revision conflicts instead of overwriting another device's draft. |
-| `POST /v1/onboarding/complete` | Finalize an exact reviewed draft revision using a UUID `Idempotency-Key`, registered `deviceId`, catalog version, and policy ID. Verify source preview ownership/revision and accepted values, then transactionally persist the canonical setup, confirmed baseline, planning context, completion receipt, and normal sync changes. Return saved entity IDs/revisions and a sync-sequence hint. |
+| `POST /v1/onboarding/complete` | Finalize an exact reviewed draft revision using a UUID `Idempotency-Key`, registered `deviceId`, catalog version, and policy ID. Verify Strava preview ownership/revision where used and validate reviewed Health/manual values, then transactionally persist the canonical setup, confirmed baseline, planning context, completion receipt, and normal sync changes. Return saved entity IDs/revisions and a sync-sequence hint. |
 
-Draft schema must contain the fields in the mapping table, explicit nulls for optional/unanswered values, and no auth/provider secrets. Each imported-field decision records `previewId`, preview revision, field key, and `accept | edit | reject`; edited values carry `editedFromSource` provenance. Manual and Health values have their own source metadata. Do not trust a client-supplied `source:"strava"` as proof of origin: resolve accepted values against the owned server preview. Validate the bounded manual override independently.
+Draft schema must contain the fields in the mapping table, explicit nulls for optional/unanswered values, and no auth/provider secrets. Each imported-field decision records its source, field key, source-specific reference, and `accept | edit | reject`; edited values carry `editedFromSource` provenance. Strava decisions include the server `previewId` and revision. Health decisions include the local import batch/reference and measurement/coverage metadata described above; manual values need no provider reference. Do not trust a client-supplied `source:"strava"` as proof of origin: resolve accepted values against the owned server preview. Validate the bounded manual override independently.
 
 For completion:
 
@@ -153,11 +184,11 @@ Use `server/src/strava/history.ts` as the current metric implementation. The cur
 
 Require coverage before automatic suggestions. `historyComplete:false`, partial scopes, and no returned activities are different states. Empty complete history means no recorded runs in that interval, not proof the athlete never ran. Ask whether the observed volume is representative; an athlete may have unrecorded training, a break, or multiple sources. Do not substitute yearly volume for current volume or infer race fitness from average training pace.
 
-Keep the 28-day baseline's actual window and the broader import window distinguishable. `baseline_snapshot` uses date-only period fields; retain exact observation instants/timezone and coverage in the agreed metadata. The yearly `strengthSessions` value must not fill `currentLiftDays` without a new recent-window calculation and athlete confirmation.
+Keep the 28-day baseline's actual window and the broader import window distinguishable. `baseline_snapshot` uses date-only period fields; retain exact observation instants/timezone and coverage in the agreed metadata. The yearly `strengthSessions` value must not fill `currentLiftDays` without a new recent-window calculation and athlete confirmation. For either source, keep the exact recent sessions/week estimate (for example 10 sessions / 4 weeks = 2.5); the prototype accepts only integer current frequency, so ask for a representative routine rather than silently rounding the imported estimate.
 
-Merge precedence: a reviewed manual choice wins; otherwise present source candidates with available measurement dates. A recent dated Health weight can be proposed ahead of an undated Strava weight, but the athlete chooses conflicts. Mark edited imports as edited, preserve their origin, and never auto-accept a later refresh. Missing values stay null. Do not add overlapping Strava, Health, and hybrd volume totals together; choose a reviewed source or implement activity identity deduplication before claiming combined coverage.
+Merge precedence: a reviewed manual choice wins; otherwise present source candidates with available measurement dates. A recent dated Health weight can be proposed ahead of an undated Strava weight, but the athlete chooses conflicts. Mark edited imports as edited, preserve their origin, and never auto-accept a later refresh. Missing values stay null. Do not add overlapping Strava, Health, and hybrd volume totals together. For the first release, select one reviewed history source per metric/window while still filling body/zone fields from either source. If combined history is added, deduplicate shared source/external IDs first; time/type/distance similarity is only a candidate match. Never merge ambiguous runs automatically or count a mirrored workout twice. Report distinct source coverage and ask for review when identity cannot be resolved.
 
-Native `PersonalHeartRateZones` represents four increasing starts (Z2…Z5), currently constrained to 30…250 bpm. The backend preview exposes ranges and nullable upper bounds. Add an explicit conversion with boundary tests for a supported five-zone layout; preserve open-ended maxima and custom/default provenance. If ranges are malformed, noncontiguous, or incompatible, keep them as an unaccepted suggestion and request review. Do not invent max/resting/threshold HR from age, workout peak HR, or a zone boundary.
+Native `PersonalHeartRateZones` represents four increasing starts (Z2…Z5), currently constrained to 30…250 bpm. The backend preview exposes ranges and nullable upper bounds. Add an explicit conversion with boundary tests for a supported five-zone layout; preserve open-ended maxima and custom/default provenance. For Health's fractional boundaries, extend the canonical/native model with an explicit version and display rule instead of discarding precision to fit four integers. If ranges are malformed, noncontiguous, or otherwise incompatible, keep them as an unaccepted suggestion and request review. Do not invent max/resting/threshold HR from age, workout peak HR, or a zone boundary.
 
 ## Ownership, consent, and retention
 
@@ -174,8 +205,8 @@ Backend owns typed schema/migrations/OpenAPI, profile import, preview state/iden
 Suggested delivery order:
 
 1. Agree/publish the complete draft and athlete-details contracts, enums, weekday convention, catalog mapping, provenance, and completion receipt. Preserve backward compatibility for existing clients.
-2. Implement independent Strava profile/zones/history preview sections with mocked provider fixtures, followed by draft/complete persistence and restore tests.
-3. Wire one native vertical slice: authenticate → connect Strava → review name/weight/zones/28-day volume → save setup → restore it on a clean installation. Test the manual path in the same slice.
+2. Implement independent Strava profile/zones/history previews and the native Health onboarding adapter with mocked fixtures, followed by source-neutral draft/complete persistence and restore tests.
+3. Wire the native flow: authenticate → connect either/both sources → prefill and review available profile/baseline data → answer remaining questions → save setup → restore it on a clean installation. Health-only, Strava-only, both and manual-only paths are required in this slice.
 4. Integrate candidate generation/plan acceptance and real StoreKit verification separately. Keep the current preview available until each real integration is testable.
 
 For local work, reuse root `make up` (API/PostgreSQL/worker) and `make check` (isolated test DB, injected providers). No extra Strava worker container is needed. Unit/integration tests need no live provider credentials; real OAuth needs an enabled hybrd sign-in method, configured Strava client credentials, registered backend callback, app return link, and reachable API origin. Use the public HTTPS development origin described in [Strava configuration](strava-integration.md#configuration-and-docker) when testing callbacks/webhooks on devices. Keep all secrets in ignored environment configuration. Readiness alone does not prove OAuth or imports work.
@@ -184,6 +215,10 @@ Acceptance cases before enabling connected onboarding:
 
 | Case | Required result |
 | --- | --- |
+| Health-only, Strava-only, both, or neither | Each route can finish onboarding; valid imported answers are prefilled and do not require retyping; goals/preferences still get explicit answers. |
+| Shared Health body data and workouts; empty/partial reads | Correct dated body values and bounded running/lifting summaries; no walking-distance inflation or asserted read-permission status. |
+| Health zones on OS 27; older OS or unavailable configuration | Exact fractional/open-ended boundaries and source preserved on supported OS; Strava/manual fallback works without invoking unavailable APIs. |
+| Conflicting source values; mirrored workouts | Per-field choices and dates visible; selected values survive refresh; a run present in both sources contributes only once. |
 | Full Strava grant with known history | Correct name/weight suggestions, exact zone boundaries, and independently calculated 7/28/365-day totals; review required. |
 | Profile-only / activity-only / canceled grant | Available sections still work; unavailable sections have explicit reasons; manual onboarding remains usable. |
 | Weight absent/zero/invalid, no height/age | No fabricated body measurements, no failed whole import; manual/Health fields remain available. |
