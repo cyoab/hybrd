@@ -4,6 +4,8 @@ Reviewed against the implemented server and current native app on 23 September 2
 
 Use [contracts/openapi.yaml](../contracts/openapi.yaml) as the wire contract. Generate the Swift API client from it, keep transport/domain mapping separate from SwiftData models, and use the runtime `/openapi.json` to compare the backend you are testing. `make openapi` regenerates the checked-in contract; CI rejects drift. Detailed companion guides: [authentication](authentication.md), [sync/development](development.md), [Progress](progress-metrics-implementation.md), [Strava](strava-integration.md), and [deployment](deployment.md).
 
+The [onboarding → backend handoff](onboarding-backend-handoff.md) describes the next connected sign-up journey, including early Strava import, rich-profile contract gaps, and proposed onboarding endpoints. Those additions are requirements, not part of the implemented contract described here.
+
 ## 1. Bring up the integration environment
 
 Run `make up` from the repository root. Only API and PostgreSQL are long-running development services. The `migrate` helper installs dependencies, applies migrations and seeds catalog/policy, then exits. Mailpit has been removed. Email OTP uses **Resend for both development and production** and delivers real email.

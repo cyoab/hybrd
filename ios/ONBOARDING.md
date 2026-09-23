@@ -2,6 +2,8 @@
 
 The iPhone sign-up entry now opens a local, resumable athlete journey ending in a membership preview. This is deliberately disconnected from account creation, plan generation, Apple Health, Strava, StoreKit, and the backend.
 
+For the connected implementation, see the [onboarding → backend handoff](../docs/onboarding-backend-handoff.md). It specifies early Strava connection, reviewable profile/history imports, missing data fallbacks, canonical storage gaps, and proposed draft/finalization endpoints. The flow described below is the current disconnected preview.
+
 ## Try it
 
 - On first launch, choose **Create account**. **Explore the app** opens the existing app without completing setup.
