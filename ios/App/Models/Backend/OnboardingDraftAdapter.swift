@@ -5,11 +5,11 @@ import Foundation
 enum OnboardingDraftAdapter {
   static func reviewedManualDraft(_ draft: OnboardingDraft, catalog: BackendWire.ExerciseCatalog,
     baseline: BackendWire.OnboardingDraftBaselinePeriod, timeZone: TimeZone, locale: String,
-    weekStartsOn: Int, now: Date = Date()) throws -> BackendWire.OnboardingDraft {
-    guard draft.validation(for: .summary, now: now) == nil, (1...7).contains(weekStartsOn),
+    weekStartsOn: Int, now: Date = Date(), requireComplete: Bool = true) throws -> BackendWire.OnboardingDraft {
+    guard (!requireComplete || draft.validation(for: .summary, now: now) == nil), (1...7).contains(weekStartsOn),
           (2...35).contains(locale.count) else { throw BackendContractError.invalidDraft }
     guard baseline.start <= baseline.end else { throw BackendContractError.invalidBaselinePeriod }
-    let body = BackendWire.AthleteDetails(preferredName: draft.displayName,
+    let body = BackendWire.AthleteDetails(preferredName: draft.displayName.isEmpty ? nil : draft.displayName,
       heightUnit: draft.selectedHeightUnit == .centimeters ? .cm : .ftIn,
       age: try draft.ageYears.map { .init(years: $0, asOf: try BackendDay(date: now, timeZone: timeZone)) },
       weightKg: draft.weightKilograms, heightCm: draft.heightCentimeters, runningRecords: [], strengthRecords: [])

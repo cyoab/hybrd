@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingSummaryView: View {
   @Environment(OnboardingStore.self) private var onboarding
+  var connected = false
   private var draft: OnboardingDraft { onboarding.draft }
 
   var body: some View {
@@ -24,15 +25,15 @@ struct OnboardingSummaryView: View {
         summaryRow(L10n.text("Race date"), value: draft.raceDate.formatted(date: .abbreviated, time: .omitted), symbol: "flag.checkered", step: .goals)
       }
       summaryRow(L10n.text("Running right now"), value: [draft.runningLevel?.displayName, draft.weeklyMeters.map { L10n.text("\(draft.units.distanceText($0)) per week") }].compactMap { $0 }.joined(separator: " · "), symbol: "figure.run", step: .running)
-      summaryRow(L10n.text("Lifting right now"), value: (draft.strengthLevel?.displayName ?? "") + " · " + L10n.text("\(draft.currentLiftDays) days per week"), symbol: "dumbbell", step: .strength)
+      summaryRow(L10n.text("Lifting right now"), value: (draft.strengthLevel?.displayName ?? "") + " · " + draft.currentLiftDays.formatted() + " " + L10n.text("sessions per week"), symbol: "dumbbell", step: .strength)
       summaryRow(L10n.text("Your weekly rhythm"), value: days + "\n" + L10n.text("\(draft.strengthDays) lifting days · \(draft.sessionMinutes) min per session"), symbol: "calendar", step: .rhythm)
       summaryRow(L10n.text("Your gym"), value: draft.equipment.isEmpty ? L10n.text("Bodyweight setup") : GymEquipment.allCases.filter { draft.equipment.contains($0) }.map(\.title).joined(separator: ", "), symbol: "building.2", step: .equipment)
       summaryRow(L10n.text("Muscle focus"), value: draft.focusMuscles.isEmpty ? L10n.text("Balanced, no priority muscles") : MuscleGroup.allCases.filter { draft.focusMuscles.contains($0) }.map(\.title).joined(separator: ", "), symbol: "figure.strengthtraining.functional", step: .focus)
       summaryRow(L10n.text("Your starting mindset"), value: draft.readiness?.title ?? "", symbol: "leaf", step: .readiness)
       if !draft.context.isEmpty { Text(draft.context).font(.subheadline).foregroundStyle(HybrdStyle.muted).padding(.horizontal, 18) }
       summaryRow(L10n.text("About you"), value: bodySummary, symbol: "person", step: .body)
-      summaryRow(L10n.text("Connect later"), value: connections, symbol: "link", step: .connections)
-      Text(L10n.text("This is your onboarding summary, not a generated training prescription. We’ll connect plan creation after this flow is tested."))
+      if !connected { summaryRow(L10n.text("Connect later"), value: connections, symbol: "link", step: .connections) }
+      Text(connected ? L10n.text("Review these answers before saving your athlete setup to your account. You can review a starter plan afterward.") : L10n.text("This is your onboarding summary, not a generated training prescription. We’ll connect plan creation after this flow is tested."))
         .font(.caption).foregroundStyle(HybrdStyle.muted)
     }
   }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TrainingProgressView: View {
+  @Environment(BackendAppController.self) private var backend
   @Environment(TrainingStore.self) private var store
   @Environment(\.scenePhase) private var scenePhase
   @AppStorage("hybrd.progress.period") private var period: ProgressPeriod = .month
@@ -14,7 +15,8 @@ struct TrainingProgressView: View {
   var body: some View {
     NavigationStack {
       TimelineView(.periodic(from: refreshDate, by: 60)) { _ in
-        let snapshot = store.progress(for: period)
+        let local = store.progress(for: period)
+        let snapshot = (backend.progress.flatMap { $0.periodDays.rawValue == period.rawValue ? try? BackendProgressMapping.apply($0, to: local) : nil }) ?? local
         ScrollView {
           VStack(alignment: .leading, spacing: 28) {
             VStack(alignment: .leading, spacing: 7) {
@@ -107,6 +109,7 @@ struct TrainingProgressView: View {
       .toolbarBackground(HybrdStyle.surface, for: .tabBar)
       .sheet(item: $selectedMilestone) { ProgressMilestoneDetailView(milestone: $0) }
       .sheet(isPresented: $showingJourney) { ProgressJourneyExplanation() }
+      .task(id: "\(period.rawValue)-\(store.progressRevision)") { await backend.fetchProgress(days: period.rawValue) }
       .sensoryFeedback(.selection, trigger: period)
       .onChange(of: scenePhase) { _, phase in if phase == .active { refreshDate = Date() } }
     }

@@ -11,7 +11,7 @@ struct OnboardingDraft: Codable, Equatable {
   var runningLevel: TrainingExperience?
   var strengthLevel: TrainingExperience?
   var weeklyDistance = ""
-  var currentLiftDays = 0
+  var currentLiftDays = 0.0
   var age = ""
   var weight = ""
   var height = ""

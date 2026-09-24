@@ -32,15 +32,15 @@ final class AthleteProfileEditor {
     runningTimes = Dictionary(details.runningBests.map { ($0.distance, $0.time) }, uniquingKeysWith: { first, _ in first })
   }
   var parsedWeeklyKilometers: Double? {
-    if weeklyDistance == initialWeeklyText { return weeklyBaseline.isFinite && (3...150).contains(weeklyBaseline) ? weeklyBaseline : nil }
-    return units.distance.parse(weeklyDistance, meters: 3_000...150_000).map { $0 / 1_000 }
+    if weeklyDistance == initialWeeklyText { return weeklyBaseline.isFinite && profile.baselineRange.contains(weeklyBaseline) ? weeklyBaseline : nil }
+    return units.distance.parse(weeklyDistance, meters: (profile.baselineRange.lowerBound * 1000)...(profile.baselineRange.upperBound * 1000)).map { $0 / 1_000 }
   }
   var parsedWeightKilograms: Double? {
     if weight == initialWeightText { return weightBaseline.flatMap { $0.isFinite && (20...400).contains($0) ? $0 : nil } }
     return units.weight.parse(weight, kilograms: 20...400)
   }
   var canChangeWeightUnit: Bool { weight.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || parsedWeightKilograms != nil }
-  var weeklyDistanceError: String { L10n.text("Weekly distance: enter \(units.distanceText(3_000))–\(units.distanceText(150_000)).") }
+  var weeklyDistanceError: String { L10n.text("Weekly distance: enter \(units.distanceText(profile.baselineRange.lowerBound * 1000))–\(units.distanceText(profile.baselineRange.upperBound * 1000)).") }
   var weightError: String { L10n.text("Weight: enter \(units.weightText(20))–\(units.weightText(400)) or leave it blank.") }
 
   func setWeightUnit(_ unit: TrainingWeightUnit) {

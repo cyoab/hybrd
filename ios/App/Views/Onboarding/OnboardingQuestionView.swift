@@ -95,7 +95,10 @@ struct OnboardingQuestionView: View {
       experience(onboarding.draft.strengthLevel, tone: .violet) { onboarding.draft.strengthLevel = $0 }
       pickerCard(L10n.text("Current lifting days per week"), detail: L10n.text("How many days do you lift in a typical week right now?")) {
         Picker(L10n.text("Current lifting days per week"), selection: draft.currentLiftDays) {
-          ForEach(0..<8) { Text(L10n.text("\($0) days per week")).tag($0) }
+          ForEach(0..<8) { Text(L10n.text("\($0) days per week")).tag(Double($0)) }
+          if onboarding.draft.currentLiftDays.rounded() != onboarding.draft.currentLiftDays {
+            Text(onboarding.draft.currentLiftDays.formatted()).tag(onboarding.draft.currentLiftDays)
+          }
         }.pickerStyle(.menu).labelsHidden()
       }
       note(L10n.text("Different starting points, one athlete. Your running experience won’t decide your lifting level."), tone: .violet)

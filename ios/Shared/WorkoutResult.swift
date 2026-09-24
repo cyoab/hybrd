@@ -13,6 +13,11 @@ struct WorkoutResult: Codable, Identifiable, Equatable {
   var notes: String
   var sets: [LoggedSet]
   var run: RunRecording?
+  var performedStartedAt: Date?
+  var performedEndedAt: Date?
+  var performedTimeZoneID: String?
+  var canonicalTrainingDate: String?
+  var canonicalElapsedDuration: Bool?
 }
 
 enum ResultStatus: String, Codable {
@@ -45,6 +50,8 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
   var elapsedSeconds: TimeInterval?
   var runningSince: Date?
   var rest: StrengthRestTimer?
+  var performedStartedAt: Date?
+  var performedTimeZoneID: String?
 
   var validationMessage: String? { validationMessage(in: .metric) }
   func validationMessage(in units: TrainingUnits) -> String? {
@@ -76,7 +83,10 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
   }
 
   mutating func resume(at now: Date = Date()) {
-    if runningSince == nil { runningSince = now }
+    if runningSince == nil {
+      if performedStartedAt == nil { performedStartedAt = now; performedTimeZoneID = TimeZone.current.identifier }
+      runningSince = now
+    }
   }
 
   mutating func pause(at now: Date = Date()) {

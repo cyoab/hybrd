@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct OnboardingEntryView: View {
+  @Environment(BackendAppController.self) private var backend
   @Environment(OnboardingStore.self) private var onboarding
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var inJourney = false
-  @State private var showSignIn = false
   @State private var restart = false
   var onExit: () -> Void
 
@@ -21,10 +21,7 @@ struct OnboardingEntryView: View {
         Button(L10n.text("Start over"), role: .destructive) { onboarding.restart(); onboarding.begin(); inJourney = true }
         Button(L10n.text("Cancel"), role: .cancel) {}
       } message: { Text(L10n.text("This clears only the saved onboarding answers. Your training history stays in place.")) }
-      .sheet(isPresented: $showSignIn) {
-        OnboardingInformationView(title: L10n.text("Sign in"), symbol: "person.crop.circle",
-          message: L10n.text("Account sign-in isn’t connected in this preview. You can test creating your plan or return to the existing app."))
-      }
+
     }
   }
 
@@ -53,16 +50,16 @@ struct OnboardingEntryView: View {
     .safeAreaInset(edge: .bottom, spacing: 0) {
       VStack(spacing: 14) {
         Button(onboarding.started ? L10n.text("Continue setup") : L10n.text("Create account")) {
-          onboarding.begin(); inJourney = true
+          backend.showAuthentication = true
         }.buttonStyle(HybrdPrimaryButtonStyle())
-        Button(L10n.text("Already have an account? Sign in")) { showSignIn = true }
+        Button(L10n.text("Already have an account? Sign in")) { backend.showAuthentication = true }
           .font(.subheadline.weight(.medium)).foregroundStyle(HybrdStyle.ink)
         HStack {
           if onboarding.started || onboarding.storageMessage != nil { Button(L10n.text("Start over")) { restart = true } }
           Spacer()
           Button(L10n.text("Explore the app"), action: onExit)
         }.font(.caption).foregroundStyle(HybrdStyle.muted)
-        Text(L10n.text("Preview only · No account or payment required"))
+        Button(L10n.text("Preview onboarding without an account")) { onboarding.begin(); inJourney = true }
           .font(.caption2).foregroundStyle(HybrdStyle.muted).multilineTextAlignment(.center)
       }.padding(.horizontal, 24).padding(.vertical, 16).frame(maxWidth: 560).frame(maxWidth: .infinity)
         .background(HybrdStyle.background)

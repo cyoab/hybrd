@@ -7,16 +7,20 @@ struct OnboardingJourneyView: View {
   @State private var preparingPlan = false
   var onClose: () -> Void
   var onFinish: () -> Void
+  var connectedAdvance: ((Bool) async throws -> Void)? = nil
+  @State private var saving = false
+  @State private var saveMessage: String?
 
   var body: some View {
     Group {
       if onboarding.completed { completion }
       else if preparingPlan {
-        OnboardingPreparationView(draft: onboarding.draft, onCancel: { preparingPlan = false }) {
+        OnboardingPreparationView(draft: onboarding.draft, onCancel: { preparingPlan = false }, onComplete: {
+          if connectedAdvance != nil { return }
           preparingPlan = false
           guard onboarding.step == .summary else { return }
           _ = onboarding.advance()
-        }
+        }, connected: connectedAdvance != nil)
       }
       else {
         ScrollViewReader { proxy in
@@ -30,7 +34,7 @@ struct OnboardingJourneyView: View {
                 }.fixedSize(horizontal: false, vertical: true)
               }
               if onboarding.step == .paywall { OnboardingPaywallView() }
-              else if onboarding.step == .summary { OnboardingSummaryView() }
+              else if onboarding.step == .summary { OnboardingSummaryView(connected: connectedAdvance != nil) }
               else { OnboardingQuestionView() }
             }
             .padding(.horizontal, 24).padding(.bottom, 24)
@@ -46,6 +50,8 @@ struct OnboardingJourneyView: View {
         .sensoryFeedback(.selection, trigger: onboarding.step)
       }
     }
+    .disabled(saving)
+    .interactiveDismissDisabled(saving)
     .toolbar { ToolbarItemGroup(placement: .keyboard) { Spacer(); Button(L10n.text("Done")) { hideKeyboard() } } }
   }
   private var tone: SessionBreakdown.Tone {
@@ -55,24 +61,29 @@ struct OnboardingJourneyView: View {
     default: .terra
     }
   }
+  private var journeySteps: [OnboardingStep] {
+    connectedAdvance == nil ? OnboardingStep.allCases : OnboardingStep.allCases.filter { $0 != .connections && $0 != .paywall }
+  }
+  private var stepNumber: Int { (journeySteps.firstIndex(of: onboarding.step) ?? 0) + 1 }
+  private var stepCount: Int { journeySteps.count }
   private var navigation: some View {
     VStack(spacing: 12) {
       HStack {
         Button(L10n.text("Back"), systemImage: "chevron.left") {
           hideKeyboard()
-          if onboarding.step == .identity && !onboarding.reviewing { onClose() } else { onboarding.back() }
+          if onboarding.step == .identity && !onboarding.reviewing { onClose() } else { onboarding.back(); if connectedAdvance != nil && onboarding.step == .connections { onboarding.back() } }
         }.labelStyle(.iconOnly).frame(width: 44, height: 44).contentShape(Rectangle())
         Spacer()
         VStack(spacing: 3) {
           Text(onboarding.step.chapter).font(.caption.weight(.semibold))
-          Text(L10n.text("\(onboarding.step.rawValue + 1) of \(OnboardingStep.allCases.count)"))
+          Text(L10n.text("\(stepNumber) of \(stepCount)"))
             .font(.caption2).foregroundStyle(HybrdStyle.muted)
         }
         Spacer()
         Button(L10n.text("Save and close"), systemImage: "xmark", action: onClose)
           .labelStyle(.iconOnly).frame(width: 44, height: 44).contentShape(Rectangle())
       }.foregroundStyle(HybrdStyle.ink)
-      ProgressView(value: Double(onboarding.step.rawValue + 1), total: Double(OnboardingStep.allCases.count))
+      ProgressView(value: Double(stepNumber), total: Double(stepCount))
         .tint(SessionPalette.color(tone)).accessibilityLabel(L10n.text("Onboarding progress"))
     }.padding(.horizontal, 20).padding(.bottom, 14)
       .frame(maxWidth: 600).frame(maxWidth: .infinity).background(HybrdStyle.background.opacity(0.96))
@@ -82,6 +93,8 @@ struct OnboardingJourneyView: View {
       if attempted, let error = onboarding.draft.validation(for: onboarding.step) {
         Text(error).font(.caption).foregroundStyle(HybrdStyle.terraText).frame(maxWidth: .infinity, alignment: .leading)
       }
+      if let saveMessage { Text(saveMessage).font(.caption).foregroundStyle(HybrdStyle.terraText) }
+      if saving { ProgressView(L10n.text("Saving your setup…")) }
       if let message = onboarding.storageMessage { Text(message).font(.caption).foregroundStyle(HybrdStyle.terraText) }
       if onboarding.step == .paywall {
         Text(L10n.text("Preview only. You won’t be charged."))
@@ -89,12 +102,30 @@ struct OnboardingJourneyView: View {
       }
       Button(buttonTitle) {
         hideKeyboard(); attempted = true
-        if onboarding.step == .paywall { _ = onboarding.finishPreview() }
+        if let connectedAdvance {
+          guard onboarding.draft.validation(for: onboarding.step) == nil else { return }
+          saving = true
+          let completing = onboarding.step == .summary
+          if completing { preparingPlan = true }
+          Task {
+            let deadline = ContinuousClock.now.advanced(by: .seconds(4))
+            do {
+              try await connectedAdvance(onboarding.step == .summary)
+              if onboarding.step != .summary {
+                _ = onboarding.advance()
+                if onboarding.step == .connections { _ = onboarding.advance() }
+              }
+              if completing { try await ContinuousClock().sleep(until: deadline); preparingPlan = false; onFinish() }
+              saveMessage = nil
+            } catch { preparingPlan = false; saveMessage = BackendErrorMessage.text(error) }
+            saving = false
+          }
+        } else if onboarding.step == .paywall { _ = onboarding.finishPreview() }
         else if onboarding.step == .summary {
           if onboarding.draft.validation(for: .summary) == nil { preparingPlan = true }
         } else { _ = onboarding.advance() }
-      }.buttonStyle(HybrdPrimaryButtonStyle())
-      if onboarding.step == .body {
+      }.buttonStyle(HybrdPrimaryButtonStyle()).disabled(saving)
+      if onboarding.step == .body && connectedAdvance == nil {
         Button(L10n.text("Skip for now")) {
           onboarding.draft.clearBodyDetails()
           _ = onboarding.advance()
@@ -104,6 +135,7 @@ struct OnboardingJourneyView: View {
       .background(HybrdStyle.background)
   }
   private var buttonTitle: String {
+    if connectedAdvance != nil && onboarding.step == .summary { return L10n.text("Save my training setup") }
     if onboarding.reviewing { return L10n.text("Save & review") }
     if onboarding.step == .summary { return L10n.text("Build my plan") }
     if onboarding.step == .paywall {

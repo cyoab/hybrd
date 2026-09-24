@@ -9,7 +9,7 @@ struct ProgressResultDetailView: View {
       Section {
         LabeledContent(L10n.text("Status"), value: result.status.displayName)
         LabeledContent(L10n.text("Logged"), value: result.completedAt.formatted(date: .abbreviated, time: .shortened))
-        LabeledContent(L10n.text("Active time"), value: RunningPersonalBest.format(max(0, result.durationSeconds)))
+        LabeledContent(result.canonicalElapsedDuration == true ? L10n.text("Elapsed time") : L10n.text("Active time"), value: RunningPersonalBest.format(max(0, result.durationSeconds)))
         if result.kind == .run, let meters = result.distanceMeters {
           LabeledContent(L10n.text("Distance"), value: units.distanceText(Double(meters), decimals: 2))
         }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+  @Environment(BackendAppController.self) private var backend
   @Environment(TrainingStore.self) private var store
   @AppStorage(AppAppearance.storageKey) private var appearance: AppAppearance = .system
   @Environment(\.dismiss) private var dismiss
@@ -97,25 +98,32 @@ struct ProfileView: View {
         NavigationLink { TrainingPreferencesView(editor: editor) } label: {
           ProfileMenuRow(title: L10n.text("Goals & weekly rhythm"), subtitle: L10n.text("Running, strength & availability"), symbol: "calendar", tone: .gold)
         }
-        NavigationLink { ProfileConnectionsView(editor: editor) } label: {
+        if !backend.connected { NavigationLink { ProfileConnectionsView(editor: editor) } label: {
           ProfileMenuRow(title: L10n.text("Health & connections"), subtitle: L10n.text("Apple Health, Strava & Watch"), symbol: "heart.text.clipboard", tone: .mint)
-        }
+        } }
       }
       Section {
         Button(L10n.text("Review a new starter block"), systemImage: "arrow.right") {
           proposal = store.starterProposal(for: editor.assembledProfile)
         }
-        .disabled(editor.validationMessage != nil)
+        .disabled(editor.validationMessage != nil || !editor.assembledProfile.supportsStarterPlan)
       } footer: {
+        if !editor.assembledProfile.supportsStarterPlan { Text(L10n.text("Your baseline is saved as entered. Starter plans currently support 3–150 km per week.")) }
         Text(L10n.text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences."))
       }
 
-      Section {
+      if !backend.connected { Section {
         Button(L10n.text("Try sign-up & onboarding"), systemImage: "sparkles") { showOnboarding = true }
       } footer: {
         Text(L10n.text("Preview the new athlete journey and membership screen. No account changes or charges."))
-      }
+      } }
 
+      Section {
+        Button(backend.connected ? L10n.text("Account & sync") : L10n.text("Connect with email")) {
+          dismiss()
+          if backend.connected { backend.showAccount = true } else { backend.showAuthentication = true }
+        }
+      }
       ProfileUnitsSection(editor: editor)
       ProfileAppearanceSection(appearance: $appearance)
     }

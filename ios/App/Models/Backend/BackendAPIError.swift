@@ -26,6 +26,8 @@ struct BackendAPIError: Error, Equatable {
       struct Detail: Decodable { var code: String; var details: BackendJSONValue?; var requestId: String? }
       var error: Detail
     }
+    struct AuthError: Decodable { var code: String }
+    let auth = try? JSONDecoder().decode(AuthError.self, from: data)
     let parsed = try? JSONDecoder().decode(Envelope.self, from: data).error
     let header = response.value(forHTTPHeaderField: "Retry-After")
     var delay = header.flatMap(Double.init).flatMap { $0.isFinite ? max(0, $0) : nil }
@@ -34,7 +36,7 @@ struct BackendAPIError: Error, Equatable {
       f.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
       delay = f.date(from: header).map { max(0, $0.timeIntervalSince(now)) }
     }
-    return Self(status: response.statusCode, code: parsed?.code ?? "HTTP_\(response.statusCode)",
+    return Self(status: response.statusCode, code: parsed?.code ?? auth?.code ?? "HTTP_\(response.statusCode)",
       requestID: response.value(forHTTPHeaderField: "X-Request-Id") ?? parsed?.requestId,
       details: parsed?.details, retryAfterSeconds: delay)
   }

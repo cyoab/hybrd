@@ -10,9 +10,10 @@ import Observation
   private(set) var enteredApp: Bool
   private(set) var storageMessage: String?
   @ObservationIgnored private let defaults: UserDefaults
-  @ObservationIgnored private let key = "hybrd.onboarding.preview.v1"
+  @ObservationIgnored private let key: String
 
-  init(defaults: UserDefaults = .standard) {
+  init(defaults: UserDefaults = .standard, key: String = "hybrd.onboarding.preview.v1") {
+    self.key = key
     self.defaults = defaults
     if let data = defaults.data(forKey: key), let saved = try? JSONDecoder().decode(Snapshot.self, from: data), saved.version == 1 {
       draft = saved.draft; step = saved.step; started = saved.started; completed = saved.completed; enteredApp = saved.enteredApp; reviewing = saved.reviewing ?? false
@@ -20,6 +21,9 @@ import Observation
       draft = OnboardingDraft(); step = .identity; started = false; completed = false; enteredApp = false; reviewing = false
       if defaults.data(forKey: key) != nil { storageMessage = L10n.text("The saved preview couldn’t be opened. Start again to save a new draft.") }
     }
+  }
+  func restoreConnected(_ value: OnboardingDraft, step: OnboardingStep) {
+    draft = value; self.step = step; started = true; reviewing = false; completed = false; enteredApp = false; save()
   }
   func begin() { started = true; completed = false; save() }
   @discardableResult func advance() -> Bool {
@@ -34,6 +38,7 @@ import Observation
     guard step == .paywall, draft.validation(for: .paywall) == nil else { return false }
     completed = true; save(); return true
   }
+  func leaveApp() { enteredApp = false; save() }
   func enterApp() { enteredApp = true; save() }
   func restart() {
     defaults.removeObject(forKey: key)

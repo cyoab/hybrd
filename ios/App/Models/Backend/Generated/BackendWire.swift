@@ -47,13 +47,13 @@ enum BackendWire {
       self.`reviewIssues` = `reviewIssues`
     }
     private enum CodingKeys: String, CodingKey {
-      case `schemaVersion`
-      case `status`
-      case `draft`
-      case `draftRevision`
-      case `step`
-      case `completion`
-      case `reviewIssues`
+      case `schemaVersion` = "schemaVersion"
+      case `status` = "status"
+      case `draft` = "draft"
+      case `draftRevision` = "draftRevision"
+      case `step` = "step"
+      case `completion` = "completion"
+      case `reviewIssues` = "reviewIssues"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -87,9 +87,9 @@ enum BackendWire {
       self.`draft` = `draft`
     }
     private enum CodingKeys: String, CodingKey {
-      case `baseRevision`
-      case `step`
-      case `draft`
+      case `baseRevision` = "baseRevision"
+      case `step` = "step"
+      case `draft` = "draft"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -117,10 +117,10 @@ enum BackendWire {
       self.`policyVersionId` = `policyVersionId`
     }
     private enum CodingKeys: String, CodingKey {
-      case `draftRevision`
-      case `deviceId`
-      case `catalogVersion`
-      case `policyVersionId`
+      case `draftRevision` = "draftRevision"
+      case `deviceId` = "deviceId"
+      case `catalogVersion` = "catalogVersion"
+      case `policyVersionId` = "policyVersionId"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -132,9 +132,9 @@ enum BackendWire {
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`draftRevision`, forKey: .`draftRevision`)
-      try c.encode(`deviceId`, forKey: .`deviceId`)
+      try c.encode(`deviceId`.uuidString.lowercased(), forKey: .`deviceId`)
       try c.encode(`catalogVersion`, forKey: .`catalogVersion`)
-      try c.encode(`policyVersionId`, forKey: .`policyVersionId`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
     }
   }
 
@@ -144,7 +144,7 @@ enum BackendWire {
       self.`draftRevision` = `draftRevision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `draftRevision`
+      case `draftRevision` = "draftRevision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -184,14 +184,14 @@ enum BackendWire {
       self.`jobs` = `jobs`
     }
     private enum CodingKeys: String, CodingKey {
-      case `available`
-      case `status`
-      case `remoteAthleteId`
-      case `autoPublish`
-      case `scopes`
-      case `history`
-      case `onboardingPreview`
-      case `jobs`
+      case `available` = "available"
+      case `status` = "status"
+      case `remoteAthleteId` = "remoteAthleteId"
+      case `autoPublish` = "autoPublish"
+      case `scopes` = "scopes"
+      case `history` = "history"
+      case `onboardingPreview` = "onboardingPreview"
+      case `jobs` = "jobs"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -235,13 +235,13 @@ enum BackendWire {
       self.`exerciseEquipment` = `exerciseEquipment`
     }
     private enum CodingKeys: String, CodingKey {
-      case `version`
-      case `exercises`
-      case `equipment`
-      case `muscleGroups`
-      case `aliases`
-      case `exerciseMuscles`
-      case `exerciseEquipment`
+      case `version` = "version"
+      case `exercises` = "exercises"
+      case `equipment` = "equipment"
+      case `muscleGroups` = "muscleGroups"
+      case `aliases` = "aliases"
+      case `exerciseMuscles` = "exerciseMuscles"
+      case `exerciseEquipment` = "exerciseEquipment"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -265,6 +265,1024 @@ enum BackendWire {
     }
   }
 
+  struct Bootstrap: Codable, Equatable, Sendable {
+    var `athlete`: Athlete
+    var `device`: BootstrapDevice
+    var `capabilities`: BootstrapCapabilities
+    var `sync`: BootstrapSync
+    var `policy`: BootstrapPolicy?
+    var `entitlements`: [Entitlement]
+    init(`athlete`: Athlete, `device`: BootstrapDevice, `capabilities`: BootstrapCapabilities, `sync`: BootstrapSync, `policy`: BootstrapPolicy? = nil, `entitlements`: [Entitlement]) {
+      self.`athlete` = `athlete`
+      self.`device` = `device`
+      self.`capabilities` = `capabilities`
+      self.`sync` = `sync`
+      self.`policy` = `policy`
+      self.`entitlements` = `entitlements`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `athlete` = "athlete"
+      case `device` = "device"
+      case `capabilities` = "capabilities"
+      case `sync` = "sync"
+      case `policy` = "policy"
+      case `entitlements` = "entitlements"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `athlete` = try c.decode(Athlete.self, forKey: .`athlete`)
+      `device` = try c.decode(BootstrapDevice.self, forKey: .`device`)
+      `capabilities` = try c.decode(BootstrapCapabilities.self, forKey: .`capabilities`)
+      `sync` = try c.decode(BootstrapSync.self, forKey: .`sync`)
+      `policy` = try c.decode(BootstrapPolicy?.self, forKey: .`policy`)
+      `entitlements` = try c.decode([Entitlement].self, forKey: .`entitlements`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`athlete`, forKey: .`athlete`)
+      try c.encode(`device`, forKey: .`device`)
+      try c.encode(`capabilities`, forKey: .`capabilities`)
+      try c.encode(`sync`, forKey: .`sync`)
+      try c.encode(`policy`, forKey: .`policy`)
+      try c.encode(`entitlements`, forKey: .`entitlements`)
+    }
+  }
+
+  enum DeviceRegistrationPushEnvironment: String, Codable, Equatable, Sendable {
+    case `sandbox` = "sandbox"
+    case `production` = "production"
+  }
+
+  struct DeviceRegistration: Codable, Equatable, Sendable {
+    var `appVersion`: String
+    var `osVersion`: String?
+    var `pushToken`: String?
+    var `pushEnvironment`: DeviceRegistrationPushEnvironment?
+    var `pushEnabled`: Bool?
+    init(`appVersion`: String, `osVersion`: String? = nil, `pushToken`: String? = nil, `pushEnvironment`: DeviceRegistrationPushEnvironment? = nil, `pushEnabled`: Bool? = nil) {
+      self.`appVersion` = `appVersion`
+      self.`osVersion` = `osVersion`
+      self.`pushToken` = `pushToken`
+      self.`pushEnvironment` = `pushEnvironment`
+      self.`pushEnabled` = `pushEnabled`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `appVersion` = "appVersion"
+      case `osVersion` = "osVersion"
+      case `pushToken` = "pushToken"
+      case `pushEnvironment` = "pushEnvironment"
+      case `pushEnabled` = "pushEnabled"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `appVersion` = try c.decode(String.self, forKey: .`appVersion`)
+      `osVersion` = try c.decodeIfPresent(String.self, forKey: .`osVersion`)
+      `pushToken` = try c.decodeIfPresent(String.self, forKey: .`pushToken`)
+      `pushEnvironment` = try c.decodeIfPresent(DeviceRegistrationPushEnvironment.self, forKey: .`pushEnvironment`)
+      `pushEnabled` = try c.decodeIfPresent(Bool.self, forKey: .`pushEnabled`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`appVersion`, forKey: .`appVersion`)
+      try c.encodeIfPresent(`osVersion`, forKey: .`osVersion`)
+      try c.encode(`pushToken`, forKey: .`pushToken`)
+      try c.encodeIfPresent(`pushEnvironment`, forKey: .`pushEnvironment`)
+      try c.encodeIfPresent(`pushEnabled`, forKey: .`pushEnabled`)
+    }
+  }
+
+  struct RegisteredDevice: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `registered`: BackendTrue
+    init(`id`: UUID, `registered`: BackendTrue) {
+      self.`id` = `id`
+      self.`registered` = `registered`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `registered` = "registered"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `registered` = try c.decode(BackendTrue.self, forKey: .`registered`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`registered`, forKey: .`registered`)
+    }
+  }
+
+  struct TrainingPolicy: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `version`: Int
+    var `schemaVersion`: Int
+    var `checksum`: String
+    var `config`: PolicyConfig
+    var `minimumAppVersion`: String?
+    init(`id`: UUID, `version`: Int, `schemaVersion`: Int, `checksum`: String, `config`: PolicyConfig, `minimumAppVersion`: String? = nil) {
+      self.`id` = `id`
+      self.`version` = `version`
+      self.`schemaVersion` = `schemaVersion`
+      self.`checksum` = `checksum`
+      self.`config` = `config`
+      self.`minimumAppVersion` = `minimumAppVersion`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `version` = "version"
+      case `schemaVersion` = "schemaVersion"
+      case `checksum` = "checksum"
+      case `config` = "config"
+      case `minimumAppVersion` = "minimumAppVersion"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `version` = try c.decode(Int.self, forKey: .`version`)
+      `schemaVersion` = try c.decode(Int.self, forKey: .`schemaVersion`)
+      `checksum` = try c.decode(String.self, forKey: .`checksum`)
+      `config` = try c.decode(PolicyConfig.self, forKey: .`config`)
+      `minimumAppVersion` = try c.decode(String?.self, forKey: .`minimumAppVersion`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`version`, forKey: .`version`)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`checksum`, forKey: .`checksum`)
+      try c.encode(`config`, forKey: .`config`)
+      try c.encode(`minimumAppVersion`, forKey: .`minimumAppVersion`)
+    }
+  }
+
+  struct SyncPullResponse: Codable, Equatable, Sendable {
+    var `changes`: [SyncChange]
+    var `nextCursor`: BackendRevision
+    var `hasMore`: Bool
+    init(`changes`: [SyncChange], `nextCursor`: BackendRevision, `hasMore`: Bool) {
+      self.`changes` = `changes`
+      self.`nextCursor` = `nextCursor`
+      self.`hasMore` = `hasMore`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `changes` = "changes"
+      case `nextCursor` = "nextCursor"
+      case `hasMore` = "hasMore"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `changes` = try c.decode([SyncChange].self, forKey: .`changes`)
+      `nextCursor` = try c.decode(BackendRevision.self, forKey: .`nextCursor`)
+      `hasMore` = try c.decode(Bool.self, forKey: .`hasMore`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`changes`, forKey: .`changes`)
+      try c.encode(`nextCursor`, forKey: .`nextCursor`)
+      try c.encode(`hasMore`, forKey: .`hasMore`)
+    }
+  }
+
+  struct SyncPushResponse: Codable, Equatable, Sendable {
+    var `results`: [MutationResult]
+    var `serverSequence`: BackendRevision
+    init(`results`: [MutationResult], `serverSequence`: BackendRevision) {
+      self.`results` = `results`
+      self.`serverSequence` = `serverSequence`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `results` = "results"
+      case `serverSequence` = "serverSequence"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `results` = try c.decode([MutationResult].self, forKey: .`results`)
+      `serverSequence` = try c.decode(BackendRevision.self, forKey: .`serverSequence`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`results`, forKey: .`results`)
+      try c.encode(`serverSequence`, forKey: .`serverSequence`)
+    }
+  }
+
+  struct SyncAcknowledgement: Codable, Equatable, Sendable {
+    var `deviceId`: UUID
+    var `cursor`: BackendRevision
+    init(`deviceId`: UUID, `cursor`: BackendRevision) {
+      self.`deviceId` = `deviceId`
+      self.`cursor` = `cursor`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `deviceId` = "deviceId"
+      case `cursor` = "cursor"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `deviceId` = try c.decode(UUID.self, forKey: .`deviceId`)
+      `cursor` = try c.decode(BackendRevision.self, forKey: .`cursor`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`deviceId`.uuidString.lowercased(), forKey: .`deviceId`)
+      try c.encode(`cursor`, forKey: .`cursor`)
+    }
+  }
+
+  enum ProgressSummaryDateBasis: String, Codable, Equatable, Sendable {
+    case `performedDate` = "performedDate"
+    case `loggedDate` = "loggedDate"
+    case `mixed` = "mixed"
+  }
+
+  enum ProgressSummaryFreshness: String, Codable, Equatable, Sendable {
+    case `current` = "current"
+  }
+
+  enum ProgressSummaryPeriodDays: Int, Codable, Equatable, Sendable {
+    case value7 = 7
+    case value28 = 28
+    case value84 = 84
+  }
+
+  struct ProgressSummary: Codable, Equatable, Sendable {
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `rulesVersion`: OnboardingStateSchemaVersion
+    var `asOf`: BackendInstant
+    var `timezone`: String
+    var `dateBasis`: ProgressSummaryDateBasis
+    var `dataRevision`: BackendRevision
+    var `projectionSequence`: BackendRevision
+    var `freshness`: ProgressSummaryFreshness
+    var `periodDays`: ProgressSummaryPeriodDays
+    var `range`: ProgressSummaryRange
+    var `totals`: ProgressSummaryTotals
+    var `series`: [ProgressDay]
+    var `activityDays`: [ProgressDay]
+    var `journey`: ProgressSummaryJourney
+    var `milestones`: [ProgressMilestone]
+    var `comparisons`: [ProgressComparison]
+    var `recentActivity`: [ProgressActivity]
+    var `exclusions`: [String: Int]
+    init(`schemaVersion`: OnboardingStateSchemaVersion, `rulesVersion`: OnboardingStateSchemaVersion, `asOf`: BackendInstant, `timezone`: String, `dateBasis`: ProgressSummaryDateBasis, `dataRevision`: BackendRevision, `projectionSequence`: BackendRevision, `freshness`: ProgressSummaryFreshness, `periodDays`: ProgressSummaryPeriodDays, `range`: ProgressSummaryRange, `totals`: ProgressSummaryTotals, `series`: [ProgressDay], `activityDays`: [ProgressDay], `journey`: ProgressSummaryJourney, `milestones`: [ProgressMilestone], `comparisons`: [ProgressComparison], `recentActivity`: [ProgressActivity], `exclusions`: [String: Int]) {
+      self.`schemaVersion` = `schemaVersion`
+      self.`rulesVersion` = `rulesVersion`
+      self.`asOf` = `asOf`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`dataRevision` = `dataRevision`
+      self.`projectionSequence` = `projectionSequence`
+      self.`freshness` = `freshness`
+      self.`periodDays` = `periodDays`
+      self.`range` = `range`
+      self.`totals` = `totals`
+      self.`series` = `series`
+      self.`activityDays` = `activityDays`
+      self.`journey` = `journey`
+      self.`milestones` = `milestones`
+      self.`comparisons` = `comparisons`
+      self.`recentActivity` = `recentActivity`
+      self.`exclusions` = `exclusions`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `schemaVersion` = "schemaVersion"
+      case `rulesVersion` = "rulesVersion"
+      case `asOf` = "asOf"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `dataRevision` = "dataRevision"
+      case `projectionSequence` = "projectionSequence"
+      case `freshness` = "freshness"
+      case `periodDays` = "periodDays"
+      case `range` = "range"
+      case `totals` = "totals"
+      case `series` = "series"
+      case `activityDays` = "activityDays"
+      case `journey` = "journey"
+      case `milestones` = "milestones"
+      case `comparisons` = "comparisons"
+      case `recentActivity` = "recentActivity"
+      case `exclusions` = "exclusions"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `rulesVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`rulesVersion`)
+      `asOf` = try c.decode(BackendInstant.self, forKey: .`asOf`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decode(ProgressSummaryDateBasis.self, forKey: .`dateBasis`)
+      `dataRevision` = try c.decode(BackendRevision.self, forKey: .`dataRevision`)
+      `projectionSequence` = try c.decode(BackendRevision.self, forKey: .`projectionSequence`)
+      `freshness` = try c.decode(ProgressSummaryFreshness.self, forKey: .`freshness`)
+      `periodDays` = try c.decode(ProgressSummaryPeriodDays.self, forKey: .`periodDays`)
+      `range` = try c.decode(ProgressSummaryRange.self, forKey: .`range`)
+      `totals` = try c.decode(ProgressSummaryTotals.self, forKey: .`totals`)
+      `series` = try c.decode([ProgressDay].self, forKey: .`series`)
+      `activityDays` = try c.decode([ProgressDay].self, forKey: .`activityDays`)
+      `journey` = try c.decode(ProgressSummaryJourney.self, forKey: .`journey`)
+      `milestones` = try c.decode([ProgressMilestone].self, forKey: .`milestones`)
+      `comparisons` = try c.decode([ProgressComparison].self, forKey: .`comparisons`)
+      `recentActivity` = try c.decode([ProgressActivity].self, forKey: .`recentActivity`)
+      `exclusions` = try c.decode([String: Int].self, forKey: .`exclusions`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`rulesVersion`, forKey: .`rulesVersion`)
+      try c.encode(`asOf`, forKey: .`asOf`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`dataRevision`, forKey: .`dataRevision`)
+      try c.encode(`projectionSequence`, forKey: .`projectionSequence`)
+      try c.encode(`freshness`, forKey: .`freshness`)
+      try c.encode(`periodDays`, forKey: .`periodDays`)
+      try c.encode(`range`, forKey: .`range`)
+      try c.encode(`totals`, forKey: .`totals`)
+      try c.encode(`series`, forKey: .`series`)
+      try c.encode(`activityDays`, forKey: .`activityDays`)
+      try c.encode(`journey`, forKey: .`journey`)
+      try c.encode(`milestones`, forKey: .`milestones`)
+      try c.encode(`comparisons`, forKey: .`comparisons`)
+      try c.encode(`recentActivity`, forKey: .`recentActivity`)
+      try c.encode(`exclusions`, forKey: .`exclusions`)
+    }
+  }
+
+  struct AthleteDetailsInput: Codable, Equatable, Sendable {
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `details`: AthleteDetails
+    init(`schemaVersion`: OnboardingStateSchemaVersion, `details`: AthleteDetails) {
+      self.`schemaVersion` = `schemaVersion`
+      self.`details` = `details`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `schemaVersion` = "schemaVersion"
+      case `details` = "details"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `details` = try c.decode(AthleteDetails.self, forKey: .`details`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`details`, forKey: .`details`)
+    }
+  }
+
+  enum TrainingPreferencesInputPriorityMode: String, Codable, Equatable, Sendable {
+    case `balanced` = "balanced"
+    case `runFirst` = "run_first"
+    case `strengthFirst` = "strength_first"
+    case `custom` = "custom"
+  }
+
+  enum TrainingPreferencesInputStrengthObjective: String, Codable, Equatable, Sendable {
+    case `strength` = "strength"
+    case `hypertrophy` = "hypertrophy"
+    case `maintenance` = "maintenance"
+    case `mixed` = "mixed"
+  }
+
+  enum TrainingPreferencesInputExperienceLevel: String, Codable, Equatable, Sendable {
+    case `beginner` = "beginner"
+    case `intermediate` = "intermediate"
+    case `advanced` = "advanced"
+  }
+
+  struct TrainingPreferencesInput: Codable, Equatable, Sendable {
+    var `priorityMode`: TrainingPreferencesInputPriorityMode
+    var `runPriorityWeight`: Double
+    var `strengthPriorityWeight`: Double
+    var `strengthObjective`: TrainingPreferencesInputStrengthObjective
+    var `experienceLevel`: TrainingPreferencesInputExperienceLevel?
+    var `notes`: String?
+    var `onboarding`: OnboardingTrainingPreferences?
+    init(`priorityMode`: TrainingPreferencesInputPriorityMode, `runPriorityWeight`: Double, `strengthPriorityWeight`: Double, `strengthObjective`: TrainingPreferencesInputStrengthObjective, `experienceLevel`: TrainingPreferencesInputExperienceLevel? = nil, `notes`: String? = nil, `onboarding`: OnboardingTrainingPreferences? = nil) {
+      self.`priorityMode` = `priorityMode`
+      self.`runPriorityWeight` = `runPriorityWeight`
+      self.`strengthPriorityWeight` = `strengthPriorityWeight`
+      self.`strengthObjective` = `strengthObjective`
+      self.`experienceLevel` = `experienceLevel`
+      self.`notes` = `notes`
+      self.`onboarding` = `onboarding`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `priorityMode` = "priorityMode"
+      case `runPriorityWeight` = "runPriorityWeight"
+      case `strengthPriorityWeight` = "strengthPriorityWeight"
+      case `strengthObjective` = "strengthObjective"
+      case `experienceLevel` = "experienceLevel"
+      case `notes` = "notes"
+      case `onboarding` = "onboarding"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `priorityMode` = try c.decode(TrainingPreferencesInputPriorityMode.self, forKey: .`priorityMode`)
+      `runPriorityWeight` = try c.decode(Double.self, forKey: .`runPriorityWeight`)
+      `strengthPriorityWeight` = try c.decode(Double.self, forKey: .`strengthPriorityWeight`)
+      `strengthObjective` = try c.decode(TrainingPreferencesInputStrengthObjective.self, forKey: .`strengthObjective`)
+      `experienceLevel` = try c.decodeIfPresent(TrainingPreferencesInputExperienceLevel.self, forKey: .`experienceLevel`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `onboarding` = try c.decodeIfPresent(OnboardingTrainingPreferences.self, forKey: .`onboarding`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`priorityMode`, forKey: .`priorityMode`)
+      try c.encode(`runPriorityWeight`, forKey: .`runPriorityWeight`)
+      try c.encode(`strengthPriorityWeight`, forKey: .`strengthPriorityWeight`)
+      try c.encode(`strengthObjective`, forKey: .`strengthObjective`)
+      try c.encode(`experienceLevel`, forKey: .`experienceLevel`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`onboarding`, forKey: .`onboarding`)
+    }
+  }
+
+  enum AthleteGoalInputDiscipline: String, Codable, Equatable, Sendable {
+    case `running` = "running"
+    case `strength` = "strength"
+    case `hybrid` = "hybrid"
+  }
+
+  enum AthleteGoalInputStatus: String, Codable, Equatable, Sendable {
+    case `active` = "active"
+    case `completed` = "completed"
+    case `paused` = "paused"
+    case `cancelled` = "cancelled"
+  }
+
+  enum AthleteGoalInputTargetUnit: String, Codable, Equatable, Sendable {
+    case `seconds` = "seconds"
+    case `meters` = "meters"
+    case `kg` = "kg"
+    case `reps` = "reps"
+  }
+
+  struct AthleteGoalInput: Codable, Equatable, Sendable {
+    var `discipline`: AthleteGoalInputDiscipline
+    var `goalType`: String
+    var `status`: AthleteGoalInputStatus
+    var `targetDate`: BackendDay?
+    var `targetValue`: Double?
+    var `targetUnit`: AthleteGoalInputTargetUnit?
+    var `priorityRank`: Int?
+    var `metadata`: AthleteGoalInputMetadata?
+    init(`discipline`: AthleteGoalInputDiscipline, `goalType`: String, `status`: AthleteGoalInputStatus, `targetDate`: BackendDay? = nil, `targetValue`: Double? = nil, `targetUnit`: AthleteGoalInputTargetUnit? = nil, `priorityRank`: Int? = nil, `metadata`: AthleteGoalInputMetadata? = nil) {
+      self.`discipline` = `discipline`
+      self.`goalType` = `goalType`
+      self.`status` = `status`
+      self.`targetDate` = `targetDate`
+      self.`targetValue` = `targetValue`
+      self.`targetUnit` = `targetUnit`
+      self.`priorityRank` = `priorityRank`
+      self.`metadata` = `metadata`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `discipline` = "discipline"
+      case `goalType` = "goalType"
+      case `status` = "status"
+      case `targetDate` = "targetDate"
+      case `targetValue` = "targetValue"
+      case `targetUnit` = "targetUnit"
+      case `priorityRank` = "priorityRank"
+      case `metadata` = "metadata"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `discipline` = try c.decode(AthleteGoalInputDiscipline.self, forKey: .`discipline`)
+      `goalType` = try c.decode(String.self, forKey: .`goalType`)
+      `status` = try c.decode(AthleteGoalInputStatus.self, forKey: .`status`)
+      `targetDate` = try c.decodeIfPresent(BackendDay.self, forKey: .`targetDate`)
+      `targetValue` = try c.decodeIfPresent(Double.self, forKey: .`targetValue`)
+      `targetUnit` = try c.decodeIfPresent(AthleteGoalInputTargetUnit.self, forKey: .`targetUnit`)
+      `priorityRank` = try c.decodeIfPresent(Int.self, forKey: .`priorityRank`)
+      `metadata` = try c.decodeIfPresent(AthleteGoalInputMetadata.self, forKey: .`metadata`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`goalType`, forKey: .`goalType`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`targetDate`, forKey: .`targetDate`)
+      try c.encode(`targetValue`, forKey: .`targetValue`)
+      try c.encode(`targetUnit`, forKey: .`targetUnit`)
+      try c.encode(`priorityRank`, forKey: .`priorityRank`)
+      try c.encodeIfPresent(`metadata`, forKey: .`metadata`)
+    }
+  }
+
+  enum AvailabilityRuleInputPreference: String, Codable, Equatable, Sendable {
+    case `preferred` = "preferred"
+    case `neutral` = "neutral"
+    case `avoid` = "avoid"
+  }
+
+  struct AvailabilityRuleInput: Codable, Equatable, Sendable {
+    var `dayOfWeek`: Int
+    var `available`: Bool
+    var `maxSessions`: Int
+    var `minSessionMinutes`: Int?
+    var `maxSessionMinutes`: Int?
+    var `preference`: AvailabilityRuleInputPreference
+    init(`dayOfWeek`: Int, `available`: Bool, `maxSessions`: Int, `minSessionMinutes`: Int? = nil, `maxSessionMinutes`: Int? = nil, `preference`: AvailabilityRuleInputPreference) {
+      self.`dayOfWeek` = `dayOfWeek`
+      self.`available` = `available`
+      self.`maxSessions` = `maxSessions`
+      self.`minSessionMinutes` = `minSessionMinutes`
+      self.`maxSessionMinutes` = `maxSessionMinutes`
+      self.`preference` = `preference`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `dayOfWeek` = "dayOfWeek"
+      case `available` = "available"
+      case `maxSessions` = "maxSessions"
+      case `minSessionMinutes` = "minSessionMinutes"
+      case `maxSessionMinutes` = "maxSessionMinutes"
+      case `preference` = "preference"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `dayOfWeek` = try c.decode(Int.self, forKey: .`dayOfWeek`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `maxSessions` = try c.decode(Int.self, forKey: .`maxSessions`)
+      `minSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`minSessionMinutes`)
+      `maxSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`maxSessionMinutes`)
+      `preference` = try c.decode(AvailabilityRuleInputPreference.self, forKey: .`preference`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`dayOfWeek`, forKey: .`dayOfWeek`)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`maxSessions`, forKey: .`maxSessions`)
+      try c.encode(`minSessionMinutes`, forKey: .`minSessionMinutes`)
+      try c.encode(`maxSessionMinutes`, forKey: .`maxSessionMinutes`)
+      try c.encode(`preference`, forKey: .`preference`)
+    }
+  }
+
+  struct AthleteEquipmentInput: Codable, Equatable, Sendable {
+    var `equipmentId`: UUID
+    var `available`: Bool
+    init(`equipmentId`: UUID, `available`: Bool) {
+      self.`equipmentId` = `equipmentId`
+      self.`available` = `available`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `equipmentId` = "equipmentId"
+      case `available` = "available"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `equipmentId` = try c.decode(UUID.self, forKey: .`equipmentId`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`equipmentId`.uuidString.lowercased(), forKey: .`equipmentId`)
+      try c.encode(`available`, forKey: .`available`)
+    }
+  }
+
+  enum TrainingBlockInputPhase: String, Codable, Equatable, Sendable {
+    case `build` = "build"
+    case `maintain` = "maintain"
+    case `deload` = "deload"
+    case `taper` = "taper"
+    case `recovery` = "recovery"
+  }
+
+  enum TrainingBlockInputStatus: String, Codable, Equatable, Sendable {
+    case `draft` = "draft"
+    case `active` = "active"
+    case `completed` = "completed"
+    case `cancelled` = "cancelled"
+  }
+
+  struct TrainingBlockInput: Codable, Equatable, Sendable {
+    var `name`: String
+    var `startDate`: BackendDay
+    var `endDate`: BackendDay
+    var `phase`: TrainingBlockInputPhase
+    var `status`: TrainingBlockInputStatus
+    init(`name`: String, `startDate`: BackendDay, `endDate`: BackendDay, `phase`: TrainingBlockInputPhase, `status`: TrainingBlockInputStatus) {
+      self.`name` = `name`
+      self.`startDate` = `startDate`
+      self.`endDate` = `endDate`
+      self.`phase` = `phase`
+      self.`status` = `status`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `name` = "name"
+      case `startDate` = "startDate"
+      case `endDate` = "endDate"
+      case `phase` = "phase"
+      case `status` = "status"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `name` = try c.decode(String.self, forKey: .`name`)
+      `startDate` = try c.decode(BackendDay.self, forKey: .`startDate`)
+      `endDate` = try c.decode(BackendDay.self, forKey: .`endDate`)
+      `phase` = try c.decode(TrainingBlockInputPhase.self, forKey: .`phase`)
+      `status` = try c.decode(TrainingBlockInputStatus.self, forKey: .`status`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`name`, forKey: .`name`)
+      try c.encode(`startDate`, forKey: .`startDate`)
+      try c.encode(`endDate`, forKey: .`endDate`)
+      try c.encode(`phase`, forKey: .`phase`)
+      try c.encode(`status`, forKey: .`status`)
+    }
+  }
+
+  enum PlanVersionInputOrigin: String, Codable, Equatable, Sendable {
+    case `initial` = "initial"
+    case `manualEdit` = "manual_edit"
+    case `adaptive` = "adaptive"
+    case `replan` = "replan"
+    case `coach` = "coach"
+  }
+
+  struct PlanVersionInput: Codable, Equatable, Sendable {
+    var `trainingBlockId`: UUID
+    var `basePlanVersionId`: UUID?
+    var `planningContextSnapshotId`: UUID
+    var `policyVersionId`: UUID
+    var `origin`: PlanVersionInputOrigin
+    var `summary`: String?
+    var `workouts`: [PlannedWorkoutInput]
+    init(`trainingBlockId`: UUID, `basePlanVersionId`: UUID? = nil, `planningContextSnapshotId`: UUID, `policyVersionId`: UUID, `origin`: PlanVersionInputOrigin, `summary`: String? = nil, `workouts`: [PlannedWorkoutInput]) {
+      self.`trainingBlockId` = `trainingBlockId`
+      self.`basePlanVersionId` = `basePlanVersionId`
+      self.`planningContextSnapshotId` = `planningContextSnapshotId`
+      self.`policyVersionId` = `policyVersionId`
+      self.`origin` = `origin`
+      self.`summary` = `summary`
+      self.`workouts` = `workouts`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `trainingBlockId` = "trainingBlockId"
+      case `basePlanVersionId` = "basePlanVersionId"
+      case `planningContextSnapshotId` = "planningContextSnapshotId"
+      case `policyVersionId` = "policyVersionId"
+      case `origin` = "origin"
+      case `summary` = "summary"
+      case `workouts` = "workouts"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `trainingBlockId` = try c.decode(UUID.self, forKey: .`trainingBlockId`)
+      `basePlanVersionId` = try c.decodeIfPresent(UUID.self, forKey: .`basePlanVersionId`)
+      `planningContextSnapshotId` = try c.decode(UUID.self, forKey: .`planningContextSnapshotId`)
+      `policyVersionId` = try c.decode(UUID.self, forKey: .`policyVersionId`)
+      `origin` = try c.decode(PlanVersionInputOrigin.self, forKey: .`origin`)
+      `summary` = try c.decodeIfPresent(String.self, forKey: .`summary`)
+      `workouts` = try c.decode([PlannedWorkoutInput].self, forKey: .`workouts`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`trainingBlockId`.uuidString.lowercased(), forKey: .`trainingBlockId`)
+      try c.encode(`basePlanVersionId`?.uuidString.lowercased(), forKey: .`basePlanVersionId`)
+      try c.encode(`planningContextSnapshotId`.uuidString.lowercased(), forKey: .`planningContextSnapshotId`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
+      try c.encode(`origin`, forKey: .`origin`)
+      try c.encode(`summary`, forKey: .`summary`)
+      try c.encode(`workouts`, forKey: .`workouts`)
+    }
+  }
+
+  struct ActivatePlanInput: Codable, Equatable, Sendable {
+    var `expectedActivePlanVersionId`: UUID?
+    var `accepted`: BackendTrue
+    var `reasonCode`: String
+    var `explanation`: String
+    var `proposalId`: UUID?
+    init(`expectedActivePlanVersionId`: UUID? = nil, `accepted`: BackendTrue, `reasonCode`: String, `explanation`: String, `proposalId`: UUID? = nil) {
+      self.`expectedActivePlanVersionId` = `expectedActivePlanVersionId`
+      self.`accepted` = `accepted`
+      self.`reasonCode` = `reasonCode`
+      self.`explanation` = `explanation`
+      self.`proposalId` = `proposalId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `expectedActivePlanVersionId` = "expectedActivePlanVersionId"
+      case `accepted` = "accepted"
+      case `reasonCode` = "reasonCode"
+      case `explanation` = "explanation"
+      case `proposalId` = "proposalId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `expectedActivePlanVersionId` = try c.decodeIfPresent(UUID.self, forKey: .`expectedActivePlanVersionId`)
+      `accepted` = try c.decode(BackendTrue.self, forKey: .`accepted`)
+      `reasonCode` = try c.decode(String.self, forKey: .`reasonCode`)
+      `explanation` = try c.decode(String.self, forKey: .`explanation`)
+      `proposalId` = try c.decodeIfPresent(UUID.self, forKey: .`proposalId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`expectedActivePlanVersionId`?.uuidString.lowercased(), forKey: .`expectedActivePlanVersionId`)
+      try c.encode(`accepted`, forKey: .`accepted`)
+      try c.encode(`reasonCode`, forKey: .`reasonCode`)
+      try c.encode(`explanation`, forKey: .`explanation`)
+      try c.encode(`proposalId`?.uuidString.lowercased(), forKey: .`proposalId`)
+    }
+  }
+
+  enum BaselineInputSource: String, Codable, Equatable, Sendable {
+    case `healthkit` = "healthkit"
+    case `strava` = "strava"
+    case `manual` = "manual"
+    case `mixed` = "mixed"
+  }
+
+  struct BaselineInput: Codable, Equatable, Sendable {
+    var `periodStart`: BackendDay
+    var `periodEnd`: BackendDay
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `metrics`: [String: BackendJSONValue]
+    var `confidence`: [String: BackendJSONValue]
+    var `source`: BaselineInputSource
+    var `confirmedAt`: BackendInstant?
+    init(`periodStart`: BackendDay, `periodEnd`: BackendDay, `schemaVersion`: OnboardingStateSchemaVersion, `metrics`: [String: BackendJSONValue], `confidence`: [String: BackendJSONValue], `source`: BaselineInputSource, `confirmedAt`: BackendInstant? = nil) {
+      self.`periodStart` = `periodStart`
+      self.`periodEnd` = `periodEnd`
+      self.`schemaVersion` = `schemaVersion`
+      self.`metrics` = `metrics`
+      self.`confidence` = `confidence`
+      self.`source` = `source`
+      self.`confirmedAt` = `confirmedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `periodStart` = "periodStart"
+      case `periodEnd` = "periodEnd"
+      case `schemaVersion` = "schemaVersion"
+      case `metrics` = "metrics"
+      case `confidence` = "confidence"
+      case `source` = "source"
+      case `confirmedAt` = "confirmedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `periodStart` = try c.decode(BackendDay.self, forKey: .`periodStart`)
+      `periodEnd` = try c.decode(BackendDay.self, forKey: .`periodEnd`)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `metrics` = try c.decode([String: BackendJSONValue].self, forKey: .`metrics`)
+      `confidence` = try c.decode([String: BackendJSONValue].self, forKey: .`confidence`)
+      `source` = try c.decode(BaselineInputSource.self, forKey: .`source`)
+      `confirmedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`confirmedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`periodStart`, forKey: .`periodStart`)
+      try c.encode(`periodEnd`, forKey: .`periodEnd`)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`metrics`, forKey: .`metrics`)
+      try c.encode(`confidence`, forKey: .`confidence`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`confirmedAt`, forKey: .`confirmedAt`)
+    }
+  }
+
+  struct PlanningContextInput: Codable, Equatable, Sendable {
+    var `baselineSnapshotId`: UUID?
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `policyVersionId`: UUID
+    var `snapshot`: PlanningContextInputSnapshot
+    init(`baselineSnapshotId`: UUID? = nil, `schemaVersion`: OnboardingStateSchemaVersion, `policyVersionId`: UUID, `snapshot`: PlanningContextInputSnapshot) {
+      self.`baselineSnapshotId` = `baselineSnapshotId`
+      self.`schemaVersion` = `schemaVersion`
+      self.`policyVersionId` = `policyVersionId`
+      self.`snapshot` = `snapshot`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `baselineSnapshotId` = "baselineSnapshotId"
+      case `schemaVersion` = "schemaVersion"
+      case `policyVersionId` = "policyVersionId"
+      case `snapshot` = "snapshot"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `baselineSnapshotId` = try c.decodeIfPresent(UUID.self, forKey: .`baselineSnapshotId`)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `policyVersionId` = try c.decode(UUID.self, forKey: .`policyVersionId`)
+      `snapshot` = try c.decode(PlanningContextInputSnapshot.self, forKey: .`snapshot`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`baselineSnapshotId`?.uuidString.lowercased(), forKey: .`baselineSnapshotId`)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
+      try c.encode(`snapshot`, forKey: .`snapshot`)
+    }
+  }
+
+  enum WorkoutResultInputRunningDateBasis: String, Codable, Equatable, Sendable {
+    case `performedDate` = "performedDate"
+    case `loggedDate` = "loggedDate"
+  }
+
+  enum WorkoutResultInputRunningCompletionStatus: String, Codable, Equatable, Sendable {
+    case `completed` = "completed"
+    case `partial` = "partial"
+    case `modified` = "modified"
+    case `abandoned` = "abandoned"
+    case `skipped` = "skipped"
+  }
+
+  enum WorkoutResultInputRunningSourceType: String, Codable, Equatable, Sendable {
+    case `manual` = "manual"
+    case `healthkit` = "healthkit"
+  }
+
+  enum WorkoutResultInputRunningDiscipline: String, Codable, Equatable, Sendable {
+    case `running` = "running"
+  }
+
+  struct WorkoutResultInputRunning: Codable, Equatable, Sendable {
+    var `plannedWorkoutId`: UUID?
+    var `logicalWorkoutId`: UUID?
+    var `trainingDate`: BackendDay
+    var `timezone`: String
+    var `dateBasis`: WorkoutResultInputRunningDateBasis?
+    var `loggedAt`: BackendInstant?
+    var `durationS`: Int?
+    var `startedAt`: BackendInstant?
+    var `endedAt`: BackendInstant?
+    var `completionStatus`: WorkoutResultInputRunningCompletionStatus
+    var `sourceType`: WorkoutResultInputRunningSourceType
+    var `sessionRpe`: Double?
+    var `notes`: String?
+    var `discipline`: WorkoutResultInputRunningDiscipline
+    var `run`: WorkoutResultInputRunningRun?
+    init(`plannedWorkoutId`: UUID? = nil, `logicalWorkoutId`: UUID? = nil, `trainingDate`: BackendDay, `timezone`: String, `dateBasis`: WorkoutResultInputRunningDateBasis? = nil, `loggedAt`: BackendInstant? = nil, `durationS`: Int? = nil, `startedAt`: BackendInstant? = nil, `endedAt`: BackendInstant? = nil, `completionStatus`: WorkoutResultInputRunningCompletionStatus, `sourceType`: WorkoutResultInputRunningSourceType, `sessionRpe`: Double? = nil, `notes`: String? = nil, `discipline`: WorkoutResultInputRunningDiscipline, `run`: WorkoutResultInputRunningRun? = nil) {
+      self.`plannedWorkoutId` = `plannedWorkoutId`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`trainingDate` = `trainingDate`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`loggedAt` = `loggedAt`
+      self.`durationS` = `durationS`
+      self.`startedAt` = `startedAt`
+      self.`endedAt` = `endedAt`
+      self.`completionStatus` = `completionStatus`
+      self.`sourceType` = `sourceType`
+      self.`sessionRpe` = `sessionRpe`
+      self.`notes` = `notes`
+      self.`discipline` = `discipline`
+      self.`run` = `run`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `plannedWorkoutId` = "plannedWorkoutId"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `trainingDate` = "trainingDate"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `loggedAt` = "loggedAt"
+      case `durationS` = "durationS"
+      case `startedAt` = "startedAt"
+      case `endedAt` = "endedAt"
+      case `completionStatus` = "completionStatus"
+      case `sourceType` = "sourceType"
+      case `sessionRpe` = "sessionRpe"
+      case `notes` = "notes"
+      case `discipline` = "discipline"
+      case `run` = "run"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `plannedWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`plannedWorkoutId`)
+      `logicalWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`logicalWorkoutId`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decodeIfPresent(WorkoutResultInputRunningDateBasis.self, forKey: .`dateBasis`)
+      `loggedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`loggedAt`)
+      `durationS` = try c.decodeIfPresent(Int.self, forKey: .`durationS`)
+      `startedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`startedAt`)
+      `endedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`endedAt`)
+      `completionStatus` = try c.decode(WorkoutResultInputRunningCompletionStatus.self, forKey: .`completionStatus`)
+      `sourceType` = try c.decode(WorkoutResultInputRunningSourceType.self, forKey: .`sourceType`)
+      `sessionRpe` = try c.decodeIfPresent(Double.self, forKey: .`sessionRpe`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `discipline` = try c.decode(WorkoutResultInputRunningDiscipline.self, forKey: .`discipline`)
+      `run` = try c.decode(WorkoutResultInputRunningRun?.self, forKey: .`run`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`plannedWorkoutId`?.uuidString.lowercased(), forKey: .`plannedWorkoutId`)
+      try c.encode(`logicalWorkoutId`?.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encodeIfPresent(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`loggedAt`, forKey: .`loggedAt`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`startedAt`, forKey: .`startedAt`)
+      try c.encode(`endedAt`, forKey: .`endedAt`)
+      try c.encode(`completionStatus`, forKey: .`completionStatus`)
+      try c.encode(`sourceType`, forKey: .`sourceType`)
+      try c.encode(`sessionRpe`, forKey: .`sessionRpe`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`run`, forKey: .`run`)
+    }
+  }
+
+  enum WorkoutResultInputStrengthDiscipline: String, Codable, Equatable, Sendable {
+    case `strength` = "strength"
+  }
+
+  struct WorkoutResultInputStrength: Codable, Equatable, Sendable {
+    var `plannedWorkoutId`: UUID?
+    var `logicalWorkoutId`: UUID?
+    var `trainingDate`: BackendDay
+    var `timezone`: String
+    var `dateBasis`: WorkoutResultInputRunningDateBasis?
+    var `loggedAt`: BackendInstant?
+    var `durationS`: Int?
+    var `startedAt`: BackendInstant?
+    var `endedAt`: BackendInstant?
+    var `completionStatus`: WorkoutResultInputRunningCompletionStatus
+    var `sourceType`: WorkoutResultInputRunningSourceType
+    var `sessionRpe`: Double?
+    var `notes`: String?
+    var `discipline`: WorkoutResultInputStrengthDiscipline
+    var `exercises`: [WorkoutResultInputStrengthExercisesItem]
+    init(`plannedWorkoutId`: UUID? = nil, `logicalWorkoutId`: UUID? = nil, `trainingDate`: BackendDay, `timezone`: String, `dateBasis`: WorkoutResultInputRunningDateBasis? = nil, `loggedAt`: BackendInstant? = nil, `durationS`: Int? = nil, `startedAt`: BackendInstant? = nil, `endedAt`: BackendInstant? = nil, `completionStatus`: WorkoutResultInputRunningCompletionStatus, `sourceType`: WorkoutResultInputRunningSourceType, `sessionRpe`: Double? = nil, `notes`: String? = nil, `discipline`: WorkoutResultInputStrengthDiscipline, `exercises`: [WorkoutResultInputStrengthExercisesItem]) {
+      self.`plannedWorkoutId` = `plannedWorkoutId`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`trainingDate` = `trainingDate`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`loggedAt` = `loggedAt`
+      self.`durationS` = `durationS`
+      self.`startedAt` = `startedAt`
+      self.`endedAt` = `endedAt`
+      self.`completionStatus` = `completionStatus`
+      self.`sourceType` = `sourceType`
+      self.`sessionRpe` = `sessionRpe`
+      self.`notes` = `notes`
+      self.`discipline` = `discipline`
+      self.`exercises` = `exercises`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `plannedWorkoutId` = "plannedWorkoutId"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `trainingDate` = "trainingDate"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `loggedAt` = "loggedAt"
+      case `durationS` = "durationS"
+      case `startedAt` = "startedAt"
+      case `endedAt` = "endedAt"
+      case `completionStatus` = "completionStatus"
+      case `sourceType` = "sourceType"
+      case `sessionRpe` = "sessionRpe"
+      case `notes` = "notes"
+      case `discipline` = "discipline"
+      case `exercises` = "exercises"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `plannedWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`plannedWorkoutId`)
+      `logicalWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`logicalWorkoutId`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decodeIfPresent(WorkoutResultInputRunningDateBasis.self, forKey: .`dateBasis`)
+      `loggedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`loggedAt`)
+      `durationS` = try c.decodeIfPresent(Int.self, forKey: .`durationS`)
+      `startedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`startedAt`)
+      `endedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`endedAt`)
+      `completionStatus` = try c.decode(WorkoutResultInputRunningCompletionStatus.self, forKey: .`completionStatus`)
+      `sourceType` = try c.decode(WorkoutResultInputRunningSourceType.self, forKey: .`sourceType`)
+      `sessionRpe` = try c.decodeIfPresent(Double.self, forKey: .`sessionRpe`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `discipline` = try c.decode(WorkoutResultInputStrengthDiscipline.self, forKey: .`discipline`)
+      `exercises` = try c.decode([WorkoutResultInputStrengthExercisesItem].self, forKey: .`exercises`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`plannedWorkoutId`?.uuidString.lowercased(), forKey: .`plannedWorkoutId`)
+      try c.encode(`logicalWorkoutId`?.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encodeIfPresent(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`loggedAt`, forKey: .`loggedAt`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`startedAt`, forKey: .`startedAt`)
+      try c.encode(`endedAt`, forKey: .`endedAt`)
+      try c.encode(`completionStatus`, forKey: .`completionStatus`)
+      try c.encode(`sourceType`, forKey: .`sourceType`)
+      try c.encode(`sessionRpe`, forKey: .`sessionRpe`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`exercises`, forKey: .`exercises`)
+    }
+  }
+
   struct ConnectStravaResponse: Codable, Equatable, Sendable {
     var `authorizationUrl`: String
     var `state`: String
@@ -275,9 +1293,9 @@ enum BackendWire {
       self.`expiresInSeconds` = `expiresInSeconds`
     }
     private enum CodingKeys: String, CodingKey {
-      case `authorizationUrl`
-      case `state`
-      case `expiresInSeconds`
+      case `authorizationUrl` = "authorizationUrl"
+      case `state` = "state"
+      case `expiresInSeconds` = "expiresInSeconds"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -299,7 +1317,7 @@ enum BackendWire {
       self.`jobId` = `jobId`
     }
     private enum CodingKeys: String, CodingKey {
-      case `jobId`
+      case `jobId` = "jobId"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -307,7 +1325,7 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`jobId`, forKey: .`jobId`)
+      try c.encode(`jobId`.uuidString.lowercased(), forKey: .`jobId`)
     }
   }
 
@@ -409,30 +1427,30 @@ enum BackendWire {
       self.`importDecisions` = `importDecisions`
     }
     private enum CodingKeys: String, CodingKey {
-      case `schemaVersion`
-      case `profile`
-      case `details`
-      case `runningGoal`
-      case `strengthGoal`
-      case `raceDate`
-      case `priority`
-      case `runningLevel`
-      case `strengthLevel`
-      case `weeklyDistanceM`
-      case `currentStrengthSessionsPerWeek`
-      case `baselinePeriod`
-      case `availableDays`
-      case `desiredStrengthSessionsPerWeek`
-      case `sessionMinutes`
-      case `equipmentIds`
-      case `equipmentConfirmed`
-      case `focusMuscleIds`
-      case `readiness`
-      case `context`
-      case `wantsHealth`
-      case `wantsStrava`
-      case `membership`
-      case `importDecisions`
+      case `schemaVersion` = "schemaVersion"
+      case `profile` = "profile"
+      case `details` = "details"
+      case `runningGoal` = "runningGoal"
+      case `strengthGoal` = "strengthGoal"
+      case `raceDate` = "raceDate"
+      case `priority` = "priority"
+      case `runningLevel` = "runningLevel"
+      case `strengthLevel` = "strengthLevel"
+      case `weeklyDistanceM` = "weeklyDistanceM"
+      case `currentStrengthSessionsPerWeek` = "currentStrengthSessionsPerWeek"
+      case `baselinePeriod` = "baselinePeriod"
+      case `availableDays` = "availableDays"
+      case `desiredStrengthSessionsPerWeek` = "desiredStrengthSessionsPerWeek"
+      case `sessionMinutes` = "sessionMinutes"
+      case `equipmentIds` = "equipmentIds"
+      case `equipmentConfirmed` = "equipmentConfirmed"
+      case `focusMuscleIds` = "focusMuscleIds"
+      case `readiness` = "readiness"
+      case `context` = "context"
+      case `wantsHealth` = "wantsHealth"
+      case `wantsStrava` = "wantsStrava"
+      case `membership` = "membership"
+      case `importDecisions` = "importDecisions"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -478,9 +1496,9 @@ enum BackendWire {
       try c.encode(`availableDays`, forKey: .`availableDays`)
       try c.encode(`desiredStrengthSessionsPerWeek`, forKey: .`desiredStrengthSessionsPerWeek`)
       try c.encode(`sessionMinutes`, forKey: .`sessionMinutes`)
-      try c.encode(`equipmentIds`, forKey: .`equipmentIds`)
+      try c.encode(`equipmentIds`?.map { $0.uuidString.lowercased() }, forKey: .`equipmentIds`)
       try c.encode(`equipmentConfirmed`, forKey: .`equipmentConfirmed`)
-      try c.encode(`focusMuscleIds`, forKey: .`focusMuscleIds`)
+      try c.encode(`focusMuscleIds`?.map { $0.uuidString.lowercased() }, forKey: .`focusMuscleIds`)
       try c.encode(`readiness`, forKey: .`readiness`)
       try c.encode(`context`, forKey: .`context`)
       try c.encode(`wantsHealth`, forKey: .`wantsHealth`)
@@ -518,18 +1536,18 @@ enum BackendWire {
       self.`planning` = `planning`
     }
     private enum CodingKeys: String, CodingKey {
-      case `submissionId`
-      case `choices`
-      case `completedAt`
-      case `draftRevision`
-      case `catalogVersion`
-      case `policyVersionId`
-      case `athleteDetails`
-      case `baseline`
-      case `planningContext`
-      case `saved`
-      case `latestSequence`
-      case `planning`
+      case `submissionId` = "submissionId"
+      case `choices` = "choices"
+      case `completedAt` = "completedAt"
+      case `draftRevision` = "draftRevision"
+      case `catalogVersion` = "catalogVersion"
+      case `policyVersionId` = "policyVersionId"
+      case `athleteDetails` = "athleteDetails"
+      case `baseline` = "baseline"
+      case `planningContext` = "planningContext"
+      case `saved` = "saved"
+      case `latestSequence` = "latestSequence"
+      case `planning` = "planning"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -548,12 +1566,12 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`submissionId`, forKey: .`submissionId`)
+      try c.encode(`submissionId`.uuidString.lowercased(), forKey: .`submissionId`)
       try c.encode(`choices`, forKey: .`choices`)
       try c.encode(`completedAt`, forKey: .`completedAt`)
       try c.encode(`draftRevision`, forKey: .`draftRevision`)
       try c.encode(`catalogVersion`, forKey: .`catalogVersion`)
-      try c.encode(`policyVersionId`, forKey: .`policyVersionId`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
       try c.encode(`athleteDetails`, forKey: .`athleteDetails`)
       try c.encode(`baseline`, forKey: .`baseline`)
       try c.encode(`planningContext`, forKey: .`planningContext`)
@@ -576,8 +1594,8 @@ enum BackendWire {
       self.`code` = `code`
     }
     private enum CodingKeys: String, CodingKey {
-      case `field`
-      case `code`
+      case `field` = "field"
+      case `code` = "code"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -631,22 +1649,22 @@ enum BackendWire {
       self.`requiresReview` = `requiresReview`
     }
     private enum CodingKeys: String, CodingKey {
-      case `source`
-      case `generatedAt`
-      case `expiresAt`
-      case `periodStart`
-      case `periodEnd`
-      case `activityCount`
-      case `historyComplete`
-      case `heartRateZones`
-      case `running`
-      case `strengthSessions`
-      case `strengthWindows`
-      case `longestRunM`
-      case `observedBestEfforts`
-      case `bestEffortCoverage`
-      case `missing`
-      case `requiresReview`
+      case `source` = "source"
+      case `generatedAt` = "generatedAt"
+      case `expiresAt` = "expiresAt"
+      case `periodStart` = "periodStart"
+      case `periodEnd` = "periodEnd"
+      case `activityCount` = "activityCount"
+      case `historyComplete` = "historyComplete"
+      case `heartRateZones` = "heartRateZones"
+      case `running` = "running"
+      case `strengthSessions` = "strengthSessions"
+      case `strengthWindows` = "strengthWindows"
+      case `longestRunM` = "longestRunM"
+      case `observedBestEfforts` = "observedBestEfforts"
+      case `bestEffortCoverage` = "bestEffortCoverage"
+      case `missing` = "missing"
+      case `requiresReview` = "requiresReview"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -706,13 +1724,13 @@ enum BackendWire {
       self.`runningHistory` = `runningHistory`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `revision`
-      case `generatedAt`
-      case `expiresAt`
-      case `profile`
-      case `heartRateZones`
-      case `runningHistory`
+      case `id` = "id"
+      case `revision` = "revision"
+      case `generatedAt` = "generatedAt"
+      case `expiresAt` = "expiresAt"
+      case `profile` = "profile"
+      case `heartRateZones` = "heartRateZones"
+      case `runningHistory` = "runningHistory"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -726,7 +1744,7 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`revision`, forKey: .`revision`)
       try c.encode(`generatedAt`, forKey: .`generatedAt`)
       try c.encode(`expiresAt`, forKey: .`expiresAt`)
@@ -760,13 +1778,13 @@ enum BackendWire {
       self.`updatedAt` = `updatedAt`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `kind`
-      case `workoutId`
-      case `state`
-      case `remoteId`
-      case `errorCode`
-      case `updatedAt`
+      case `id` = "id"
+      case `kind` = "kind"
+      case `workoutId` = "workoutId"
+      case `state` = "state"
+      case `remoteId` = "remoteId"
+      case `errorCode` = "errorCode"
+      case `updatedAt` = "updatedAt"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -780,9 +1798,9 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`kind`, forKey: .`kind`)
-      try c.encode(`workoutId`, forKey: .`workoutId`)
+      try c.encode(`workoutId`?.uuidString.lowercased(), forKey: .`workoutId`)
       try c.encode(`state`, forKey: .`state`)
       try c.encode(`remoteId`, forKey: .`remoteId`)
       try c.encode(`errorCode`, forKey: .`errorCode`)
@@ -808,13 +1826,13 @@ enum BackendWire {
       self.`metadata` = `metadata`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `slug`
-      case `name`
-      case `movementPattern`
-      case `unilateral`
-      case `active`
-      case `metadata`
+      case `id` = "id"
+      case `slug` = "slug"
+      case `name` = "name"
+      case `movementPattern` = "movementPattern"
+      case `unilateral` = "unilateral"
+      case `active` = "active"
+      case `metadata` = "metadata"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -828,7 +1846,7 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`slug`, forKey: .`slug`)
       try c.encode(`name`, forKey: .`name`)
       try c.encode(`movementPattern`, forKey: .`movementPattern`)
@@ -848,9 +1866,9 @@ enum BackendWire {
       self.`name` = `name`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `slug`
-      case `name`
+      case `id` = "id"
+      case `slug` = "slug"
+      case `name` = "name"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -860,7 +1878,7 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`slug`, forKey: .`slug`)
       try c.encode(`name`, forKey: .`name`)
     }
@@ -876,9 +1894,9 @@ enum BackendWire {
       self.`name` = `name`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `slug`
-      case `name`
+      case `id` = "id"
+      case `slug` = "slug"
+      case `name` = "name"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -888,7 +1906,7 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`slug`, forKey: .`slug`)
       try c.encode(`name`, forKey: .`name`)
     }
@@ -906,10 +1924,10 @@ enum BackendWire {
       self.`alias` = `alias`
     }
     private enum CodingKeys: String, CodingKey {
-      case `id`
-      case `exerciseId`
-      case `source`
-      case `alias`
+      case `id` = "id"
+      case `exerciseId` = "exerciseId"
+      case `source` = "source"
+      case `alias` = "alias"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -920,8 +1938,8 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`id`, forKey: .`id`)
-      try c.encode(`exerciseId`, forKey: .`exerciseId`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
       try c.encode(`source`, forKey: .`source`)
       try c.encode(`alias`, forKey: .`alias`)
     }
@@ -942,9 +1960,9 @@ enum BackendWire {
       self.`role` = `role`
     }
     private enum CodingKeys: String, CodingKey {
-      case `exerciseId`
-      case `muscleGroupId`
-      case `role`
+      case `exerciseId` = "exerciseId"
+      case `muscleGroupId` = "muscleGroupId"
+      case `role` = "role"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -954,8 +1972,8 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`exerciseId`, forKey: .`exerciseId`)
-      try c.encode(`muscleGroupId`, forKey: .`muscleGroupId`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`muscleGroupId`.uuidString.lowercased(), forKey: .`muscleGroupId`)
       try c.encode(`role`, forKey: .`role`)
     }
   }
@@ -970,9 +1988,9 @@ enum BackendWire {
       self.`required` = `required`
     }
     private enum CodingKeys: String, CodingKey {
-      case `exerciseId`
-      case `equipmentId`
-      case `required`
+      case `exerciseId` = "exerciseId"
+      case `equipmentId` = "equipmentId"
+      case `required` = "required"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -982,67 +2000,748 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`exerciseId`, forKey: .`exerciseId`)
-      try c.encode(`equipmentId`, forKey: .`equipmentId`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`equipmentId`.uuidString.lowercased(), forKey: .`equipmentId`)
       try c.encode(`required`, forKey: .`required`)
     }
   }
 
-  enum AthleteProfileInputDistanceUnit: String, Codable, Equatable, Sendable {
+  enum AthleteDistanceUnit: String, Codable, Equatable, Sendable {
     case `km` = "km"
     case `mi` = "mi"
   }
 
-  enum AthleteProfileInputLoadUnit: String, Codable, Equatable, Sendable {
+  enum AthleteLoadUnit: String, Codable, Equatable, Sendable {
     case `kg` = "kg"
     case `lb` = "lb"
   }
 
-  struct AthleteProfileInput: Codable, Equatable, Sendable {
+  struct Athlete: Codable, Equatable, Sendable {
+    var `id`: UUID
     var `timezone`: String
     var `locale`: String
-    var `distanceUnit`: AthleteProfileInputDistanceUnit
-    var `loadUnit`: AthleteProfileInputLoadUnit
+    var `distanceUnit`: AthleteDistanceUnit
+    var `loadUnit`: AthleteLoadUnit
     var `weekStartsOn`: Int
-    var `trainingDayBoundary`: String?
     var `cloudAiConsent`: Bool?
-    init(`timezone`: String, `locale`: String, `distanceUnit`: AthleteProfileInputDistanceUnit, `loadUnit`: AthleteProfileInputLoadUnit, `weekStartsOn`: Int, `trainingDayBoundary`: String? = nil, `cloudAiConsent`: Bool? = nil) {
+    var `trainingDayBoundary`: String?
+    var `revision`: SyncCursor
+    init(`id`: UUID, `timezone`: String, `locale`: String, `distanceUnit`: AthleteDistanceUnit, `loadUnit`: AthleteLoadUnit, `weekStartsOn`: Int, `cloudAiConsent`: Bool? = nil, `trainingDayBoundary`: String? = nil, `revision`: SyncCursor) {
+      self.`id` = `id`
       self.`timezone` = `timezone`
       self.`locale` = `locale`
       self.`distanceUnit` = `distanceUnit`
       self.`loadUnit` = `loadUnit`
       self.`weekStartsOn` = `weekStartsOn`
-      self.`trainingDayBoundary` = `trainingDayBoundary`
       self.`cloudAiConsent` = `cloudAiConsent`
+      self.`trainingDayBoundary` = `trainingDayBoundary`
+      self.`revision` = `revision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `timezone`
-      case `locale`
-      case `distanceUnit`
-      case `loadUnit`
-      case `weekStartsOn`
-      case `trainingDayBoundary`
-      case `cloudAiConsent`
+      case `id` = "id"
+      case `timezone` = "timezone"
+      case `locale` = "locale"
+      case `distanceUnit` = "distanceUnit"
+      case `loadUnit` = "loadUnit"
+      case `weekStartsOn` = "weekStartsOn"
+      case `cloudAiConsent` = "cloudAiConsent"
+      case `trainingDayBoundary` = "trainingDayBoundary"
+      case `revision` = "revision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
       `timezone` = try c.decode(String.self, forKey: .`timezone`)
       `locale` = try c.decode(String.self, forKey: .`locale`)
-      `distanceUnit` = try c.decode(AthleteProfileInputDistanceUnit.self, forKey: .`distanceUnit`)
-      `loadUnit` = try c.decode(AthleteProfileInputLoadUnit.self, forKey: .`loadUnit`)
+      `distanceUnit` = try c.decode(AthleteDistanceUnit.self, forKey: .`distanceUnit`)
+      `loadUnit` = try c.decode(AthleteLoadUnit.self, forKey: .`loadUnit`)
       `weekStartsOn` = try c.decode(Int.self, forKey: .`weekStartsOn`)
-      `trainingDayBoundary` = try c.decodeIfPresent(String.self, forKey: .`trainingDayBoundary`)
       `cloudAiConsent` = try c.decodeIfPresent(Bool.self, forKey: .`cloudAiConsent`)
+      `trainingDayBoundary` = try c.decodeIfPresent(String.self, forKey: .`trainingDayBoundary`)
+      `revision` = try c.decode(SyncCursor.self, forKey: .`revision`)
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`timezone`, forKey: .`timezone`)
       try c.encode(`locale`, forKey: .`locale`)
       try c.encode(`distanceUnit`, forKey: .`distanceUnit`)
       try c.encode(`loadUnit`, forKey: .`loadUnit`)
       try c.encode(`weekStartsOn`, forKey: .`weekStartsOn`)
-      try c.encode(`trainingDayBoundary`, forKey: .`trainingDayBoundary`)
       try c.encodeIfPresent(`cloudAiConsent`, forKey: .`cloudAiConsent`)
+      try c.encode(`trainingDayBoundary`, forKey: .`trainingDayBoundary`)
+      try c.encode(`revision`, forKey: .`revision`)
+    }
+  }
+
+  struct BootstrapDevice: Codable, Equatable, Sendable {
+    var `registered`: Bool
+    init(`registered`: Bool) {
+      self.`registered` = `registered`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `registered` = "registered"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `registered` = try c.decode(Bool.self, forKey: .`registered`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`registered`, forKey: .`registered`)
+    }
+  }
+
+  struct BootstrapCapabilities: Codable, Equatable, Sendable {
+    var `remoteDecisions`: Bool
+    var `remoteCoach`: Bool
+    var `billing`: Bool
+    var `push`: Bool
+    init(`remoteDecisions`: Bool, `remoteCoach`: Bool, `billing`: Bool, `push`: Bool) {
+      self.`remoteDecisions` = `remoteDecisions`
+      self.`remoteCoach` = `remoteCoach`
+      self.`billing` = `billing`
+      self.`push` = `push`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `remoteDecisions` = "remoteDecisions"
+      case `remoteCoach` = "remoteCoach"
+      case `billing` = "billing"
+      case `push` = "push"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `remoteDecisions` = try c.decode(Bool.self, forKey: .`remoteDecisions`)
+      `remoteCoach` = try c.decode(Bool.self, forKey: .`remoteCoach`)
+      `billing` = try c.decode(Bool.self, forKey: .`billing`)
+      `push` = try c.decode(Bool.self, forKey: .`push`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`remoteDecisions`, forKey: .`remoteDecisions`)
+      try c.encode(`remoteCoach`, forKey: .`remoteCoach`)
+      try c.encode(`billing`, forKey: .`billing`)
+      try c.encode(`push`, forKey: .`push`)
+    }
+  }
+
+  struct BootstrapSync: Codable, Equatable, Sendable {
+    var `available`: Bool
+    var `latestSequence`: SyncCursor
+    init(`available`: Bool, `latestSequence`: SyncCursor) {
+      self.`available` = `available`
+      self.`latestSequence` = `latestSequence`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `available` = "available"
+      case `latestSequence` = "latestSequence"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `latestSequence` = try c.decode(SyncCursor.self, forKey: .`latestSequence`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`latestSequence`, forKey: .`latestSequence`)
+    }
+  }
+
+  struct BootstrapPolicy: Codable, Equatable, Sendable {
+    var `version`: Int
+    var `checksum`: String
+    init(`version`: Int, `checksum`: String) {
+      self.`version` = `version`
+      self.`checksum` = `checksum`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `version` = "version"
+      case `checksum` = "checksum"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `version` = try c.decode(Int.self, forKey: .`version`)
+      `checksum` = try c.decode(String.self, forKey: .`checksum`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`version`, forKey: .`version`)
+      try c.encode(`checksum`, forKey: .`checksum`)
+    }
+  }
+
+  enum EntitlementStatus: String, Codable, Equatable, Sendable {
+    case `active` = "active"
+    case `grace` = "grace"
+    case `expired` = "expired"
+    case `revoked` = "revoked"
+  }
+
+  struct Entitlement: Codable, Equatable, Sendable {
+    var `key`: String
+    var `status`: EntitlementStatus
+    var `validUntil`: BackendInstant?
+    init(`key`: String, `status`: EntitlementStatus, `validUntil`: BackendInstant? = nil) {
+      self.`key` = `key`
+      self.`status` = `status`
+      self.`validUntil` = `validUntil`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `key` = "key"
+      case `status` = "status"
+      case `validUntil` = "validUntil"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `key` = try c.decode(String.self, forKey: .`key`)
+      `status` = try c.decode(EntitlementStatus.self, forKey: .`status`)
+      `validUntil` = try c.decode(BackendInstant?.self, forKey: .`validUntil`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`key`, forKey: .`key`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`validUntil`, forKey: .`validUntil`)
+    }
+  }
+
+  struct PolicyConfig: Codable, Equatable, Sendable {
+    var `onboarding`: PolicyConfigOnboarding?
+    var `features`: PolicyConfigFeatures
+    var `interference`: PolicyConfigInterference
+    var `running`: PolicyConfigRunning
+    var `strength`: PolicyConfigStrength
+    var `intelligence`: PolicyConfigIntelligence
+    init(`onboarding`: PolicyConfigOnboarding? = nil, `features`: PolicyConfigFeatures, `interference`: PolicyConfigInterference, `running`: PolicyConfigRunning, `strength`: PolicyConfigStrength, `intelligence`: PolicyConfigIntelligence) {
+      self.`onboarding` = `onboarding`
+      self.`features` = `features`
+      self.`interference` = `interference`
+      self.`running` = `running`
+      self.`strength` = `strength`
+      self.`intelligence` = `intelligence`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `onboarding` = "onboarding"
+      case `features` = "features"
+      case `interference` = "interference"
+      case `running` = "running"
+      case `strength` = "strength"
+      case `intelligence` = "intelligence"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `onboarding` = try c.decodeIfPresent(PolicyConfigOnboarding.self, forKey: .`onboarding`)
+      `features` = try c.decode(PolicyConfigFeatures.self, forKey: .`features`)
+      `interference` = try c.decode(PolicyConfigInterference.self, forKey: .`interference`)
+      `running` = try c.decode(PolicyConfigRunning.self, forKey: .`running`)
+      `strength` = try c.decode(PolicyConfigStrength.self, forKey: .`strength`)
+      `intelligence` = try c.decode(PolicyConfigIntelligence.self, forKey: .`intelligence`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encodeIfPresent(`onboarding`, forKey: .`onboarding`)
+      try c.encode(`features`, forKey: .`features`)
+      try c.encode(`interference`, forKey: .`interference`)
+      try c.encode(`running`, forKey: .`running`)
+      try c.encode(`strength`, forKey: .`strength`)
+      try c.encode(`intelligence`, forKey: .`intelligence`)
+    }
+  }
+
+  enum SyncChange: Codable, Equatable, Sendable {
+    case `athlete`(SyncChangeAthlete)
+    case `athleteDetails`(SyncChangeAthleteDetails)
+    case `athleteGoal`(SyncChangeAthleteGoal)
+    case `trainingPreferences`(SyncChangeTrainingPreferences)
+    case `availabilityRule`(SyncChangeAvailabilityRule)
+    case `availabilityOverride`(SyncChangeAvailabilityOverride)
+    case `baselineSnapshot`(SyncChangeBaselineSnapshot)
+    case `planningContextSnapshot`(SyncChangePlanningContextSnapshot)
+    case `athleteEquipment`(SyncChangeAthleteEquipment)
+    case `exercisePreference`(SyncChangeExercisePreference)
+    case `trainingBlock`(SyncChangeTrainingBlock)
+    case `planVersion`(SyncChangePlanVersion)
+    case `workoutResult`(SyncChangeWorkoutResult)
+    case `activitySourceRecord`(SyncChangeActivitySourceRecord)
+    case `planChangeSet`(SyncChangePlanChangeSet)
+    case `coachThread`(SyncChangeCoachThread)
+    case `coachMessage`(SyncChangeCoachMessage)
+    case `actionProposal`(SyncChangeActionProposal)
+    case `structuredDecision`(SyncChangeStructuredDecision)
+    case `entitlement`(SyncChangeEntitlement)
+    private enum CodingKeys: String, CodingKey { case entityType }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      switch try c.decode(String.self, forKey: .entityType) {
+      case "athlete": self = .`athlete`(try SyncChangeAthlete(from: decoder))
+      case "athlete_details": self = .`athleteDetails`(try SyncChangeAthleteDetails(from: decoder))
+      case "athlete_goal": self = .`athleteGoal`(try SyncChangeAthleteGoal(from: decoder))
+      case "training_preferences": self = .`trainingPreferences`(try SyncChangeTrainingPreferences(from: decoder))
+      case "availability_rule": self = .`availabilityRule`(try SyncChangeAvailabilityRule(from: decoder))
+      case "availability_override": self = .`availabilityOverride`(try SyncChangeAvailabilityOverride(from: decoder))
+      case "baseline_snapshot": self = .`baselineSnapshot`(try SyncChangeBaselineSnapshot(from: decoder))
+      case "planning_context_snapshot": self = .`planningContextSnapshot`(try SyncChangePlanningContextSnapshot(from: decoder))
+      case "athlete_equipment": self = .`athleteEquipment`(try SyncChangeAthleteEquipment(from: decoder))
+      case "exercise_preference": self = .`exercisePreference`(try SyncChangeExercisePreference(from: decoder))
+      case "training_block": self = .`trainingBlock`(try SyncChangeTrainingBlock(from: decoder))
+      case "plan_version": self = .`planVersion`(try SyncChangePlanVersion(from: decoder))
+      case "workout_result": self = .`workoutResult`(try SyncChangeWorkoutResult(from: decoder))
+      case "activity_source_record": self = .`activitySourceRecord`(try SyncChangeActivitySourceRecord(from: decoder))
+      case "plan_change_set": self = .`planChangeSet`(try SyncChangePlanChangeSet(from: decoder))
+      case "coach_thread": self = .`coachThread`(try SyncChangeCoachThread(from: decoder))
+      case "coach_message": self = .`coachMessage`(try SyncChangeCoachMessage(from: decoder))
+      case "action_proposal": self = .`actionProposal`(try SyncChangeActionProposal(from: decoder))
+      case "structured_decision": self = .`structuredDecision`(try SyncChangeStructuredDecision(from: decoder))
+      case "entitlement": self = .`entitlement`(try SyncChangeEntitlement(from: decoder))
+      default: throw DecodingError.dataCorruptedError(forKey: .entityType, in: c, debugDescription: "Unsupported discriminator")
+      }
+    }
+    func encode(to encoder: Encoder) throws {
+      switch self {
+      case .`athlete`(let value): try value.encode(to: encoder)
+      case .`athleteDetails`(let value): try value.encode(to: encoder)
+      case .`athleteGoal`(let value): try value.encode(to: encoder)
+      case .`trainingPreferences`(let value): try value.encode(to: encoder)
+      case .`availabilityRule`(let value): try value.encode(to: encoder)
+      case .`availabilityOverride`(let value): try value.encode(to: encoder)
+      case .`baselineSnapshot`(let value): try value.encode(to: encoder)
+      case .`planningContextSnapshot`(let value): try value.encode(to: encoder)
+      case .`athleteEquipment`(let value): try value.encode(to: encoder)
+      case .`exercisePreference`(let value): try value.encode(to: encoder)
+      case .`trainingBlock`(let value): try value.encode(to: encoder)
+      case .`planVersion`(let value): try value.encode(to: encoder)
+      case .`workoutResult`(let value): try value.encode(to: encoder)
+      case .`activitySourceRecord`(let value): try value.encode(to: encoder)
+      case .`planChangeSet`(let value): try value.encode(to: encoder)
+      case .`coachThread`(let value): try value.encode(to: encoder)
+      case .`coachMessage`(let value): try value.encode(to: encoder)
+      case .`actionProposal`(let value): try value.encode(to: encoder)
+      case .`structuredDecision`(let value): try value.encode(to: encoder)
+      case .`entitlement`(let value): try value.encode(to: encoder)
+      }
+    }
+  }
+
+  enum MutationResultStatus: String, Codable, Equatable, Sendable {
+    case `applied` = "applied"
+    case `conflict` = "conflict"
+    case `rejected` = "rejected"
+  }
+
+  struct MutationResult: Codable, Equatable, Sendable {
+    var `mutationId`: UUID
+    var `status`: MutationResultStatus
+    var `entityRevision`: BackendRevision?
+    var `error`: MutationResultError?
+    init(`mutationId`: UUID, `status`: MutationResultStatus, `entityRevision`: BackendRevision? = nil, `error`: MutationResultError? = nil) {
+      self.`mutationId` = `mutationId`
+      self.`status` = `status`
+      self.`entityRevision` = `entityRevision`
+      self.`error` = `error`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `mutationId` = "mutationId"
+      case `status` = "status"
+      case `entityRevision` = "entityRevision"
+      case `error` = "error"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `mutationId` = try c.decode(UUID.self, forKey: .`mutationId`)
+      `status` = try c.decode(MutationResultStatus.self, forKey: .`status`)
+      `entityRevision` = try c.decodeIfPresent(BackendRevision.self, forKey: .`entityRevision`)
+      `error` = try c.decodeIfPresent(MutationResultError.self, forKey: .`error`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`mutationId`.uuidString.lowercased(), forKey: .`mutationId`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`entityRevision`, forKey: .`entityRevision`)
+      try c.encodeIfPresent(`error`, forKey: .`error`)
+    }
+  }
+
+  struct ProgressSummaryRange: Codable, Equatable, Sendable {
+    var `startDate`: BackendDay
+    var `endDateInclusive`: BackendDay
+    var `includesPartialToday`: BackendTrue
+    var `previousStartDate`: BackendDay
+    var `previousEndDateInclusive`: BackendDay
+    init(`startDate`: BackendDay, `endDateInclusive`: BackendDay, `includesPartialToday`: BackendTrue, `previousStartDate`: BackendDay, `previousEndDateInclusive`: BackendDay) {
+      self.`startDate` = `startDate`
+      self.`endDateInclusive` = `endDateInclusive`
+      self.`includesPartialToday` = `includesPartialToday`
+      self.`previousStartDate` = `previousStartDate`
+      self.`previousEndDateInclusive` = `previousEndDateInclusive`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `startDate` = "startDate"
+      case `endDateInclusive` = "endDateInclusive"
+      case `includesPartialToday` = "includesPartialToday"
+      case `previousStartDate` = "previousStartDate"
+      case `previousEndDateInclusive` = "previousEndDateInclusive"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `startDate` = try c.decode(BackendDay.self, forKey: .`startDate`)
+      `endDateInclusive` = try c.decode(BackendDay.self, forKey: .`endDateInclusive`)
+      `includesPartialToday` = try c.decode(BackendTrue.self, forKey: .`includesPartialToday`)
+      `previousStartDate` = try c.decode(BackendDay.self, forKey: .`previousStartDate`)
+      `previousEndDateInclusive` = try c.decode(BackendDay.self, forKey: .`previousEndDateInclusive`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`startDate`, forKey: .`startDate`)
+      try c.encode(`endDateInclusive`, forKey: .`endDateInclusive`)
+      try c.encode(`includesPartialToday`, forKey: .`includesPartialToday`)
+      try c.encode(`previousStartDate`, forKey: .`previousStartDate`)
+      try c.encode(`previousEndDateInclusive`, forKey: .`previousEndDateInclusive`)
+    }
+  }
+
+  struct ProgressSummaryTotals: Codable, Equatable, Sendable {
+    var `current`: ProgressTotals
+    var `previous`: ProgressTotals
+    var `lifetime`: ProgressTotals
+    var `percentChange`: ProgressSummaryTotalsPercentChange
+    init(`current`: ProgressTotals, `previous`: ProgressTotals, `lifetime`: ProgressTotals, `percentChange`: ProgressSummaryTotalsPercentChange) {
+      self.`current` = `current`
+      self.`previous` = `previous`
+      self.`lifetime` = `lifetime`
+      self.`percentChange` = `percentChange`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `current` = "current"
+      case `previous` = "previous"
+      case `lifetime` = "lifetime"
+      case `percentChange` = "percentChange"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `current` = try c.decode(ProgressTotals.self, forKey: .`current`)
+      `previous` = try c.decode(ProgressTotals.self, forKey: .`previous`)
+      `lifetime` = try c.decode(ProgressTotals.self, forKey: .`lifetime`)
+      `percentChange` = try c.decode(ProgressSummaryTotalsPercentChange.self, forKey: .`percentChange`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`current`, forKey: .`current`)
+      try c.encode(`previous`, forKey: .`previous`)
+      try c.encode(`lifetime`, forKey: .`lifetime`)
+      try c.encode(`percentChange`, forKey: .`percentChange`)
+    }
+  }
+
+  struct ProgressDay: Codable, Equatable, Sendable {
+    var `runMeters`: Double
+    var `strengthSets`: Int
+    var `activeSeconds`: Double
+    var `sessions`: Int
+    var `runSessions`: Int
+    var `liftSessions`: Int
+    var `activeDays`: Int
+    var `date`: BackendDay
+    init(`runMeters`: Double, `strengthSets`: Int, `activeSeconds`: Double, `sessions`: Int, `runSessions`: Int, `liftSessions`: Int, `activeDays`: Int, `date`: BackendDay) {
+      self.`runMeters` = `runMeters`
+      self.`strengthSets` = `strengthSets`
+      self.`activeSeconds` = `activeSeconds`
+      self.`sessions` = `sessions`
+      self.`runSessions` = `runSessions`
+      self.`liftSessions` = `liftSessions`
+      self.`activeDays` = `activeDays`
+      self.`date` = `date`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `runMeters` = "runMeters"
+      case `strengthSets` = "strengthSets"
+      case `activeSeconds` = "activeSeconds"
+      case `sessions` = "sessions"
+      case `runSessions` = "runSessions"
+      case `liftSessions` = "liftSessions"
+      case `activeDays` = "activeDays"
+      case `date` = "date"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `runMeters` = try c.decode(Double.self, forKey: .`runMeters`)
+      `strengthSets` = try c.decode(Int.self, forKey: .`strengthSets`)
+      `activeSeconds` = try c.decode(Double.self, forKey: .`activeSeconds`)
+      `sessions` = try c.decode(Int.self, forKey: .`sessions`)
+      `runSessions` = try c.decode(Int.self, forKey: .`runSessions`)
+      `liftSessions` = try c.decode(Int.self, forKey: .`liftSessions`)
+      `activeDays` = try c.decode(Int.self, forKey: .`activeDays`)
+      `date` = try c.decode(BackendDay.self, forKey: .`date`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`runMeters`, forKey: .`runMeters`)
+      try c.encode(`strengthSets`, forKey: .`strengthSets`)
+      try c.encode(`activeSeconds`, forKey: .`activeSeconds`)
+      try c.encode(`sessions`, forKey: .`sessions`)
+      try c.encode(`runSessions`, forKey: .`runSessions`)
+      try c.encode(`liftSessions`, forKey: .`liftSessions`)
+      try c.encode(`activeDays`, forKey: .`activeDays`)
+      try c.encode(`date`, forKey: .`date`)
+    }
+  }
+
+  struct ProgressSummaryJourney: Codable, Equatable, Sendable {
+    var `trainingDays`: Int
+    var `level`: Int
+    var `stepsInLevel`: Int
+    var `stepsToNextLevel`: Int
+    init(`trainingDays`: Int, `level`: Int, `stepsInLevel`: Int, `stepsToNextLevel`: Int) {
+      self.`trainingDays` = `trainingDays`
+      self.`level` = `level`
+      self.`stepsInLevel` = `stepsInLevel`
+      self.`stepsToNextLevel` = `stepsToNextLevel`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `trainingDays` = "trainingDays"
+      case `level` = "level"
+      case `stepsInLevel` = "stepsInLevel"
+      case `stepsToNextLevel` = "stepsToNextLevel"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `trainingDays` = try c.decode(Int.self, forKey: .`trainingDays`)
+      `level` = try c.decode(Int.self, forKey: .`level`)
+      `stepsInLevel` = try c.decode(Int.self, forKey: .`stepsInLevel`)
+      `stepsToNextLevel` = try c.decode(Int.self, forKey: .`stepsToNextLevel`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`trainingDays`, forKey: .`trainingDays`)
+      try c.encode(`level`, forKey: .`level`)
+      try c.encode(`stepsInLevel`, forKey: .`stepsInLevel`)
+      try c.encode(`stepsToNextLevel`, forKey: .`stepsToNextLevel`)
+    }
+  }
+
+  enum ProgressMilestoneUnit: String, Codable, Equatable, Sendable {
+    case `days` = "days"
+    case `disciplines` = "disciplines"
+    case `meters` = "meters"
+    case `sets` = "sets"
+  }
+
+  struct ProgressMilestone: Codable, Equatable, Sendable {
+    var `key`: String
+    var `rulesVersion`: OnboardingStateSchemaVersion
+    var `requirement`: String
+    var `target`: Double
+    var `current`: Double
+    var `unit`: ProgressMilestoneUnit
+    var `earnedAt`: BackendInstant?
+    var `earnedOn`: BackendDay?
+    var `evidenceResultId`: UUID?
+    init(`key`: String, `rulesVersion`: OnboardingStateSchemaVersion, `requirement`: String, `target`: Double, `current`: Double, `unit`: ProgressMilestoneUnit, `earnedAt`: BackendInstant? = nil, `earnedOn`: BackendDay? = nil, `evidenceResultId`: UUID? = nil) {
+      self.`key` = `key`
+      self.`rulesVersion` = `rulesVersion`
+      self.`requirement` = `requirement`
+      self.`target` = `target`
+      self.`current` = `current`
+      self.`unit` = `unit`
+      self.`earnedAt` = `earnedAt`
+      self.`earnedOn` = `earnedOn`
+      self.`evidenceResultId` = `evidenceResultId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `key` = "key"
+      case `rulesVersion` = "rulesVersion"
+      case `requirement` = "requirement"
+      case `target` = "target"
+      case `current` = "current"
+      case `unit` = "unit"
+      case `earnedAt` = "earnedAt"
+      case `earnedOn` = "earnedOn"
+      case `evidenceResultId` = "evidenceResultId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `key` = try c.decode(String.self, forKey: .`key`)
+      `rulesVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`rulesVersion`)
+      `requirement` = try c.decode(String.self, forKey: .`requirement`)
+      `target` = try c.decode(Double.self, forKey: .`target`)
+      `current` = try c.decode(Double.self, forKey: .`current`)
+      `unit` = try c.decode(ProgressMilestoneUnit.self, forKey: .`unit`)
+      `earnedAt` = try c.decode(BackendInstant?.self, forKey: .`earnedAt`)
+      `earnedOn` = try c.decode(BackendDay?.self, forKey: .`earnedOn`)
+      `evidenceResultId` = try c.decode(UUID?.self, forKey: .`evidenceResultId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`key`, forKey: .`key`)
+      try c.encode(`rulesVersion`, forKey: .`rulesVersion`)
+      try c.encode(`requirement`, forKey: .`requirement`)
+      try c.encode(`target`, forKey: .`target`)
+      try c.encode(`current`, forKey: .`current`)
+      try c.encode(`unit`, forKey: .`unit`)
+      try c.encode(`earnedAt`, forKey: .`earnedAt`)
+      try c.encode(`earnedOn`, forKey: .`earnedOn`)
+      try c.encode(`evidenceResultId`?.uuidString.lowercased(), forKey: .`evidenceResultId`)
+    }
+  }
+
+  enum ProgressComparisonUnit: String, Codable, Equatable, Sendable {
+    case `secondsPerKilometer` = "secondsPerKilometer"
+    case `kilograms` = "kilograms"
+  }
+
+  struct ProgressComparison: Codable, Equatable, Sendable {
+    var `key`: String
+    var `group`: ProgressComparisonGroup
+    var `unit`: ProgressComparisonUnit
+    var `first`: ProgressComparisonPoint
+    var `latest`: ProgressComparisonPoint
+    var `best`: ProgressComparisonPoint
+    var `sampleCount`: Int
+    var `chartPoints`: [ProgressComparisonPoint]
+    var `hasMore`: Bool
+    var `change`: ProgressComparisonChange
+    init(`key`: String, `group`: ProgressComparisonGroup, `unit`: ProgressComparisonUnit, `first`: ProgressComparisonPoint, `latest`: ProgressComparisonPoint, `best`: ProgressComparisonPoint, `sampleCount`: Int, `chartPoints`: [ProgressComparisonPoint], `hasMore`: Bool, `change`: ProgressComparisonChange) {
+      self.`key` = `key`
+      self.`group` = `group`
+      self.`unit` = `unit`
+      self.`first` = `first`
+      self.`latest` = `latest`
+      self.`best` = `best`
+      self.`sampleCount` = `sampleCount`
+      self.`chartPoints` = `chartPoints`
+      self.`hasMore` = `hasMore`
+      self.`change` = `change`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `key` = "key"
+      case `group` = "group"
+      case `unit` = "unit"
+      case `first` = "first"
+      case `latest` = "latest"
+      case `best` = "best"
+      case `sampleCount` = "sampleCount"
+      case `chartPoints` = "chartPoints"
+      case `hasMore` = "hasMore"
+      case `change` = "change"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `key` = try c.decode(String.self, forKey: .`key`)
+      `group` = try c.decode(ProgressComparisonGroup.self, forKey: .`group`)
+      `unit` = try c.decode(ProgressComparisonUnit.self, forKey: .`unit`)
+      `first` = try c.decode(ProgressComparisonPoint.self, forKey: .`first`)
+      `latest` = try c.decode(ProgressComparisonPoint.self, forKey: .`latest`)
+      `best` = try c.decode(ProgressComparisonPoint.self, forKey: .`best`)
+      `sampleCount` = try c.decode(Int.self, forKey: .`sampleCount`)
+      `chartPoints` = try c.decode([ProgressComparisonPoint].self, forKey: .`chartPoints`)
+      `hasMore` = try c.decode(Bool.self, forKey: .`hasMore`)
+      `change` = try c.decode(ProgressComparisonChange.self, forKey: .`change`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`key`, forKey: .`key`)
+      try c.encode(`group`, forKey: .`group`)
+      try c.encode(`unit`, forKey: .`unit`)
+      try c.encode(`first`, forKey: .`first`)
+      try c.encode(`latest`, forKey: .`latest`)
+      try c.encode(`best`, forKey: .`best`)
+      try c.encode(`sampleCount`, forKey: .`sampleCount`)
+      try c.encode(`chartPoints`, forKey: .`chartPoints`)
+      try c.encode(`hasMore`, forKey: .`hasMore`)
+      try c.encode(`change`, forKey: .`change`)
+    }
+  }
+
+  enum ProgressActivityDiscipline: String, Codable, Equatable, Sendable {
+    case `running` = "running"
+    case `strength` = "strength"
+  }
+
+  struct ProgressActivity: Codable, Equatable, Sendable {
+    var `resultId`: UUID
+    var `revision`: BackendRevision
+    var `trainingDate`: BackendDay
+    var `timezone`: String
+    var `dateBasis`: WorkoutResultInputRunningDateBasis
+    var `discipline`: ProgressActivityDiscipline
+    var `completionStatus`: String
+    var `title`: String
+    var `loggedAt`: BackendInstant?
+    var `completedAt`: BackendInstant?
+    var `runMeters`: Double
+    var `strengthSets`: Int
+    var `activeSeconds`: Double
+    var `source`: ProgressActivitySource
+    var `flags`: [String]
+    init(`resultId`: UUID, `revision`: BackendRevision, `trainingDate`: BackendDay, `timezone`: String, `dateBasis`: WorkoutResultInputRunningDateBasis, `discipline`: ProgressActivityDiscipline, `completionStatus`: String, `title`: String, `loggedAt`: BackendInstant? = nil, `completedAt`: BackendInstant? = nil, `runMeters`: Double, `strengthSets`: Int, `activeSeconds`: Double, `source`: ProgressActivitySource, `flags`: [String]) {
+      self.`resultId` = `resultId`
+      self.`revision` = `revision`
+      self.`trainingDate` = `trainingDate`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`discipline` = `discipline`
+      self.`completionStatus` = `completionStatus`
+      self.`title` = `title`
+      self.`loggedAt` = `loggedAt`
+      self.`completedAt` = `completedAt`
+      self.`runMeters` = `runMeters`
+      self.`strengthSets` = `strengthSets`
+      self.`activeSeconds` = `activeSeconds`
+      self.`source` = `source`
+      self.`flags` = `flags`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `resultId` = "resultId"
+      case `revision` = "revision"
+      case `trainingDate` = "trainingDate"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `discipline` = "discipline"
+      case `completionStatus` = "completionStatus"
+      case `title` = "title"
+      case `loggedAt` = "loggedAt"
+      case `completedAt` = "completedAt"
+      case `runMeters` = "runMeters"
+      case `strengthSets` = "strengthSets"
+      case `activeSeconds` = "activeSeconds"
+      case `source` = "source"
+      case `flags` = "flags"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `resultId` = try c.decode(UUID.self, forKey: .`resultId`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decode(WorkoutResultInputRunningDateBasis.self, forKey: .`dateBasis`)
+      `discipline` = try c.decode(ProgressActivityDiscipline.self, forKey: .`discipline`)
+      `completionStatus` = try c.decode(String.self, forKey: .`completionStatus`)
+      `title` = try c.decode(String.self, forKey: .`title`)
+      `loggedAt` = try c.decode(BackendInstant?.self, forKey: .`loggedAt`)
+      `completedAt` = try c.decode(BackendInstant?.self, forKey: .`completedAt`)
+      `runMeters` = try c.decode(Double.self, forKey: .`runMeters`)
+      `strengthSets` = try c.decode(Int.self, forKey: .`strengthSets`)
+      `activeSeconds` = try c.decode(Double.self, forKey: .`activeSeconds`)
+      `source` = try c.decode(ProgressActivitySource.self, forKey: .`source`)
+      `flags` = try c.decode([String].self, forKey: .`flags`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`resultId`.uuidString.lowercased(), forKey: .`resultId`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`completionStatus`, forKey: .`completionStatus`)
+      try c.encode(`title`, forKey: .`title`)
+      try c.encode(`loggedAt`, forKey: .`loggedAt`)
+      try c.encode(`completedAt`, forKey: .`completedAt`)
+      try c.encode(`runMeters`, forKey: .`runMeters`)
+      try c.encode(`strengthSets`, forKey: .`strengthSets`)
+      try c.encode(`activeSeconds`, forKey: .`activeSeconds`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`flags`, forKey: .`flags`)
     }
   }
 
@@ -1073,15 +2772,15 @@ enum BackendWire {
       self.`strengthRecords` = `strengthRecords`
     }
     private enum CodingKeys: String, CodingKey {
-      case `preferredName`
-      case `heightUnit`
-      case `dateOfBirth`
-      case `age`
-      case `weightKg`
-      case `heightCm`
-      case `heartRateZones`
-      case `runningRecords`
-      case `strengthRecords`
+      case `preferredName` = "preferredName"
+      case `heightUnit` = "heightUnit"
+      case `dateOfBirth` = "dateOfBirth"
+      case `age` = "age"
+      case `weightKg` = "weightKg"
+      case `heightCm` = "heightCm"
+      case `heartRateZones` = "heartRateZones"
+      case `runningRecords` = "runningRecords"
+      case `strengthRecords` = "strengthRecords"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1109,6 +2808,314 @@ enum BackendWire {
     }
   }
 
+  struct OnboardingTrainingPreferences: Codable, Equatable, Sendable {
+    var `runningLevel`: OnboardingDraftRunningLevel
+    var `strengthLevel`: OnboardingDraftRunningLevel
+    var `desiredStrengthSessionsPerWeek`: Int
+    var `focusMuscleIds`: [UUID]
+    var `equipmentConfirmed`: BackendTrue
+    var `readiness`: OnboardingDraftReadiness
+    init(`runningLevel`: OnboardingDraftRunningLevel, `strengthLevel`: OnboardingDraftRunningLevel, `desiredStrengthSessionsPerWeek`: Int, `focusMuscleIds`: [UUID], `equipmentConfirmed`: BackendTrue, `readiness`: OnboardingDraftReadiness) {
+      self.`runningLevel` = `runningLevel`
+      self.`strengthLevel` = `strengthLevel`
+      self.`desiredStrengthSessionsPerWeek` = `desiredStrengthSessionsPerWeek`
+      self.`focusMuscleIds` = `focusMuscleIds`
+      self.`equipmentConfirmed` = `equipmentConfirmed`
+      self.`readiness` = `readiness`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `runningLevel` = "runningLevel"
+      case `strengthLevel` = "strengthLevel"
+      case `desiredStrengthSessionsPerWeek` = "desiredStrengthSessionsPerWeek"
+      case `focusMuscleIds` = "focusMuscleIds"
+      case `equipmentConfirmed` = "equipmentConfirmed"
+      case `readiness` = "readiness"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `runningLevel` = try c.decode(OnboardingDraftRunningLevel.self, forKey: .`runningLevel`)
+      `strengthLevel` = try c.decode(OnboardingDraftRunningLevel.self, forKey: .`strengthLevel`)
+      `desiredStrengthSessionsPerWeek` = try c.decode(Int.self, forKey: .`desiredStrengthSessionsPerWeek`)
+      `focusMuscleIds` = try c.decode([UUID].self, forKey: .`focusMuscleIds`)
+      `equipmentConfirmed` = try c.decode(BackendTrue.self, forKey: .`equipmentConfirmed`)
+      `readiness` = try c.decode(OnboardingDraftReadiness.self, forKey: .`readiness`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`runningLevel`, forKey: .`runningLevel`)
+      try c.encode(`strengthLevel`, forKey: .`strengthLevel`)
+      try c.encode(`desiredStrengthSessionsPerWeek`, forKey: .`desiredStrengthSessionsPerWeek`)
+      try c.encode(`focusMuscleIds`.map { $0.uuidString.lowercased() }, forKey: .`focusMuscleIds`)
+      try c.encode(`equipmentConfirmed`, forKey: .`equipmentConfirmed`)
+      try c.encode(`readiness`, forKey: .`readiness`)
+    }
+  }
+
+  struct AthleteGoalInputMetadata: Codable, Equatable, Sendable {
+    var `raceDistanceM`: Int?
+    var `targetFinishSeconds`: Int?
+    var `exerciseId`: UUID?
+    var `targetLoadKg`: Double?
+    var `targetReps`: Int?
+    init(`raceDistanceM`: Int? = nil, `targetFinishSeconds`: Int? = nil, `exerciseId`: UUID? = nil, `targetLoadKg`: Double? = nil, `targetReps`: Int? = nil) {
+      self.`raceDistanceM` = `raceDistanceM`
+      self.`targetFinishSeconds` = `targetFinishSeconds`
+      self.`exerciseId` = `exerciseId`
+      self.`targetLoadKg` = `targetLoadKg`
+      self.`targetReps` = `targetReps`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `raceDistanceM` = "raceDistanceM"
+      case `targetFinishSeconds` = "targetFinishSeconds"
+      case `exerciseId` = "exerciseId"
+      case `targetLoadKg` = "targetLoadKg"
+      case `targetReps` = "targetReps"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `raceDistanceM` = try c.decodeIfPresent(Int.self, forKey: .`raceDistanceM`)
+      `targetFinishSeconds` = try c.decodeIfPresent(Int.self, forKey: .`targetFinishSeconds`)
+      `exerciseId` = try c.decodeIfPresent(UUID.self, forKey: .`exerciseId`)
+      `targetLoadKg` = try c.decodeIfPresent(Double.self, forKey: .`targetLoadKg`)
+      `targetReps` = try c.decodeIfPresent(Int.self, forKey: .`targetReps`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encodeIfPresent(`raceDistanceM`, forKey: .`raceDistanceM`)
+      try c.encodeIfPresent(`targetFinishSeconds`, forKey: .`targetFinishSeconds`)
+      try c.encodeIfPresent(`exerciseId`?.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encodeIfPresent(`targetLoadKg`, forKey: .`targetLoadKg`)
+      try c.encodeIfPresent(`targetReps`, forKey: .`targetReps`)
+    }
+  }
+
+  enum PlannedWorkoutInput: Codable, Equatable, Sendable {
+    case `running`(PlannedWorkoutInputRunning)
+    case `strength`(PlannedWorkoutInputStrength)
+    private enum CodingKeys: String, CodingKey { case discipline }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      switch try c.decode(String.self, forKey: .discipline) {
+      case "running": self = .`running`(try PlannedWorkoutInputRunning(from: decoder))
+      case "strength": self = .`strength`(try PlannedWorkoutInputStrength(from: decoder))
+      default: throw DecodingError.dataCorruptedError(forKey: .discipline, in: c, debugDescription: "Unsupported discriminator")
+      }
+    }
+    func encode(to encoder: Encoder) throws {
+      switch self {
+      case .`running`(let value): try value.encode(to: encoder)
+      case .`strength`(let value): try value.encode(to: encoder)
+      }
+    }
+  }
+
+  struct PlanningContextInputSnapshot: Codable, Equatable, Sendable {
+    var `goals`: [AthleteGoalInput]
+    var `preferences`: TrainingPreferencesInput
+    var `availabilityRules`: [AvailabilityRuleInput]
+    var `availabilityOverrides`: [AvailabilityOverrideInput]
+    var `equipmentIds`: [UUID]
+    var `recentFeatures`: [String: BackendJSONValue]
+    var `athleteDetailsId`: UUID?
+    var `athleteDetailsSnapshot`: PlanningContextInputSnapshotAthleteDetailsSnapshot?
+    init(`goals`: [AthleteGoalInput], `preferences`: TrainingPreferencesInput, `availabilityRules`: [AvailabilityRuleInput], `availabilityOverrides`: [AvailabilityOverrideInput], `equipmentIds`: [UUID], `recentFeatures`: [String: BackendJSONValue], `athleteDetailsId`: UUID? = nil, `athleteDetailsSnapshot`: PlanningContextInputSnapshotAthleteDetailsSnapshot? = nil) {
+      self.`goals` = `goals`
+      self.`preferences` = `preferences`
+      self.`availabilityRules` = `availabilityRules`
+      self.`availabilityOverrides` = `availabilityOverrides`
+      self.`equipmentIds` = `equipmentIds`
+      self.`recentFeatures` = `recentFeatures`
+      self.`athleteDetailsId` = `athleteDetailsId`
+      self.`athleteDetailsSnapshot` = `athleteDetailsSnapshot`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `goals` = "goals"
+      case `preferences` = "preferences"
+      case `availabilityRules` = "availabilityRules"
+      case `availabilityOverrides` = "availabilityOverrides"
+      case `equipmentIds` = "equipmentIds"
+      case `recentFeatures` = "recentFeatures"
+      case `athleteDetailsId` = "athleteDetailsId"
+      case `athleteDetailsSnapshot` = "athleteDetailsSnapshot"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `goals` = try c.decode([AthleteGoalInput].self, forKey: .`goals`)
+      `preferences` = try c.decode(TrainingPreferencesInput.self, forKey: .`preferences`)
+      `availabilityRules` = try c.decode([AvailabilityRuleInput].self, forKey: .`availabilityRules`)
+      `availabilityOverrides` = try c.decode([AvailabilityOverrideInput].self, forKey: .`availabilityOverrides`)
+      `equipmentIds` = try c.decode([UUID].self, forKey: .`equipmentIds`)
+      `recentFeatures` = try c.decode([String: BackendJSONValue].self, forKey: .`recentFeatures`)
+      `athleteDetailsId` = try c.decodeIfPresent(UUID.self, forKey: .`athleteDetailsId`)
+      `athleteDetailsSnapshot` = try c.decodeIfPresent(PlanningContextInputSnapshotAthleteDetailsSnapshot.self, forKey: .`athleteDetailsSnapshot`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`goals`, forKey: .`goals`)
+      try c.encode(`preferences`, forKey: .`preferences`)
+      try c.encode(`availabilityRules`, forKey: .`availabilityRules`)
+      try c.encode(`availabilityOverrides`, forKey: .`availabilityOverrides`)
+      try c.encode(`equipmentIds`.map { $0.uuidString.lowercased() }, forKey: .`equipmentIds`)
+      try c.encode(`recentFeatures`, forKey: .`recentFeatures`)
+      try c.encode(`athleteDetailsId`?.uuidString.lowercased(), forKey: .`athleteDetailsId`)
+      try c.encodeIfPresent(`athleteDetailsSnapshot`, forKey: .`athleteDetailsSnapshot`)
+    }
+  }
+
+  struct WorkoutResultInputRunningRun: Codable, Equatable, Sendable {
+    var `distanceM`: Int
+    var `durationS`: Int
+    var `movingDurationS`: Int?
+    var `avgHrBpm`: Int?
+    var `maxHrBpm`: Int?
+    var `elevationGainM`: Double?
+    var `avgCadenceSpm`: Double?
+    var `hrZoneSummary`: [WorkoutResultInputRunningRunHrZoneSummaryItem]?
+    var `segments`: [WorkoutResultInputRunningRunSegmentsItem]?
+    init(`distanceM`: Int, `durationS`: Int, `movingDurationS`: Int? = nil, `avgHrBpm`: Int? = nil, `maxHrBpm`: Int? = nil, `elevationGainM`: Double? = nil, `avgCadenceSpm`: Double? = nil, `hrZoneSummary`: [WorkoutResultInputRunningRunHrZoneSummaryItem]? = nil, `segments`: [WorkoutResultInputRunningRunSegmentsItem]? = nil) {
+      self.`distanceM` = `distanceM`
+      self.`durationS` = `durationS`
+      self.`movingDurationS` = `movingDurationS`
+      self.`avgHrBpm` = `avgHrBpm`
+      self.`maxHrBpm` = `maxHrBpm`
+      self.`elevationGainM` = `elevationGainM`
+      self.`avgCadenceSpm` = `avgCadenceSpm`
+      self.`hrZoneSummary` = `hrZoneSummary`
+      self.`segments` = `segments`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `distanceM` = "distanceM"
+      case `durationS` = "durationS"
+      case `movingDurationS` = "movingDurationS"
+      case `avgHrBpm` = "avgHrBpm"
+      case `maxHrBpm` = "maxHrBpm"
+      case `elevationGainM` = "elevationGainM"
+      case `avgCadenceSpm` = "avgCadenceSpm"
+      case `hrZoneSummary` = "hrZoneSummary"
+      case `segments` = "segments"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `distanceM` = try c.decode(Int.self, forKey: .`distanceM`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+      `movingDurationS` = try c.decodeIfPresent(Int.self, forKey: .`movingDurationS`)
+      `avgHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`avgHrBpm`)
+      `maxHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`maxHrBpm`)
+      `elevationGainM` = try c.decodeIfPresent(Double.self, forKey: .`elevationGainM`)
+      `avgCadenceSpm` = try c.decodeIfPresent(Double.self, forKey: .`avgCadenceSpm`)
+      `hrZoneSummary` = try c.decodeIfPresent([WorkoutResultInputRunningRunHrZoneSummaryItem].self, forKey: .`hrZoneSummary`)
+      `segments` = try c.decodeIfPresent([WorkoutResultInputRunningRunSegmentsItem].self, forKey: .`segments`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`movingDurationS`, forKey: .`movingDurationS`)
+      try c.encode(`avgHrBpm`, forKey: .`avgHrBpm`)
+      try c.encode(`maxHrBpm`, forKey: .`maxHrBpm`)
+      try c.encode(`elevationGainM`, forKey: .`elevationGainM`)
+      try c.encode(`avgCadenceSpm`, forKey: .`avgCadenceSpm`)
+      try c.encodeIfPresent(`hrZoneSummary`, forKey: .`hrZoneSummary`)
+      try c.encodeIfPresent(`segments`, forKey: .`segments`)
+    }
+  }
+
+  struct WorkoutResultInputStrengthExercisesItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescribedExerciseId`: UUID?
+    var `exerciseId`: UUID
+    var `sequence`: Int
+    var `notes`: String?
+    var `substitutionReason`: String?
+    var `sets`: [WorkoutResultInputStrengthExercisesItemSetsItem]
+    init(`id`: UUID, `prescribedExerciseId`: UUID? = nil, `exerciseId`: UUID, `sequence`: Int, `notes`: String? = nil, `substitutionReason`: String? = nil, `sets`: [WorkoutResultInputStrengthExercisesItemSetsItem]) {
+      self.`id` = `id`
+      self.`prescribedExerciseId` = `prescribedExerciseId`
+      self.`exerciseId` = `exerciseId`
+      self.`sequence` = `sequence`
+      self.`notes` = `notes`
+      self.`substitutionReason` = `substitutionReason`
+      self.`sets` = `sets`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescribedExerciseId` = "prescribedExerciseId"
+      case `exerciseId` = "exerciseId"
+      case `sequence` = "sequence"
+      case `notes` = "notes"
+      case `substitutionReason` = "substitutionReason"
+      case `sets` = "sets"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescribedExerciseId` = try c.decodeIfPresent(UUID.self, forKey: .`prescribedExerciseId`)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `substitutionReason` = try c.decodeIfPresent(String.self, forKey: .`substitutionReason`)
+      `sets` = try c.decode([WorkoutResultInputStrengthExercisesItemSetsItem].self, forKey: .`sets`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescribedExerciseId`?.uuidString.lowercased(), forKey: .`prescribedExerciseId`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`substitutionReason`, forKey: .`substitutionReason`)
+      try c.encode(`sets`, forKey: .`sets`)
+    }
+  }
+
+  struct AthleteProfileInput: Codable, Equatable, Sendable {
+    var `timezone`: String
+    var `locale`: String
+    var `distanceUnit`: AthleteDistanceUnit
+    var `loadUnit`: AthleteLoadUnit
+    var `weekStartsOn`: Int
+    var `trainingDayBoundary`: String?
+    var `cloudAiConsent`: Bool?
+    init(`timezone`: String, `locale`: String, `distanceUnit`: AthleteDistanceUnit, `loadUnit`: AthleteLoadUnit, `weekStartsOn`: Int, `trainingDayBoundary`: String? = nil, `cloudAiConsent`: Bool? = nil) {
+      self.`timezone` = `timezone`
+      self.`locale` = `locale`
+      self.`distanceUnit` = `distanceUnit`
+      self.`loadUnit` = `loadUnit`
+      self.`weekStartsOn` = `weekStartsOn`
+      self.`trainingDayBoundary` = `trainingDayBoundary`
+      self.`cloudAiConsent` = `cloudAiConsent`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `timezone` = "timezone"
+      case `locale` = "locale"
+      case `distanceUnit` = "distanceUnit"
+      case `loadUnit` = "loadUnit"
+      case `weekStartsOn` = "weekStartsOn"
+      case `trainingDayBoundary` = "trainingDayBoundary"
+      case `cloudAiConsent` = "cloudAiConsent"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `locale` = try c.decode(String.self, forKey: .`locale`)
+      `distanceUnit` = try c.decode(AthleteDistanceUnit.self, forKey: .`distanceUnit`)
+      `loadUnit` = try c.decode(AthleteLoadUnit.self, forKey: .`loadUnit`)
+      `weekStartsOn` = try c.decode(Int.self, forKey: .`weekStartsOn`)
+      `trainingDayBoundary` = try c.decodeIfPresent(String.self, forKey: .`trainingDayBoundary`)
+      `cloudAiConsent` = try c.decodeIfPresent(Bool.self, forKey: .`cloudAiConsent`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`locale`, forKey: .`locale`)
+      try c.encode(`distanceUnit`, forKey: .`distanceUnit`)
+      try c.encode(`loadUnit`, forKey: .`loadUnit`)
+      try c.encode(`weekStartsOn`, forKey: .`weekStartsOn`)
+      try c.encode(`trainingDayBoundary`, forKey: .`trainingDayBoundary`)
+      try c.encodeIfPresent(`cloudAiConsent`, forKey: .`cloudAiConsent`)
+    }
+  }
+
   struct OnboardingDraftBaselinePeriod: Codable, Equatable, Sendable {
     var `start`: BackendDay
     var `end`: BackendDay
@@ -1117,8 +3124,8 @@ enum BackendWire {
       self.`end` = `end`
     }
     private enum CodingKeys: String, CodingKey {
-      case `start`
-      case `end`
+      case `start` = "start"
+      case `end` = "end"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1133,21 +3140,21 @@ enum BackendWire {
   }
 
   enum OnboardingImportDecision: Codable, Equatable, Sendable {
-    case strava(OnboardingImportDecisionStrava)
-    case healthkit(OnboardingImportDecisionHealthkit)
+    case `strava`(OnboardingImportDecisionStrava)
+    case `healthkit`(OnboardingImportDecisionHealthkit)
     private enum CodingKeys: String, CodingKey { case source }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
       switch try c.decode(String.self, forKey: .source) {
-      case "strava": self = .strava(try OnboardingImportDecisionStrava(from: decoder))
-      case "healthkit": self = .healthkit(try OnboardingImportDecisionHealthkit(from: decoder))
-      default: throw DecodingError.dataCorruptedError(forKey: .source, in: c, debugDescription: "Unsupported import source")
+      case "strava": self = .`strava`(try OnboardingImportDecisionStrava(from: decoder))
+      case "healthkit": self = .`healthkit`(try OnboardingImportDecisionHealthkit(from: decoder))
+      default: throw DecodingError.dataCorruptedError(forKey: .source, in: c, debugDescription: "Unsupported discriminator")
       }
     }
     func encode(to encoder: Encoder) throws {
       switch self {
-      case .strava(let value): try value.encode(to: encoder)
-      case .healthkit(let value): try value.encode(to: encoder)
+      case .`strava`(let value): try value.encode(to: encoder)
+      case .`healthkit`(let value): try value.encode(to: encoder)
       }
     }
   }
@@ -1162,9 +3169,9 @@ enum BackendWire {
       self.`membership` = `membership`
     }
     private enum CodingKeys: String, CodingKey {
-      case `wantsHealth`
-      case `wantsStrava`
-      case `membership`
+      case `wantsHealth` = "wantsHealth"
+      case `wantsStrava` = "wantsStrava"
+      case `membership` = "membership"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1190,9 +3197,9 @@ enum BackendWire {
       self.`revision` = `revision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `entityType`
-      case `id`
-      case `revision`
+      case `entityType` = "entityType"
+      case `id` = "id"
+      case `revision` = "revision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1203,7 +3210,7 @@ enum BackendWire {
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`entityType`, forKey: .`entityType`)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`revision`, forKey: .`revision`)
     }
   }
@@ -1218,9 +3225,9 @@ enum BackendWire {
       self.`revision` = `revision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `entityType`
-      case `id`
-      case `revision`
+      case `entityType` = "entityType"
+      case `id` = "id"
+      case `revision` = "revision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1231,7 +3238,7 @@ enum BackendWire {
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`entityType`, forKey: .`entityType`)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`revision`, forKey: .`revision`)
     }
   }
@@ -1246,9 +3253,9 @@ enum BackendWire {
       self.`revision` = `revision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `entityType`
-      case `id`
-      case `revision`
+      case `entityType` = "entityType"
+      case `id` = "id"
+      case `revision` = "revision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1259,7 +3266,7 @@ enum BackendWire {
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`entityType`, forKey: .`entityType`)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`revision`, forKey: .`revision`)
     }
   }
@@ -1274,9 +3281,9 @@ enum BackendWire {
       self.`revision` = `revision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `entityType`
-      case `id`
-      case `revision`
+      case `entityType` = "entityType"
+      case `id` = "id"
+      case `revision` = "revision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1287,7 +3294,7 @@ enum BackendWire {
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`entityType`, forKey: .`entityType`)
-      try c.encode(`id`, forKey: .`id`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
       try c.encode(`revision`, forKey: .`revision`)
     }
   }
@@ -1313,10 +3320,10 @@ enum BackendWire {
       self.`maximumWeeklyDistanceM` = `maximumWeeklyDistanceM`
     }
     private enum CodingKeys: String, CodingKey {
-      case `status`
-      case `reason`
-      case `minimumWeeklyDistanceM`
-      case `maximumWeeklyDistanceM`
+      case `status` = "status"
+      case `reason` = "reason"
+      case `minimumWeeklyDistanceM` = "minimumWeeklyDistanceM"
+      case `maximumWeeklyDistanceM` = "maximumWeeklyDistanceM"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1342,8 +3349,8 @@ enum BackendWire {
       self.`ranges` = `ranges`
     }
     private enum CodingKeys: String, CodingKey {
-      case `custom`
-      case `ranges`
+      case `custom` = "custom"
+      case `ranges` = "ranges"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1377,14 +3384,14 @@ enum BackendWire {
       self.`averageRunsPerWeek` = `averageRunsPerWeek`
     }
     private enum CodingKeys: String, CodingKey {
-      case `days`
-      case `runs`
-      case `distanceM`
-      case `elapsedSeconds`
-      case `movingSeconds`
-      case `averageMovingPaceSecondsPerKm`
-      case `averageWeeklyDistanceM`
-      case `averageRunsPerWeek`
+      case `days` = "days"
+      case `runs` = "runs"
+      case `distanceM` = "distanceM"
+      case `elapsedSeconds` = "elapsedSeconds"
+      case `movingSeconds` = "movingSeconds"
+      case `averageMovingPaceSecondsPerKm` = "averageMovingPaceSecondsPerKm"
+      case `averageWeeklyDistanceM` = "averageWeeklyDistanceM"
+      case `averageRunsPerWeek` = "averageRunsPerWeek"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1420,9 +3427,9 @@ enum BackendWire {
       self.`averageSessionsPerWeek` = `averageSessionsPerWeek`
     }
     private enum CodingKeys: String, CodingKey {
-      case `days`
-      case `sessions`
-      case `averageSessionsPerWeek`
+      case `days` = "days"
+      case `sessions` = "sessions"
+      case `averageSessionsPerWeek` = "averageSessionsPerWeek"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1452,11 +3459,11 @@ enum BackendWire {
       self.`performedAt` = `performedAt`
     }
     private enum CodingKeys: String, CodingKey {
-      case `name`
-      case `distanceM`
-      case `elapsedSeconds`
-      case `activityId`
-      case `performedAt`
+      case `name` = "name"
+      case `distanceM` = "distanceM"
+      case `elapsedSeconds` = "elapsedSeconds"
+      case `activityId` = "activityId"
+      case `performedAt` = "performedAt"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1492,10 +3499,10 @@ enum BackendWire {
       self.`allTimePersonalBests` = `allTimePersonalBests`
     }
     private enum CodingKeys: String, CodingKey {
-      case `scope`
-      case `inspectedRuns`
-      case `totalRuns`
-      case `allTimePersonalBests`
+      case `scope` = "scope"
+      case `inspectedRuns` = "inspectedRuns"
+      case `totalRuns` = "totalRuns"
+      case `allTimePersonalBests` = "allTimePersonalBests"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1556,13 +3563,13 @@ enum BackendWire {
       self.`coverage` = `coverage`
     }
     private enum CodingKeys: String, CodingKey {
-      case `state`
-      case `reason`
-      case `data`
-      case `source`
-      case `fetchedAt`
-      case `retryAfterSeconds`
-      case `coverage`
+      case `state` = "state"
+      case `reason` = "reason"
+      case `data` = "data"
+      case `source` = "source"
+      case `fetchedAt` = "fetchedAt"
+      case `retryAfterSeconds` = "retryAfterSeconds"
+      case `coverage` = "coverage"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1604,13 +3611,13 @@ enum BackendWire {
       self.`coverage` = `coverage`
     }
     private enum CodingKeys: String, CodingKey {
-      case `state`
-      case `reason`
-      case `data`
-      case `source`
-      case `fetchedAt`
-      case `retryAfterSeconds`
-      case `coverage`
+      case `state` = "state"
+      case `reason` = "reason"
+      case `data` = "data"
+      case `source` = "source"
+      case `fetchedAt` = "fetchedAt"
+      case `retryAfterSeconds` = "retryAfterSeconds"
+      case `coverage` = "coverage"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1652,13 +3659,13 @@ enum BackendWire {
       self.`coverage` = `coverage`
     }
     private enum CodingKeys: String, CodingKey {
-      case `state`
-      case `reason`
-      case `data`
-      case `source`
-      case `fetchedAt`
-      case `retryAfterSeconds`
-      case `coverage`
+      case `state` = "state"
+      case `reason` = "reason"
+      case `data` = "data"
+      case `source` = "source"
+      case `fetchedAt` = "fetchedAt"
+      case `retryAfterSeconds` = "retryAfterSeconds"
+      case `coverage` = "coverage"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1682,6 +3689,1340 @@ enum BackendWire {
     }
   }
 
+  typealias SyncCursor = BackendRevision
+
+  struct PolicyConfigOnboarding: Codable, Equatable, Sendable {
+    var `priorityWeights`: PolicyConfigOnboardingPriorityWeights
+    var `minimumWeeklyDistanceM`: Int
+    var `maximumWeeklyDistanceM`: Int
+    init(`priorityWeights`: PolicyConfigOnboardingPriorityWeights, `minimumWeeklyDistanceM`: Int, `maximumWeeklyDistanceM`: Int) {
+      self.`priorityWeights` = `priorityWeights`
+      self.`minimumWeeklyDistanceM` = `minimumWeeklyDistanceM`
+      self.`maximumWeeklyDistanceM` = `maximumWeeklyDistanceM`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `priorityWeights` = "priorityWeights"
+      case `minimumWeeklyDistanceM` = "minimumWeeklyDistanceM"
+      case `maximumWeeklyDistanceM` = "maximumWeeklyDistanceM"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `priorityWeights` = try c.decode(PolicyConfigOnboardingPriorityWeights.self, forKey: .`priorityWeights`)
+      `minimumWeeklyDistanceM` = try c.decode(Int.self, forKey: .`minimumWeeklyDistanceM`)
+      `maximumWeeklyDistanceM` = try c.decode(Int.self, forKey: .`maximumWeeklyDistanceM`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`priorityWeights`, forKey: .`priorityWeights`)
+      try c.encode(`minimumWeeklyDistanceM`, forKey: .`minimumWeeklyDistanceM`)
+      try c.encode(`maximumWeeklyDistanceM`, forKey: .`maximumWeeklyDistanceM`)
+    }
+  }
+
+  struct PolicyConfigFeatures: Codable, Equatable, Sendable {
+    var `sync`: Bool
+    var `remoteDecisions`: Bool
+    var `remoteCoach`: Bool
+    var `billing`: Bool
+    init(`sync`: Bool, `remoteDecisions`: Bool, `remoteCoach`: Bool, `billing`: Bool) {
+      self.`sync` = `sync`
+      self.`remoteDecisions` = `remoteDecisions`
+      self.`remoteCoach` = `remoteCoach`
+      self.`billing` = `billing`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sync` = "sync"
+      case `remoteDecisions` = "remoteDecisions"
+      case `remoteCoach` = "remoteCoach"
+      case `billing` = "billing"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sync` = try c.decode(Bool.self, forKey: .`sync`)
+      `remoteDecisions` = try c.decode(Bool.self, forKey: .`remoteDecisions`)
+      `remoteCoach` = try c.decode(Bool.self, forKey: .`remoteCoach`)
+      `billing` = try c.decode(Bool.self, forKey: .`billing`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sync`, forKey: .`sync`)
+      try c.encode(`remoteDecisions`, forKey: .`remoteDecisions`)
+      try c.encode(`remoteCoach`, forKey: .`remoteCoach`)
+      try c.encode(`billing`, forKey: .`billing`)
+    }
+  }
+
+  struct PolicyConfigInterference: Codable, Equatable, Sendable {
+    var `lowerBeforeKeyRun`: PolicyConfigInterferenceLowerBeforeKeyRun
+    init(`lowerBeforeKeyRun`: PolicyConfigInterferenceLowerBeforeKeyRun) {
+      self.`lowerBeforeKeyRun` = `lowerBeforeKeyRun`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `lowerBeforeKeyRun` = "lowerBeforeKeyRun"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `lowerBeforeKeyRun` = try c.decode(PolicyConfigInterferenceLowerBeforeKeyRun.self, forKey: .`lowerBeforeKeyRun`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`lowerBeforeKeyRun`, forKey: .`lowerBeforeKeyRun`)
+    }
+  }
+
+  struct PolicyConfigRunning: Codable, Equatable, Sendable {
+    var `defaultProgression`: PolicyConfigRunningDefaultProgression
+    init(`defaultProgression`: PolicyConfigRunningDefaultProgression) {
+      self.`defaultProgression` = `defaultProgression`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `defaultProgression` = "defaultProgression"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `defaultProgression` = try c.decode(PolicyConfigRunningDefaultProgression.self, forKey: .`defaultProgression`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`defaultProgression`, forKey: .`defaultProgression`)
+    }
+  }
+
+  struct PolicyConfigStrength: Codable, Equatable, Sendable {
+    var `maxLoadIncreaseFraction`: Double
+    var `maxSetsPerExercise`: Int
+    init(`maxLoadIncreaseFraction`: Double, `maxSetsPerExercise`: Int) {
+      self.`maxLoadIncreaseFraction` = `maxLoadIncreaseFraction`
+      self.`maxSetsPerExercise` = `maxSetsPerExercise`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `maxLoadIncreaseFraction` = "maxLoadIncreaseFraction"
+      case `maxSetsPerExercise` = "maxSetsPerExercise"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `maxLoadIncreaseFraction` = try c.decode(Double.self, forKey: .`maxLoadIncreaseFraction`)
+      `maxSetsPerExercise` = try c.decode(Int.self, forKey: .`maxSetsPerExercise`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`maxLoadIncreaseFraction`, forKey: .`maxLoadIncreaseFraction`)
+      try c.encode(`maxSetsPerExercise`, forKey: .`maxSetsPerExercise`)
+    }
+  }
+
+  struct PolicyConfigIntelligence: Codable, Equatable, Sendable {
+    var `jevConfidence`: PolicyConfigIntelligenceJevConfidence
+    var `proposalExpiryHours`: Int
+    init(`jevConfidence`: PolicyConfigIntelligenceJevConfidence, `proposalExpiryHours`: Int) {
+      self.`jevConfidence` = `jevConfidence`
+      self.`proposalExpiryHours` = `proposalExpiryHours`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `jevConfidence` = "jevConfidence"
+      case `proposalExpiryHours` = "proposalExpiryHours"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `jevConfidence` = try c.decode(PolicyConfigIntelligenceJevConfidence.self, forKey: .`jevConfidence`)
+      `proposalExpiryHours` = try c.decode(Int.self, forKey: .`proposalExpiryHours`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`jevConfidence`, forKey: .`jevConfidence`)
+      try c.encode(`proposalExpiryHours`, forKey: .`proposalExpiryHours`)
+    }
+  }
+
+  enum SyncChangeAthleteOperation: String, Codable, Equatable, Sendable {
+    case `upsert` = "upsert"
+    case `delete` = "delete"
+  }
+
+  enum SyncChangeAthleteEntityType: String, Codable, Equatable, Sendable {
+    case `athlete` = "athlete"
+  }
+
+  struct SyncChangeAthlete: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAthleteEntityType
+    var `payload`: AthleteRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAthleteEntityType, `payload`: AthleteRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAthleteEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(AthleteRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeAthleteDetailsEntityType: String, Codable, Equatable, Sendable {
+    case `athleteDetails` = "athlete_details"
+  }
+
+  struct SyncChangeAthleteDetails: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAthleteDetailsEntityType
+    var `payload`: AthleteDetailsRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAthleteDetailsEntityType, `payload`: AthleteDetailsRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAthleteDetailsEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(AthleteDetailsRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeAthleteGoalEntityType: String, Codable, Equatable, Sendable {
+    case `athleteGoal` = "athlete_goal"
+  }
+
+  struct SyncChangeAthleteGoal: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAthleteGoalEntityType
+    var `payload`: GoalRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAthleteGoalEntityType, `payload`: GoalRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAthleteGoalEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(GoalRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeTrainingPreferencesEntityType: String, Codable, Equatable, Sendable {
+    case `trainingPreferences` = "training_preferences"
+  }
+
+  struct SyncChangeTrainingPreferences: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeTrainingPreferencesEntityType
+    var `payload`: TrainingPreferencesRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeTrainingPreferencesEntityType, `payload`: TrainingPreferencesRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeTrainingPreferencesEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(TrainingPreferencesRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeAvailabilityRuleEntityType: String, Codable, Equatable, Sendable {
+    case `availabilityRule` = "availability_rule"
+  }
+
+  struct SyncChangeAvailabilityRule: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAvailabilityRuleEntityType
+    var `payload`: AvailabilityRuleRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAvailabilityRuleEntityType, `payload`: AvailabilityRuleRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAvailabilityRuleEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(AvailabilityRuleRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeAvailabilityOverrideEntityType: String, Codable, Equatable, Sendable {
+    case `availabilityOverride` = "availability_override"
+  }
+
+  struct SyncChangeAvailabilityOverride: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAvailabilityOverrideEntityType
+    var `payload`: AvailabilityOverrideRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAvailabilityOverrideEntityType, `payload`: AvailabilityOverrideRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAvailabilityOverrideEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(AvailabilityOverrideRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeBaselineSnapshotEntityType: String, Codable, Equatable, Sendable {
+    case `baselineSnapshot` = "baseline_snapshot"
+  }
+
+  struct SyncChangeBaselineSnapshot: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeBaselineSnapshotEntityType
+    var `payload`: BaselineRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeBaselineSnapshotEntityType, `payload`: BaselineRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeBaselineSnapshotEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(BaselineRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangePlanningContextSnapshotEntityType: String, Codable, Equatable, Sendable {
+    case `planningContextSnapshot` = "planning_context_snapshot"
+  }
+
+  struct SyncChangePlanningContextSnapshot: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangePlanningContextSnapshotEntityType
+    var `payload`: PlanningContextRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangePlanningContextSnapshotEntityType, `payload`: PlanningContextRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangePlanningContextSnapshotEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(PlanningContextRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeAthleteEquipmentEntityType: String, Codable, Equatable, Sendable {
+    case `athleteEquipment` = "athlete_equipment"
+  }
+
+  struct SyncChangeAthleteEquipment: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeAthleteEquipmentEntityType
+    var `payload`: AthleteEquipmentRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeAthleteEquipmentEntityType, `payload`: AthleteEquipmentRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeAthleteEquipmentEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(AthleteEquipmentRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeExercisePreferenceEntityType: String, Codable, Equatable, Sendable {
+    case `exercisePreference` = "exercise_preference"
+  }
+
+  struct SyncChangeExercisePreference: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeExercisePreferenceEntityType
+    var `payload`: ExercisePreferenceRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeExercisePreferenceEntityType, `payload`: ExercisePreferenceRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeExercisePreferenceEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(ExercisePreferenceRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeTrainingBlockEntityType: String, Codable, Equatable, Sendable {
+    case `trainingBlock` = "training_block"
+  }
+
+  struct SyncChangeTrainingBlock: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeTrainingBlockEntityType
+    var `payload`: TrainingBlockRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeTrainingBlockEntityType, `payload`: TrainingBlockRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeTrainingBlockEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(TrainingBlockRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangePlanVersionEntityType: String, Codable, Equatable, Sendable {
+    case `planVersion` = "plan_version"
+  }
+
+  struct SyncChangePlanVersion: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangePlanVersionEntityType
+    var `payload`: PlanVersionRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangePlanVersionEntityType, `payload`: PlanVersionRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangePlanVersionEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(PlanVersionRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeWorkoutResultEntityType: String, Codable, Equatable, Sendable {
+    case `workoutResult` = "workout_result"
+  }
+
+  struct SyncChangeWorkoutResult: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeWorkoutResultEntityType
+    var `payload`: WorkoutResultRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeWorkoutResultEntityType, `payload`: WorkoutResultRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeWorkoutResultEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(WorkoutResultRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeActivitySourceRecordEntityType: String, Codable, Equatable, Sendable {
+    case `activitySourceRecord` = "activity_source_record"
+  }
+
+  struct SyncChangeActivitySourceRecord: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeActivitySourceRecordEntityType
+    var `payload`: ActivitySourceRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeActivitySourceRecordEntityType, `payload`: ActivitySourceRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeActivitySourceRecordEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(ActivitySourceRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangePlanChangeSetEntityType: String, Codable, Equatable, Sendable {
+    case `planChangeSet` = "plan_change_set"
+  }
+
+  struct SyncChangePlanChangeSet: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangePlanChangeSetEntityType
+    var `payload`: PlanChangeRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangePlanChangeSetEntityType, `payload`: PlanChangeRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangePlanChangeSetEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(PlanChangeRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeCoachThreadEntityType: String, Codable, Equatable, Sendable {
+    case `coachThread` = "coach_thread"
+  }
+
+  struct SyncChangeCoachThread: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeCoachThreadEntityType
+    var `payload`: CoachThreadRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeCoachThreadEntityType, `payload`: CoachThreadRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeCoachThreadEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(CoachThreadRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeCoachMessageEntityType: String, Codable, Equatable, Sendable {
+    case `coachMessage` = "coach_message"
+  }
+
+  struct SyncChangeCoachMessage: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeCoachMessageEntityType
+    var `payload`: CoachMessageRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeCoachMessageEntityType, `payload`: CoachMessageRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeCoachMessageEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(CoachMessageRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeActionProposalEntityType: String, Codable, Equatable, Sendable {
+    case `actionProposal` = "action_proposal"
+  }
+
+  struct SyncChangeActionProposal: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeActionProposalEntityType
+    var `payload`: ActionProposalRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeActionProposalEntityType, `payload`: ActionProposalRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeActionProposalEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(ActionProposalRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeStructuredDecisionEntityType: String, Codable, Equatable, Sendable {
+    case `structuredDecision` = "structured_decision"
+  }
+
+  struct SyncChangeStructuredDecision: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeStructuredDecisionEntityType
+    var `payload`: StructuredDecisionRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeStructuredDecisionEntityType, `payload`: StructuredDecisionRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeStructuredDecisionEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(StructuredDecisionRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  enum SyncChangeEntitlementEntityType: String, Codable, Equatable, Sendable {
+    case `entitlement` = "entitlement"
+  }
+
+  struct SyncChangeEntitlement: Codable, Equatable, Sendable {
+    var `sequence`: BackendRevision
+    var `entityId`: UUID
+    var `operation`: SyncChangeAthleteOperation
+    var `revision`: BackendRevision?
+    var `entityType`: SyncChangeEntitlementEntityType
+    var `payload`: EntitlementRecord?
+    init(`sequence`: BackendRevision, `entityId`: UUID, `operation`: SyncChangeAthleteOperation, `revision`: BackendRevision? = nil, `entityType`: SyncChangeEntitlementEntityType, `payload`: EntitlementRecord? = nil) {
+      self.`sequence` = `sequence`
+      self.`entityId` = `entityId`
+      self.`operation` = `operation`
+      self.`revision` = `revision`
+      self.`entityType` = `entityType`
+      self.`payload` = `payload`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sequence` = "sequence"
+      case `entityId` = "entityId"
+      case `operation` = "operation"
+      case `revision` = "revision"
+      case `entityType` = "entityType"
+      case `payload` = "payload"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sequence` = try c.decode(BackendRevision.self, forKey: .`sequence`)
+      `entityId` = try c.decode(UUID.self, forKey: .`entityId`)
+      `operation` = try c.decode(SyncChangeAthleteOperation.self, forKey: .`operation`)
+      `revision` = try c.decode(BackendRevision?.self, forKey: .`revision`)
+      `entityType` = try c.decode(SyncChangeEntitlementEntityType.self, forKey: .`entityType`)
+      `payload` = try c.decode(EntitlementRecord?.self, forKey: .`payload`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`entityId`.uuidString.lowercased(), forKey: .`entityId`)
+      try c.encode(`operation`, forKey: .`operation`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`entityType`, forKey: .`entityType`)
+      try c.encode(`payload`, forKey: .`payload`)
+    }
+  }
+
+  struct MutationResultError: Codable, Equatable, Sendable {
+    var `code`: String
+    var `message`: String
+    var `serverRevision`: BackendRevision?
+    init(`code`: String, `message`: String, `serverRevision`: BackendRevision? = nil) {
+      self.`code` = `code`
+      self.`message` = `message`
+      self.`serverRevision` = `serverRevision`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `code` = "code"
+      case `message` = "message"
+      case `serverRevision` = "serverRevision"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `code` = try c.decode(String.self, forKey: .`code`)
+      `message` = try c.decode(String.self, forKey: .`message`)
+      `serverRevision` = try c.decodeIfPresent(BackendRevision.self, forKey: .`serverRevision`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`code`, forKey: .`code`)
+      try c.encode(`message`, forKey: .`message`)
+      try c.encodeIfPresent(`serverRevision`, forKey: .`serverRevision`)
+    }
+  }
+
+  struct ProgressTotals: Codable, Equatable, Sendable {
+    var `runMeters`: Double
+    var `strengthSets`: Int
+    var `activeSeconds`: Double
+    var `sessions`: Int
+    var `runSessions`: Int
+    var `liftSessions`: Int
+    var `activeDays`: Int
+    init(`runMeters`: Double, `strengthSets`: Int, `activeSeconds`: Double, `sessions`: Int, `runSessions`: Int, `liftSessions`: Int, `activeDays`: Int) {
+      self.`runMeters` = `runMeters`
+      self.`strengthSets` = `strengthSets`
+      self.`activeSeconds` = `activeSeconds`
+      self.`sessions` = `sessions`
+      self.`runSessions` = `runSessions`
+      self.`liftSessions` = `liftSessions`
+      self.`activeDays` = `activeDays`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `runMeters` = "runMeters"
+      case `strengthSets` = "strengthSets"
+      case `activeSeconds` = "activeSeconds"
+      case `sessions` = "sessions"
+      case `runSessions` = "runSessions"
+      case `liftSessions` = "liftSessions"
+      case `activeDays` = "activeDays"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `runMeters` = try c.decode(Double.self, forKey: .`runMeters`)
+      `strengthSets` = try c.decode(Int.self, forKey: .`strengthSets`)
+      `activeSeconds` = try c.decode(Double.self, forKey: .`activeSeconds`)
+      `sessions` = try c.decode(Int.self, forKey: .`sessions`)
+      `runSessions` = try c.decode(Int.self, forKey: .`runSessions`)
+      `liftSessions` = try c.decode(Int.self, forKey: .`liftSessions`)
+      `activeDays` = try c.decode(Int.self, forKey: .`activeDays`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`runMeters`, forKey: .`runMeters`)
+      try c.encode(`strengthSets`, forKey: .`strengthSets`)
+      try c.encode(`activeSeconds`, forKey: .`activeSeconds`)
+      try c.encode(`sessions`, forKey: .`sessions`)
+      try c.encode(`runSessions`, forKey: .`runSessions`)
+      try c.encode(`liftSessions`, forKey: .`liftSessions`)
+      try c.encode(`activeDays`, forKey: .`activeDays`)
+    }
+  }
+
+  struct ProgressSummaryTotalsPercentChange: Codable, Equatable, Sendable {
+    var `runMeters`: Double?
+    var `strengthSets`: Double?
+    var `activeSeconds`: Double?
+    var `sessions`: Double?
+    var `runSessions`: Double?
+    var `liftSessions`: Double?
+    var `activeDays`: Double?
+    init(`runMeters`: Double? = nil, `strengthSets`: Double? = nil, `activeSeconds`: Double? = nil, `sessions`: Double? = nil, `runSessions`: Double? = nil, `liftSessions`: Double? = nil, `activeDays`: Double? = nil) {
+      self.`runMeters` = `runMeters`
+      self.`strengthSets` = `strengthSets`
+      self.`activeSeconds` = `activeSeconds`
+      self.`sessions` = `sessions`
+      self.`runSessions` = `runSessions`
+      self.`liftSessions` = `liftSessions`
+      self.`activeDays` = `activeDays`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `runMeters` = "runMeters"
+      case `strengthSets` = "strengthSets"
+      case `activeSeconds` = "activeSeconds"
+      case `sessions` = "sessions"
+      case `runSessions` = "runSessions"
+      case `liftSessions` = "liftSessions"
+      case `activeDays` = "activeDays"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `runMeters` = try c.decode(Double?.self, forKey: .`runMeters`)
+      `strengthSets` = try c.decode(Double?.self, forKey: .`strengthSets`)
+      `activeSeconds` = try c.decode(Double?.self, forKey: .`activeSeconds`)
+      `sessions` = try c.decode(Double?.self, forKey: .`sessions`)
+      `runSessions` = try c.decode(Double?.self, forKey: .`runSessions`)
+      `liftSessions` = try c.decode(Double?.self, forKey: .`liftSessions`)
+      `activeDays` = try c.decode(Double?.self, forKey: .`activeDays`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`runMeters`, forKey: .`runMeters`)
+      try c.encode(`strengthSets`, forKey: .`strengthSets`)
+      try c.encode(`activeSeconds`, forKey: .`activeSeconds`)
+      try c.encode(`sessions`, forKey: .`sessions`)
+      try c.encode(`runSessions`, forKey: .`runSessions`)
+      try c.encode(`liftSessions`, forKey: .`liftSessions`)
+      try c.encode(`activeDays`, forKey: .`activeDays`)
+    }
+  }
+
+  enum ProgressComparisonGroup: Codable, Equatable, Sendable {
+    case `running`(ProgressComparisonGroupRunning)
+    case `strength`(ProgressComparisonGroupStrength)
+    private enum CodingKeys: String, CodingKey { case kind }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      switch try c.decode(String.self, forKey: .kind) {
+      case "running": self = .`running`(try ProgressComparisonGroupRunning(from: decoder))
+      case "strength": self = .`strength`(try ProgressComparisonGroupStrength(from: decoder))
+      default: throw DecodingError.dataCorruptedError(forKey: .kind, in: c, debugDescription: "Unsupported discriminator")
+      }
+    }
+    func encode(to encoder: Encoder) throws {
+      switch self {
+      case .`running`(let value): try value.encode(to: encoder)
+      case .`strength`(let value): try value.encode(to: encoder)
+      }
+    }
+  }
+
+  struct ProgressComparisonPoint: Codable, Equatable, Sendable {
+    var `resultId`: UUID
+    var `trainingDate`: BackendDay
+    var `occurredAt`: BackendInstant?
+    var `value`: Double
+    init(`resultId`: UUID, `trainingDate`: BackendDay, `occurredAt`: BackendInstant? = nil, `value`: Double) {
+      self.`resultId` = `resultId`
+      self.`trainingDate` = `trainingDate`
+      self.`occurredAt` = `occurredAt`
+      self.`value` = `value`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `resultId` = "resultId"
+      case `trainingDate` = "trainingDate"
+      case `occurredAt` = "occurredAt"
+      case `value` = "value"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `resultId` = try c.decode(UUID.self, forKey: .`resultId`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `occurredAt` = try c.decode(BackendInstant?.self, forKey: .`occurredAt`)
+      `value` = try c.decode(Double.self, forKey: .`value`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`resultId`.uuidString.lowercased(), forKey: .`resultId`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`occurredAt`, forKey: .`occurredAt`)
+      try c.encode(`value`, forKey: .`value`)
+    }
+  }
+
+  enum ProgressComparisonChangeDirection: String, Codable, Equatable, Sendable {
+    case `improved` = "improved"
+    case `regressed` = "regressed"
+    case `steady` = "steady"
+  }
+
+  struct ProgressComparisonChange: Codable, Equatable, Sendable {
+    var `absolute`: Double
+    var `percent`: Double?
+    var `direction`: ProgressComparisonChangeDirection
+    init(`absolute`: Double, `percent`: Double? = nil, `direction`: ProgressComparisonChangeDirection) {
+      self.`absolute` = `absolute`
+      self.`percent` = `percent`
+      self.`direction` = `direction`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `absolute` = "absolute"
+      case `percent` = "percent"
+      case `direction` = "direction"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `absolute` = try c.decode(Double.self, forKey: .`absolute`)
+      `percent` = try c.decode(Double?.self, forKey: .`percent`)
+      `direction` = try c.decode(ProgressComparisonChangeDirection.self, forKey: .`direction`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`absolute`, forKey: .`absolute`)
+      try c.encode(`percent`, forKey: .`percent`)
+      try c.encode(`direction`, forKey: .`direction`)
+    }
+  }
+
+  struct ProgressActivitySource: Codable, Equatable, Sendable {
+    var `type`: String
+    var `records`: Int
+    var `unresolvedMatches`: Int
+    var `deletedRecords`: Int
+    init(`type`: String, `records`: Int, `unresolvedMatches`: Int, `deletedRecords`: Int) {
+      self.`type` = `type`
+      self.`records` = `records`
+      self.`unresolvedMatches` = `unresolvedMatches`
+      self.`deletedRecords` = `deletedRecords`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `type` = "type"
+      case `records` = "records"
+      case `unresolvedMatches` = "unresolvedMatches"
+      case `deletedRecords` = "deletedRecords"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `type` = try c.decode(String.self, forKey: .`type`)
+      `records` = try c.decode(Int.self, forKey: .`records`)
+      `unresolvedMatches` = try c.decode(Int.self, forKey: .`unresolvedMatches`)
+      `deletedRecords` = try c.decode(Int.self, forKey: .`deletedRecords`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`type`, forKey: .`type`)
+      try c.encode(`records`, forKey: .`records`)
+      try c.encode(`unresolvedMatches`, forKey: .`unresolvedMatches`)
+      try c.encode(`deletedRecords`, forKey: .`deletedRecords`)
+    }
+  }
+
   struct AthleteDetailsAge: Codable, Equatable, Sendable {
     var `years`: Int
     var `asOf`: BackendDay
@@ -1690,8 +5031,8 @@ enum BackendWire {
       self.`asOf` = `asOf`
     }
     private enum CodingKeys: String, CodingKey {
-      case `years`
-      case `asOf`
+      case `years` = "years"
+      case `asOf` = "asOf"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1722,9 +5063,9 @@ enum BackendWire {
       self.`ranges` = `ranges`
     }
     private enum CodingKeys: String, CodingKey {
-      case `schemaVersion`
-      case `configuration`
-      case `ranges`
+      case `schemaVersion` = "schemaVersion"
+      case `configuration` = "configuration"
+      case `ranges` = "ranges"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1757,10 +5098,10 @@ enum BackendWire {
       self.`classification` = `classification`
     }
     private enum CodingKeys: String, CodingKey {
-      case `distanceM`
-      case `elapsedSeconds`
-      case `performedOn`
-      case `classification`
+      case `distanceM` = "distanceM"
+      case `elapsedSeconds` = "elapsedSeconds"
+      case `performedOn` = "performedOn"
+      case `classification` = "classification"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1796,11 +5137,11 @@ enum BackendWire {
       self.`classification` = `classification`
     }
     private enum CodingKeys: String, CodingKey {
-      case `exerciseId`
-      case `loadKg`
-      case `reps`
-      case `performedOn`
-      case `classification`
+      case `exerciseId` = "exerciseId"
+      case `loadKg` = "loadKg"
+      case `reps` = "reps"
+      case `performedOn` = "performedOn"
+      case `classification` = "classification"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1812,11 +5153,441 @@ enum BackendWire {
     }
     func encode(to encoder: Encoder) throws {
       var c = encoder.container(keyedBy: CodingKeys.self)
-      try c.encode(`exerciseId`, forKey: .`exerciseId`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
       try c.encode(`loadKg`, forKey: .`loadKg`)
       try c.encode(`reps`, forKey: .`reps`)
       try c.encode(`performedOn`, forKey: .`performedOn`)
       try c.encode(`classification`, forKey: .`classification`)
+    }
+  }
+
+  enum PlannedWorkoutInputRunningPriority: String, Codable, Equatable, Sendable {
+    case `key` = "key"
+    case `supporting` = "supporting"
+    case `optional` = "optional"
+  }
+
+  struct PlannedWorkoutInputRunning: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `logicalWorkoutId`: UUID
+    var `workoutType`: String
+    var `scheduledDate`: BackendDay
+    var `scheduledStartAt`: BackendInstant?
+    var `timezone`: String
+    var `title`: String
+    var `purpose`: String?
+    var `priority`: PlannedWorkoutInputRunningPriority
+    var `estimatedDurationS`: Int?
+    var `plannedDistanceM`: Int?
+    var `instructions`: String?
+    var `discipline`: WorkoutResultInputRunningDiscipline
+    var `run`: PlannedWorkoutInputRunningRun
+    init(`id`: UUID, `logicalWorkoutId`: UUID, `workoutType`: String, `scheduledDate`: BackendDay, `scheduledStartAt`: BackendInstant? = nil, `timezone`: String, `title`: String, `purpose`: String? = nil, `priority`: PlannedWorkoutInputRunningPriority, `estimatedDurationS`: Int? = nil, `plannedDistanceM`: Int? = nil, `instructions`: String? = nil, `discipline`: WorkoutResultInputRunningDiscipline, `run`: PlannedWorkoutInputRunningRun) {
+      self.`id` = `id`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`workoutType` = `workoutType`
+      self.`scheduledDate` = `scheduledDate`
+      self.`scheduledStartAt` = `scheduledStartAt`
+      self.`timezone` = `timezone`
+      self.`title` = `title`
+      self.`purpose` = `purpose`
+      self.`priority` = `priority`
+      self.`estimatedDurationS` = `estimatedDurationS`
+      self.`plannedDistanceM` = `plannedDistanceM`
+      self.`instructions` = `instructions`
+      self.`discipline` = `discipline`
+      self.`run` = `run`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `workoutType` = "workoutType"
+      case `scheduledDate` = "scheduledDate"
+      case `scheduledStartAt` = "scheduledStartAt"
+      case `timezone` = "timezone"
+      case `title` = "title"
+      case `purpose` = "purpose"
+      case `priority` = "priority"
+      case `estimatedDurationS` = "estimatedDurationS"
+      case `plannedDistanceM` = "plannedDistanceM"
+      case `instructions` = "instructions"
+      case `discipline` = "discipline"
+      case `run` = "run"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `logicalWorkoutId` = try c.decode(UUID.self, forKey: .`logicalWorkoutId`)
+      `workoutType` = try c.decode(String.self, forKey: .`workoutType`)
+      `scheduledDate` = try c.decode(BackendDay.self, forKey: .`scheduledDate`)
+      `scheduledStartAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`scheduledStartAt`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `title` = try c.decode(String.self, forKey: .`title`)
+      `purpose` = try c.decodeIfPresent(String.self, forKey: .`purpose`)
+      `priority` = try c.decode(PlannedWorkoutInputRunningPriority.self, forKey: .`priority`)
+      `estimatedDurationS` = try c.decodeIfPresent(Int.self, forKey: .`estimatedDurationS`)
+      `plannedDistanceM` = try c.decodeIfPresent(Int.self, forKey: .`plannedDistanceM`)
+      `instructions` = try c.decodeIfPresent(String.self, forKey: .`instructions`)
+      `discipline` = try c.decode(WorkoutResultInputRunningDiscipline.self, forKey: .`discipline`)
+      `run` = try c.decode(PlannedWorkoutInputRunningRun.self, forKey: .`run`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`logicalWorkoutId`.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`workoutType`, forKey: .`workoutType`)
+      try c.encode(`scheduledDate`, forKey: .`scheduledDate`)
+      try c.encode(`scheduledStartAt`, forKey: .`scheduledStartAt`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`title`, forKey: .`title`)
+      try c.encode(`purpose`, forKey: .`purpose`)
+      try c.encode(`priority`, forKey: .`priority`)
+      try c.encode(`estimatedDurationS`, forKey: .`estimatedDurationS`)
+      try c.encode(`plannedDistanceM`, forKey: .`plannedDistanceM`)
+      try c.encode(`instructions`, forKey: .`instructions`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`run`, forKey: .`run`)
+    }
+  }
+
+  struct PlannedWorkoutInputStrength: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `logicalWorkoutId`: UUID
+    var `workoutType`: String
+    var `scheduledDate`: BackendDay
+    var `scheduledStartAt`: BackendInstant?
+    var `timezone`: String
+    var `title`: String
+    var `purpose`: String?
+    var `priority`: PlannedWorkoutInputRunningPriority
+    var `estimatedDurationS`: Int?
+    var `plannedDistanceM`: Int?
+    var `instructions`: String?
+    var `discipline`: WorkoutResultInputStrengthDiscipline
+    var `strength`: PlannedWorkoutInputStrengthStrength
+    init(`id`: UUID, `logicalWorkoutId`: UUID, `workoutType`: String, `scheduledDate`: BackendDay, `scheduledStartAt`: BackendInstant? = nil, `timezone`: String, `title`: String, `purpose`: String? = nil, `priority`: PlannedWorkoutInputRunningPriority, `estimatedDurationS`: Int? = nil, `plannedDistanceM`: Int? = nil, `instructions`: String? = nil, `discipline`: WorkoutResultInputStrengthDiscipline, `strength`: PlannedWorkoutInputStrengthStrength) {
+      self.`id` = `id`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`workoutType` = `workoutType`
+      self.`scheduledDate` = `scheduledDate`
+      self.`scheduledStartAt` = `scheduledStartAt`
+      self.`timezone` = `timezone`
+      self.`title` = `title`
+      self.`purpose` = `purpose`
+      self.`priority` = `priority`
+      self.`estimatedDurationS` = `estimatedDurationS`
+      self.`plannedDistanceM` = `plannedDistanceM`
+      self.`instructions` = `instructions`
+      self.`discipline` = `discipline`
+      self.`strength` = `strength`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `workoutType` = "workoutType"
+      case `scheduledDate` = "scheduledDate"
+      case `scheduledStartAt` = "scheduledStartAt"
+      case `timezone` = "timezone"
+      case `title` = "title"
+      case `purpose` = "purpose"
+      case `priority` = "priority"
+      case `estimatedDurationS` = "estimatedDurationS"
+      case `plannedDistanceM` = "plannedDistanceM"
+      case `instructions` = "instructions"
+      case `discipline` = "discipline"
+      case `strength` = "strength"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `logicalWorkoutId` = try c.decode(UUID.self, forKey: .`logicalWorkoutId`)
+      `workoutType` = try c.decode(String.self, forKey: .`workoutType`)
+      `scheduledDate` = try c.decode(BackendDay.self, forKey: .`scheduledDate`)
+      `scheduledStartAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`scheduledStartAt`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `title` = try c.decode(String.self, forKey: .`title`)
+      `purpose` = try c.decodeIfPresent(String.self, forKey: .`purpose`)
+      `priority` = try c.decode(PlannedWorkoutInputRunningPriority.self, forKey: .`priority`)
+      `estimatedDurationS` = try c.decodeIfPresent(Int.self, forKey: .`estimatedDurationS`)
+      `plannedDistanceM` = try c.decodeIfPresent(Int.self, forKey: .`plannedDistanceM`)
+      `instructions` = try c.decodeIfPresent(String.self, forKey: .`instructions`)
+      `discipline` = try c.decode(WorkoutResultInputStrengthDiscipline.self, forKey: .`discipline`)
+      `strength` = try c.decode(PlannedWorkoutInputStrengthStrength.self, forKey: .`strength`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`logicalWorkoutId`.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`workoutType`, forKey: .`workoutType`)
+      try c.encode(`scheduledDate`, forKey: .`scheduledDate`)
+      try c.encode(`scheduledStartAt`, forKey: .`scheduledStartAt`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`title`, forKey: .`title`)
+      try c.encode(`purpose`, forKey: .`purpose`)
+      try c.encode(`priority`, forKey: .`priority`)
+      try c.encode(`estimatedDurationS`, forKey: .`estimatedDurationS`)
+      try c.encode(`plannedDistanceM`, forKey: .`plannedDistanceM`)
+      try c.encode(`instructions`, forKey: .`instructions`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`strength`, forKey: .`strength`)
+    }
+  }
+
+  struct AvailabilityOverrideInput: Codable, Equatable, Sendable {
+    var `date`: BackendDay
+    var `available`: Bool
+    var `maxSessions`: Int?
+    var `maxSessionMinutes`: Int?
+    var `reason`: String?
+    init(`date`: BackendDay, `available`: Bool, `maxSessions`: Int? = nil, `maxSessionMinutes`: Int? = nil, `reason`: String? = nil) {
+      self.`date` = `date`
+      self.`available` = `available`
+      self.`maxSessions` = `maxSessions`
+      self.`maxSessionMinutes` = `maxSessionMinutes`
+      self.`reason` = `reason`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `date` = "date"
+      case `available` = "available"
+      case `maxSessions` = "maxSessions"
+      case `maxSessionMinutes` = "maxSessionMinutes"
+      case `reason` = "reason"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `date` = try c.decode(BackendDay.self, forKey: .`date`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `maxSessions` = try c.decodeIfPresent(Int.self, forKey: .`maxSessions`)
+      `maxSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`maxSessionMinutes`)
+      `reason` = try c.decodeIfPresent(String.self, forKey: .`reason`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`date`, forKey: .`date`)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`maxSessions`, forKey: .`maxSessions`)
+      try c.encode(`maxSessionMinutes`, forKey: .`maxSessionMinutes`)
+      try c.encode(`reason`, forKey: .`reason`)
+    }
+  }
+
+  struct PlanningContextInputSnapshotAthleteDetailsSnapshot: Codable, Equatable, Sendable {
+    var `revision`: BackendRevision
+    var `details`: AthleteDetails
+    init(`revision`: BackendRevision, `details`: AthleteDetails) {
+      self.`revision` = `revision`
+      self.`details` = `details`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `revision` = "revision"
+      case `details` = "details"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `details` = try c.decode(AthleteDetails.self, forKey: .`details`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`details`, forKey: .`details`)
+    }
+  }
+
+  struct WorkoutResultInputRunningRunHrZoneSummaryItem: Codable, Equatable, Sendable {
+    var `minBpm`: Int
+    var `maxBpm`: Int
+    var `durationS`: Int
+    init(`minBpm`: Int, `maxBpm`: Int, `durationS`: Int) {
+      self.`minBpm` = `minBpm`
+      self.`maxBpm` = `maxBpm`
+      self.`durationS` = `durationS`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `minBpm` = "minBpm"
+      case `maxBpm` = "maxBpm"
+      case `durationS` = "durationS"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `minBpm` = try c.decode(Int.self, forKey: .`minBpm`)
+      `maxBpm` = try c.decode(Int.self, forKey: .`maxBpm`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`minBpm`, forKey: .`minBpm`)
+      try c.encode(`maxBpm`, forKey: .`maxBpm`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+    }
+  }
+
+  enum WorkoutResultInputRunningRunSegmentsItemSegmentType: String, Codable, Equatable, Sendable {
+    case `split` = "split"
+    case `warmup` = "warmup"
+    case `work` = "work"
+    case `recovery` = "recovery"
+    case `cooldown` = "cooldown"
+    case `steady` = "steady"
+    case `stride` = "stride"
+  }
+
+  struct WorkoutResultInputRunningRunSegmentsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescriptionStepId`: UUID?
+    var `segmentType`: WorkoutResultInputRunningRunSegmentsItemSegmentType
+    var `sequence`: Int
+    var `repeatIteration`: Int?
+    var `distanceM`: Int?
+    var `durationS`: Int
+    var `avgHrBpm`: Int?
+    var `maxHrBpm`: Int?
+    var `elevationGainM`: Double?
+    var `avgCadenceSpm`: Double?
+    var `startOffsetS`: Int?
+    init(`id`: UUID, `prescriptionStepId`: UUID? = nil, `segmentType`: WorkoutResultInputRunningRunSegmentsItemSegmentType, `sequence`: Int, `repeatIteration`: Int? = nil, `distanceM`: Int? = nil, `durationS`: Int, `avgHrBpm`: Int? = nil, `maxHrBpm`: Int? = nil, `elevationGainM`: Double? = nil, `avgCadenceSpm`: Double? = nil, `startOffsetS`: Int? = nil) {
+      self.`id` = `id`
+      self.`prescriptionStepId` = `prescriptionStepId`
+      self.`segmentType` = `segmentType`
+      self.`sequence` = `sequence`
+      self.`repeatIteration` = `repeatIteration`
+      self.`distanceM` = `distanceM`
+      self.`durationS` = `durationS`
+      self.`avgHrBpm` = `avgHrBpm`
+      self.`maxHrBpm` = `maxHrBpm`
+      self.`elevationGainM` = `elevationGainM`
+      self.`avgCadenceSpm` = `avgCadenceSpm`
+      self.`startOffsetS` = `startOffsetS`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescriptionStepId` = "prescriptionStepId"
+      case `segmentType` = "segmentType"
+      case `sequence` = "sequence"
+      case `repeatIteration` = "repeatIteration"
+      case `distanceM` = "distanceM"
+      case `durationS` = "durationS"
+      case `avgHrBpm` = "avgHrBpm"
+      case `maxHrBpm` = "maxHrBpm"
+      case `elevationGainM` = "elevationGainM"
+      case `avgCadenceSpm` = "avgCadenceSpm"
+      case `startOffsetS` = "startOffsetS"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescriptionStepId` = try c.decodeIfPresent(UUID.self, forKey: .`prescriptionStepId`)
+      `segmentType` = try c.decode(WorkoutResultInputRunningRunSegmentsItemSegmentType.self, forKey: .`segmentType`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `repeatIteration` = try c.decodeIfPresent(Int.self, forKey: .`repeatIteration`)
+      `distanceM` = try c.decodeIfPresent(Int.self, forKey: .`distanceM`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+      `avgHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`avgHrBpm`)
+      `maxHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`maxHrBpm`)
+      `elevationGainM` = try c.decodeIfPresent(Double.self, forKey: .`elevationGainM`)
+      `avgCadenceSpm` = try c.decodeIfPresent(Double.self, forKey: .`avgCadenceSpm`)
+      `startOffsetS` = try c.decodeIfPresent(Int.self, forKey: .`startOffsetS`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescriptionStepId`?.uuidString.lowercased(), forKey: .`prescriptionStepId`)
+      try c.encode(`segmentType`, forKey: .`segmentType`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`repeatIteration`, forKey: .`repeatIteration`)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`avgHrBpm`, forKey: .`avgHrBpm`)
+      try c.encode(`maxHrBpm`, forKey: .`maxHrBpm`)
+      try c.encode(`elevationGainM`, forKey: .`elevationGainM`)
+      try c.encode(`avgCadenceSpm`, forKey: .`avgCadenceSpm`)
+      try c.encode(`startOffsetS`, forKey: .`startOffsetS`)
+    }
+  }
+
+  enum WorkoutResultInputStrengthExercisesItemSetsItemSetKind: String, Codable, Equatable, Sendable {
+    case `warmup` = "warmup"
+    case `working` = "working"
+    case `backoff` = "backoff"
+  }
+
+  enum WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention: String, Codable, Equatable, Sendable {
+    case `external` = "external"
+    case `bodyweight` = "bodyweight"
+    case `assistance` = "assistance"
+  }
+
+  enum WorkoutResultInputStrengthExercisesItemSetsItemStatus: String, Codable, Equatable, Sendable {
+    case `completed` = "completed"
+    case `failed` = "failed"
+    case `skipped` = "skipped"
+  }
+
+  struct WorkoutResultInputStrengthExercisesItemSetsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescribedSetId`: UUID?
+    var `setNumber`: Int
+    var `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind
+    var `reps`: Int?
+    var `loadKg`: Double?
+    var `loadConvention`: WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention?
+    var `rpe`: Double?
+    var `rir`: Double?
+    var `status`: WorkoutResultInputStrengthExercisesItemSetsItemStatus
+    var `completedAt`: BackendInstant?
+    init(`id`: UUID, `prescribedSetId`: UUID? = nil, `setNumber`: Int, `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind, `reps`: Int? = nil, `loadKg`: Double? = nil, `loadConvention`: WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention? = nil, `rpe`: Double? = nil, `rir`: Double? = nil, `status`: WorkoutResultInputStrengthExercisesItemSetsItemStatus, `completedAt`: BackendInstant? = nil) {
+      self.`id` = `id`
+      self.`prescribedSetId` = `prescribedSetId`
+      self.`setNumber` = `setNumber`
+      self.`setKind` = `setKind`
+      self.`reps` = `reps`
+      self.`loadKg` = `loadKg`
+      self.`loadConvention` = `loadConvention`
+      self.`rpe` = `rpe`
+      self.`rir` = `rir`
+      self.`status` = `status`
+      self.`completedAt` = `completedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescribedSetId` = "prescribedSetId"
+      case `setNumber` = "setNumber"
+      case `setKind` = "setKind"
+      case `reps` = "reps"
+      case `loadKg` = "loadKg"
+      case `loadConvention` = "loadConvention"
+      case `rpe` = "rpe"
+      case `rir` = "rir"
+      case `status` = "status"
+      case `completedAt` = "completedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescribedSetId` = try c.decodeIfPresent(UUID.self, forKey: .`prescribedSetId`)
+      `setNumber` = try c.decode(Int.self, forKey: .`setNumber`)
+      `setKind` = try c.decode(WorkoutResultInputStrengthExercisesItemSetsItemSetKind.self, forKey: .`setKind`)
+      `reps` = try c.decodeIfPresent(Int.self, forKey: .`reps`)
+      `loadKg` = try c.decodeIfPresent(Double.self, forKey: .`loadKg`)
+      `loadConvention` = try c.decodeIfPresent(WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention.self, forKey: .`loadConvention`)
+      `rpe` = try c.decodeIfPresent(Double.self, forKey: .`rpe`)
+      `rir` = try c.decodeIfPresent(Double.self, forKey: .`rir`)
+      `status` = try c.decode(WorkoutResultInputStrengthExercisesItemSetsItemStatus.self, forKey: .`status`)
+      `completedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`completedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescribedSetId`?.uuidString.lowercased(), forKey: .`prescribedSetId`)
+      try c.encode(`setNumber`, forKey: .`setNumber`)
+      try c.encode(`setKind`, forKey: .`setKind`)
+      try c.encode(`reps`, forKey: .`reps`)
+      try c.encode(`loadKg`, forKey: .`loadKg`)
+      try c.encodeIfPresent(`loadConvention`, forKey: .`loadConvention`)
+      try c.encode(`rpe`, forKey: .`rpe`)
+      try c.encode(`rir`, forKey: .`rir`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`completedAt`, forKey: .`completedAt`)
     }
   }
 
@@ -1852,11 +5623,11 @@ enum BackendWire {
       self.`previewRevision` = `previewRevision`
     }
     private enum CodingKeys: String, CodingKey {
-      case `field`
-      case `decision`
-      case `source`
-      case `previewId`
-      case `previewRevision`
+      case `field` = "field"
+      case `decision` = "decision"
+      case `source` = "source"
+      case `previewId` = "previewId"
+      case `previewRevision` = "previewRevision"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1871,7 +5642,7 @@ enum BackendWire {
       try c.encode(`field`, forKey: .`field`)
       try c.encode(`decision`, forKey: .`decision`)
       try c.encode(`source`, forKey: .`source`)
-      try c.encode(`previewId`, forKey: .`previewId`)
+      try c.encode(`previewId`.uuidString.lowercased(), forKey: .`previewId`)
       try c.encode(`previewRevision`, forKey: .`previewRevision`)
     }
   }
@@ -1896,12 +5667,12 @@ enum BackendWire {
       self.`observation` = `observation`
     }
     private enum CodingKeys: String, CodingKey {
-      case `field`
-      case `decision`
-      case `source`
-      case `batchId`
-      case `sourceIds`
-      case `observation`
+      case `field` = "field"
+      case `decision` = "decision"
+      case `source` = "source"
+      case `batchId` = "batchId"
+      case `sourceIds` = "sourceIds"
+      case `observation` = "observation"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1917,7 +5688,7 @@ enum BackendWire {
       try c.encode(`field`, forKey: .`field`)
       try c.encode(`decision`, forKey: .`decision`)
       try c.encode(`source`, forKey: .`source`)
-      try c.encode(`batchId`, forKey: .`batchId`)
+      try c.encode(`batchId`.uuidString.lowercased(), forKey: .`batchId`)
       try c.encode(`sourceIds`, forKey: .`sourceIds`)
       try c.encode(`observation`, forKey: .`observation`)
     }
@@ -1931,8 +5702,8 @@ enum BackendWire {
       self.`maxBpm` = `maxBpm`
     }
     private enum CodingKeys: String, CodingKey {
-      case `minBpm`
-      case `maxBpm`
+      case `minBpm` = "minBpm"
+      case `maxBpm` = "maxBpm"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1956,9 +5727,9 @@ enum BackendWire {
       self.`measuredAt` = `measuredAt`
     }
     private enum CodingKeys: String, CodingKey {
-      case `preferredName`
-      case `weightKg`
-      case `measuredAt`
+      case `preferredName` = "preferredName"
+      case `weightKg` = "weightKg"
+      case `measuredAt` = "measuredAt"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1982,8 +5753,8 @@ enum BackendWire {
       self.`ranges` = `ranges`
     }
     private enum CodingKeys: String, CodingKey {
-      case `custom`
-      case `ranges`
+      case `custom` = "custom"
+      case `ranges` = "ranges"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1997,6 +5768,1588 @@ enum BackendWire {
     }
   }
 
+  struct PolicyConfigOnboardingPriorityWeights: Codable, Equatable, Sendable {
+    var `balanced`: Double
+    var `runFirst`: Double
+    var `strengthFirst`: Double
+    init(`balanced`: Double, `runFirst`: Double, `strengthFirst`: Double) {
+      self.`balanced` = `balanced`
+      self.`runFirst` = `runFirst`
+      self.`strengthFirst` = `strengthFirst`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `balanced` = "balanced"
+      case `runFirst` = "run_first"
+      case `strengthFirst` = "strength_first"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `balanced` = try c.decode(Double.self, forKey: .`balanced`)
+      `runFirst` = try c.decode(Double.self, forKey: .`runFirst`)
+      `strengthFirst` = try c.decode(Double.self, forKey: .`strengthFirst`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`balanced`, forKey: .`balanced`)
+      try c.encode(`runFirst`, forKey: .`runFirst`)
+      try c.encode(`strengthFirst`, forKey: .`strengthFirst`)
+    }
+  }
+
+  struct PolicyConfigInterferenceLowerBeforeKeyRun: Codable, Equatable, Sendable {
+    var `warningHours`: Double
+    var `severeHours`: Double
+    init(`warningHours`: Double, `severeHours`: Double) {
+      self.`warningHours` = `warningHours`
+      self.`severeHours` = `severeHours`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `warningHours` = "warningHours"
+      case `severeHours` = "severeHours"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `warningHours` = try c.decode(Double.self, forKey: .`warningHours`)
+      `severeHours` = try c.decode(Double.self, forKey: .`severeHours`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`warningHours`, forKey: .`warningHours`)
+      try c.encode(`severeHours`, forKey: .`severeHours`)
+    }
+  }
+
+  struct PolicyConfigRunningDefaultProgression: Codable, Equatable, Sendable {
+    var `maxWeeklyIncrease`: Double
+    init(`maxWeeklyIncrease`: Double) {
+      self.`maxWeeklyIncrease` = `maxWeeklyIncrease`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `maxWeeklyIncrease` = "maxWeeklyIncrease"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `maxWeeklyIncrease` = try c.decode(Double.self, forKey: .`maxWeeklyIncrease`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`maxWeeklyIncrease`, forKey: .`maxWeeklyIncrease`)
+    }
+  }
+
+  struct PolicyConfigIntelligenceJevConfidence: Codable, Equatable, Sendable {
+    var `auto`: Double
+    var `review`: Double
+    init(`auto`: Double, `review`: Double) {
+      self.`auto` = `auto`
+      self.`review` = `review`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `auto` = "auto"
+      case `review` = "review"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `auto` = try c.decode(Double.self, forKey: .`auto`)
+      `review` = try c.decode(Double.self, forKey: .`review`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`auto`, forKey: .`auto`)
+      try c.encode(`review`, forKey: .`review`)
+    }
+  }
+
+  struct AthleteRecord: Codable, Equatable, Sendable {
+    var `timezone`: String
+    var `locale`: String
+    var `distanceUnit`: AthleteDistanceUnit
+    var `loadUnit`: AthleteLoadUnit
+    var `weekStartsOn`: Int
+    var `trainingDayBoundary`: String?
+    var `cloudAiConsent`: Bool?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    init(`timezone`: String, `locale`: String, `distanceUnit`: AthleteDistanceUnit, `loadUnit`: AthleteLoadUnit, `weekStartsOn`: Int, `trainingDayBoundary`: String? = nil, `cloudAiConsent`: Bool? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil) {
+      self.`timezone` = `timezone`
+      self.`locale` = `locale`
+      self.`distanceUnit` = `distanceUnit`
+      self.`loadUnit` = `loadUnit`
+      self.`weekStartsOn` = `weekStartsOn`
+      self.`trainingDayBoundary` = `trainingDayBoundary`
+      self.`cloudAiConsent` = `cloudAiConsent`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `timezone` = "timezone"
+      case `locale` = "locale"
+      case `distanceUnit` = "distanceUnit"
+      case `loadUnit` = "loadUnit"
+      case `weekStartsOn` = "weekStartsOn"
+      case `trainingDayBoundary` = "trainingDayBoundary"
+      case `cloudAiConsent` = "cloudAiConsent"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `locale` = try c.decode(String.self, forKey: .`locale`)
+      `distanceUnit` = try c.decode(AthleteDistanceUnit.self, forKey: .`distanceUnit`)
+      `loadUnit` = try c.decode(AthleteLoadUnit.self, forKey: .`loadUnit`)
+      `weekStartsOn` = try c.decode(Int.self, forKey: .`weekStartsOn`)
+      `trainingDayBoundary` = try c.decodeIfPresent(String.self, forKey: .`trainingDayBoundary`)
+      `cloudAiConsent` = try c.decodeIfPresent(Bool.self, forKey: .`cloudAiConsent`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encode(`locale`, forKey: .`locale`)
+      try c.encode(`distanceUnit`, forKey: .`distanceUnit`)
+      try c.encode(`loadUnit`, forKey: .`loadUnit`)
+      try c.encode(`weekStartsOn`, forKey: .`weekStartsOn`)
+      try c.encode(`trainingDayBoundary`, forKey: .`trainingDayBoundary`)
+      try c.encodeIfPresent(`cloudAiConsent`, forKey: .`cloudAiConsent`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+    }
+  }
+
+  struct AthleteDetailsRecord: Codable, Equatable, Sendable {
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `details`: AthleteDetails
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `provenance`: [AthleteDetailsRecordProvenanceItem]
+    init(`schemaVersion`: OnboardingStateSchemaVersion, `details`: AthleteDetails, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `provenance`: [AthleteDetailsRecordProvenanceItem]) {
+      self.`schemaVersion` = `schemaVersion`
+      self.`details` = `details`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`provenance` = `provenance`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `schemaVersion` = "schemaVersion"
+      case `details` = "details"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `provenance` = "provenance"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `details` = try c.decode(AthleteDetails.self, forKey: .`details`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `provenance` = try c.decode([AthleteDetailsRecordProvenanceItem].self, forKey: .`provenance`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`details`, forKey: .`details`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`provenance`, forKey: .`provenance`)
+    }
+  }
+
+  struct GoalRecord: Codable, Equatable, Sendable {
+    var `discipline`: AthleteGoalInputDiscipline
+    var `goalType`: String
+    var `status`: AthleteGoalInputStatus
+    var `targetDate`: BackendDay?
+    var `targetValue`: Double?
+    var `targetUnit`: AthleteGoalInputTargetUnit?
+    var `priorityRank`: Int?
+    var `metadata`: GoalRecordMetadata?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`discipline`: AthleteGoalInputDiscipline, `goalType`: String, `status`: AthleteGoalInputStatus, `targetDate`: BackendDay? = nil, `targetValue`: Double? = nil, `targetUnit`: AthleteGoalInputTargetUnit? = nil, `priorityRank`: Int? = nil, `metadata`: GoalRecordMetadata? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`discipline` = `discipline`
+      self.`goalType` = `goalType`
+      self.`status` = `status`
+      self.`targetDate` = `targetDate`
+      self.`targetValue` = `targetValue`
+      self.`targetUnit` = `targetUnit`
+      self.`priorityRank` = `priorityRank`
+      self.`metadata` = `metadata`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `discipline` = "discipline"
+      case `goalType` = "goalType"
+      case `status` = "status"
+      case `targetDate` = "targetDate"
+      case `targetValue` = "targetValue"
+      case `targetUnit` = "targetUnit"
+      case `priorityRank` = "priorityRank"
+      case `metadata` = "metadata"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `discipline` = try c.decode(AthleteGoalInputDiscipline.self, forKey: .`discipline`)
+      `goalType` = try c.decode(String.self, forKey: .`goalType`)
+      `status` = try c.decode(AthleteGoalInputStatus.self, forKey: .`status`)
+      `targetDate` = try c.decodeIfPresent(BackendDay.self, forKey: .`targetDate`)
+      `targetValue` = try c.decodeIfPresent(Double.self, forKey: .`targetValue`)
+      `targetUnit` = try c.decodeIfPresent(AthleteGoalInputTargetUnit.self, forKey: .`targetUnit`)
+      `priorityRank` = try c.decodeIfPresent(Int.self, forKey: .`priorityRank`)
+      `metadata` = try c.decodeIfPresent(GoalRecordMetadata.self, forKey: .`metadata`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`goalType`, forKey: .`goalType`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`targetDate`, forKey: .`targetDate`)
+      try c.encode(`targetValue`, forKey: .`targetValue`)
+      try c.encode(`targetUnit`, forKey: .`targetUnit`)
+      try c.encode(`priorityRank`, forKey: .`priorityRank`)
+      try c.encodeIfPresent(`metadata`, forKey: .`metadata`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct TrainingPreferencesRecord: Codable, Equatable, Sendable {
+    var `priorityMode`: TrainingPreferencesInputPriorityMode
+    var `runPriorityWeight`: Double
+    var `strengthPriorityWeight`: Double
+    var `strengthObjective`: TrainingPreferencesInputStrengthObjective
+    var `experienceLevel`: TrainingPreferencesInputExperienceLevel?
+    var `notes`: String?
+    var `onboarding`: OnboardingTrainingPreferences?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`priorityMode`: TrainingPreferencesInputPriorityMode, `runPriorityWeight`: Double, `strengthPriorityWeight`: Double, `strengthObjective`: TrainingPreferencesInputStrengthObjective, `experienceLevel`: TrainingPreferencesInputExperienceLevel? = nil, `notes`: String? = nil, `onboarding`: OnboardingTrainingPreferences? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`priorityMode` = `priorityMode`
+      self.`runPriorityWeight` = `runPriorityWeight`
+      self.`strengthPriorityWeight` = `strengthPriorityWeight`
+      self.`strengthObjective` = `strengthObjective`
+      self.`experienceLevel` = `experienceLevel`
+      self.`notes` = `notes`
+      self.`onboarding` = `onboarding`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `priorityMode` = "priorityMode"
+      case `runPriorityWeight` = "runPriorityWeight"
+      case `strengthPriorityWeight` = "strengthPriorityWeight"
+      case `strengthObjective` = "strengthObjective"
+      case `experienceLevel` = "experienceLevel"
+      case `notes` = "notes"
+      case `onboarding` = "onboarding"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `priorityMode` = try c.decode(TrainingPreferencesInputPriorityMode.self, forKey: .`priorityMode`)
+      `runPriorityWeight` = try c.decode(Double.self, forKey: .`runPriorityWeight`)
+      `strengthPriorityWeight` = try c.decode(Double.self, forKey: .`strengthPriorityWeight`)
+      `strengthObjective` = try c.decode(TrainingPreferencesInputStrengthObjective.self, forKey: .`strengthObjective`)
+      `experienceLevel` = try c.decodeIfPresent(TrainingPreferencesInputExperienceLevel.self, forKey: .`experienceLevel`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `onboarding` = try c.decodeIfPresent(OnboardingTrainingPreferences.self, forKey: .`onboarding`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`priorityMode`, forKey: .`priorityMode`)
+      try c.encode(`runPriorityWeight`, forKey: .`runPriorityWeight`)
+      try c.encode(`strengthPriorityWeight`, forKey: .`strengthPriorityWeight`)
+      try c.encode(`strengthObjective`, forKey: .`strengthObjective`)
+      try c.encode(`experienceLevel`, forKey: .`experienceLevel`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`onboarding`, forKey: .`onboarding`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct AvailabilityRuleRecord: Codable, Equatable, Sendable {
+    var `dayOfWeek`: Int
+    var `available`: Bool
+    var `maxSessions`: Int
+    var `minSessionMinutes`: Int?
+    var `maxSessionMinutes`: Int?
+    var `preference`: AvailabilityRuleInputPreference
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`dayOfWeek`: Int, `available`: Bool, `maxSessions`: Int, `minSessionMinutes`: Int? = nil, `maxSessionMinutes`: Int? = nil, `preference`: AvailabilityRuleInputPreference, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`dayOfWeek` = `dayOfWeek`
+      self.`available` = `available`
+      self.`maxSessions` = `maxSessions`
+      self.`minSessionMinutes` = `minSessionMinutes`
+      self.`maxSessionMinutes` = `maxSessionMinutes`
+      self.`preference` = `preference`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `dayOfWeek` = "dayOfWeek"
+      case `available` = "available"
+      case `maxSessions` = "maxSessions"
+      case `minSessionMinutes` = "minSessionMinutes"
+      case `maxSessionMinutes` = "maxSessionMinutes"
+      case `preference` = "preference"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `dayOfWeek` = try c.decode(Int.self, forKey: .`dayOfWeek`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `maxSessions` = try c.decode(Int.self, forKey: .`maxSessions`)
+      `minSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`minSessionMinutes`)
+      `maxSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`maxSessionMinutes`)
+      `preference` = try c.decode(AvailabilityRuleInputPreference.self, forKey: .`preference`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`dayOfWeek`, forKey: .`dayOfWeek`)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`maxSessions`, forKey: .`maxSessions`)
+      try c.encode(`minSessionMinutes`, forKey: .`minSessionMinutes`)
+      try c.encode(`maxSessionMinutes`, forKey: .`maxSessionMinutes`)
+      try c.encode(`preference`, forKey: .`preference`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct AvailabilityOverrideRecord: Codable, Equatable, Sendable {
+    var `date`: BackendDay
+    var `available`: Bool
+    var `maxSessions`: Int?
+    var `maxSessionMinutes`: Int?
+    var `reason`: String?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`date`: BackendDay, `available`: Bool, `maxSessions`: Int? = nil, `maxSessionMinutes`: Int? = nil, `reason`: String? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`date` = `date`
+      self.`available` = `available`
+      self.`maxSessions` = `maxSessions`
+      self.`maxSessionMinutes` = `maxSessionMinutes`
+      self.`reason` = `reason`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `date` = "date"
+      case `available` = "available"
+      case `maxSessions` = "maxSessions"
+      case `maxSessionMinutes` = "maxSessionMinutes"
+      case `reason` = "reason"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `date` = try c.decode(BackendDay.self, forKey: .`date`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `maxSessions` = try c.decodeIfPresent(Int.self, forKey: .`maxSessions`)
+      `maxSessionMinutes` = try c.decodeIfPresent(Int.self, forKey: .`maxSessionMinutes`)
+      `reason` = try c.decodeIfPresent(String.self, forKey: .`reason`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`date`, forKey: .`date`)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`maxSessions`, forKey: .`maxSessions`)
+      try c.encode(`maxSessionMinutes`, forKey: .`maxSessionMinutes`)
+      try c.encode(`reason`, forKey: .`reason`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct BaselineRecord: Codable, Equatable, Sendable {
+    var `periodStart`: BackendDay
+    var `periodEnd`: BackendDay
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `metrics`: [String: BackendJSONValue]
+    var `confidence`: [String: BackendJSONValue]
+    var `source`: BaselineInputSource
+    var `confirmedAt`: BackendInstant?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `provenance`: [BaselineRecordProvenanceItem]
+    init(`periodStart`: BackendDay, `periodEnd`: BackendDay, `schemaVersion`: OnboardingStateSchemaVersion, `metrics`: [String: BackendJSONValue], `confidence`: [String: BackendJSONValue], `source`: BaselineInputSource, `confirmedAt`: BackendInstant? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `provenance`: [BaselineRecordProvenanceItem]) {
+      self.`periodStart` = `periodStart`
+      self.`periodEnd` = `periodEnd`
+      self.`schemaVersion` = `schemaVersion`
+      self.`metrics` = `metrics`
+      self.`confidence` = `confidence`
+      self.`source` = `source`
+      self.`confirmedAt` = `confirmedAt`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`provenance` = `provenance`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `periodStart` = "periodStart"
+      case `periodEnd` = "periodEnd"
+      case `schemaVersion` = "schemaVersion"
+      case `metrics` = "metrics"
+      case `confidence` = "confidence"
+      case `source` = "source"
+      case `confirmedAt` = "confirmedAt"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `provenance` = "provenance"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `periodStart` = try c.decode(BackendDay.self, forKey: .`periodStart`)
+      `periodEnd` = try c.decode(BackendDay.self, forKey: .`periodEnd`)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `metrics` = try c.decode([String: BackendJSONValue].self, forKey: .`metrics`)
+      `confidence` = try c.decode([String: BackendJSONValue].self, forKey: .`confidence`)
+      `source` = try c.decode(BaselineInputSource.self, forKey: .`source`)
+      `confirmedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`confirmedAt`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `provenance` = try c.decode([BaselineRecordProvenanceItem].self, forKey: .`provenance`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`periodStart`, forKey: .`periodStart`)
+      try c.encode(`periodEnd`, forKey: .`periodEnd`)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`metrics`, forKey: .`metrics`)
+      try c.encode(`confidence`, forKey: .`confidence`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`confirmedAt`, forKey: .`confirmedAt`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`provenance`, forKey: .`provenance`)
+    }
+  }
+
+  struct PlanningContextRecord: Codable, Equatable, Sendable {
+    var `baselineSnapshotId`: UUID?
+    var `schemaVersion`: OnboardingStateSchemaVersion
+    var `policyVersionId`: UUID
+    var `snapshot`: PlanningContextRecordSnapshot
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `checksum`: String
+    init(`baselineSnapshotId`: UUID? = nil, `schemaVersion`: OnboardingStateSchemaVersion, `policyVersionId`: UUID, `snapshot`: PlanningContextRecordSnapshot, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `checksum`: String) {
+      self.`baselineSnapshotId` = `baselineSnapshotId`
+      self.`schemaVersion` = `schemaVersion`
+      self.`policyVersionId` = `policyVersionId`
+      self.`snapshot` = `snapshot`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`checksum` = `checksum`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `baselineSnapshotId` = "baselineSnapshotId"
+      case `schemaVersion` = "schemaVersion"
+      case `policyVersionId` = "policyVersionId"
+      case `snapshot` = "snapshot"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `checksum` = "checksum"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `baselineSnapshotId` = try c.decodeIfPresent(UUID.self, forKey: .`baselineSnapshotId`)
+      `schemaVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`schemaVersion`)
+      `policyVersionId` = try c.decode(UUID.self, forKey: .`policyVersionId`)
+      `snapshot` = try c.decode(PlanningContextRecordSnapshot.self, forKey: .`snapshot`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `checksum` = try c.decode(String.self, forKey: .`checksum`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`baselineSnapshotId`?.uuidString.lowercased(), forKey: .`baselineSnapshotId`)
+      try c.encode(`schemaVersion`, forKey: .`schemaVersion`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
+      try c.encode(`snapshot`, forKey: .`snapshot`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`checksum`, forKey: .`checksum`)
+    }
+  }
+
+  struct AthleteEquipmentRecord: Codable, Equatable, Sendable {
+    var `equipmentId`: UUID
+    var `available`: Bool
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`equipmentId`: UUID, `available`: Bool, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`equipmentId` = `equipmentId`
+      self.`available` = `available`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `equipmentId` = "equipmentId"
+      case `available` = "available"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `equipmentId` = try c.decode(UUID.self, forKey: .`equipmentId`)
+      `available` = try c.decode(Bool.self, forKey: .`available`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`equipmentId`.uuidString.lowercased(), forKey: .`equipmentId`)
+      try c.encode(`available`, forKey: .`available`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  enum ExercisePreferenceRecordPreference: String, Codable, Equatable, Sendable {
+    case `preferred` = "preferred"
+    case `neutral` = "neutral"
+    case `avoid` = "avoid"
+    case `exclude` = "exclude"
+  }
+
+  struct ExercisePreferenceRecord: Codable, Equatable, Sendable {
+    var `exerciseId`: UUID
+    var `preference`: ExercisePreferenceRecordPreference
+    var `notes`: String?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`exerciseId`: UUID, `preference`: ExercisePreferenceRecordPreference, `notes`: String? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`exerciseId` = `exerciseId`
+      self.`preference` = `preference`
+      self.`notes` = `notes`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `exerciseId` = "exerciseId"
+      case `preference` = "preference"
+      case `notes` = "notes"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `preference` = try c.decode(ExercisePreferenceRecordPreference.self, forKey: .`preference`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`preference`, forKey: .`preference`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct TrainingBlockRecord: Codable, Equatable, Sendable {
+    var `name`: String
+    var `startDate`: BackendDay
+    var `endDate`: BackendDay
+    var `phase`: TrainingBlockInputPhase
+    var `status`: TrainingBlockInputStatus
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `activePlanVersionId`: UUID?
+    init(`name`: String, `startDate`: BackendDay, `endDate`: BackendDay, `phase`: TrainingBlockInputPhase, `status`: TrainingBlockInputStatus, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `activePlanVersionId`: UUID? = nil) {
+      self.`name` = `name`
+      self.`startDate` = `startDate`
+      self.`endDate` = `endDate`
+      self.`phase` = `phase`
+      self.`status` = `status`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`activePlanVersionId` = `activePlanVersionId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `name` = "name"
+      case `startDate` = "startDate"
+      case `endDate` = "endDate"
+      case `phase` = "phase"
+      case `status` = "status"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `activePlanVersionId` = "activePlanVersionId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `name` = try c.decode(String.self, forKey: .`name`)
+      `startDate` = try c.decode(BackendDay.self, forKey: .`startDate`)
+      `endDate` = try c.decode(BackendDay.self, forKey: .`endDate`)
+      `phase` = try c.decode(TrainingBlockInputPhase.self, forKey: .`phase`)
+      `status` = try c.decode(TrainingBlockInputStatus.self, forKey: .`status`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `activePlanVersionId` = try c.decode(UUID?.self, forKey: .`activePlanVersionId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`name`, forKey: .`name`)
+      try c.encode(`startDate`, forKey: .`startDate`)
+      try c.encode(`endDate`, forKey: .`endDate`)
+      try c.encode(`phase`, forKey: .`phase`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`activePlanVersionId`?.uuidString.lowercased(), forKey: .`activePlanVersionId`)
+    }
+  }
+
+  enum PlanVersionRecordStatus: String, Codable, Equatable, Sendable {
+    case `draft` = "draft"
+    case `active` = "active"
+    case `superseded` = "superseded"
+    case `rejected` = "rejected"
+  }
+
+  struct PlanVersionRecord: Codable, Equatable, Sendable {
+    var `trainingBlockId`: UUID
+    var `basePlanVersionId`: UUID?
+    var `planningContextSnapshotId`: UUID
+    var `policyVersionId`: UUID
+    var `origin`: PlanVersionInputOrigin
+    var `summary`: String?
+    var `workouts`: [PlannedWorkoutInput]
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `versionNumber`: Int
+    var `status`: PlanVersionRecordStatus
+    var `activatedAt`: BackendInstant?
+    init(`trainingBlockId`: UUID, `basePlanVersionId`: UUID? = nil, `planningContextSnapshotId`: UUID, `policyVersionId`: UUID, `origin`: PlanVersionInputOrigin, `summary`: String? = nil, `workouts`: [PlannedWorkoutInput], `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `versionNumber`: Int, `status`: PlanVersionRecordStatus, `activatedAt`: BackendInstant? = nil) {
+      self.`trainingBlockId` = `trainingBlockId`
+      self.`basePlanVersionId` = `basePlanVersionId`
+      self.`planningContextSnapshotId` = `planningContextSnapshotId`
+      self.`policyVersionId` = `policyVersionId`
+      self.`origin` = `origin`
+      self.`summary` = `summary`
+      self.`workouts` = `workouts`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`versionNumber` = `versionNumber`
+      self.`status` = `status`
+      self.`activatedAt` = `activatedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `trainingBlockId` = "trainingBlockId"
+      case `basePlanVersionId` = "basePlanVersionId"
+      case `planningContextSnapshotId` = "planningContextSnapshotId"
+      case `policyVersionId` = "policyVersionId"
+      case `origin` = "origin"
+      case `summary` = "summary"
+      case `workouts` = "workouts"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `versionNumber` = "versionNumber"
+      case `status` = "status"
+      case `activatedAt` = "activatedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `trainingBlockId` = try c.decode(UUID.self, forKey: .`trainingBlockId`)
+      `basePlanVersionId` = try c.decodeIfPresent(UUID.self, forKey: .`basePlanVersionId`)
+      `planningContextSnapshotId` = try c.decode(UUID.self, forKey: .`planningContextSnapshotId`)
+      `policyVersionId` = try c.decode(UUID.self, forKey: .`policyVersionId`)
+      `origin` = try c.decode(PlanVersionInputOrigin.self, forKey: .`origin`)
+      `summary` = try c.decodeIfPresent(String.self, forKey: .`summary`)
+      `workouts` = try c.decode([PlannedWorkoutInput].self, forKey: .`workouts`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `versionNumber` = try c.decode(Int.self, forKey: .`versionNumber`)
+      `status` = try c.decode(PlanVersionRecordStatus.self, forKey: .`status`)
+      `activatedAt` = try c.decode(BackendInstant?.self, forKey: .`activatedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`trainingBlockId`.uuidString.lowercased(), forKey: .`trainingBlockId`)
+      try c.encode(`basePlanVersionId`?.uuidString.lowercased(), forKey: .`basePlanVersionId`)
+      try c.encode(`planningContextSnapshotId`.uuidString.lowercased(), forKey: .`planningContextSnapshotId`)
+      try c.encode(`policyVersionId`.uuidString.lowercased(), forKey: .`policyVersionId`)
+      try c.encode(`origin`, forKey: .`origin`)
+      try c.encode(`summary`, forKey: .`summary`)
+      try c.encode(`workouts`, forKey: .`workouts`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`versionNumber`, forKey: .`versionNumber`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`activatedAt`, forKey: .`activatedAt`)
+    }
+  }
+
+  enum WorkoutResultRecord: Codable, Equatable, Sendable {
+    case `running`(WorkoutResultRecordRunning)
+    case `strength`(WorkoutResultRecordStrength)
+    private enum CodingKeys: String, CodingKey { case discipline }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      switch try c.decode(String.self, forKey: .discipline) {
+      case "running": self = .`running`(try WorkoutResultRecordRunning(from: decoder))
+      case "strength": self = .`strength`(try WorkoutResultRecordStrength(from: decoder))
+      default: throw DecodingError.dataCorruptedError(forKey: .discipline, in: c, debugDescription: "Unsupported discriminator")
+      }
+    }
+    func encode(to encoder: Encoder) throws {
+      switch self {
+      case .`running`(let value): try value.encode(to: encoder)
+      case .`strength`(let value): try value.encode(to: encoder)
+      }
+    }
+  }
+
+  enum ActivitySourceRecordImportStatus: String, Codable, Equatable, Sendable {
+    case `imported` = "imported"
+    case `partial` = "partial"
+    case `deleted` = "deleted"
+    case `error` = "error"
+  }
+
+  enum ActivitySourceRecordMatchStatus: String, Codable, Equatable, Sendable {
+    case `unmatched` = "unmatched"
+    case `suggested` = "suggested"
+    case `confirmed` = "confirmed"
+    case `rejected` = "rejected"
+  }
+
+  struct ActivitySourceRecord: Codable, Equatable, Sendable {
+    var `provider`: OnboardingImportDecisionHealthkitSource
+    var `externalId`: String
+    var `fingerprint`: String
+    var `workoutResultId`: UUID?
+    var `sourceCreatedAt`: BackendInstant?
+    var `sourceUpdatedAt`: BackendInstant?
+    var `sourceDeletedAt`: BackendInstant?
+    var `importStatus`: ActivitySourceRecordImportStatus
+    var `matchStatus`: ActivitySourceRecordMatchStatus
+    var `matchConfidence`: Double?
+    var `matchedLogicalWorkoutId`: UUID?
+    var `metadata`: ActivitySourceRecordMetadata?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`provider`: OnboardingImportDecisionHealthkitSource, `externalId`: String, `fingerprint`: String, `workoutResultId`: UUID? = nil, `sourceCreatedAt`: BackendInstant? = nil, `sourceUpdatedAt`: BackendInstant? = nil, `sourceDeletedAt`: BackendInstant? = nil, `importStatus`: ActivitySourceRecordImportStatus, `matchStatus`: ActivitySourceRecordMatchStatus, `matchConfidence`: Double? = nil, `matchedLogicalWorkoutId`: UUID? = nil, `metadata`: ActivitySourceRecordMetadata? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`provider` = `provider`
+      self.`externalId` = `externalId`
+      self.`fingerprint` = `fingerprint`
+      self.`workoutResultId` = `workoutResultId`
+      self.`sourceCreatedAt` = `sourceCreatedAt`
+      self.`sourceUpdatedAt` = `sourceUpdatedAt`
+      self.`sourceDeletedAt` = `sourceDeletedAt`
+      self.`importStatus` = `importStatus`
+      self.`matchStatus` = `matchStatus`
+      self.`matchConfidence` = `matchConfidence`
+      self.`matchedLogicalWorkoutId` = `matchedLogicalWorkoutId`
+      self.`metadata` = `metadata`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `provider` = "provider"
+      case `externalId` = "externalId"
+      case `fingerprint` = "fingerprint"
+      case `workoutResultId` = "workoutResultId"
+      case `sourceCreatedAt` = "sourceCreatedAt"
+      case `sourceUpdatedAt` = "sourceUpdatedAt"
+      case `sourceDeletedAt` = "sourceDeletedAt"
+      case `importStatus` = "importStatus"
+      case `matchStatus` = "matchStatus"
+      case `matchConfidence` = "matchConfidence"
+      case `matchedLogicalWorkoutId` = "matchedLogicalWorkoutId"
+      case `metadata` = "metadata"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `provider` = try c.decode(OnboardingImportDecisionHealthkitSource.self, forKey: .`provider`)
+      `externalId` = try c.decode(String.self, forKey: .`externalId`)
+      `fingerprint` = try c.decode(String.self, forKey: .`fingerprint`)
+      `workoutResultId` = try c.decodeIfPresent(UUID.self, forKey: .`workoutResultId`)
+      `sourceCreatedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`sourceCreatedAt`)
+      `sourceUpdatedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`sourceUpdatedAt`)
+      `sourceDeletedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`sourceDeletedAt`)
+      `importStatus` = try c.decode(ActivitySourceRecordImportStatus.self, forKey: .`importStatus`)
+      `matchStatus` = try c.decode(ActivitySourceRecordMatchStatus.self, forKey: .`matchStatus`)
+      `matchConfidence` = try c.decodeIfPresent(Double.self, forKey: .`matchConfidence`)
+      `matchedLogicalWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`matchedLogicalWorkoutId`)
+      `metadata` = try c.decodeIfPresent(ActivitySourceRecordMetadata.self, forKey: .`metadata`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`provider`, forKey: .`provider`)
+      try c.encode(`externalId`, forKey: .`externalId`)
+      try c.encode(`fingerprint`, forKey: .`fingerprint`)
+      try c.encode(`workoutResultId`?.uuidString.lowercased(), forKey: .`workoutResultId`)
+      try c.encode(`sourceCreatedAt`, forKey: .`sourceCreatedAt`)
+      try c.encode(`sourceUpdatedAt`, forKey: .`sourceUpdatedAt`)
+      try c.encode(`sourceDeletedAt`, forKey: .`sourceDeletedAt`)
+      try c.encode(`importStatus`, forKey: .`importStatus`)
+      try c.encode(`matchStatus`, forKey: .`matchStatus`)
+      try c.encode(`matchConfidence`, forKey: .`matchConfidence`)
+      try c.encode(`matchedLogicalWorkoutId`?.uuidString.lowercased(), forKey: .`matchedLogicalWorkoutId`)
+      try c.encodeIfPresent(`metadata`, forKey: .`metadata`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct PlanChangeRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `athleteId`: UUID
+    var `fromPlanVersionId`: UUID?
+    var `toPlanVersionId`: UUID
+    var `origin`: String
+    var `reasonCode`: String
+    var `explanation`: String
+    var `material`: Bool
+    var `proposalId`: UUID?
+    var `acceptedAt`: BackendInstant
+    var `createdAt`: BackendInstant
+    var `items`: [PlanChangeRecordItemsItem]
+    init(`id`: UUID, `athleteId`: UUID, `fromPlanVersionId`: UUID? = nil, `toPlanVersionId`: UUID, `origin`: String, `reasonCode`: String, `explanation`: String, `material`: Bool, `proposalId`: UUID? = nil, `acceptedAt`: BackendInstant, `createdAt`: BackendInstant, `items`: [PlanChangeRecordItemsItem]) {
+      self.`id` = `id`
+      self.`athleteId` = `athleteId`
+      self.`fromPlanVersionId` = `fromPlanVersionId`
+      self.`toPlanVersionId` = `toPlanVersionId`
+      self.`origin` = `origin`
+      self.`reasonCode` = `reasonCode`
+      self.`explanation` = `explanation`
+      self.`material` = `material`
+      self.`proposalId` = `proposalId`
+      self.`acceptedAt` = `acceptedAt`
+      self.`createdAt` = `createdAt`
+      self.`items` = `items`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `athleteId` = "athleteId"
+      case `fromPlanVersionId` = "fromPlanVersionId"
+      case `toPlanVersionId` = "toPlanVersionId"
+      case `origin` = "origin"
+      case `reasonCode` = "reasonCode"
+      case `explanation` = "explanation"
+      case `material` = "material"
+      case `proposalId` = "proposalId"
+      case `acceptedAt` = "acceptedAt"
+      case `createdAt` = "createdAt"
+      case `items` = "items"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `fromPlanVersionId` = try c.decode(UUID?.self, forKey: .`fromPlanVersionId`)
+      `toPlanVersionId` = try c.decode(UUID.self, forKey: .`toPlanVersionId`)
+      `origin` = try c.decode(String.self, forKey: .`origin`)
+      `reasonCode` = try c.decode(String.self, forKey: .`reasonCode`)
+      `explanation` = try c.decode(String.self, forKey: .`explanation`)
+      `material` = try c.decode(Bool.self, forKey: .`material`)
+      `proposalId` = try c.decode(UUID?.self, forKey: .`proposalId`)
+      `acceptedAt` = try c.decode(BackendInstant.self, forKey: .`acceptedAt`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `items` = try c.decode([PlanChangeRecordItemsItem].self, forKey: .`items`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`fromPlanVersionId`?.uuidString.lowercased(), forKey: .`fromPlanVersionId`)
+      try c.encode(`toPlanVersionId`.uuidString.lowercased(), forKey: .`toPlanVersionId`)
+      try c.encode(`origin`, forKey: .`origin`)
+      try c.encode(`reasonCode`, forKey: .`reasonCode`)
+      try c.encode(`explanation`, forKey: .`explanation`)
+      try c.encode(`material`, forKey: .`material`)
+      try c.encode(`proposalId`?.uuidString.lowercased(), forKey: .`proposalId`)
+      try c.encode(`acceptedAt`, forKey: .`acceptedAt`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`items`, forKey: .`items`)
+    }
+  }
+
+  struct CoachThreadRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `title`: String?
+    init(`id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `title`: String? = nil) {
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`title` = `title`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `title` = "title"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `title` = try c.decode(String?.self, forKey: .`title`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`title`, forKey: .`title`)
+    }
+  }
+
+  enum CoachMessageRecordRole: String, Codable, Equatable, Sendable {
+    case `user` = "user"
+    case `assistant` = "assistant"
+  }
+
+  struct CoachMessageRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `threadId`: UUID
+    var `role`: CoachMessageRecordRole
+    var `content`: String
+    var `aiInvocationId`: UUID?
+    init(`id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `threadId`: UUID, `role`: CoachMessageRecordRole, `content`: String, `aiInvocationId`: UUID? = nil) {
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`threadId` = `threadId`
+      self.`role` = `role`
+      self.`content` = `content`
+      self.`aiInvocationId` = `aiInvocationId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `threadId` = "threadId"
+      case `role` = "role"
+      case `content` = "content"
+      case `aiInvocationId` = "aiInvocationId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `threadId` = try c.decode(UUID.self, forKey: .`threadId`)
+      `role` = try c.decode(CoachMessageRecordRole.self, forKey: .`role`)
+      `content` = try c.decode(String.self, forKey: .`content`)
+      `aiInvocationId` = try c.decode(UUID?.self, forKey: .`aiInvocationId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`threadId`.uuidString.lowercased(), forKey: .`threadId`)
+      try c.encode(`role`, forKey: .`role`)
+      try c.encode(`content`, forKey: .`content`)
+      try c.encode(`aiInvocationId`?.uuidString.lowercased(), forKey: .`aiInvocationId`)
+    }
+  }
+
+  enum ActionProposalRecordActionType: String, Codable, Equatable, Sendable {
+    case `moveWorkout` = "move_workout"
+    case `substituteExercise` = "substitute_exercise"
+    case `replanBlock` = "replan_block"
+  }
+
+  enum ActionProposalRecordStatus: String, Codable, Equatable, Sendable {
+    case `pending` = "pending"
+    case `accepted` = "accepted"
+    case `rejected` = "rejected"
+    case `applied` = "applied"
+  }
+
+  struct ActionProposalRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    var `threadId`: UUID?
+    var `messageId`: UUID?
+    var `basePlanVersionId`: UUID?
+    var `actionType`: ActionProposalRecordActionType
+    var `actionPayload`: [String: BackendJSONValue]
+    var `rationale`: String
+    var `status`: ActionProposalRecordStatus
+    var `expiresAt`: BackendInstant
+    var `acceptedAt`: BackendInstant?
+    var `appliedPlanVersionId`: UUID?
+    init(`id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID, `threadId`: UUID? = nil, `messageId`: UUID? = nil, `basePlanVersionId`: UUID? = nil, `actionType`: ActionProposalRecordActionType, `actionPayload`: [String: BackendJSONValue], `rationale`: String, `status`: ActionProposalRecordStatus, `expiresAt`: BackendInstant, `acceptedAt`: BackendInstant? = nil, `appliedPlanVersionId`: UUID? = nil) {
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+      self.`threadId` = `threadId`
+      self.`messageId` = `messageId`
+      self.`basePlanVersionId` = `basePlanVersionId`
+      self.`actionType` = `actionType`
+      self.`actionPayload` = `actionPayload`
+      self.`rationale` = `rationale`
+      self.`status` = `status`
+      self.`expiresAt` = `expiresAt`
+      self.`acceptedAt` = `acceptedAt`
+      self.`appliedPlanVersionId` = `appliedPlanVersionId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+      case `threadId` = "threadId"
+      case `messageId` = "messageId"
+      case `basePlanVersionId` = "basePlanVersionId"
+      case `actionType` = "actionType"
+      case `actionPayload` = "actionPayload"
+      case `rationale` = "rationale"
+      case `status` = "status"
+      case `expiresAt` = "expiresAt"
+      case `acceptedAt` = "acceptedAt"
+      case `appliedPlanVersionId` = "appliedPlanVersionId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `threadId` = try c.decode(UUID?.self, forKey: .`threadId`)
+      `messageId` = try c.decode(UUID?.self, forKey: .`messageId`)
+      `basePlanVersionId` = try c.decode(UUID?.self, forKey: .`basePlanVersionId`)
+      `actionType` = try c.decode(ActionProposalRecordActionType.self, forKey: .`actionType`)
+      `actionPayload` = try c.decode([String: BackendJSONValue].self, forKey: .`actionPayload`)
+      `rationale` = try c.decode(String.self, forKey: .`rationale`)
+      `status` = try c.decode(ActionProposalRecordStatus.self, forKey: .`status`)
+      `expiresAt` = try c.decode(BackendInstant.self, forKey: .`expiresAt`)
+      `acceptedAt` = try c.decode(BackendInstant?.self, forKey: .`acceptedAt`)
+      `appliedPlanVersionId` = try c.decode(UUID?.self, forKey: .`appliedPlanVersionId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`threadId`?.uuidString.lowercased(), forKey: .`threadId`)
+      try c.encode(`messageId`?.uuidString.lowercased(), forKey: .`messageId`)
+      try c.encode(`basePlanVersionId`?.uuidString.lowercased(), forKey: .`basePlanVersionId`)
+      try c.encode(`actionType`, forKey: .`actionType`)
+      try c.encode(`actionPayload`, forKey: .`actionPayload`)
+      try c.encode(`rationale`, forKey: .`rationale`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`expiresAt`, forKey: .`expiresAt`)
+      try c.encode(`acceptedAt`, forKey: .`acceptedAt`)
+      try c.encode(`appliedPlanVersionId`?.uuidString.lowercased(), forKey: .`appliedPlanVersionId`)
+    }
+  }
+
+  struct StructuredDecisionRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `athleteId`: UUID
+    var `invocationId`: UUID
+    var `decisionType`: String
+    var `selectedChoice`: String
+    var `result`: [String: BackendJSONValue]
+    var `createdAt`: BackendInstant
+    init(`id`: UUID, `athleteId`: UUID, `invocationId`: UUID, `decisionType`: String, `selectedChoice`: String, `result`: [String: BackendJSONValue], `createdAt`: BackendInstant) {
+      self.`id` = `id`
+      self.`athleteId` = `athleteId`
+      self.`invocationId` = `invocationId`
+      self.`decisionType` = `decisionType`
+      self.`selectedChoice` = `selectedChoice`
+      self.`result` = `result`
+      self.`createdAt` = `createdAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `athleteId` = "athleteId"
+      case `invocationId` = "invocationId"
+      case `decisionType` = "decisionType"
+      case `selectedChoice` = "selectedChoice"
+      case `result` = "result"
+      case `createdAt` = "createdAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `invocationId` = try c.decode(UUID.self, forKey: .`invocationId`)
+      `decisionType` = try c.decode(String.self, forKey: .`decisionType`)
+      `selectedChoice` = try c.decode(String.self, forKey: .`selectedChoice`)
+      `result` = try c.decode([String: BackendJSONValue].self, forKey: .`result`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`invocationId`.uuidString.lowercased(), forKey: .`invocationId`)
+      try c.encode(`decisionType`, forKey: .`decisionType`)
+      try c.encode(`selectedChoice`, forKey: .`selectedChoice`)
+      try c.encode(`result`, forKey: .`result`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+    }
+  }
+
+  struct EntitlementRecord: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `athleteId`: UUID
+    var `entitlementKey`: String
+    var `status`: EntitlementStatus
+    var `validUntil`: BackendInstant?
+    var `source`: String
+    var `revision`: BackendRevision
+    var `updatedAt`: BackendInstant
+    init(`id`: UUID, `athleteId`: UUID, `entitlementKey`: String, `status`: EntitlementStatus, `validUntil`: BackendInstant? = nil, `source`: String, `revision`: BackendRevision, `updatedAt`: BackendInstant) {
+      self.`id` = `id`
+      self.`athleteId` = `athleteId`
+      self.`entitlementKey` = `entitlementKey`
+      self.`status` = `status`
+      self.`validUntil` = `validUntil`
+      self.`source` = `source`
+      self.`revision` = `revision`
+      self.`updatedAt` = `updatedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `athleteId` = "athleteId"
+      case `entitlementKey` = "entitlementKey"
+      case `status` = "status"
+      case `validUntil` = "validUntil"
+      case `source` = "source"
+      case `revision` = "revision"
+      case `updatedAt` = "updatedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+      `entitlementKey` = try c.decode(String.self, forKey: .`entitlementKey`)
+      `status` = try c.decode(EntitlementStatus.self, forKey: .`status`)
+      `validUntil` = try c.decode(BackendInstant?.self, forKey: .`validUntil`)
+      `source` = try c.decode(String.self, forKey: .`source`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+      try c.encode(`entitlementKey`, forKey: .`entitlementKey`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`validUntil`, forKey: .`validUntil`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+    }
+  }
+
+  enum ProgressComparisonGroupRunningRunType: String, Codable, Equatable, Sendable {
+    case `easy` = "easy"
+    case `recovery` = "recovery"
+    case `long` = "long"
+    case `tempo` = "tempo"
+    case `intervals` = "intervals"
+    case `hills` = "hills"
+    case `progression` = "progression"
+    case `custom` = "custom"
+  }
+
+  struct ProgressComparisonGroupRunning: Codable, Equatable, Sendable {
+    var `kind`: WorkoutResultInputRunningDiscipline
+    var `runType`: ProgressComparisonGroupRunningRunType
+    var `distanceM`: Int
+    init(`kind`: WorkoutResultInputRunningDiscipline, `runType`: ProgressComparisonGroupRunningRunType, `distanceM`: Int) {
+      self.`kind` = `kind`
+      self.`runType` = `runType`
+      self.`distanceM` = `distanceM`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `kind` = "kind"
+      case `runType` = "runType"
+      case `distanceM` = "distanceM"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `kind` = try c.decode(WorkoutResultInputRunningDiscipline.self, forKey: .`kind`)
+      `runType` = try c.decode(ProgressComparisonGroupRunningRunType.self, forKey: .`runType`)
+      `distanceM` = try c.decode(Int.self, forKey: .`distanceM`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`kind`, forKey: .`kind`)
+      try c.encode(`runType`, forKey: .`runType`)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+    }
+  }
+
+  enum ProgressComparisonGroupStrengthLoadConvention: String, Codable, Equatable, Sendable {
+    case `external` = "external"
+    case `bodyweight` = "bodyweight"
+  }
+
+  struct ProgressComparisonGroupStrength: Codable, Equatable, Sendable {
+    var `kind`: WorkoutResultInputStrengthDiscipline
+    var `exerciseId`: UUID
+    var `exerciseName`: String
+    var `reps`: Int
+    var `loadConvention`: ProgressComparisonGroupStrengthLoadConvention
+    init(`kind`: WorkoutResultInputStrengthDiscipline, `exerciseId`: UUID, `exerciseName`: String, `reps`: Int, `loadConvention`: ProgressComparisonGroupStrengthLoadConvention) {
+      self.`kind` = `kind`
+      self.`exerciseId` = `exerciseId`
+      self.`exerciseName` = `exerciseName`
+      self.`reps` = `reps`
+      self.`loadConvention` = `loadConvention`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `kind` = "kind"
+      case `exerciseId` = "exerciseId"
+      case `exerciseName` = "exerciseName"
+      case `reps` = "reps"
+      case `loadConvention` = "loadConvention"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `kind` = try c.decode(WorkoutResultInputStrengthDiscipline.self, forKey: .`kind`)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `exerciseName` = try c.decode(String.self, forKey: .`exerciseName`)
+      `reps` = try c.decode(Int.self, forKey: .`reps`)
+      `loadConvention` = try c.decode(ProgressComparisonGroupStrengthLoadConvention.self, forKey: .`loadConvention`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`kind`, forKey: .`kind`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`exerciseName`, forKey: .`exerciseName`)
+      try c.encode(`reps`, forKey: .`reps`)
+      try c.encode(`loadConvention`, forKey: .`loadConvention`)
+    }
+  }
+
   struct ReviewedHeartRateZonesRangesItem: Codable, Equatable, Sendable {
     var `minBpm`: Double
     var `maxBpm`: Double?
@@ -2005,8 +7358,8 @@ enum BackendWire {
       self.`maxBpm` = `maxBpm`
     }
     private enum CodingKeys: String, CodingKey {
-      case `minBpm`
-      case `maxBpm`
+      case `minBpm` = "minBpm"
+      case `maxBpm` = "maxBpm"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -2017,6 +7370,70 @@ enum BackendWire {
       var c = encoder.container(keyedBy: CodingKeys.self)
       try c.encode(`minBpm`, forKey: .`minBpm`)
       try c.encode(`maxBpm`, forKey: .`maxBpm`)
+    }
+  }
+
+  enum PlannedWorkoutInputRunningRunPrimaryTargetType: String, Codable, Equatable, Sendable {
+    case `pace` = "pace"
+    case `heartRate` = "heart_rate"
+    case `rpe` = "rpe"
+    case `mixed` = "mixed"
+    case `open` = "open"
+  }
+
+  struct PlannedWorkoutInputRunningRun: Codable, Equatable, Sendable {
+    var `primaryTargetType`: PlannedWorkoutInputRunningRunPrimaryTargetType
+    var `notes`: String?
+    var `blocks`: [PlannedWorkoutInputRunningRunBlocksItem]
+    init(`primaryTargetType`: PlannedWorkoutInputRunningRunPrimaryTargetType, `notes`: String? = nil, `blocks`: [PlannedWorkoutInputRunningRunBlocksItem]) {
+      self.`primaryTargetType` = `primaryTargetType`
+      self.`notes` = `notes`
+      self.`blocks` = `blocks`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `primaryTargetType` = "primaryTargetType"
+      case `notes` = "notes"
+      case `blocks` = "blocks"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `primaryTargetType` = try c.decode(PlannedWorkoutInputRunningRunPrimaryTargetType.self, forKey: .`primaryTargetType`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `blocks` = try c.decode([PlannedWorkoutInputRunningRunBlocksItem].self, forKey: .`blocks`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`primaryTargetType`, forKey: .`primaryTargetType`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`blocks`, forKey: .`blocks`)
+    }
+  }
+
+  struct PlannedWorkoutInputStrengthStrength: Codable, Equatable, Sendable {
+    var `sessionFocus`: String
+    var `notes`: String?
+    var `exercises`: [PlannedWorkoutInputStrengthStrengthExercisesItem]
+    init(`sessionFocus`: String, `notes`: String? = nil, `exercises`: [PlannedWorkoutInputStrengthStrengthExercisesItem]) {
+      self.`sessionFocus` = `sessionFocus`
+      self.`notes` = `notes`
+      self.`exercises` = `exercises`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `sessionFocus` = "sessionFocus"
+      case `notes` = "notes"
+      case `exercises` = "exercises"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `sessionFocus` = try c.decode(String.self, forKey: .`sessionFocus`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `exercises` = try c.decode([PlannedWorkoutInputStrengthStrengthExercisesItem].self, forKey: .`exercises`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`sessionFocus`, forKey: .`sessionFocus`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`exercises`, forKey: .`exercises`)
     }
   }
 
@@ -2049,12 +7466,12 @@ enum BackendWire {
       self.`calculationVersion` = `calculationVersion`
     }
     private enum CodingKeys: String, CodingKey {
-      case `measuredAt`
-      case `fetchedAt`
-      case `window`
-      case `coverage`
-      case `durationBasis`
-      case `calculationVersion`
+      case `measuredAt` = "measuredAt"
+      case `fetchedAt` = "fetchedAt"
+      case `window` = "window"
+      case `coverage` = "coverage"
+      case `durationBasis` = "durationBasis"
+      case `calculationVersion` = "calculationVersion"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -2084,8 +7501,8 @@ enum BackendWire {
       self.`maxBpm` = `maxBpm`
     }
     private enum CodingKeys: String, CodingKey {
-      case `minBpm`
-      case `maxBpm`
+      case `minBpm` = "minBpm"
+      case `maxBpm` = "maxBpm"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -2099,6 +7516,618 @@ enum BackendWire {
     }
   }
 
+  enum AthleteDetailsRecordProvenanceItemSource: String, Codable, Equatable, Sendable {
+    case `strava` = "strava"
+    case `healthkit` = "healthkit"
+  }
+
+  enum AthleteDetailsRecordProvenanceItemVerification: String, Codable, Equatable, Sendable {
+    case `serverPreview` = "server_preview"
+    case `clientReported` = "client_reported"
+  }
+
+  struct AthleteDetailsRecordProvenanceItem: Codable, Equatable, Sendable {
+    var `field`: OnboardingImportDecisionStravaField
+    var `source`: AthleteDetailsRecordProvenanceItemSource
+    var `editedFromSource`: Bool
+    var `verification`: AthleteDetailsRecordProvenanceItemVerification
+    var `reference`: String
+    var `sourceIds`: [String]
+    var `observation`: AthleteDetailsRecordProvenanceItemObservation
+    var `reviewedAt`: BackendInstant
+    init(`field`: OnboardingImportDecisionStravaField, `source`: AthleteDetailsRecordProvenanceItemSource, `editedFromSource`: Bool, `verification`: AthleteDetailsRecordProvenanceItemVerification, `reference`: String, `sourceIds`: [String], `observation`: AthleteDetailsRecordProvenanceItemObservation, `reviewedAt`: BackendInstant) {
+      self.`field` = `field`
+      self.`source` = `source`
+      self.`editedFromSource` = `editedFromSource`
+      self.`verification` = `verification`
+      self.`reference` = `reference`
+      self.`sourceIds` = `sourceIds`
+      self.`observation` = `observation`
+      self.`reviewedAt` = `reviewedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `field` = "field"
+      case `source` = "source"
+      case `editedFromSource` = "editedFromSource"
+      case `verification` = "verification"
+      case `reference` = "reference"
+      case `sourceIds` = "sourceIds"
+      case `observation` = "observation"
+      case `reviewedAt` = "reviewedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `field` = try c.decode(OnboardingImportDecisionStravaField.self, forKey: .`field`)
+      `source` = try c.decode(AthleteDetailsRecordProvenanceItemSource.self, forKey: .`source`)
+      `editedFromSource` = try c.decode(Bool.self, forKey: .`editedFromSource`)
+      `verification` = try c.decode(AthleteDetailsRecordProvenanceItemVerification.self, forKey: .`verification`)
+      `reference` = try c.decode(String.self, forKey: .`reference`)
+      `sourceIds` = try c.decode([String].self, forKey: .`sourceIds`)
+      `observation` = try c.decode(AthleteDetailsRecordProvenanceItemObservation.self, forKey: .`observation`)
+      `reviewedAt` = try c.decode(BackendInstant.self, forKey: .`reviewedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`field`, forKey: .`field`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`editedFromSource`, forKey: .`editedFromSource`)
+      try c.encode(`verification`, forKey: .`verification`)
+      try c.encode(`reference`, forKey: .`reference`)
+      try c.encode(`sourceIds`, forKey: .`sourceIds`)
+      try c.encode(`observation`, forKey: .`observation`)
+      try c.encode(`reviewedAt`, forKey: .`reviewedAt`)
+    }
+  }
+
+  struct GoalRecordMetadata: Codable, Equatable, Sendable {
+    var `raceDistanceM`: Int?
+    var `targetFinishSeconds`: Int?
+    var `exerciseId`: UUID?
+    var `targetLoadKg`: Double?
+    var `targetReps`: Int?
+    init(`raceDistanceM`: Int? = nil, `targetFinishSeconds`: Int? = nil, `exerciseId`: UUID? = nil, `targetLoadKg`: Double? = nil, `targetReps`: Int? = nil) {
+      self.`raceDistanceM` = `raceDistanceM`
+      self.`targetFinishSeconds` = `targetFinishSeconds`
+      self.`exerciseId` = `exerciseId`
+      self.`targetLoadKg` = `targetLoadKg`
+      self.`targetReps` = `targetReps`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `raceDistanceM` = "raceDistanceM"
+      case `targetFinishSeconds` = "targetFinishSeconds"
+      case `exerciseId` = "exerciseId"
+      case `targetLoadKg` = "targetLoadKg"
+      case `targetReps` = "targetReps"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `raceDistanceM` = try c.decodeIfPresent(Int.self, forKey: .`raceDistanceM`)
+      `targetFinishSeconds` = try c.decodeIfPresent(Int.self, forKey: .`targetFinishSeconds`)
+      `exerciseId` = try c.decodeIfPresent(UUID.self, forKey: .`exerciseId`)
+      `targetLoadKg` = try c.decodeIfPresent(Double.self, forKey: .`targetLoadKg`)
+      `targetReps` = try c.decodeIfPresent(Int.self, forKey: .`targetReps`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encodeIfPresent(`raceDistanceM`, forKey: .`raceDistanceM`)
+      try c.encodeIfPresent(`targetFinishSeconds`, forKey: .`targetFinishSeconds`)
+      try c.encodeIfPresent(`exerciseId`?.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encodeIfPresent(`targetLoadKg`, forKey: .`targetLoadKg`)
+      try c.encodeIfPresent(`targetReps`, forKey: .`targetReps`)
+    }
+  }
+
+  struct BaselineRecordProvenanceItem: Codable, Equatable, Sendable {
+    var `field`: OnboardingImportDecisionStravaField
+    var `source`: AthleteDetailsRecordProvenanceItemSource
+    var `editedFromSource`: Bool
+    var `verification`: AthleteDetailsRecordProvenanceItemVerification
+    var `reference`: String
+    var `sourceIds`: [String]
+    var `observation`: BaselineRecordProvenanceItemObservation
+    var `reviewedAt`: BackendInstant
+    init(`field`: OnboardingImportDecisionStravaField, `source`: AthleteDetailsRecordProvenanceItemSource, `editedFromSource`: Bool, `verification`: AthleteDetailsRecordProvenanceItemVerification, `reference`: String, `sourceIds`: [String], `observation`: BaselineRecordProvenanceItemObservation, `reviewedAt`: BackendInstant) {
+      self.`field` = `field`
+      self.`source` = `source`
+      self.`editedFromSource` = `editedFromSource`
+      self.`verification` = `verification`
+      self.`reference` = `reference`
+      self.`sourceIds` = `sourceIds`
+      self.`observation` = `observation`
+      self.`reviewedAt` = `reviewedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `field` = "field"
+      case `source` = "source"
+      case `editedFromSource` = "editedFromSource"
+      case `verification` = "verification"
+      case `reference` = "reference"
+      case `sourceIds` = "sourceIds"
+      case `observation` = "observation"
+      case `reviewedAt` = "reviewedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `field` = try c.decode(OnboardingImportDecisionStravaField.self, forKey: .`field`)
+      `source` = try c.decode(AthleteDetailsRecordProvenanceItemSource.self, forKey: .`source`)
+      `editedFromSource` = try c.decode(Bool.self, forKey: .`editedFromSource`)
+      `verification` = try c.decode(AthleteDetailsRecordProvenanceItemVerification.self, forKey: .`verification`)
+      `reference` = try c.decode(String.self, forKey: .`reference`)
+      `sourceIds` = try c.decode([String].self, forKey: .`sourceIds`)
+      `observation` = try c.decode(BaselineRecordProvenanceItemObservation.self, forKey: .`observation`)
+      `reviewedAt` = try c.decode(BackendInstant.self, forKey: .`reviewedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`field`, forKey: .`field`)
+      try c.encode(`source`, forKey: .`source`)
+      try c.encode(`editedFromSource`, forKey: .`editedFromSource`)
+      try c.encode(`verification`, forKey: .`verification`)
+      try c.encode(`reference`, forKey: .`reference`)
+      try c.encode(`sourceIds`, forKey: .`sourceIds`)
+      try c.encode(`observation`, forKey: .`observation`)
+      try c.encode(`reviewedAt`, forKey: .`reviewedAt`)
+    }
+  }
+
+  struct PlanningContextRecordSnapshot: Codable, Equatable, Sendable {
+    var `goals`: [AthleteGoalInput]
+    var `preferences`: TrainingPreferencesInput
+    var `availabilityRules`: [AvailabilityRuleInput]
+    var `availabilityOverrides`: [AvailabilityOverrideInput]
+    var `equipmentIds`: [UUID]
+    var `recentFeatures`: [String: BackendJSONValue]
+    var `athleteDetailsId`: UUID?
+    var `athleteDetailsSnapshot`: PlanningContextRecordSnapshotAthleteDetailsSnapshot?
+    init(`goals`: [AthleteGoalInput], `preferences`: TrainingPreferencesInput, `availabilityRules`: [AvailabilityRuleInput], `availabilityOverrides`: [AvailabilityOverrideInput], `equipmentIds`: [UUID], `recentFeatures`: [String: BackendJSONValue], `athleteDetailsId`: UUID? = nil, `athleteDetailsSnapshot`: PlanningContextRecordSnapshotAthleteDetailsSnapshot? = nil) {
+      self.`goals` = `goals`
+      self.`preferences` = `preferences`
+      self.`availabilityRules` = `availabilityRules`
+      self.`availabilityOverrides` = `availabilityOverrides`
+      self.`equipmentIds` = `equipmentIds`
+      self.`recentFeatures` = `recentFeatures`
+      self.`athleteDetailsId` = `athleteDetailsId`
+      self.`athleteDetailsSnapshot` = `athleteDetailsSnapshot`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `goals` = "goals"
+      case `preferences` = "preferences"
+      case `availabilityRules` = "availabilityRules"
+      case `availabilityOverrides` = "availabilityOverrides"
+      case `equipmentIds` = "equipmentIds"
+      case `recentFeatures` = "recentFeatures"
+      case `athleteDetailsId` = "athleteDetailsId"
+      case `athleteDetailsSnapshot` = "athleteDetailsSnapshot"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `goals` = try c.decode([AthleteGoalInput].self, forKey: .`goals`)
+      `preferences` = try c.decode(TrainingPreferencesInput.self, forKey: .`preferences`)
+      `availabilityRules` = try c.decode([AvailabilityRuleInput].self, forKey: .`availabilityRules`)
+      `availabilityOverrides` = try c.decode([AvailabilityOverrideInput].self, forKey: .`availabilityOverrides`)
+      `equipmentIds` = try c.decode([UUID].self, forKey: .`equipmentIds`)
+      `recentFeatures` = try c.decode([String: BackendJSONValue].self, forKey: .`recentFeatures`)
+      `athleteDetailsId` = try c.decodeIfPresent(UUID.self, forKey: .`athleteDetailsId`)
+      `athleteDetailsSnapshot` = try c.decodeIfPresent(PlanningContextRecordSnapshotAthleteDetailsSnapshot.self, forKey: .`athleteDetailsSnapshot`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`goals`, forKey: .`goals`)
+      try c.encode(`preferences`, forKey: .`preferences`)
+      try c.encode(`availabilityRules`, forKey: .`availabilityRules`)
+      try c.encode(`availabilityOverrides`, forKey: .`availabilityOverrides`)
+      try c.encode(`equipmentIds`.map { $0.uuidString.lowercased() }, forKey: .`equipmentIds`)
+      try c.encode(`recentFeatures`, forKey: .`recentFeatures`)
+      try c.encode(`athleteDetailsId`?.uuidString.lowercased(), forKey: .`athleteDetailsId`)
+      try c.encodeIfPresent(`athleteDetailsSnapshot`, forKey: .`athleteDetailsSnapshot`)
+    }
+  }
+
+  struct WorkoutResultRecordRunning: Codable, Equatable, Sendable {
+    var `plannedWorkoutId`: UUID?
+    var `logicalWorkoutId`: UUID?
+    var `trainingDate`: BackendDay
+    var `timezone`: String
+    var `dateBasis`: WorkoutResultInputRunningDateBasis?
+    var `loggedAt`: BackendInstant?
+    var `durationS`: Int?
+    var `startedAt`: BackendInstant?
+    var `endedAt`: BackendInstant?
+    var `completionStatus`: WorkoutResultInputRunningCompletionStatus
+    var `sourceType`: WorkoutResultInputRunningSourceType
+    var `sessionRpe`: Double?
+    var `notes`: String?
+    var `discipline`: WorkoutResultInputRunningDiscipline
+    var `run`: WorkoutResultRecordRunningRun?
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`plannedWorkoutId`: UUID? = nil, `logicalWorkoutId`: UUID? = nil, `trainingDate`: BackendDay, `timezone`: String, `dateBasis`: WorkoutResultInputRunningDateBasis? = nil, `loggedAt`: BackendInstant? = nil, `durationS`: Int? = nil, `startedAt`: BackendInstant? = nil, `endedAt`: BackendInstant? = nil, `completionStatus`: WorkoutResultInputRunningCompletionStatus, `sourceType`: WorkoutResultInputRunningSourceType, `sessionRpe`: Double? = nil, `notes`: String? = nil, `discipline`: WorkoutResultInputRunningDiscipline, `run`: WorkoutResultRecordRunningRun? = nil, `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`plannedWorkoutId` = `plannedWorkoutId`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`trainingDate` = `trainingDate`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`loggedAt` = `loggedAt`
+      self.`durationS` = `durationS`
+      self.`startedAt` = `startedAt`
+      self.`endedAt` = `endedAt`
+      self.`completionStatus` = `completionStatus`
+      self.`sourceType` = `sourceType`
+      self.`sessionRpe` = `sessionRpe`
+      self.`notes` = `notes`
+      self.`discipline` = `discipline`
+      self.`run` = `run`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `plannedWorkoutId` = "plannedWorkoutId"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `trainingDate` = "trainingDate"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `loggedAt` = "loggedAt"
+      case `durationS` = "durationS"
+      case `startedAt` = "startedAt"
+      case `endedAt` = "endedAt"
+      case `completionStatus` = "completionStatus"
+      case `sourceType` = "sourceType"
+      case `sessionRpe` = "sessionRpe"
+      case `notes` = "notes"
+      case `discipline` = "discipline"
+      case `run` = "run"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `plannedWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`plannedWorkoutId`)
+      `logicalWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`logicalWorkoutId`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decodeIfPresent(WorkoutResultInputRunningDateBasis.self, forKey: .`dateBasis`)
+      `loggedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`loggedAt`)
+      `durationS` = try c.decodeIfPresent(Int.self, forKey: .`durationS`)
+      `startedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`startedAt`)
+      `endedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`endedAt`)
+      `completionStatus` = try c.decode(WorkoutResultInputRunningCompletionStatus.self, forKey: .`completionStatus`)
+      `sourceType` = try c.decode(WorkoutResultInputRunningSourceType.self, forKey: .`sourceType`)
+      `sessionRpe` = try c.decodeIfPresent(Double.self, forKey: .`sessionRpe`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `discipline` = try c.decode(WorkoutResultInputRunningDiscipline.self, forKey: .`discipline`)
+      `run` = try c.decode(WorkoutResultRecordRunningRun?.self, forKey: .`run`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`plannedWorkoutId`?.uuidString.lowercased(), forKey: .`plannedWorkoutId`)
+      try c.encode(`logicalWorkoutId`?.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encodeIfPresent(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`loggedAt`, forKey: .`loggedAt`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`startedAt`, forKey: .`startedAt`)
+      try c.encode(`endedAt`, forKey: .`endedAt`)
+      try c.encode(`completionStatus`, forKey: .`completionStatus`)
+      try c.encode(`sourceType`, forKey: .`sourceType`)
+      try c.encode(`sessionRpe`, forKey: .`sessionRpe`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`run`, forKey: .`run`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct WorkoutResultRecordStrength: Codable, Equatable, Sendable {
+    var `plannedWorkoutId`: UUID?
+    var `logicalWorkoutId`: UUID?
+    var `trainingDate`: BackendDay
+    var `timezone`: String
+    var `dateBasis`: WorkoutResultInputRunningDateBasis?
+    var `loggedAt`: BackendInstant?
+    var `durationS`: Int?
+    var `startedAt`: BackendInstant?
+    var `endedAt`: BackendInstant?
+    var `completionStatus`: WorkoutResultInputRunningCompletionStatus
+    var `sourceType`: WorkoutResultInputRunningSourceType
+    var `sessionRpe`: Double?
+    var `notes`: String?
+    var `discipline`: WorkoutResultInputStrengthDiscipline
+    var `exercises`: [WorkoutResultRecordStrengthExercisesItem]
+    var `id`: UUID
+    var `createdAt`: BackendInstant
+    var `updatedAt`: BackendInstant
+    var `revision`: BackendRevision
+    var `deletedAt`: BackendInstant?
+    var `athleteId`: UUID
+    init(`plannedWorkoutId`: UUID? = nil, `logicalWorkoutId`: UUID? = nil, `trainingDate`: BackendDay, `timezone`: String, `dateBasis`: WorkoutResultInputRunningDateBasis? = nil, `loggedAt`: BackendInstant? = nil, `durationS`: Int? = nil, `startedAt`: BackendInstant? = nil, `endedAt`: BackendInstant? = nil, `completionStatus`: WorkoutResultInputRunningCompletionStatus, `sourceType`: WorkoutResultInputRunningSourceType, `sessionRpe`: Double? = nil, `notes`: String? = nil, `discipline`: WorkoutResultInputStrengthDiscipline, `exercises`: [WorkoutResultRecordStrengthExercisesItem], `id`: UUID, `createdAt`: BackendInstant, `updatedAt`: BackendInstant, `revision`: BackendRevision, `deletedAt`: BackendInstant? = nil, `athleteId`: UUID) {
+      self.`plannedWorkoutId` = `plannedWorkoutId`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`trainingDate` = `trainingDate`
+      self.`timezone` = `timezone`
+      self.`dateBasis` = `dateBasis`
+      self.`loggedAt` = `loggedAt`
+      self.`durationS` = `durationS`
+      self.`startedAt` = `startedAt`
+      self.`endedAt` = `endedAt`
+      self.`completionStatus` = `completionStatus`
+      self.`sourceType` = `sourceType`
+      self.`sessionRpe` = `sessionRpe`
+      self.`notes` = `notes`
+      self.`discipline` = `discipline`
+      self.`exercises` = `exercises`
+      self.`id` = `id`
+      self.`createdAt` = `createdAt`
+      self.`updatedAt` = `updatedAt`
+      self.`revision` = `revision`
+      self.`deletedAt` = `deletedAt`
+      self.`athleteId` = `athleteId`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `plannedWorkoutId` = "plannedWorkoutId"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `trainingDate` = "trainingDate"
+      case `timezone` = "timezone"
+      case `dateBasis` = "dateBasis"
+      case `loggedAt` = "loggedAt"
+      case `durationS` = "durationS"
+      case `startedAt` = "startedAt"
+      case `endedAt` = "endedAt"
+      case `completionStatus` = "completionStatus"
+      case `sourceType` = "sourceType"
+      case `sessionRpe` = "sessionRpe"
+      case `notes` = "notes"
+      case `discipline` = "discipline"
+      case `exercises` = "exercises"
+      case `id` = "id"
+      case `createdAt` = "createdAt"
+      case `updatedAt` = "updatedAt"
+      case `revision` = "revision"
+      case `deletedAt` = "deletedAt"
+      case `athleteId` = "athleteId"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `plannedWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`plannedWorkoutId`)
+      `logicalWorkoutId` = try c.decodeIfPresent(UUID.self, forKey: .`logicalWorkoutId`)
+      `trainingDate` = try c.decode(BackendDay.self, forKey: .`trainingDate`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+      `dateBasis` = try c.decodeIfPresent(WorkoutResultInputRunningDateBasis.self, forKey: .`dateBasis`)
+      `loggedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`loggedAt`)
+      `durationS` = try c.decodeIfPresent(Int.self, forKey: .`durationS`)
+      `startedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`startedAt`)
+      `endedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`endedAt`)
+      `completionStatus` = try c.decode(WorkoutResultInputRunningCompletionStatus.self, forKey: .`completionStatus`)
+      `sourceType` = try c.decode(WorkoutResultInputRunningSourceType.self, forKey: .`sourceType`)
+      `sessionRpe` = try c.decodeIfPresent(Double.self, forKey: .`sessionRpe`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `discipline` = try c.decode(WorkoutResultInputStrengthDiscipline.self, forKey: .`discipline`)
+      `exercises` = try c.decode([WorkoutResultRecordStrengthExercisesItem].self, forKey: .`exercises`)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `createdAt` = try c.decode(BackendInstant.self, forKey: .`createdAt`)
+      `updatedAt` = try c.decode(BackendInstant.self, forKey: .`updatedAt`)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `deletedAt` = try c.decode(BackendInstant?.self, forKey: .`deletedAt`)
+      `athleteId` = try c.decode(UUID.self, forKey: .`athleteId`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`plannedWorkoutId`?.uuidString.lowercased(), forKey: .`plannedWorkoutId`)
+      try c.encode(`logicalWorkoutId`?.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`trainingDate`, forKey: .`trainingDate`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+      try c.encodeIfPresent(`dateBasis`, forKey: .`dateBasis`)
+      try c.encode(`loggedAt`, forKey: .`loggedAt`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`startedAt`, forKey: .`startedAt`)
+      try c.encode(`endedAt`, forKey: .`endedAt`)
+      try c.encode(`completionStatus`, forKey: .`completionStatus`)
+      try c.encode(`sourceType`, forKey: .`sourceType`)
+      try c.encode(`sessionRpe`, forKey: .`sessionRpe`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`discipline`, forKey: .`discipline`)
+      try c.encode(`exercises`, forKey: .`exercises`)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`createdAt`, forKey: .`createdAt`)
+      try c.encode(`updatedAt`, forKey: .`updatedAt`)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`deletedAt`, forKey: .`deletedAt`)
+      try c.encode(`athleteId`.uuidString.lowercased(), forKey: .`athleteId`)
+    }
+  }
+
+  struct ActivitySourceRecordMetadata: Codable, Equatable, Sendable {
+    var `appName`: String?
+    var `bundleIdentifier`: String?
+    var `deviceName`: String?
+    init(`appName`: String? = nil, `bundleIdentifier`: String? = nil, `deviceName`: String? = nil) {
+      self.`appName` = `appName`
+      self.`bundleIdentifier` = `bundleIdentifier`
+      self.`deviceName` = `deviceName`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `appName` = "appName"
+      case `bundleIdentifier` = "bundleIdentifier"
+      case `deviceName` = "deviceName"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `appName` = try c.decodeIfPresent(String.self, forKey: .`appName`)
+      `bundleIdentifier` = try c.decodeIfPresent(String.self, forKey: .`bundleIdentifier`)
+      `deviceName` = try c.decodeIfPresent(String.self, forKey: .`deviceName`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encodeIfPresent(`appName`, forKey: .`appName`)
+      try c.encodeIfPresent(`bundleIdentifier`, forKey: .`bundleIdentifier`)
+      try c.encodeIfPresent(`deviceName`, forKey: .`deviceName`)
+    }
+  }
+
+  enum PlanChangeRecordItemsItemChangeType: String, Codable, Equatable, Sendable {
+    case `added` = "added"
+    case `removed` = "removed"
+    case `moved` = "moved"
+    case `prescriptionChanged` = "prescription_changed"
+  }
+
+  struct PlanChangeRecordItemsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `logicalWorkoutId`: UUID
+    var `changeType`: PlanChangeRecordItemsItemChangeType
+    var `beforePlannedWorkoutId`: UUID?
+    var `afterPlannedWorkoutId`: UUID?
+    var `changes`: [String: BackendJSONValue]
+    init(`id`: UUID, `logicalWorkoutId`: UUID, `changeType`: PlanChangeRecordItemsItemChangeType, `beforePlannedWorkoutId`: UUID? = nil, `afterPlannedWorkoutId`: UUID? = nil, `changes`: [String: BackendJSONValue]) {
+      self.`id` = `id`
+      self.`logicalWorkoutId` = `logicalWorkoutId`
+      self.`changeType` = `changeType`
+      self.`beforePlannedWorkoutId` = `beforePlannedWorkoutId`
+      self.`afterPlannedWorkoutId` = `afterPlannedWorkoutId`
+      self.`changes` = `changes`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `logicalWorkoutId` = "logicalWorkoutId"
+      case `changeType` = "changeType"
+      case `beforePlannedWorkoutId` = "beforePlannedWorkoutId"
+      case `afterPlannedWorkoutId` = "afterPlannedWorkoutId"
+      case `changes` = "changes"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `logicalWorkoutId` = try c.decode(UUID.self, forKey: .`logicalWorkoutId`)
+      `changeType` = try c.decode(PlanChangeRecordItemsItemChangeType.self, forKey: .`changeType`)
+      `beforePlannedWorkoutId` = try c.decode(UUID?.self, forKey: .`beforePlannedWorkoutId`)
+      `afterPlannedWorkoutId` = try c.decode(UUID?.self, forKey: .`afterPlannedWorkoutId`)
+      `changes` = try c.decode([String: BackendJSONValue].self, forKey: .`changes`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`logicalWorkoutId`.uuidString.lowercased(), forKey: .`logicalWorkoutId`)
+      try c.encode(`changeType`, forKey: .`changeType`)
+      try c.encode(`beforePlannedWorkoutId`?.uuidString.lowercased(), forKey: .`beforePlannedWorkoutId`)
+      try c.encode(`afterPlannedWorkoutId`?.uuidString.lowercased(), forKey: .`afterPlannedWorkoutId`)
+      try c.encode(`changes`, forKey: .`changes`)
+    }
+  }
+
+  struct PlannedWorkoutInputRunningRunBlocksItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `sequence`: Int
+    var `repeatCount`: Int
+    var `label`: String?
+    var `steps`: [PlannedWorkoutInputRunningRunBlocksItemStepsItem]
+    init(`id`: UUID, `sequence`: Int, `repeatCount`: Int, `label`: String? = nil, `steps`: [PlannedWorkoutInputRunningRunBlocksItemStepsItem]) {
+      self.`id` = `id`
+      self.`sequence` = `sequence`
+      self.`repeatCount` = `repeatCount`
+      self.`label` = `label`
+      self.`steps` = `steps`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `sequence` = "sequence"
+      case `repeatCount` = "repeatCount"
+      case `label` = "label"
+      case `steps` = "steps"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `repeatCount` = try c.decode(Int.self, forKey: .`repeatCount`)
+      `label` = try c.decodeIfPresent(String.self, forKey: .`label`)
+      `steps` = try c.decode([PlannedWorkoutInputRunningRunBlocksItemStepsItem].self, forKey: .`steps`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`repeatCount`, forKey: .`repeatCount`)
+      try c.encode(`label`, forKey: .`label`)
+      try c.encode(`steps`, forKey: .`steps`)
+    }
+  }
+
+  struct PlannedWorkoutInputStrengthStrengthExercisesItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `exerciseId`: UUID
+    var `sequence`: Int
+    var `supersetGroupId`: UUID?
+    var `substitutionAllowed`: Bool
+    var `notes`: String?
+    var `sets`: [PlannedWorkoutInputStrengthStrengthExercisesItemSetsItem]
+    var `substitutions`: [PlannedWorkoutInputStrengthStrengthExercisesItemSubstitutionsItem]?
+    init(`id`: UUID, `exerciseId`: UUID, `sequence`: Int, `supersetGroupId`: UUID? = nil, `substitutionAllowed`: Bool, `notes`: String? = nil, `sets`: [PlannedWorkoutInputStrengthStrengthExercisesItemSetsItem], `substitutions`: [PlannedWorkoutInputStrengthStrengthExercisesItemSubstitutionsItem]? = nil) {
+      self.`id` = `id`
+      self.`exerciseId` = `exerciseId`
+      self.`sequence` = `sequence`
+      self.`supersetGroupId` = `supersetGroupId`
+      self.`substitutionAllowed` = `substitutionAllowed`
+      self.`notes` = `notes`
+      self.`sets` = `sets`
+      self.`substitutions` = `substitutions`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `exerciseId` = "exerciseId"
+      case `sequence` = "sequence"
+      case `supersetGroupId` = "supersetGroupId"
+      case `substitutionAllowed` = "substitutionAllowed"
+      case `notes` = "notes"
+      case `sets` = "sets"
+      case `substitutions` = "substitutions"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `supersetGroupId` = try c.decodeIfPresent(UUID.self, forKey: .`supersetGroupId`)
+      `substitutionAllowed` = try c.decode(Bool.self, forKey: .`substitutionAllowed`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `sets` = try c.decode([PlannedWorkoutInputStrengthStrengthExercisesItemSetsItem].self, forKey: .`sets`)
+      `substitutions` = try c.decodeIfPresent([PlannedWorkoutInputStrengthStrengthExercisesItemSubstitutionsItem].self, forKey: .`substitutions`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`supersetGroupId`?.uuidString.lowercased(), forKey: .`supersetGroupId`)
+      try c.encode(`substitutionAllowed`, forKey: .`substitutionAllowed`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`sets`, forKey: .`sets`)
+      try c.encodeIfPresent(`substitutions`, forKey: .`substitutions`)
+    }
+  }
+
   struct OnboardingImportDecisionHealthkitObservationWindow: Codable, Equatable, Sendable {
     var `start`: BackendInstant
     var `end`: BackendInstant
@@ -2109,9 +8138,9 @@ enum BackendWire {
       self.`timezone` = `timezone`
     }
     private enum CodingKeys: String, CodingKey {
-      case `start`
-      case `end`
-      case `timezone`
+      case `start` = "start"
+      case `end` = "end"
+      case `timezone` = "timezone"
     }
     init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -2124,6 +8153,634 @@ enum BackendWire {
       try c.encode(`start`, forKey: .`start`)
       try c.encode(`end`, forKey: .`end`)
       try c.encode(`timezone`, forKey: .`timezone`)
+    }
+  }
+
+  struct AthleteDetailsRecordProvenanceItemObservation: Codable, Equatable, Sendable {
+    var `measuredAt`: BackendInstant?
+    var `fetchedAt`: BackendInstant
+    var `window`: AthleteDetailsRecordProvenanceItemObservationWindow?
+    var `coverage`: OnboardingImportDecisionHealthkitObservationCoverage
+    var `durationBasis`: OnboardingImportDecisionHealthkitObservationDurationBasis?
+    var `calculationVersion`: OnboardingStateSchemaVersion
+    init(`measuredAt`: BackendInstant? = nil, `fetchedAt`: BackendInstant, `window`: AthleteDetailsRecordProvenanceItemObservationWindow? = nil, `coverage`: OnboardingImportDecisionHealthkitObservationCoverage, `durationBasis`: OnboardingImportDecisionHealthkitObservationDurationBasis? = nil, `calculationVersion`: OnboardingStateSchemaVersion) {
+      self.`measuredAt` = `measuredAt`
+      self.`fetchedAt` = `fetchedAt`
+      self.`window` = `window`
+      self.`coverage` = `coverage`
+      self.`durationBasis` = `durationBasis`
+      self.`calculationVersion` = `calculationVersion`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `measuredAt` = "measuredAt"
+      case `fetchedAt` = "fetchedAt"
+      case `window` = "window"
+      case `coverage` = "coverage"
+      case `durationBasis` = "durationBasis"
+      case `calculationVersion` = "calculationVersion"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `measuredAt` = try c.decode(BackendInstant?.self, forKey: .`measuredAt`)
+      `fetchedAt` = try c.decode(BackendInstant.self, forKey: .`fetchedAt`)
+      `window` = try c.decode(AthleteDetailsRecordProvenanceItemObservationWindow?.self, forKey: .`window`)
+      `coverage` = try c.decode(OnboardingImportDecisionHealthkitObservationCoverage.self, forKey: .`coverage`)
+      `durationBasis` = try c.decode(OnboardingImportDecisionHealthkitObservationDurationBasis?.self, forKey: .`durationBasis`)
+      `calculationVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`calculationVersion`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`measuredAt`, forKey: .`measuredAt`)
+      try c.encode(`fetchedAt`, forKey: .`fetchedAt`)
+      try c.encode(`window`, forKey: .`window`)
+      try c.encode(`coverage`, forKey: .`coverage`)
+      try c.encode(`durationBasis`, forKey: .`durationBasis`)
+      try c.encode(`calculationVersion`, forKey: .`calculationVersion`)
+    }
+  }
+
+  struct BaselineRecordProvenanceItemObservation: Codable, Equatable, Sendable {
+    var `measuredAt`: BackendInstant?
+    var `fetchedAt`: BackendInstant
+    var `window`: BaselineRecordProvenanceItemObservationWindow?
+    var `coverage`: OnboardingImportDecisionHealthkitObservationCoverage
+    var `durationBasis`: OnboardingImportDecisionHealthkitObservationDurationBasis?
+    var `calculationVersion`: OnboardingStateSchemaVersion
+    init(`measuredAt`: BackendInstant? = nil, `fetchedAt`: BackendInstant, `window`: BaselineRecordProvenanceItemObservationWindow? = nil, `coverage`: OnboardingImportDecisionHealthkitObservationCoverage, `durationBasis`: OnboardingImportDecisionHealthkitObservationDurationBasis? = nil, `calculationVersion`: OnboardingStateSchemaVersion) {
+      self.`measuredAt` = `measuredAt`
+      self.`fetchedAt` = `fetchedAt`
+      self.`window` = `window`
+      self.`coverage` = `coverage`
+      self.`durationBasis` = `durationBasis`
+      self.`calculationVersion` = `calculationVersion`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `measuredAt` = "measuredAt"
+      case `fetchedAt` = "fetchedAt"
+      case `window` = "window"
+      case `coverage` = "coverage"
+      case `durationBasis` = "durationBasis"
+      case `calculationVersion` = "calculationVersion"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `measuredAt` = try c.decode(BackendInstant?.self, forKey: .`measuredAt`)
+      `fetchedAt` = try c.decode(BackendInstant.self, forKey: .`fetchedAt`)
+      `window` = try c.decode(BaselineRecordProvenanceItemObservationWindow?.self, forKey: .`window`)
+      `coverage` = try c.decode(OnboardingImportDecisionHealthkitObservationCoverage.self, forKey: .`coverage`)
+      `durationBasis` = try c.decode(OnboardingImportDecisionHealthkitObservationDurationBasis?.self, forKey: .`durationBasis`)
+      `calculationVersion` = try c.decode(OnboardingStateSchemaVersion.self, forKey: .`calculationVersion`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`measuredAt`, forKey: .`measuredAt`)
+      try c.encode(`fetchedAt`, forKey: .`fetchedAt`)
+      try c.encode(`window`, forKey: .`window`)
+      try c.encode(`coverage`, forKey: .`coverage`)
+      try c.encode(`durationBasis`, forKey: .`durationBasis`)
+      try c.encode(`calculationVersion`, forKey: .`calculationVersion`)
+    }
+  }
+
+  struct PlanningContextRecordSnapshotAthleteDetailsSnapshot: Codable, Equatable, Sendable {
+    var `revision`: BackendRevision
+    var `details`: AthleteDetails
+    init(`revision`: BackendRevision, `details`: AthleteDetails) {
+      self.`revision` = `revision`
+      self.`details` = `details`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `revision` = "revision"
+      case `details` = "details"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `revision` = try c.decode(BackendRevision.self, forKey: .`revision`)
+      `details` = try c.decode(AthleteDetails.self, forKey: .`details`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`revision`, forKey: .`revision`)
+      try c.encode(`details`, forKey: .`details`)
+    }
+  }
+
+  struct WorkoutResultRecordRunningRun: Codable, Equatable, Sendable {
+    var `distanceM`: Int
+    var `durationS`: Int
+    var `movingDurationS`: Int?
+    var `avgHrBpm`: Int?
+    var `maxHrBpm`: Int?
+    var `elevationGainM`: Double?
+    var `avgCadenceSpm`: Double?
+    var `hrZoneSummary`: [WorkoutResultRecordRunningRunHrZoneSummaryItem]?
+    var `segments`: [WorkoutResultRecordRunningRunSegmentsItem]?
+    init(`distanceM`: Int, `durationS`: Int, `movingDurationS`: Int? = nil, `avgHrBpm`: Int? = nil, `maxHrBpm`: Int? = nil, `elevationGainM`: Double? = nil, `avgCadenceSpm`: Double? = nil, `hrZoneSummary`: [WorkoutResultRecordRunningRunHrZoneSummaryItem]? = nil, `segments`: [WorkoutResultRecordRunningRunSegmentsItem]? = nil) {
+      self.`distanceM` = `distanceM`
+      self.`durationS` = `durationS`
+      self.`movingDurationS` = `movingDurationS`
+      self.`avgHrBpm` = `avgHrBpm`
+      self.`maxHrBpm` = `maxHrBpm`
+      self.`elevationGainM` = `elevationGainM`
+      self.`avgCadenceSpm` = `avgCadenceSpm`
+      self.`hrZoneSummary` = `hrZoneSummary`
+      self.`segments` = `segments`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `distanceM` = "distanceM"
+      case `durationS` = "durationS"
+      case `movingDurationS` = "movingDurationS"
+      case `avgHrBpm` = "avgHrBpm"
+      case `maxHrBpm` = "maxHrBpm"
+      case `elevationGainM` = "elevationGainM"
+      case `avgCadenceSpm` = "avgCadenceSpm"
+      case `hrZoneSummary` = "hrZoneSummary"
+      case `segments` = "segments"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `distanceM` = try c.decode(Int.self, forKey: .`distanceM`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+      `movingDurationS` = try c.decodeIfPresent(Int.self, forKey: .`movingDurationS`)
+      `avgHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`avgHrBpm`)
+      `maxHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`maxHrBpm`)
+      `elevationGainM` = try c.decodeIfPresent(Double.self, forKey: .`elevationGainM`)
+      `avgCadenceSpm` = try c.decodeIfPresent(Double.self, forKey: .`avgCadenceSpm`)
+      `hrZoneSummary` = try c.decodeIfPresent([WorkoutResultRecordRunningRunHrZoneSummaryItem].self, forKey: .`hrZoneSummary`)
+      `segments` = try c.decodeIfPresent([WorkoutResultRecordRunningRunSegmentsItem].self, forKey: .`segments`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`movingDurationS`, forKey: .`movingDurationS`)
+      try c.encode(`avgHrBpm`, forKey: .`avgHrBpm`)
+      try c.encode(`maxHrBpm`, forKey: .`maxHrBpm`)
+      try c.encode(`elevationGainM`, forKey: .`elevationGainM`)
+      try c.encode(`avgCadenceSpm`, forKey: .`avgCadenceSpm`)
+      try c.encodeIfPresent(`hrZoneSummary`, forKey: .`hrZoneSummary`)
+      try c.encodeIfPresent(`segments`, forKey: .`segments`)
+    }
+  }
+
+  struct WorkoutResultRecordStrengthExercisesItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescribedExerciseId`: UUID?
+    var `exerciseId`: UUID
+    var `sequence`: Int
+    var `notes`: String?
+    var `substitutionReason`: String?
+    var `sets`: [WorkoutResultRecordStrengthExercisesItemSetsItem]
+    init(`id`: UUID, `prescribedExerciseId`: UUID? = nil, `exerciseId`: UUID, `sequence`: Int, `notes`: String? = nil, `substitutionReason`: String? = nil, `sets`: [WorkoutResultRecordStrengthExercisesItemSetsItem]) {
+      self.`id` = `id`
+      self.`prescribedExerciseId` = `prescribedExerciseId`
+      self.`exerciseId` = `exerciseId`
+      self.`sequence` = `sequence`
+      self.`notes` = `notes`
+      self.`substitutionReason` = `substitutionReason`
+      self.`sets` = `sets`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescribedExerciseId` = "prescribedExerciseId"
+      case `exerciseId` = "exerciseId"
+      case `sequence` = "sequence"
+      case `notes` = "notes"
+      case `substitutionReason` = "substitutionReason"
+      case `sets` = "sets"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescribedExerciseId` = try c.decodeIfPresent(UUID.self, forKey: .`prescribedExerciseId`)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+      `substitutionReason` = try c.decodeIfPresent(String.self, forKey: .`substitutionReason`)
+      `sets` = try c.decode([WorkoutResultRecordStrengthExercisesItemSetsItem].self, forKey: .`sets`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescribedExerciseId`?.uuidString.lowercased(), forKey: .`prescribedExerciseId`)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`notes`, forKey: .`notes`)
+      try c.encode(`substitutionReason`, forKey: .`substitutionReason`)
+      try c.encode(`sets`, forKey: .`sets`)
+    }
+  }
+
+  enum PlannedWorkoutInputRunningRunBlocksItemStepsItemStepKind: String, Codable, Equatable, Sendable {
+    case `warmup` = "warmup"
+    case `work` = "work"
+    case `recovery` = "recovery"
+    case `cooldown` = "cooldown"
+    case `steady` = "steady"
+    case `stride` = "stride"
+  }
+
+  struct PlannedWorkoutInputRunningRunBlocksItemStepsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `sequence`: Int
+    var `stepKind`: PlannedWorkoutInputRunningRunBlocksItemStepsItemStepKind
+    var `distanceM`: Int?
+    var `durationS`: Int?
+    var `paceMinSPerKm`: Double?
+    var `paceMaxSPerKm`: Double?
+    var `hrMinBpm`: Int?
+    var `hrMaxBpm`: Int?
+    var `rpeMin`: Double?
+    var `rpeMax`: Double?
+    var `notes`: String?
+    init(`id`: UUID, `sequence`: Int, `stepKind`: PlannedWorkoutInputRunningRunBlocksItemStepsItemStepKind, `distanceM`: Int? = nil, `durationS`: Int? = nil, `paceMinSPerKm`: Double? = nil, `paceMaxSPerKm`: Double? = nil, `hrMinBpm`: Int? = nil, `hrMaxBpm`: Int? = nil, `rpeMin`: Double? = nil, `rpeMax`: Double? = nil, `notes`: String? = nil) {
+      self.`id` = `id`
+      self.`sequence` = `sequence`
+      self.`stepKind` = `stepKind`
+      self.`distanceM` = `distanceM`
+      self.`durationS` = `durationS`
+      self.`paceMinSPerKm` = `paceMinSPerKm`
+      self.`paceMaxSPerKm` = `paceMaxSPerKm`
+      self.`hrMinBpm` = `hrMinBpm`
+      self.`hrMaxBpm` = `hrMaxBpm`
+      self.`rpeMin` = `rpeMin`
+      self.`rpeMax` = `rpeMax`
+      self.`notes` = `notes`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `sequence` = "sequence"
+      case `stepKind` = "stepKind"
+      case `distanceM` = "distanceM"
+      case `durationS` = "durationS"
+      case `paceMinSPerKm` = "paceMinSPerKm"
+      case `paceMaxSPerKm` = "paceMaxSPerKm"
+      case `hrMinBpm` = "hrMinBpm"
+      case `hrMaxBpm` = "hrMaxBpm"
+      case `rpeMin` = "rpeMin"
+      case `rpeMax` = "rpeMax"
+      case `notes` = "notes"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `stepKind` = try c.decode(PlannedWorkoutInputRunningRunBlocksItemStepsItemStepKind.self, forKey: .`stepKind`)
+      `distanceM` = try c.decodeIfPresent(Int.self, forKey: .`distanceM`)
+      `durationS` = try c.decodeIfPresent(Int.self, forKey: .`durationS`)
+      `paceMinSPerKm` = try c.decodeIfPresent(Double.self, forKey: .`paceMinSPerKm`)
+      `paceMaxSPerKm` = try c.decodeIfPresent(Double.self, forKey: .`paceMaxSPerKm`)
+      `hrMinBpm` = try c.decodeIfPresent(Int.self, forKey: .`hrMinBpm`)
+      `hrMaxBpm` = try c.decodeIfPresent(Int.self, forKey: .`hrMaxBpm`)
+      `rpeMin` = try c.decodeIfPresent(Double.self, forKey: .`rpeMin`)
+      `rpeMax` = try c.decodeIfPresent(Double.self, forKey: .`rpeMax`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`stepKind`, forKey: .`stepKind`)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`paceMinSPerKm`, forKey: .`paceMinSPerKm`)
+      try c.encode(`paceMaxSPerKm`, forKey: .`paceMaxSPerKm`)
+      try c.encode(`hrMinBpm`, forKey: .`hrMinBpm`)
+      try c.encode(`hrMaxBpm`, forKey: .`hrMaxBpm`)
+      try c.encode(`rpeMin`, forKey: .`rpeMin`)
+      try c.encode(`rpeMax`, forKey: .`rpeMax`)
+      try c.encode(`notes`, forKey: .`notes`)
+    }
+  }
+
+  struct PlannedWorkoutInputStrengthStrengthExercisesItemSetsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `setNumber`: Int
+    var `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind
+    var `repsMin`: Int?
+    var `repsMax`: Int?
+    var `loadKg`: Double?
+    var `loadPercentE1rm`: Double?
+    var `rpeMin`: Double?
+    var `rpeMax`: Double?
+    var `rirMin`: Double?
+    var `rirMax`: Double?
+    var `restS`: Int?
+    var `notes`: String?
+    init(`id`: UUID, `setNumber`: Int, `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind, `repsMin`: Int? = nil, `repsMax`: Int? = nil, `loadKg`: Double? = nil, `loadPercentE1rm`: Double? = nil, `rpeMin`: Double? = nil, `rpeMax`: Double? = nil, `rirMin`: Double? = nil, `rirMax`: Double? = nil, `restS`: Int? = nil, `notes`: String? = nil) {
+      self.`id` = `id`
+      self.`setNumber` = `setNumber`
+      self.`setKind` = `setKind`
+      self.`repsMin` = `repsMin`
+      self.`repsMax` = `repsMax`
+      self.`loadKg` = `loadKg`
+      self.`loadPercentE1rm` = `loadPercentE1rm`
+      self.`rpeMin` = `rpeMin`
+      self.`rpeMax` = `rpeMax`
+      self.`rirMin` = `rirMin`
+      self.`rirMax` = `rirMax`
+      self.`restS` = `restS`
+      self.`notes` = `notes`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `setNumber` = "setNumber"
+      case `setKind` = "setKind"
+      case `repsMin` = "repsMin"
+      case `repsMax` = "repsMax"
+      case `loadKg` = "loadKg"
+      case `loadPercentE1rm` = "loadPercentE1rm"
+      case `rpeMin` = "rpeMin"
+      case `rpeMax` = "rpeMax"
+      case `rirMin` = "rirMin"
+      case `rirMax` = "rirMax"
+      case `restS` = "restS"
+      case `notes` = "notes"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `setNumber` = try c.decode(Int.self, forKey: .`setNumber`)
+      `setKind` = try c.decode(WorkoutResultInputStrengthExercisesItemSetsItemSetKind.self, forKey: .`setKind`)
+      `repsMin` = try c.decodeIfPresent(Int.self, forKey: .`repsMin`)
+      `repsMax` = try c.decodeIfPresent(Int.self, forKey: .`repsMax`)
+      `loadKg` = try c.decodeIfPresent(Double.self, forKey: .`loadKg`)
+      `loadPercentE1rm` = try c.decodeIfPresent(Double.self, forKey: .`loadPercentE1rm`)
+      `rpeMin` = try c.decodeIfPresent(Double.self, forKey: .`rpeMin`)
+      `rpeMax` = try c.decodeIfPresent(Double.self, forKey: .`rpeMax`)
+      `rirMin` = try c.decodeIfPresent(Double.self, forKey: .`rirMin`)
+      `rirMax` = try c.decodeIfPresent(Double.self, forKey: .`rirMax`)
+      `restS` = try c.decodeIfPresent(Int.self, forKey: .`restS`)
+      `notes` = try c.decodeIfPresent(String.self, forKey: .`notes`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`setNumber`, forKey: .`setNumber`)
+      try c.encode(`setKind`, forKey: .`setKind`)
+      try c.encode(`repsMin`, forKey: .`repsMin`)
+      try c.encode(`repsMax`, forKey: .`repsMax`)
+      try c.encode(`loadKg`, forKey: .`loadKg`)
+      try c.encode(`loadPercentE1rm`, forKey: .`loadPercentE1rm`)
+      try c.encode(`rpeMin`, forKey: .`rpeMin`)
+      try c.encode(`rpeMax`, forKey: .`rpeMax`)
+      try c.encode(`rirMin`, forKey: .`rirMin`)
+      try c.encode(`rirMax`, forKey: .`rirMax`)
+      try c.encode(`restS`, forKey: .`restS`)
+      try c.encode(`notes`, forKey: .`notes`)
+    }
+  }
+
+  struct PlannedWorkoutInputStrengthStrengthExercisesItemSubstitutionsItem: Codable, Equatable, Sendable {
+    var `exerciseId`: UUID
+    var `priority`: Int
+    var `rationale`: String?
+    init(`exerciseId`: UUID, `priority`: Int, `rationale`: String? = nil) {
+      self.`exerciseId` = `exerciseId`
+      self.`priority` = `priority`
+      self.`rationale` = `rationale`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `exerciseId` = "exerciseId"
+      case `priority` = "priority"
+      case `rationale` = "rationale"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `exerciseId` = try c.decode(UUID.self, forKey: .`exerciseId`)
+      `priority` = try c.decode(Int.self, forKey: .`priority`)
+      `rationale` = try c.decodeIfPresent(String.self, forKey: .`rationale`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`exerciseId`.uuidString.lowercased(), forKey: .`exerciseId`)
+      try c.encode(`priority`, forKey: .`priority`)
+      try c.encode(`rationale`, forKey: .`rationale`)
+    }
+  }
+
+  struct AthleteDetailsRecordProvenanceItemObservationWindow: Codable, Equatable, Sendable {
+    var `start`: BackendInstant
+    var `end`: BackendInstant
+    var `timezone`: String
+    init(`start`: BackendInstant, `end`: BackendInstant, `timezone`: String) {
+      self.`start` = `start`
+      self.`end` = `end`
+      self.`timezone` = `timezone`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `start` = "start"
+      case `end` = "end"
+      case `timezone` = "timezone"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `start` = try c.decode(BackendInstant.self, forKey: .`start`)
+      `end` = try c.decode(BackendInstant.self, forKey: .`end`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`start`, forKey: .`start`)
+      try c.encode(`end`, forKey: .`end`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+    }
+  }
+
+  struct BaselineRecordProvenanceItemObservationWindow: Codable, Equatable, Sendable {
+    var `start`: BackendInstant
+    var `end`: BackendInstant
+    var `timezone`: String
+    init(`start`: BackendInstant, `end`: BackendInstant, `timezone`: String) {
+      self.`start` = `start`
+      self.`end` = `end`
+      self.`timezone` = `timezone`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `start` = "start"
+      case `end` = "end"
+      case `timezone` = "timezone"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `start` = try c.decode(BackendInstant.self, forKey: .`start`)
+      `end` = try c.decode(BackendInstant.self, forKey: .`end`)
+      `timezone` = try c.decode(String.self, forKey: .`timezone`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`start`, forKey: .`start`)
+      try c.encode(`end`, forKey: .`end`)
+      try c.encode(`timezone`, forKey: .`timezone`)
+    }
+  }
+
+  struct WorkoutResultRecordRunningRunHrZoneSummaryItem: Codable, Equatable, Sendable {
+    var `minBpm`: Int
+    var `maxBpm`: Int
+    var `durationS`: Int
+    init(`minBpm`: Int, `maxBpm`: Int, `durationS`: Int) {
+      self.`minBpm` = `minBpm`
+      self.`maxBpm` = `maxBpm`
+      self.`durationS` = `durationS`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `minBpm` = "minBpm"
+      case `maxBpm` = "maxBpm"
+      case `durationS` = "durationS"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `minBpm` = try c.decode(Int.self, forKey: .`minBpm`)
+      `maxBpm` = try c.decode(Int.self, forKey: .`maxBpm`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`minBpm`, forKey: .`minBpm`)
+      try c.encode(`maxBpm`, forKey: .`maxBpm`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+    }
+  }
+
+  struct WorkoutResultRecordRunningRunSegmentsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescriptionStepId`: UUID?
+    var `segmentType`: WorkoutResultInputRunningRunSegmentsItemSegmentType
+    var `sequence`: Int
+    var `repeatIteration`: Int?
+    var `distanceM`: Int?
+    var `durationS`: Int
+    var `avgHrBpm`: Int?
+    var `maxHrBpm`: Int?
+    var `elevationGainM`: Double?
+    var `avgCadenceSpm`: Double?
+    var `startOffsetS`: Int?
+    init(`id`: UUID, `prescriptionStepId`: UUID? = nil, `segmentType`: WorkoutResultInputRunningRunSegmentsItemSegmentType, `sequence`: Int, `repeatIteration`: Int? = nil, `distanceM`: Int? = nil, `durationS`: Int, `avgHrBpm`: Int? = nil, `maxHrBpm`: Int? = nil, `elevationGainM`: Double? = nil, `avgCadenceSpm`: Double? = nil, `startOffsetS`: Int? = nil) {
+      self.`id` = `id`
+      self.`prescriptionStepId` = `prescriptionStepId`
+      self.`segmentType` = `segmentType`
+      self.`sequence` = `sequence`
+      self.`repeatIteration` = `repeatIteration`
+      self.`distanceM` = `distanceM`
+      self.`durationS` = `durationS`
+      self.`avgHrBpm` = `avgHrBpm`
+      self.`maxHrBpm` = `maxHrBpm`
+      self.`elevationGainM` = `elevationGainM`
+      self.`avgCadenceSpm` = `avgCadenceSpm`
+      self.`startOffsetS` = `startOffsetS`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescriptionStepId` = "prescriptionStepId"
+      case `segmentType` = "segmentType"
+      case `sequence` = "sequence"
+      case `repeatIteration` = "repeatIteration"
+      case `distanceM` = "distanceM"
+      case `durationS` = "durationS"
+      case `avgHrBpm` = "avgHrBpm"
+      case `maxHrBpm` = "maxHrBpm"
+      case `elevationGainM` = "elevationGainM"
+      case `avgCadenceSpm` = "avgCadenceSpm"
+      case `startOffsetS` = "startOffsetS"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescriptionStepId` = try c.decodeIfPresent(UUID.self, forKey: .`prescriptionStepId`)
+      `segmentType` = try c.decode(WorkoutResultInputRunningRunSegmentsItemSegmentType.self, forKey: .`segmentType`)
+      `sequence` = try c.decode(Int.self, forKey: .`sequence`)
+      `repeatIteration` = try c.decodeIfPresent(Int.self, forKey: .`repeatIteration`)
+      `distanceM` = try c.decodeIfPresent(Int.self, forKey: .`distanceM`)
+      `durationS` = try c.decode(Int.self, forKey: .`durationS`)
+      `avgHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`avgHrBpm`)
+      `maxHrBpm` = try c.decodeIfPresent(Int.self, forKey: .`maxHrBpm`)
+      `elevationGainM` = try c.decodeIfPresent(Double.self, forKey: .`elevationGainM`)
+      `avgCadenceSpm` = try c.decodeIfPresent(Double.self, forKey: .`avgCadenceSpm`)
+      `startOffsetS` = try c.decodeIfPresent(Int.self, forKey: .`startOffsetS`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescriptionStepId`?.uuidString.lowercased(), forKey: .`prescriptionStepId`)
+      try c.encode(`segmentType`, forKey: .`segmentType`)
+      try c.encode(`sequence`, forKey: .`sequence`)
+      try c.encode(`repeatIteration`, forKey: .`repeatIteration`)
+      try c.encode(`distanceM`, forKey: .`distanceM`)
+      try c.encode(`durationS`, forKey: .`durationS`)
+      try c.encode(`avgHrBpm`, forKey: .`avgHrBpm`)
+      try c.encode(`maxHrBpm`, forKey: .`maxHrBpm`)
+      try c.encode(`elevationGainM`, forKey: .`elevationGainM`)
+      try c.encode(`avgCadenceSpm`, forKey: .`avgCadenceSpm`)
+      try c.encode(`startOffsetS`, forKey: .`startOffsetS`)
+    }
+  }
+
+  struct WorkoutResultRecordStrengthExercisesItemSetsItem: Codable, Equatable, Sendable {
+    var `id`: UUID
+    var `prescribedSetId`: UUID?
+    var `setNumber`: Int
+    var `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind
+    var `reps`: Int?
+    var `loadKg`: Double?
+    var `loadConvention`: WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention?
+    var `rpe`: Double?
+    var `rir`: Double?
+    var `status`: WorkoutResultInputStrengthExercisesItemSetsItemStatus
+    var `completedAt`: BackendInstant?
+    init(`id`: UUID, `prescribedSetId`: UUID? = nil, `setNumber`: Int, `setKind`: WorkoutResultInputStrengthExercisesItemSetsItemSetKind, `reps`: Int? = nil, `loadKg`: Double? = nil, `loadConvention`: WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention? = nil, `rpe`: Double? = nil, `rir`: Double? = nil, `status`: WorkoutResultInputStrengthExercisesItemSetsItemStatus, `completedAt`: BackendInstant? = nil) {
+      self.`id` = `id`
+      self.`prescribedSetId` = `prescribedSetId`
+      self.`setNumber` = `setNumber`
+      self.`setKind` = `setKind`
+      self.`reps` = `reps`
+      self.`loadKg` = `loadKg`
+      self.`loadConvention` = `loadConvention`
+      self.`rpe` = `rpe`
+      self.`rir` = `rir`
+      self.`status` = `status`
+      self.`completedAt` = `completedAt`
+    }
+    private enum CodingKeys: String, CodingKey {
+      case `id` = "id"
+      case `prescribedSetId` = "prescribedSetId"
+      case `setNumber` = "setNumber"
+      case `setKind` = "setKind"
+      case `reps` = "reps"
+      case `loadKg` = "loadKg"
+      case `loadConvention` = "loadConvention"
+      case `rpe` = "rpe"
+      case `rir` = "rir"
+      case `status` = "status"
+      case `completedAt` = "completedAt"
+    }
+    init(from decoder: Decoder) throws {
+      let c = try decoder.container(keyedBy: CodingKeys.self)
+      `id` = try c.decode(UUID.self, forKey: .`id`)
+      `prescribedSetId` = try c.decodeIfPresent(UUID.self, forKey: .`prescribedSetId`)
+      `setNumber` = try c.decode(Int.self, forKey: .`setNumber`)
+      `setKind` = try c.decode(WorkoutResultInputStrengthExercisesItemSetsItemSetKind.self, forKey: .`setKind`)
+      `reps` = try c.decodeIfPresent(Int.self, forKey: .`reps`)
+      `loadKg` = try c.decodeIfPresent(Double.self, forKey: .`loadKg`)
+      `loadConvention` = try c.decodeIfPresent(WorkoutResultInputStrengthExercisesItemSetsItemLoadConvention.self, forKey: .`loadConvention`)
+      `rpe` = try c.decodeIfPresent(Double.self, forKey: .`rpe`)
+      `rir` = try c.decodeIfPresent(Double.self, forKey: .`rir`)
+      `status` = try c.decode(WorkoutResultInputStrengthExercisesItemSetsItemStatus.self, forKey: .`status`)
+      `completedAt` = try c.decodeIfPresent(BackendInstant.self, forKey: .`completedAt`)
+    }
+    func encode(to encoder: Encoder) throws {
+      var c = encoder.container(keyedBy: CodingKeys.self)
+      try c.encode(`id`.uuidString.lowercased(), forKey: .`id`)
+      try c.encode(`prescribedSetId`?.uuidString.lowercased(), forKey: .`prescribedSetId`)
+      try c.encode(`setNumber`, forKey: .`setNumber`)
+      try c.encode(`setKind`, forKey: .`setKind`)
+      try c.encode(`reps`, forKey: .`reps`)
+      try c.encode(`loadKg`, forKey: .`loadKg`)
+      try c.encodeIfPresent(`loadConvention`, forKey: .`loadConvention`)
+      try c.encode(`rpe`, forKey: .`rpe`)
+      try c.encode(`rir`, forKey: .`rir`)
+      try c.encode(`status`, forKey: .`status`)
+      try c.encode(`completedAt`, forKey: .`completedAt`)
     }
   }
 }

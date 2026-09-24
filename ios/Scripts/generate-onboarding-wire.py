@@ -15,7 +15,14 @@ spec = json.loads(subprocess.check_output(['ruby', '-rjson', '-ryaml', '-e',
     'puts JSON.generate(YAML.load_file(ARGV[0]))', str(SOURCE)], text=True))
 schemas = spec['components']['schemas']
 roots = ['OnboardingState', 'SaveOnboardingDraft', 'CompleteOnboarding',
-         'OnboardingDraftSaved', 'StravaConnectionStatus', 'ExerciseCatalog']
+         'OnboardingDraftSaved', 'StravaConnectionStatus', 'ExerciseCatalog', 'Bootstrap', 'DeviceRegistration', 'RegisteredDevice', 'TrainingPolicy', 'SyncPullResponse', 'SyncPushResponse', 'SyncAcknowledgement', 'ProgressSummary', 'AthleteDetailsInput', 'TrainingPreferencesInput', 'AthleteGoalInput', 'AvailabilityRuleInput', 'AthleteEquipmentInput', 'TrainingBlockInput', 'PlanVersionInput', 'ActivatePlanInput', 'BaselineInput', 'PlanningContextInput']
+# Result write variants share the record schema but omit server-owned fields.
+record_fields = {'id','createdAt','updatedAt','revision','deletedAt','athleteId'}
+for variant in schemas['WorkoutResultRecord']['anyOf']:
+    if 'properties' not in variant: continue
+    name = 'WorkoutResultInput' + variant['properties']['discipline']['enum'][0].title()
+    schemas[name] = {**variant, 'properties': {k:v for k,v in variant['properties'].items() if k not in record_fields}, 'required':[k for k in variant['required'] if k not in record_fields]}
+    roots.append(name)
 operations = [('getOnboarding', '/v1/onboarding', 'get'),
               ('saveOnboardingDraft', '/v1/onboarding/draft', 'put'),
               ('completeOnboarding', '/v1/onboarding/complete', 'post'),
@@ -47,10 +54,17 @@ def base_type(s, name):
         target = s['$ref'].split('/')[-1]; queue.append(target); return target
     kind = s.get('type')
     if isinstance(kind, list): kind = next(k for k in kind if k != 'null')
+    if 'allOf' in s:
+        parts = [schemas[x['$ref'].split('/')[-1]] if '$ref' in x else x for x in s['allOf']]
+        s = {'type':'object', 'properties':{k:v for x in parts for k,v in x['properties'].items()}, 'required':[k for x in parts for k in x.get('required',[])]}
     if 'anyOf' in s:
         options = [x for x in s['anyOf'] if x.get('type') != 'null']
         if all(x.get('type') == 'number' and len(x.get('enum', [])) == 1 for x in options):
             s = {'type':'integer', 'enum':[x['enum'][0] for x in options]}; kind = 'integer'
+        elif all(x.get('type') in ['number','boolean','string'] for x in options): return 'BackendJSONValue'
+        elif len(options) == 1: return base_type(options[0], name)
+        elif all('properties' in x for x in options):
+            schemas[name] = {'oneOf': options}; queue.append(name); return name
         else: raise ValueError(('Unsupported anyOf', name))
     if 'enum' in s:
         values = [x for x in s['enum'] if x is not None]
@@ -70,7 +84,7 @@ def base_type(s, name):
         return enum_cache[key]
     if kind == 'object' and 'properties' not in s:
         if s.get('additionalProperties') == {}: return '[String: BackendJSONValue]'
-        raise ValueError(('Unsupported map', name))
+        return '[String: '+base_type(s['additionalProperties'],name+'Value')+']'
     if kind == 'object' or 'oneOf' in s:
         if name not in schemas: schemas[name] = s
         queue.append(name); return name
@@ -91,23 +105,31 @@ def base_type(s, name):
 def emit(name):
     if name in emitted: return
     emitted.add(name); s = schemas[name]
+    if 'allOf' in s:
+        parts = [schemas[x['$ref'].split('/')[-1]] if '$ref' in x else x for x in s['allOf']]
+        s = {'type':'object', 'properties':{k:v for x in parts for k,v in x['properties'].items()}, 'required':[k for x in parts for k in x.get('required',[])]}
+    if 'anyOf' in s:
+        options = [x for x in s['anyOf'] if x.get('type') != 'null']
+        s = options[0] if len(options) == 1 else {'oneOf': options}
     if 'oneOf' in s:
         variants = []
+        discriminator_key = next(k for k in ['source','entityType','discipline','kind','type','decisionType'] if all(k in v.get('properties',{}) and len(v['properties'][k].get('enum',[]))==1 for v in s['oneOf']))
         for v in s['oneOf']:
-            discriminator = v['properties']['source']['enum'][0]
-            variants.append((discriminator, base_type(v, name+upper(discriminator))))
+            discriminator = v['properties'][discriminator_key]['enum'][0]
+            variants.append((discriminator, base_type(v, name+upper(ident(discriminator).strip('`')))))
         lines = [f'  enum {name}: Codable, Equatable, Sendable {{']
-        lines += [f'    case {key}({typ})' for key,typ in variants]
-        lines += ['    private enum CodingKeys: String, CodingKey { case source }',
+        lines += [f'    case {ident(key)}({typ})' for key,typ in variants]
+        lines += [f'    private enum CodingKeys: String, CodingKey {{ case {discriminator_key} }}',
                   '    init(from decoder: Decoder) throws {',
                   '      let c = try decoder.container(keyedBy: CodingKeys.self)',
-                  '      switch try c.decode(String.self, forKey: .source) {']
-        lines += [f'      case "{key}": self = .{key}(try {typ}(from: decoder))' for key,typ in variants]
-        lines += ['      default: throw DecodingError.dataCorruptedError(forKey: .source, in: c, debugDescription: "Unsupported import source")','      }','    }',
+                  f'      switch try c.decode(String.self, forKey: .{discriminator_key}) {{']
+        lines += [f'      case "{key}": self = .{ident(key)}(try {typ}(from: decoder))' for key,typ in variants]
+        lines += [f'      default: throw DecodingError.dataCorruptedError(forKey: .{discriminator_key}, in: c, debugDescription: "Unsupported discriminator")','      }','    }',
                   '    func encode(to encoder: Encoder) throws {','      switch self {']
-        lines += [f'      case .{key}(let value): try value.encode(to: encoder)' for key,_ in variants]
+        lines += [f'      case .{ident(key)}(let value): try value.encode(to: encoder)' for key,_ in variants]
         lines += ['      }','    }','  }']; out.append('\n'.join(lines)); return
-    assert s.get('properties'), name
+    if 'properties' not in s:
+        out.append(f'  typealias {name} = {base_type(s,name)}'); return
     fields=[]
     for key, value in s['properties'].items():
         typ=base_type(value,name+upper(key)); required=key in s.get('required',[])
@@ -121,11 +143,15 @@ def emit(name):
     lines += ['    init('+', '.join(params)+') {']
     lines += [f'      self.{ident(k)} = {ident(k)}' for k,_,_,_ in fields]
     lines += ['    }','    private enum CodingKeys: String, CodingKey {']
-    lines += [f'      case {ident(k)}' for k,_,_,_ in fields]
+    lines += [f'      case {ident(k)} = {json.dumps(k)}' for k,_,_,_ in fields]
     lines += ['    }','    init(from decoder: Decoder) throws {','      let c = try decoder.container(keyedBy: CodingKeys.self)']
     lines += [f'      {ident(k)} = try c.{"decode" if r else "decodeIfPresent"}({t}{"?" if n and r else ""}.self, forKey: .{ident(k)})' for k,t,r,n in fields]
     lines += ['    }','    func encode(to encoder: Encoder) throws {','      var c = encoder.container(keyedBy: CodingKeys.self)']
-    lines += [f'      try c.{"encode" if r or n else "encodeIfPresent"}({ident(k)}, forKey: .{ident(k)})' for k,t,r,n in fields]
+    for k,t,r,n in fields:
+        value = ident(k)
+        if t == 'UUID': value += ('?' if n or not r else '') + '.uuidString.lowercased()'
+        elif t == '[UUID]': value += ('?' if n or not r else '') + '.map { $0.uuidString.lowercased() }'
+        lines.append(f'      try c.{"encode" if r or n else "encodeIfPresent"}({value}, forKey: .{ident(k)})')
     lines += ['    }','  }']; out.append('\n'.join(lines))
 
 while queue: emit(queue.pop(0))

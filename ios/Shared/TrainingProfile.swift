@@ -12,11 +12,14 @@ struct TrainingProfile: Codable, Equatable {
   var isSample = true
   var athlete: AthleteDetails?
   var units: TrainingUnits?
+  var backendProfile: Bool?
+  var baselineRange: ClosedRange<Double> { backendProfile == true ? 0...250 : 3...150 }
+  var supportsStarterPlan: Bool { weeklyKilometers.isFinite && (3...150).contains(weeklyKilometers) }
   var trainingUnits: TrainingUnits { units ?? .metric }
 
   var validationMessage: String? {
-    guard weeklyKilometers.isFinite, (3...150).contains(weeklyKilometers) else {
-      return L10n.text("Enter a weekly distance from \(trainingUnits.distanceText(3_000)) to \(trainingUnits.distanceText(150_000)).")
+    guard weeklyKilometers.isFinite, baselineRange.contains(weeklyKilometers) else {
+      return L10n.text("Enter a weekly distance from \(trainingUnits.distanceText(baselineRange.lowerBound * 1000)) to \(trainingUnits.distanceText(baselineRange.upperBound * 1000)).")
     }
     guard availableDays.count >= 2, availableDays.isSubset(of: Set(1...7)) else {
       return L10n.text("Choose at least two valid training days.")

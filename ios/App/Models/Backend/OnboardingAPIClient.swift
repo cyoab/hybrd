@@ -8,9 +8,11 @@ import Foundation
   private let credentials: () throws -> Credentials
   private let rotateToken: (BackendAccountScope, String) throws -> Void
   private let send: Send
+  private let unauthorized: () -> Void
 
   init(scope: BackendAccountScope, credentials: @escaping () throws -> Credentials,
-       rotateToken: @escaping (BackendAccountScope, String) throws -> Void, send: Send? = nil) {
+       rotateToken: @escaping (BackendAccountScope, String) throws -> Void, send: Send? = nil, unauthorized: @escaping () -> Void = {}) {
+    self.unauthorized = unauthorized
     self.scope = scope; self.credentials = credentials; self.rotateToken = rotateToken
     let transport = OnboardingHTTPTransport.shared
     self.send = send ?? { try await transport.send($0) }
@@ -48,7 +50,7 @@ import Foundation
   }
   private func request<T: Decodable>(_ endpoint: OnboardingEndpoint, body: Data? = nil, key: UUID? = nil) async throws -> T {
     try assertAccount()
-    var request = URLRequest(url: scope.origin.appendingPathComponent(String(endpoint.path.dropFirst())))
+    var request = URLRequest(url: scope.origin.appendingPathComponent(scope.apiVersion + String(endpoint.path.dropFirst(3))))
     request.httpMethod = endpoint.method; request.httpBody = body
     request.setValue("application/json", forHTTPHeaderField: "Accept")
     if body != nil { request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
@@ -57,6 +59,7 @@ import Foundation
     let (data, response) = try await send(request)
     try assertAccount(); try Task.checkCancellation()
     if let token = response.value(forHTTPHeaderField: "set-auth-token"), !token.isEmpty { try rotateToken(scope, token) }
+    if response.statusCode == 401 { unauthorized() }
     guard (200..<300).contains(response.statusCode) else { throw BackendAPIError.from(response, data: data) }
     return try JSONDecoder().decode(T.self, from: data)
   }

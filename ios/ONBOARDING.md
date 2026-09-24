@@ -1,18 +1,16 @@
-# Onboarding preview
+# Onboarding and preview
 
-The iPhone sign-up entry now opens a local, resumable athlete journey ending in a membership preview. This is deliberately disconnected from account creation, plan generation, Apple Health, Strava, StoreKit, and the backend.
+**Create account** and **Sign in** now open the connected email flow. The manual journey saves to an account, resumes server drafts and completes real onboarding. Provider connections and paid membership are deferred for initial testing. See [BACKEND-INTEGRATION.md](BACKEND-INTEGRATION.md) and [BACKEND-ONBOARDING.md](BACKEND-ONBOARDING.md).
 
-For the connected implementation, see the [onboarding → backend handoff](../docs/onboarding-backend-handoff.md). It specifies early Apple Health and Strava connection, maximum useful auto-fill from either or both sources, reviewable profile/history imports, missing data fallbacks, canonical storage gaps, and proposed draft/finalization endpoints. The flow described below is the current disconnected preview.
-
-The backend now implements those routes. The [native API adapter](BACKEND-ONBOARDING.md) contains generated wire models, catalog mapping, and account-scoped draft/completion recovery. It is not yet attached to the preview UI; live authentication and import review remain integration work.
+The remainder of this document describes the separate **Preview onboarding without an account** journey. It remains local and resumable, ending in a membership preview. Its answers and completion flags do not create accounts, upload sample history or grant entitlements. The [backend handoff](../docs/onboarding-backend-handoff.md) still describes the later consent-based Health/Strava import phase.
 
 ## Try it
 
-- On first launch, choose **Create account**. **Explore the app** opens the existing app without completing setup.
+- On the welcome screen, choose **Preview onboarding without an account**. **Explore the app** opens the existing app without completing setup.
 - After entering the app, open **Athlete profile → Try sign-up & onboarding** to replay it.
 - Close a question to return to the welcome screen; **Continue setup** resumes the saved step.
 - **Start over** clears only the onboarding draft after confirmation. The live athlete profile, unit preferences, plans, workout recordings, and training history remain unchanged.
-- **Sign in**, **Restore purchases**, **Terms**, and **Privacy** explain the preview boundary. They do not pretend to authenticate, restore an entitlement, or accept a subscription agreement.
+- **Restore purchases**, **Terms**, and **Privacy** explain the preview boundary. They do not pretend to authenticate, restore an entitlement, or accept a subscription agreement.
 
 ## Journey
 
@@ -70,7 +68,7 @@ Annual is initially selected. Total charge and billing interval remain prominent
 - Running baseline accepts 0–250 km/week. This describes the athlete's recent activity; it is not the existing local planner's 3–150 km prescription target. A future planner must handle zero and higher-volume baselines deliberately rather than clamping them silently.
 - Copy is included in English, Spanish, Brazilian Portuguese, and French, including native plural handling.
 
-Before production, replace the preview entry with authenticated routing, explicitly confirm applying the reviewed draft to an athlete, and support idempotent draft submission. Do not treat `completed` or `enteredApp` as authentication or entitlement signals. Plan creation must use reviewed canonical values and account for stated limitations. Integrate Health/Strava only after separate explicit consent and review of imported values.
+Authenticated routing and idempotent manual onboarding are now available in the connected flow. Before production, complete the acceptance checks in the integration guide and the deferred consent/provider/billing work. Do not treat `completed` or `enteredApp` as authentication or entitlement signals. Plan creation must use reviewed canonical values and account for stated limitations. Integrate Health/Strava only after separate explicit consent and review of imported values.
 
 Real memberships need App Store Connect products, StoreKit product-provided prices and billing periods, verified transactions/entitlements, pending/canceled/error handling, restore behavior, and final terms/privacy URLs. The hard-coded USD preview is not a production pricing source. Nothing in this change provisions products or starts payments.
 

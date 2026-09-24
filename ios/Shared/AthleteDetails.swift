@@ -1,6 +1,7 @@
 import Foundation
 
 struct AthleteDetails: Codable, Equatable {
+  var reportedAge: Int?
   var birthDate: Date?
   var weightKilograms: Double?
   var heightCentimeters: Double?
@@ -15,7 +16,7 @@ struct AthleteDetails: Codable, Equatable {
   var lastHealthImport: Date?
 
   func age(on date: Date = Date(), calendar: Calendar = .current) -> Int? {
-    birthDate.flatMap { calendar.dateComponents([.year], from: $0, to: date).year }
+    birthDate.flatMap { calendar.dateComponents([.year], from: $0, to: date).year } ?? reportedAge
   }
   var validationMessage: String? {
     if let birthDate, birthDate > Date() || (age() ?? 0) > 120 { return L10n.text("Choose a birth date within the last 120 years.") }

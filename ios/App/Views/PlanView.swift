@@ -84,6 +84,13 @@ struct PlanView: View {
                 }
               }
             }
+            if store.isBackendConnected && store.workouts.isEmpty {
+              VStack(alignment: .leading, spacing: 12) {
+                Text(L10n.text("Your training setup is saved.")).font(.title3.bold())
+                Text(L10n.text("Review a starter block in your athlete profile to put your first sessions on the calendar.")).foregroundStyle(HybrdStyle.muted)
+                Button(L10n.text("Athlete profile")) { showProfile = true }.buttonStyle(HybrdPrimaryButtonStyle())
+              }.padding(20).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 24))
+            }
             bottomActions
           }
           .padding(.horizontal, 20)

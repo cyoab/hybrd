@@ -7,7 +7,7 @@ xcrun xcstringstool compile Shared/Resources/Localizable.xcstrings --output-dire
 export HYBRD_LOCALIZATION_BUNDLE="$localization_bundle"
 python3 Scripts/check-localization.py
 python3 Scripts/generate-onboarding-wire.py --check
-swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
+swiftc -DDEBUG -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/L10n.swift \
   Shared/AthleteDetails.swift \
   Shared/GymEquipment.swift \

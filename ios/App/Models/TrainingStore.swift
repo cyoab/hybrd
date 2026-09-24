@@ -15,6 +15,15 @@ final class TrainingStore {
   @ObservationIgnored private var progressCacheDay: Date?
   @ObservationIgnored private var progressCacheZone: String?
   var companion = CompanionBridge()
+  @ObservationIgnored private var backendExerciseNames: Set<String>?
+  @ObservationIgnored private var backendPersist: ((TrainingState, TrainingState) throws -> Void)?
+  var isBackendConnected: Bool { backendPersist != nil }
+  func connectBackend(exerciseNames: Set<String>, _ persist: @escaping (TrainingState, TrainingState) throws -> Void) { backendExerciseNames = exerciseNames; backendPersist = persist }
+  func restoreBackend(_ restored: TrainingState) {
+    state = restored; isLoaded = true; progressRevision += 1; progressCache.removeAll(); shareWithWatch()
+  }
+  func disconnectBackend() { backendPersist = nil; backendExerciseNames = nil; load() }
+
   private var container: ModelContainer?
   private var record: StoredTrainingState?
 
@@ -75,6 +84,12 @@ final class TrainingStore {
 
   @discardableResult
   private func persist(_ next: TrainingState, share: Bool = true) -> Bool {
+    if let backendPersist {
+      do {
+        try backendPersist(state, next); state = next; progressRevision += 1; progressCache.removeAll()
+        if share { shareWithWatch() }; return true
+      } catch { errorMessage = BackendErrorMessage.text(error); return false }
+    }
     guard let container, let record else { return false }
     do {
       record.payload = try JSONEncoder().encode(next)
@@ -152,12 +167,16 @@ final class TrainingStore {
   }
 
   func starterProposal(for profile: TrainingProfile) -> TrainingPlan? {
-    guard profile.validationMessage == nil else { return nil }
+    guard profile.validationMessage == nil, profile.supportsStarterPlan else { return nil }
     var updated = profile
     updated.isSample = false
     updated.name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
     if updated.name.isEmpty { updated.name = "Athlete" }
-    var proposal = TrainingEngine.makePlan(profile: updated, basePlanID: plan.id)
+    var proposal = TrainingEngine.makePlan(profile: updated, basePlanID: plan.id, availableExerciseNames: backendExerciseNames)
+    if backendExerciseNames != nil, proposal.workouts.contains(where: { $0.kind == .strength && $0.exercises.isEmpty }) {
+      errorMessage = L10n.text("The server catalog does not yet have enough exercises for this gym setup.")
+      return nil
+    }
     // Review and accept the same snapshot, including retained historical prescriptions.
     let retained = workouts.filter {
       result(for: $0) != nil || hasDraft(for: $0) || $0.date < Calendar.current.startOfDay(for: Date())
@@ -196,13 +215,18 @@ final class TrainingStore {
     let completed = draft.sets.filter(\.isComplete)
     let run = draft.workout.kind == .run
     guard draft.canFinish else { return false }
-    let result = WorkoutResult(
+    var result = WorkoutResult(
       plannedWorkoutID: draft.workout.id, logicalWorkoutID: draft.workout.logicalID,
       kind: draft.workout.kind,
       status: !run && !draft.hasAllPrescribedSets ? .partial : .completed,
       durationSeconds: run ? draft.durationMinutes * 60 : max(1, Int(draft.activeSeconds())),
       distanceMeters: run ? Int((draft.distanceKilometers * 1_000).rounded()) : nil,
       effort: draft.effort, notes: draft.notes, sets: completed)
+    if !run {
+      result.performedStartedAt = draft.performedStartedAt
+      result.performedEndedAt = draft.performedStartedAt == nil ? nil : result.completedAt
+      result.performedTimeZoneID = draft.performedTimeZoneID
+    }
     var next = state
     next.results.append(result)
     next.drafts.removeAll { $0.id == draft.id }
@@ -257,6 +281,7 @@ final class TrainingStore {
 
   @discardableResult
   func saveRecordedRun(_ run: RunRecording, asSeparate: Bool = false) -> Bool {
+    if isBackendConnected && !asSeparate && !state.plans.flatMap(\.workouts).contains(where: { $0.id == run.workout.id }) { return false }
     guard run.isFinished, run.canSave else { errorMessage = L10n.text("This recording needs a positive distance and time before saving."); return false }
     if state.results.contains(where: { $0.id == run.id }) { return true }
     if !asSeparate && state.results.contains(where: { $0.logicalWorkoutID == run.workout.logicalID }) { return false }

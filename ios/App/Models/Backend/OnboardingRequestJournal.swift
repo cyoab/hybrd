@@ -8,7 +8,7 @@ struct OnboardingRequestJournal {
 
   init(directory: URL, scope: BackendAccountScope) {
     self.scope = scope
-    let digest = SHA256.hash(data: Data(scope.origin.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
+    let digest = SHA256.hash(data: Data((scope.origin.absoluteString + "|" + scope.apiVersion).utf8)).map { String(format: "%02x", $0) }.joined()
     file = directory.appendingPathComponent("\(digest)-\(scope.athleteID.uuidString).json")
   }
   func load() throws -> Snapshot {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+  @Environment(BackendAppController.self) private var backend
   @Environment(TrainingStore.self) private var store
   @Environment(RunRecorder.self) private var recorder
   @State private var showingRun = false
@@ -14,7 +15,7 @@ struct ContentView: View {
         TabView {
           Tab(L10n.text("Plan"), systemImage: "calendar") { PlanView() }
           Tab(L10n.text("Progress"), systemImage: "square.3.layers.3d") { TrainingProgressView() }
-          Tab(L10n.text("Coach"), systemImage: "sparkles") { CoachView() }
+          if !backend.connected { Tab(L10n.text("Coach"), systemImage: "sparkles") { CoachView() } }
         }
         .tint(HybrdStyle.ink)
       } else {
@@ -28,6 +29,15 @@ struct ContentView: View {
       }
     }
     .safeAreaInset(edge: .top, spacing: 0) {
+      if backend.connected {
+        Button { backend.showAccount = true } label: {
+          HStack {
+            Text(backend.busy ? L10n.text("Syncing…") : backend.pendingCount > 0 ? L10n.text("Changes waiting to sync") : L10n.text("Account & sync"))
+            Spacer()
+            if backend.error != nil { Text(L10n.text("Needs attention")).foregroundStyle(HybrdStyle.terraText) }
+          }.font(.caption).padding(.horizontal, 20).padding(.vertical, 8).frame(maxWidth: .infinity).background(HybrdStyle.surface)
+        }.buttonStyle(.plain)
+      }
       if let run = recorder.recording {
         Button { showingRun = true } label: {
           HStack { Label(run.isFinished ? L10n.text("Review your recorded run") : L10n.text("Return to active run"), systemImage: "figure.run"); Spacer(); Image(systemName: "chevron.right") }
@@ -41,7 +51,7 @@ struct ContentView: View {
     }
     .fullScreenCover(isPresented: $showingRun) { if let run = recorder.recording { RunSessionView(workout: run.workout) } }
     .sheet(isPresented: $showingWatchInbox) { WatchRunInboxView() }
-    .onChange(of: scenePhase) { _, phase in if phase == .active { store.companion.retryTransfers() } }
+    .onChange(of: scenePhase) { _, phase in if phase == .active { store.companion.retryTransfers(); Task { await backend.refresh() } } }
     .preferredColorScheme(appearance.colorScheme)
     .alert(L10n.text("Couldn’t save changes"), isPresented: Binding(
       get: { store.errorMessage != nil },

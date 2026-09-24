@@ -5,6 +5,7 @@ struct OnboardingPreparationView: View {
   var draft: OnboardingDraft
   var onCancel: () -> Void
   var onComplete: () -> Void
+  var connected = false
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.dynamicTypeSize) private var typeSize
   @State private var phase = OnboardingPreparationPhase.running
@@ -15,7 +16,7 @@ struct OnboardingPreparationView: View {
       ScrollView {
         VStack(spacing: 26) {
           VStack(spacing: 12) {
-            Text(L10n.text("Building your hybrid plan"))
+            Text(connected ? L10n.text("Preparing your training setup") : L10n.text("Building your hybrid plan"))
               .font(.system(.largeTitle, design: .rounded, weight: .bold)).tracking(-0.8)
             Text(L10n.text("Running and strength, made for \(draft.displayName)."))
               .font(.subheadline).foregroundStyle(HybrdStyle.muted)
@@ -39,7 +40,8 @@ struct OnboardingPreparationView: View {
               .frame(maxWidth: 170)
               .animation(reduceMotion ? nil : .smooth(duration: 0.85), value: phase)
               .animation(reduceMotion ? nil : .smooth(duration: 0.8), value: appeared)
-              .accessibilityLabel(L10n.text("Preparing your plan preview"))
+              .accessibilityLabel(connected ? L10n.text("Preparing your training setup") : L10n.text("Preparing your plan preview"))
+            if connected && isTogether { ProgressView(L10n.text("Saving your setup…")) }
           }
         }.padding(.horizontal, 24).padding(.vertical, 22)
           .frame(maxWidth: 560).frame(maxWidth: .infinity)
@@ -48,12 +50,12 @@ struct OnboardingPreparationView: View {
     }
     .safeAreaInset(edge: .top, spacing: 0) { navigation }
     .safeAreaInset(edge: .bottom, spacing: 0) {
-      Text(L10n.text("Preview animation · No account or plan is created yet."))
+      Text(connected ? L10n.text("We’ll continue once your setup is saved to your account.") : L10n.text("Preview animation · No account or plan is created yet."))
         .font(.caption).foregroundStyle(HybrdStyle.muted).multilineTextAlignment(.center)
         .padding(18).frame(maxWidth: .infinity).background(HybrdStyle.background)
     }
     .background { OnboardingBackdrop(tone: .terra) }
-    .sensoryFeedback(.success, trigger: isTogether)
+    .sensoryFeedback(.success, trigger: isTogether && !connected)
     .task {
       let clock = ContinuousClock()
       let started = clock.now
@@ -78,7 +80,7 @@ struct OnboardingPreparationView: View {
   private var navigation: some View {
     HStack {
       Button(L10n.text("Back"), systemImage: "chevron.left", action: onCancel)
-        .labelStyle(.iconOnly).buttonStyle(.plain).frame(width: 44, height: 44).contentShape(Rectangle())
+        .disabled(connected).labelStyle(.iconOnly).buttonStyle(.plain).frame(width: 44, height: 44).contentShape(Rectangle())
       Spacer()
       Text(L10n.text("Your next chapter")).font(.caption.weight(.semibold))
       Spacer()

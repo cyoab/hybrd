@@ -1,6 +1,6 @@
-# Native onboarding API adapter
+# Native onboarding API integration
 
-Implemented against backend commit `7df08e5` and the [connected onboarding contract](../docs/onboarding-api.md). This is the native data/transport layer, **not a live connected sign-up screen**. The app's existing onboarding preview remains isolated from accounts, training history, and billing.
+The data layer is now connected to email sign-in and the manual onboarding UI. See [Email and core backend integration](BACKEND-INTEGRATION.md) for configuration, Docker tests, recovery, scope and remaining acceptance checks. The backend contract is [onboarding-api.md](../docs/onboarding-api.md); `contracts/openapi.yaml` remains the wire source of truth.
 
 ## Included
 
@@ -10,17 +10,11 @@ Implemented against backend commit `7df08e5` and the [connected onboarding contr
 - `OnboardingDraftAdapter`: deliberate one-way mapping of a reviewed, complete **manual** preview to canonical units, stable goal/experience codes, all 20 equipment slugs, ten muscle slugs, and Foundation weekday numbering. Missing/ambiguous catalog mappings fail rather than silently dropping selections. The caller supplies the actual baseline reference period.
 - `BackendDay`, `BackendInstant`, and `BackendRevision`: dates stay calendar dates, timestamps retain their original offset/precision, and revisions remain decimal strings through the PostgreSQL bigint maximum.
 
-Connected drafts remain in the generated wire model; do not round-trip them through the current preview model. The preview cannot represent every server field, notably fractional strength frequency, fractional HR ranges, DOB provenance, records and import decisions. Restoring into it would lose data. The adapter therefore does not offer a lossy reverse conversion or overwrite a server draft with anonymous answers.
+`ConnectedDraftMapping` now restores the representable manual fields into an account-scoped editor while retaining the full original wire draft. It preserves untouched DOB/provenance, records, HR ranges and fractional strength frequency. Provider import decisions block manual-only editing until a future consent/review flow can handle them. Anonymous preview flags or sample data never authenticate a user or become an upload automatically.
 
-## Caller integration sequence
+`BackendAppController` restores bootstrap/device/catalog/policy and canonical sync before opening the account’s journey. Each confirmed step saves with the server revision; recap completion uses a durable request key and pulls canonical data afterward. The four-second animation waits for successful completion. Setup completion is not plan activation or paid entitlement. Plan review/acceptance is separate.
 
-1. Configure an API origin and implement email/social authentication and environment/account-scoped Keychain storage. The client requires the bootstrap **athlete UUID**, which is different from auth user ID. It does not create identities or hold credentials on disk.
-2. Register the installation, restore canonical data through the existing pull/ack protocol, then construct `BackendAccountScope`, `OnboardingAPIClient`, and `RemoteOnboardingStore` for that account. Call `restore()` regardless of anonymous preview completion flags.
-3. Provide a credentials closure that returns the currently authenticated scope/token, and a token-rotation callback that updates the matching Keychain session. The client checks account identity before sending and after awaiting a response. Replace the account's store/view state on logout or switching; do not display an old store while authenticating another athlete.
-4. Read `state`, `hasPendingRequest`, and `pendingDraftForReview`. For a new account, let the athlete explicitly review attaching any manual preview before invoking the one-way adapter. For a restored server draft, edit the full wire draft so fields unsupported by the old preview are preserved.
-5. Use `saveReviewedDraft(_:step:)`. Do not create a second save while an unresolved request exists. Use `retryPending()` after recoverable failures, honoring exposed retry delays. For conflicts, fetch state and show both server and pending answers, then call `discardPendingAfterReview()` only after resolving the pending work; the corrected save gets a new key.
-6. On recap confirmation, invoke `completeReviewedDraft(deviceID:catalogVersion:policyID:)`. Completion uses the last saved revision and blocks known import-review issues. A lost completion response can be replayed after relaunch. `ONBOARDING_ALREADY_COMPLETED` triggers receipt recovery through GET.
-7. Pull from the existing sync cursor after completion. The receipt's `latestSequence` stays a hint. A receipt does not grant membership, create a plan, or activate it; inspect `planning.status`, then handle local planning, StoreKit and explicit plan acceptance separately.
+For a lost response, `retryPending()` reuses exact request bytes and UUID. Revision conflicts keep local and server answers for review. Completion retry can recover the receipt through GET. The receipt’s sequence stays a hint; the existing pull cursor advances only through committed pull pages. `OnboardingAPIClient` retains provider endpoint support as an unused foundation, but the current UI never invokes it.
 
 The HTTP transport uses an ephemeral, cookie-free session and declines redirects so credentials cannot follow a changed destination. HTTPS is required outside an explicit DEBUG localhost origin. Physical-device development should use a configured reachable HTTPS origin. ATS settings and provider callback URL registration are not changed by this layer.
 
@@ -35,8 +29,8 @@ python3 ios/Scripts/generate-onboarding-wire.py
 bash ios/Scripts/check-core.sh
 ```
 
-The small scoped generator reads checked-in OpenAPI through macOS's system Ruby/Psych. It needs no network/package install, embeds the source checksum, and fails on unsupported schema constructs. `--check` detects drift and is part of core checks. It generates transport shapes, not server-side range/cross-field validators. One explicit tightening is documented in the generator: the reused OpenAPI draft component is nullable for GET, but a save request must contain a nonnull draft as required by the route implementation.
+The scoped generator reads checked-in OpenAPI through macOS's system Ruby/Psych. It needs no network/package install, embeds the source checksum, and fails on unsupported schema constructs. `--check` detects drift and is part of core checks. It now covers onboarding and core bootstrap/catalog/policy/sync/profile/plan/result/progress transport shapes, not server-side range/cross-field validators. One explicit tightening is documented in the generator: the reused OpenAPI draft component is nullable for GET, but a save request must contain a nonnull draft as required by the route implementation.
 
 Native tests decode and round-trip the backend's checked-in request example, retain mixed import provenance/fractional frequency/zones, decode independent partial Strava previews, validate lossless dates/revisions, map every equipment/focus option, and exercise errors, account changes, durable lost-response replay, restart recovery, conflict preservation and unsupported-planning receipts. Existing training/profile/localization/workout regressions also pass. Bitrig builds pass for iPhone and Watch.
 
-Live auth, Docker-backed end-to-end native requests, OAuth callbacks, real Health reads, connected review UI, account-store hydration, purchase/plan activation and physical-device acceptance are **not validated by these injected-transport tests**. Provider credentials and those native integrations remain required. No services or accounts were started/created for this change, and no existing user data was uploaded.
+Email auth and core requests now also pass a live Swift → Docker/PostgreSQL test with injected email delivery. The connected screens build for iPhone and Watch. Real inbox delivery, automated native tap-through, provider callbacks, Health imports, purchases and paired physical-device acceptance remain separate checks. See [the testing guide](BACKEND-INTEGRATION.md).

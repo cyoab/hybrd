@@ -2,14 +2,14 @@ import Foundation
 
 /// Small reviewed starter recipe library. Public catalog data remains reference-only.
 enum StrengthStarterSelection {
-  static func moves(lower: Bool, details: AthleteDetails) -> [StarterMovement] {
+  static func moves(lower: Bool, details: AthleteDetails, availableExerciseNames: Set<String>? = nil) -> [StarterMovement] {
     let equipment = details.gymConfigured ? details.equipment : Set(GymEquipment.allCases)
     let baseline: [MuscleGroup] = lower ? [.quadriceps, .hamstrings, .glutes, .calves] :
       [.chest, .back, .shoulders, .core, .biceps, .triceps]
     let prioritized = baseline.filter { details.focusMuscles.contains($0) } +
       baseline.filter { !details.focusMuscles.contains($0) }
     return prioritized.prefix(4).compactMap { muscle in
-      options.first { $0.muscle == muscle && $0.requires.isSubset(of: equipment) }
+      options.first { $0.muscle == muscle && $0.requires.isSubset(of: equipment) && (availableExerciseNames?.contains($0.name.lowercased()) ?? true) }
     }
   }
 
