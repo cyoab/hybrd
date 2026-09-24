@@ -4,6 +4,8 @@ The iPhone sign-up entry now opens a local, resumable athlete journey ending in 
 
 For the connected implementation, see the [onboarding → backend handoff](../docs/onboarding-backend-handoff.md). It specifies early Apple Health and Strava connection, maximum useful auto-fill from either or both sources, reviewable profile/history imports, missing data fallbacks, canonical storage gaps, and proposed draft/finalization endpoints. The flow described below is the current disconnected preview.
 
+The backend now implements those routes. The [native API adapter](BACKEND-ONBOARDING.md) contains generated wire models, catalog mapping, and account-scoped draft/completion recovery. It is not yet attached to the preview UI; live authentication and import review remain integration work.
+
 ## Try it
 
 - On first launch, choose **Create account**. **Explore the app** opens the existing app without completing setup.

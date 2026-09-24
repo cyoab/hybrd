@@ -6,6 +6,7 @@ trap 'rm -rf "$localization_bundle"' EXIT
 xcrun xcstringstool compile Shared/Resources/Localizable.xcstrings --output-directory "$localization_bundle"
 export HYBRD_LOCALIZATION_BUNDLE="$localization_bundle"
 python3 Scripts/check-localization.py
+python3 Scripts/generate-onboarding-wire.py --check
 swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/L10n.swift \
   Shared/AthleteDetails.swift \
@@ -44,6 +45,8 @@ swiftc -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/WeeklyTrainingSummary.swift \
   Shared/WorkoutResult.swift \
   App/Models/Onboarding/*.swift \
+  App/Models/Backend/*.swift \
+  App/Models/Backend/Generated/*.swift \
   App/Models/AthleteProfileEditor.swift \
   App/Models/TrainingState.swift \
   App/Models/LocalCoach.swift \

@@ -2,7 +2,8 @@ import Foundation
 
 @main
 enum TrainingEngineChecks {
-  @MainActor static func main() throws {
+  @MainActor static func main() async throws {
+    try await BackendOnboardingChecks.run()
     try OnboardingChecks.run()
     try LocalizationChecks.run()
     try TrainingUnitsChecks.run()
