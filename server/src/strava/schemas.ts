@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { Id } from "../domain/schemas";
+import { Id, Revision } from "../domain/schemas";
 
 export const ConnectInput = z
   .object({ autoPublish: z.boolean().default(true) })
@@ -50,6 +50,15 @@ export const HistorySchema = z
       }),
     ),
     strengthSessions: z.number().int(),
+    strengthWindows: z
+      .array(
+        z.object({
+          days: z.number().int(),
+          sessions: z.number().int(),
+          averageSessionsPerWeek: z.number(),
+        }),
+      )
+      .optional(),
     longestRunM: z.number().nullable(),
     observedBestEfforts: z.array(
       z.object({
@@ -70,6 +79,45 @@ export const HistorySchema = z
     requiresReview: z.literal(true),
   })
   .openapi("StravaHistoryPreview");
+const ImportReason = z.enum([
+  "scope_missing",
+  "not_provided",
+  "not_supported",
+  "history_partial",
+  "no_activities",
+  "rate_limited",
+  "provider_unavailable",
+  "preview_expired",
+  "invalid_value",
+]);
+function section<T extends z.ZodType>(data: T) {
+  return z.object({
+    state: z.enum(["pending", "ready", "unavailable", "failed"]),
+    reason: ImportReason.nullable(),
+    data: data.nullable(),
+    source: z.literal("strava"),
+    fetchedAt: z.iso.datetime().nullable(),
+    retryAfterSeconds: z.number().int().nonnegative().nullable(),
+    coverage: z.enum(["complete_returned_records", "partial", "unknown"]),
+  });
+}
+export const OnboardingPreviewSchema = z
+  .object({
+    id: Id,
+    revision: Revision,
+    generatedAt: z.iso.datetime(),
+    expiresAt: z.iso.datetime(),
+    profile: section(
+      z.object({
+        preferredName: z.string().nullable(),
+        weightKg: z.number().nullable(),
+        measuredAt: z.null(),
+      }),
+    ),
+    heartRateZones: section(HistorySchema.shape.heartRateZones.unwrap()),
+    runningHistory: section(HistorySchema),
+  })
+  .openapi("StravaOnboardingPreview");
 export const StatusSchema = z
   .object({
     available: z.boolean(),
@@ -84,6 +132,7 @@ export const StatusSchema = z
     autoPublish: z.boolean(),
     scopes: z.array(z.string()),
     history: HistorySchema.nullable(),
+    onboardingPreview: OnboardingPreviewSchema.nullable(),
     jobs: z.array(JobSchema),
   })
   .openapi("StravaConnectionStatus");

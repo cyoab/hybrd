@@ -6,6 +6,7 @@ import type { Env } from "../config/env";
 import { type Row, type Tx, withAthlete } from "../db/store";
 import { digest, seal } from "./crypto";
 import { newHistory } from "./history";
+import { onboardingPreview } from "./preview";
 import { StravaError, type StravaProvider } from "./provider";
 import { reserveRequest } from "./queue";
 import { StatusSchema, type WebhookInput } from "./schemas";
@@ -13,18 +14,14 @@ import { StatusSchema, type WebhookInput } from "./schemas";
 export async function queueHistory(sql: Tx, connection: Row) {
   const athlete = String(connection.athlete_id),
     generation = String(connection.generation);
-  const scopes = connection.scopes as string[];
-  if (!scopes.some((s) => ["activity:read", "activity:read_all"].includes(s)))
-    throw new ApiError(
-      409,
-      "STRAVA_SCOPE_REQUIRED",
-      "Reconnect Strava and allow access to activities.",
-    );
   const [pending] =
     await sql`select id from strava_jobs where athlete_id=${athlete} and generation=${generation} and kind='history' and state in ('queued','running','retry') limit 1`;
   if (pending) return String(pending.id);
+  const state = newHistory();
+  const preview = onboardingPreview(state, connection.scopes as string[]);
+  await sql`update strava_connections set onboarding_preview=${sql.json(preview)},history=null,history_expires_at=${new Date(preview.expiresAt)} where athlete_id=${athlete}`;
   const [row] =
-    await sql`insert into strava_jobs (athlete_id,generation,kind,payload) values (${athlete},${generation},'history',${sql.json(newHistory())}) returning id`;
+    await sql`insert into strava_jobs (athlete_id,generation,kind,payload) values (${athlete},${generation},'history',${sql.json(state)}) returning id`;
   return String(row?.id);
 }
 export function stravaServices(
@@ -118,12 +115,8 @@ export function stravaServices(
           Row[]
         >`insert into strava_connections (athlete_id,remote_id,generation,tokens,scopes,expires_at,status,auto_publish)
         values (${athleteId},${remote},${generation},${seal(env.BETTER_AUTH_SECRET, athleteId, token)},${sql.json(scopes)},${new Date(token.expires_at * 1000)},'connected',${Boolean(pending.auto_publish) && scopes.includes("activity:write")})
-        on conflict(athlete_id) do update set remote_id=excluded.remote_id,generation=excluded.generation,tokens=excluded.tokens,scopes=excluded.scopes,expires_at=excluded.expires_at,status='connected',auto_publish=excluded.auto_publish,connected_at=now(),history=null,history_expires_at=null returning *`;
-        if (
-          connection &&
-          scopes.some((s) => ["activity:read", "activity:read_all"].includes(s))
-        )
-          await queueHistory(sql, connection);
+        on conflict(athlete_id) do update set remote_id=excluded.remote_id,generation=excluded.generation,tokens=excluded.tokens,scopes=excluded.scopes,expires_at=excluded.expires_at,status='connected',auto_publish=excluded.auto_publish,connected_at=now(),history=null,onboarding_preview=null,history_expires_at=null returning *`;
+        if (connection) await queueHistory(sql, connection);
         return { connected: true as const };
       },
     );
@@ -146,6 +139,10 @@ export function stravaServices(
           history:
             c?.history_expires_at && new Date(c.history_expires_at) > new Date()
               ? c.history
+              : null,
+          onboardingPreview:
+            c?.history_expires_at && new Date(c.history_expires_at) > new Date()
+              ? c.onboarding_preview
               : null,
           jobs: jobs.map((j) => ({
             id: j.id,
@@ -231,7 +228,7 @@ export function stravaServices(
         if (c?.status === "disconnecting") return;
         await sql`update strava_jobs set state='cancelled',payload=null,updated_at=now() where athlete_id=${id} and state not in ('published','completed','cancelled')`;
         if (!c || c.status === "disconnected") return;
-        await sql`update strava_connections set auto_publish=false,history=null,history_expires_at=null,status='disconnecting' where athlete_id=${id}`;
+        await sql`update strava_connections set auto_publish=false,history=null,onboarding_preview=null,history_expires_at=null,status='disconnecting' where athlete_id=${id}`;
         await sql`insert into strava_jobs (athlete_id,generation,kind) values (${id},${String(c.generation)},'revoke')`;
       }),
     retry: (userId: string, jobId: string) =>
@@ -338,11 +335,11 @@ export function stravaServices(
           event.object_type === "athlete" &&
           String(event.updates.authorized) === "false"
         ) {
-          await sql`update strava_connections set tokens=null,status='disconnected',auto_publish=false,history=null,history_expires_at=null where athlete_id=${id}`;
+          await sql`update strava_connections set tokens=null,status='disconnected',auto_publish=false,history=null,onboarding_preview=null,history_expires_at=null where athlete_id=${id}`;
           await sql`update strava_jobs set state='cancelled',payload=null,updated_at=now() where athlete_id=${id} and state not in ('published','completed')`;
         } else if (event.object_type === "activity") {
           // Invalidate all derived previews immediately, including a pending import.
-          await sql`update strava_connections set history=null,history_expires_at=null where athlete_id=${id}`;
+          await sql`update strava_connections set history=null,onboarding_preview=null,history_expires_at=null where athlete_id=${id}`;
           await sql`update strava_jobs set state='cancelled',payload=null,updated_at=now() where athlete_id=${id} and kind='history' and state in ('queued','retry','running')`;
           if (
             (c.scopes as string[]).some((s) =>

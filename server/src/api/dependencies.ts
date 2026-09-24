@@ -1,6 +1,7 @@
 import type { billingServices } from "../billing/service";
 import type { readCatalog } from "../catalog/service";
 import type { intelligenceServices } from "../intelligence/service";
+import type { onboardingServices } from "../onboarding/service";
 import type { progressServices } from "../progress/service";
 import type { stravaServices } from "../strava/service";
 import type { syncServices } from "../sync/service";
@@ -14,6 +15,7 @@ import type {
 export type AppEnv = { Variables: { requestId: string; authUserId: string } };
 
 export interface AppDependencies {
+  onboarding: ReturnType<typeof onboardingServices>;
   strava: ReturnType<typeof stravaServices>;
   progress: ReturnType<typeof progressServices>;
   billing: ReturnType<typeof billingServices>;

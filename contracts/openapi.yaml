@@ -196,6 +196,40 @@ components:
     PolicyConfig:
       type: object
       properties:
+        onboarding:
+          type: object
+          properties:
+            priorityWeights:
+              type: object
+              properties:
+                balanced:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                run_first:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                strength_first:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+              required:
+                - balanced
+                - run_first
+                - strength_first
+              additionalProperties: false
+            minimumWeeklyDistanceM:
+              type: integer
+              minimum: 0
+            maximumWeeklyDistanceM:
+              type: integer
+              maximum: 250000
+          required:
+            - priorityWeights
+            - minimumWeeklyDistanceM
+            - maximumWeeklyDistanceM
+          additionalProperties: false
         features:
           type: object
           properties:
@@ -341,6 +375,824 @@ components:
       required:
         - appVersion
       additionalProperties: false
+    OnboardingState:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        status:
+          type: string
+          enum:
+            - not_started
+            - draft
+            - completed
+        draft:
+          $ref: "#/components/schemas/OnboardingDraft"
+        draftRevision:
+          type:
+            - string
+            - "null"
+          pattern: ^(0|[1-9][0-9]*)$
+        step:
+          type:
+            - string
+            - "null"
+          enum:
+            - connections
+            - identity
+            - goals
+            - baseline
+            - body
+            - schedule
+            - equipment
+            - focus
+            - readiness
+            - review
+            - preparing
+            - membership
+            - null
+        completion:
+          $ref: "#/components/schemas/OnboardingCompletionReceipt"
+        reviewIssues:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+                enum:
+                  - IMPORT_PREVIEW_EXPIRED
+                  - IMPORT_REVIEW_REQUIRED
+            required:
+              - field
+              - code
+      required:
+        - schemaVersion
+        - status
+        - draft
+        - draftRevision
+        - step
+        - completion
+        - reviewIssues
+    OnboardingDraft:
+      type:
+        - object
+        - "null"
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        profile:
+          $ref: "#/components/schemas/AthleteProfileInput"
+        details:
+          $ref: "#/components/schemas/AthleteDetails"
+        runningGoal:
+          type:
+            - string
+            - "null"
+          enum:
+            - fitness
+            - 5k
+            - 10k
+            - half_marathon
+            - marathon
+            - null
+        strengthGoal:
+          type:
+            - string
+            - "null"
+          enum:
+            - strength
+            - hypertrophy
+            - maintenance
+            - null
+        raceDate:
+          type:
+            - string
+            - "null"
+          format: date
+        priority:
+          type:
+            - string
+            - "null"
+          enum:
+            - balanced
+            - run_first
+            - strength_first
+            - null
+        runningLevel:
+          type:
+            - string
+            - "null"
+          enum:
+            - new
+            - beginner
+            - intermediate
+            - advanced
+            - null
+        strengthLevel:
+          type:
+            - string
+            - "null"
+          enum:
+            - new
+            - beginner
+            - intermediate
+            - advanced
+            - null
+        weeklyDistanceM:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 250000
+        currentStrengthSessionsPerWeek:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 7
+        baselinePeriod:
+          type:
+            - object
+            - "null"
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+          required:
+            - start
+            - end
+          additionalProperties: false
+        availableDays:
+          type:
+            - array
+            - "null"
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+          maxItems: 7
+        desiredStrengthSessionsPerWeek:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          maximum: 4
+        sessionMinutes:
+          anyOf:
+            - type: number
+              enum:
+                - 30
+            - type: number
+              enum:
+                - 45
+            - type: number
+              enum:
+                - 60
+            - type: number
+              enum:
+                - 75
+            - type: number
+              enum:
+                - 90
+            - type: "null"
+        equipmentIds:
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+        equipmentConfirmed:
+          type: boolean
+        focusMuscleIds:
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+            format: uuid
+          maxItems: 10
+        readiness:
+          type:
+            - string
+            - "null"
+          enum:
+            - ready
+            - returning
+            - adjusting
+            - null
+        context:
+          type:
+            - string
+            - "null"
+          maxLength: 300
+        wantsHealth:
+          type:
+            - boolean
+            - "null"
+        wantsStrava:
+          type:
+            - boolean
+            - "null"
+        membership:
+          type:
+            - string
+            - "null"
+          enum:
+            - monthly
+            - annual
+            - null
+        importDecisions:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingImportDecision"
+          maxItems: 18
+      required:
+        - schemaVersion
+        - profile
+        - details
+        - runningGoal
+        - strengthGoal
+        - raceDate
+        - priority
+        - runningLevel
+        - strengthLevel
+        - weeklyDistanceM
+        - currentStrengthSessionsPerWeek
+        - baselinePeriod
+        - availableDays
+        - desiredStrengthSessionsPerWeek
+        - sessionMinutes
+        - equipmentIds
+        - equipmentConfirmed
+        - focusMuscleIds
+        - readiness
+        - context
+        - wantsHealth
+        - wantsStrava
+        - membership
+        - importDecisions
+      additionalProperties: false
+    AthleteProfileInput:
+      type:
+        - object
+        - "null"
+      properties:
+        timezone:
+          type: string
+          maxLength: 100
+        locale:
+          type: string
+          minLength: 2
+          maxLength: 35
+        distanceUnit:
+          type: string
+          enum:
+            - km
+            - mi
+        loadUnit:
+          type: string
+          enum:
+            - kg
+            - lb
+        weekStartsOn:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: "Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"
+        trainingDayBoundary:
+          type:
+            - string
+            - "null"
+          pattern: ^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$
+          default: null
+        cloudAiConsent:
+          type: boolean
+          default: false
+      required:
+        - timezone
+        - locale
+        - distanceUnit
+        - loadUnit
+        - weekStartsOn
+      additionalProperties: false
+    AthleteDetails:
+      type: object
+      properties:
+        preferredName:
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 40
+        heightUnit:
+          type: string
+          enum:
+            - cm
+            - ft_in
+        dateOfBirth:
+          type:
+            - string
+            - "null"
+          format: date
+        age:
+          type:
+            - object
+            - "null"
+          properties:
+            years:
+              type: integer
+              minimum: 1
+              maximum: 120
+            asOf:
+              type: string
+              format: date
+          required:
+            - years
+            - asOf
+          additionalProperties: false
+        weightKg:
+          type:
+            - number
+            - "null"
+          minimum: 20
+          maximum: 400
+        heightCm:
+          type:
+            - number
+            - "null"
+          minimum: 80
+          maximum: 250
+        heartRateZones:
+          $ref: "#/components/schemas/ReviewedHeartRateZones"
+        runningRecords:
+          type: array
+          items:
+            type: object
+            properties:
+              distanceM:
+                type: number
+                exclusiveMinimum: 0
+                maximum: 1000000
+              elapsedSeconds:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 604800
+              performedOn:
+                type:
+                  - string
+                  - "null"
+                format: date
+              classification:
+                type: string
+                enum:
+                  - athlete_reported
+                  - observed_effort
+            required:
+              - distanceM
+              - elapsedSeconds
+              - performedOn
+              - classification
+            additionalProperties: false
+          maxItems: 30
+        strengthRecords:
+          type: array
+          items:
+            type: object
+            properties:
+              exerciseId:
+                type: string
+                format: uuid
+              loadKg:
+                type: number
+                minimum: 0
+                maximum: 1000
+              reps:
+                type: integer
+                minimum: 1
+                maximum: 100
+              performedOn:
+                type:
+                  - string
+                  - "null"
+                format: date
+              classification:
+                type: string
+                enum:
+                  - athlete_reported
+            required:
+              - exerciseId
+              - loadKg
+              - reps
+              - performedOn
+              - classification
+            additionalProperties: false
+          maxItems: 30
+      required:
+        - preferredName
+        - heightUnit
+        - dateOfBirth
+        - age
+        - weightKg
+        - heightCm
+        - heartRateZones
+        - runningRecords
+        - strengthRecords
+      additionalProperties: false
+    ReviewedHeartRateZones:
+      type:
+        - object
+        - "null"
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        configuration:
+          type: string
+          enum:
+            - custom
+            - default
+            - system
+            - unknown
+        ranges:
+          type: array
+          items:
+            type: object
+            properties:
+              minBpm:
+                type: number
+                minimum: 0
+                maximum: 300
+              maxBpm:
+                type:
+                  - number
+                  - "null"
+                exclusiveMinimum: 0
+                maximum: 300
+            required:
+              - minBpm
+              - maxBpm
+            additionalProperties: false
+      required:
+        - schemaVersion
+        - configuration
+        - ranges
+      additionalProperties: false
+    OnboardingImportDecision:
+      oneOf:
+        - type: object
+          properties:
+            field:
+              type: string
+              enum:
+                - preferredName
+                - dateOfBirth
+                - weightKg
+                - heightCm
+                - heartRateZones
+                - runningRecords
+                - strengthRecords
+                - weeklyDistanceM
+                - currentStrengthSessionsPerWeek
+            decision:
+              type: string
+              enum:
+                - accept
+                - edit
+                - reject
+            source:
+              type: string
+              enum:
+                - strava
+            previewId:
+              type: string
+              format: uuid
+            previewRevision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+          required:
+            - field
+            - decision
+            - source
+            - previewId
+            - previewRevision
+          additionalProperties: false
+        - type: object
+          properties:
+            field:
+              type: string
+              enum:
+                - preferredName
+                - dateOfBirth
+                - weightKg
+                - heightCm
+                - heartRateZones
+                - runningRecords
+                - strengthRecords
+                - weeklyDistanceM
+                - currentStrengthSessionsPerWeek
+            decision:
+              type: string
+              enum:
+                - accept
+                - edit
+                - reject
+            source:
+              type: string
+              enum:
+                - healthkit
+            batchId:
+              type: string
+              format: uuid
+            sourceIds:
+              type: array
+              items:
+                type: string
+                minLength: 1
+                maxLength: 200
+              minItems: 1
+              maxItems: 100
+            observation:
+              type: object
+              properties:
+                measuredAt:
+                  type:
+                    - string
+                    - "null"
+                  format: date-time
+                fetchedAt:
+                  type: string
+                  format: date-time
+                window:
+                  type:
+                    - object
+                    - "null"
+                  properties:
+                    start:
+                      type: string
+                      format: date-time
+                    end:
+                      type: string
+                      format: date-time
+                    timezone:
+                      type: string
+                      maxLength: 100
+                  required:
+                    - start
+                    - end
+                    - timezone
+                  additionalProperties: false
+                coverage:
+                  type: string
+                  enum:
+                    - complete_returned_records
+                    - partial
+                    - unknown
+                    - sampled_runs_within_period
+                durationBasis:
+                  type:
+                    - string
+                    - "null"
+                  enum:
+                    - moving
+                    - active
+                    - elapsed
+                    - null
+                calculationVersion:
+                  type: number
+                  enum:
+                    - 1
+              required:
+                - measuredAt
+                - fetchedAt
+                - window
+                - coverage
+                - durationBasis
+                - calculationVersion
+              additionalProperties: false
+          required:
+            - field
+            - decision
+            - source
+            - batchId
+            - sourceIds
+            - observation
+          additionalProperties: false
+    OnboardingCompletionReceipt:
+      type:
+        - object
+        - "null"
+      properties:
+        submissionId:
+          type: string
+          format: uuid
+        choices:
+          type: object
+          properties:
+            wantsHealth:
+              type:
+                - boolean
+                - "null"
+            wantsStrava:
+              type:
+                - boolean
+                - "null"
+            membership:
+              type:
+                - string
+                - "null"
+              enum:
+                - monthly
+                - annual
+                - null
+          required:
+            - wantsHealth
+            - wantsStrava
+            - membership
+        completedAt:
+          type: string
+          format: date-time
+        draftRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        catalogVersion:
+          type: integer
+        policyVersionId:
+          type: string
+          format: uuid
+        athleteDetails:
+          type: object
+          properties:
+            entityType:
+              type: string
+            id:
+              type: string
+              format: uuid
+            revision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+          required:
+            - entityType
+            - id
+            - revision
+        baseline:
+          type: object
+          properties:
+            entityType:
+              type: string
+            id:
+              type: string
+              format: uuid
+            revision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+          required:
+            - entityType
+            - id
+            - revision
+        planningContext:
+          type: object
+          properties:
+            entityType:
+              type: string
+            id:
+              type: string
+              format: uuid
+            revision:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+          required:
+            - entityType
+            - id
+            - revision
+        saved:
+          type: array
+          items:
+            type: object
+            properties:
+              entityType:
+                type: string
+              id:
+                type: string
+                format: uuid
+              revision:
+                type: string
+                pattern: ^(0|[1-9][0-9]*)$
+            required:
+              - entityType
+              - id
+              - revision
+        latestSequence:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        planning:
+          type: object
+          properties:
+            status:
+              type: string
+              enum:
+                - ready_for_local_planner
+                - unsupported_baseline
+            reason:
+              type:
+                - string
+                - "null"
+              enum:
+                - weekly_distance_outside_planner_range
+                - null
+            minimumWeeklyDistanceM:
+              type: integer
+            maximumWeeklyDistanceM:
+              type: integer
+          required:
+            - status
+            - reason
+            - minimumWeeklyDistanceM
+            - maximumWeeklyDistanceM
+      required:
+        - submissionId
+        - choices
+        - completedAt
+        - draftRevision
+        - catalogVersion
+        - policyVersionId
+        - athleteDetails
+        - baseline
+        - planningContext
+        - saved
+        - latestSequence
+        - planning
+    OnboardingDraftSaved:
+      type: object
+      properties:
+        draftRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+      required:
+        - draftRevision
+    SaveOnboardingDraft:
+      type: object
+      properties:
+        baseRevision:
+          type:
+            - string
+            - "null"
+          pattern: ^(0|[1-9][0-9]*)$
+        step:
+          type: string
+          enum:
+            - connections
+            - identity
+            - goals
+            - baseline
+            - body
+            - schedule
+            - equipment
+            - focus
+            - readiness
+            - review
+            - preparing
+            - membership
+        draft:
+          $ref: "#/components/schemas/OnboardingDraft"
+      required:
+        - baseRevision
+        - step
+        - draft
+      additionalProperties: false
+    CompleteOnboarding:
+      type: object
+      properties:
+        draftRevision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deviceId:
+          type: string
+          format: uuid
+        catalogVersion:
+          type: integer
+          exclusiveMinimum: 0
+        policyVersionId:
+          type: string
+          format: uuid
+      required:
+        - draftRevision
+        - deviceId
+        - catalogVersion
+        - policyVersionId
+      additionalProperties: false
     SyncPushResponse:
       type: object
       properties:
@@ -432,6 +1284,44 @@ components:
             payload:
               anyOf:
                 - $ref: "#/components/schemas/AthleteProfileInput"
+                - type: object
+                  properties: {}
+                  additionalProperties: false
+          required:
+            - id
+            - entityId
+            - operation
+            - baseRevision
+            - entityType
+            - payload
+          additionalProperties: false
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - create
+                - update
+                - delete
+                - activate_plan
+            baseRevision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
+                - athlete_details
+            payload:
+              anyOf:
+                - $ref: "#/components/schemas/AthleteDetailsInput"
                 - type: object
                   properties: {}
                   additionalProperties: false
@@ -1434,45 +2324,18 @@ components:
             - entityType
             - payload
           additionalProperties: false
-    AthleteProfileInput:
+    AthleteDetailsInput:
       type: object
       properties:
-        timezone:
-          type: string
-          maxLength: 100
-        locale:
-          type: string
-          minLength: 2
-          maxLength: 35
-        distanceUnit:
-          type: string
+        schemaVersion:
+          type: number
           enum:
-            - km
-            - mi
-        loadUnit:
-          type: string
-          enum:
-            - kg
-            - lb
-        weekStartsOn:
-          type: integer
-          minimum: 1
-          maximum: 7
-        trainingDayBoundary:
-          type:
-            - string
-            - "null"
-          pattern: ^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$
-          default: null
-        cloudAiConsent:
-          type: boolean
-          default: false
+            - 1
+        details:
+          $ref: "#/components/schemas/AthleteDetails"
       required:
-        - timezone
-        - locale
-        - distanceUnit
-        - loadUnit
-        - weekStartsOn
+        - schemaVersion
+        - details
       additionalProperties: false
     AthleteGoalInput:
       type: object
@@ -1591,11 +2454,60 @@ components:
             - "null"
           maxLength: 4000
           default: null
+        onboarding:
+          $ref: "#/components/schemas/OnboardingTrainingPreferences"
       required:
         - priorityMode
         - runPriorityWeight
         - strengthPriorityWeight
         - strengthObjective
+      additionalProperties: false
+    OnboardingTrainingPreferences:
+      type:
+        - object
+        - "null"
+      properties:
+        runningLevel:
+          type: string
+          enum:
+            - new
+            - beginner
+            - intermediate
+            - advanced
+        strengthLevel:
+          type: string
+          enum:
+            - new
+            - beginner
+            - intermediate
+            - advanced
+        desiredStrengthSessionsPerWeek:
+          type: integer
+          minimum: 1
+          maximum: 4
+        focusMuscleIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 10
+        equipmentConfirmed:
+          type: boolean
+          enum:
+            - true
+        readiness:
+          type: string
+          enum:
+            - ready
+            - returning
+            - adjusting
+      required:
+        - runningLevel
+        - strengthLevel
+        - desiredStrengthSessionsPerWeek
+        - focusMuscleIds
+        - equipmentConfirmed
+        - readiness
       additionalProperties: false
     AvailabilityRuleInput:
       type: object
@@ -1604,6 +2516,7 @@ components:
           type: integer
           minimum: 1
           maximum: 7
+          description: "Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"
         available:
           type: boolean
         maxSessions:
@@ -1771,6 +2684,23 @@ components:
                   - type: string
                     maxLength: 200
                   - type: "null"
+            athleteDetailsId:
+              type:
+                - string
+                - "null"
+              format: uuid
+            athleteDetailsSnapshot:
+              type: object
+              properties:
+                revision:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                details:
+                  $ref: "#/components/schemas/AthleteDetails"
+              required:
+                - revision
+                - details
+              additionalProperties: false
           required:
             - goals
             - preferences
@@ -2577,6 +3507,37 @@ components:
             entityType:
               type: string
               enum:
+                - athlete_details
+            payload:
+              $ref: "#/components/schemas/AthleteDetailsRecord"
+          required:
+            - sequence
+            - entityId
+            - operation
+            - revision
+            - entityType
+            - payload
+        - type: object
+          properties:
+            sequence:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            entityId:
+              type: string
+              format: uuid
+            operation:
+              type: string
+              enum:
+                - upsert
+                - delete
+            revision:
+              type:
+                - string
+                - "null"
+              pattern: ^(0|[1-9][0-9]*)$
+            entityType:
+              type: string
+              enum:
                 - athlete_goal
             payload:
               $ref: "#/components/schemas/GoalRecord"
@@ -3140,6 +4101,7 @@ components:
           type: integer
           minimum: 1
           maximum: 7
+          description: "Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"
         trainingDayBoundary:
           type:
             - string
@@ -3177,6 +4139,157 @@ components:
         - updatedAt
         - revision
         - deletedAt
+      additionalProperties: false
+    AthleteDetailsRecord:
+      type:
+        - object
+        - "null"
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        details:
+          $ref: "#/components/schemas/AthleteDetails"
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        athleteId:
+          type: string
+          format: uuid
+        provenance:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                enum:
+                  - preferredName
+                  - dateOfBirth
+                  - weightKg
+                  - heightCm
+                  - heartRateZones
+                  - runningRecords
+                  - strengthRecords
+                  - weeklyDistanceM
+                  - currentStrengthSessionsPerWeek
+              source:
+                type: string
+                enum:
+                  - strava
+                  - healthkit
+              editedFromSource:
+                type: boolean
+              verification:
+                type: string
+                enum:
+                  - server_preview
+                  - client_reported
+              reference:
+                type: string
+                maxLength: 200
+              sourceIds:
+                type: array
+                items:
+                  type: string
+                  maxLength: 200
+                maxItems: 100
+              observation:
+                type: object
+                properties:
+                  measuredAt:
+                    type:
+                      - string
+                      - "null"
+                    format: date-time
+                  fetchedAt:
+                    type: string
+                    format: date-time
+                  window:
+                    type:
+                      - object
+                      - "null"
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+                      timezone:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - start
+                      - end
+                      - timezone
+                    additionalProperties: false
+                  coverage:
+                    type: string
+                    enum:
+                      - complete_returned_records
+                      - partial
+                      - unknown
+                      - sampled_runs_within_period
+                  durationBasis:
+                    type:
+                      - string
+                      - "null"
+                    enum:
+                      - moving
+                      - active
+                      - elapsed
+                      - null
+                  calculationVersion:
+                    type: number
+                    enum:
+                      - 1
+                required:
+                  - measuredAt
+                  - fetchedAt
+                  - window
+                  - coverage
+                  - durationBasis
+                  - calculationVersion
+                additionalProperties: false
+              reviewedAt:
+                type: string
+                format: date-time
+            required:
+              - field
+              - source
+              - editedFromSource
+              - verification
+              - reference
+              - sourceIds
+              - observation
+              - reviewedAt
+            additionalProperties: false
+      required:
+        - schemaVersion
+        - details
+        - id
+        - createdAt
+        - updatedAt
+        - revision
+        - deletedAt
+        - athleteId
+        - provenance
       additionalProperties: false
     GoalRecord:
       type:
@@ -3325,6 +4438,8 @@ components:
             - "null"
           maxLength: 4000
           default: null
+        onboarding:
+          $ref: "#/components/schemas/OnboardingTrainingPreferences"
         id:
           type: string
           format: uuid
@@ -3366,6 +4481,7 @@ components:
           type: integer
           minimum: 1
           maximum: 7
+          description: "Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"
         available:
           type: boolean
         maxSessions:
@@ -3550,6 +4666,115 @@ components:
         athleteId:
           type: string
           format: uuid
+        provenance:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                enum:
+                  - preferredName
+                  - dateOfBirth
+                  - weightKg
+                  - heightCm
+                  - heartRateZones
+                  - runningRecords
+                  - strengthRecords
+                  - weeklyDistanceM
+                  - currentStrengthSessionsPerWeek
+              source:
+                type: string
+                enum:
+                  - strava
+                  - healthkit
+              editedFromSource:
+                type: boolean
+              verification:
+                type: string
+                enum:
+                  - server_preview
+                  - client_reported
+              reference:
+                type: string
+                maxLength: 200
+              sourceIds:
+                type: array
+                items:
+                  type: string
+                  maxLength: 200
+                maxItems: 100
+              observation:
+                type: object
+                properties:
+                  measuredAt:
+                    type:
+                      - string
+                      - "null"
+                    format: date-time
+                  fetchedAt:
+                    type: string
+                    format: date-time
+                  window:
+                    type:
+                      - object
+                      - "null"
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+                      timezone:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - start
+                      - end
+                      - timezone
+                    additionalProperties: false
+                  coverage:
+                    type: string
+                    enum:
+                      - complete_returned_records
+                      - partial
+                      - unknown
+                      - sampled_runs_within_period
+                  durationBasis:
+                    type:
+                      - string
+                      - "null"
+                    enum:
+                      - moving
+                      - active
+                      - elapsed
+                      - null
+                  calculationVersion:
+                    type: number
+                    enum:
+                      - 1
+                required:
+                  - measuredAt
+                  - fetchedAt
+                  - window
+                  - coverage
+                  - durationBasis
+                  - calculationVersion
+                additionalProperties: false
+              reviewedAt:
+                type: string
+                format: date-time
+            required:
+              - field
+              - source
+              - editedFromSource
+              - verification
+              - reference
+              - sourceIds
+              - observation
+              - reviewedAt
+            additionalProperties: false
       required:
         - periodStart
         - periodEnd
@@ -3563,6 +4788,7 @@ components:
         - revision
         - deletedAt
         - athleteId
+        - provenance
       additionalProperties: false
     PlanningContextRecord:
       type:
@@ -3617,6 +4843,23 @@ components:
                   - type: string
                     maxLength: 200
                   - type: "null"
+            athleteDetailsId:
+              type:
+                - string
+                - "null"
+              format: uuid
+            athleteDetailsSnapshot:
+              type: object
+              properties:
+                revision:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                details:
+                  $ref: "#/components/schemas/AthleteDetails"
+              required:
+                - revision
+                - details
+              additionalProperties: false
           required:
             - goals
             - preferences
@@ -6138,6 +7381,8 @@ components:
             type: string
         history:
           $ref: "#/components/schemas/StravaHistoryPreview"
+        onboardingPreview:
+          $ref: "#/components/schemas/StravaOnboardingPreview"
         jobs:
           type: array
           items:
@@ -6185,6 +7430,7 @@ components:
         - autoPublish
         - scopes
         - history
+        - onboardingPreview
         - jobs
     StravaHistoryPreview:
       type:
@@ -6269,6 +7515,21 @@ components:
               - averageRunsPerWeek
         strengthSessions:
           type: integer
+        strengthWindows:
+          type: array
+          items:
+            type: object
+            properties:
+              days:
+                type: integer
+              sessions:
+                type: integer
+              averageSessionsPerWeek:
+                type: number
+            required:
+              - days
+              - sessions
+              - averageSessionsPerWeek
         longestRunM:
           type:
             - number
@@ -6339,6 +7600,235 @@ components:
         - bestEffortCoverage
         - missing
         - requiresReview
+    StravaOnboardingPreview:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        revision:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        generatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        profile:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+                - pending
+                - ready
+                - unavailable
+                - failed
+            reason:
+              type:
+                - string
+                - "null"
+              enum:
+                - scope_missing
+                - not_provided
+                - not_supported
+                - history_partial
+                - no_activities
+                - rate_limited
+                - provider_unavailable
+                - preview_expired
+                - invalid_value
+                - null
+            data:
+              type:
+                - object
+                - "null"
+              properties:
+                preferredName:
+                  type:
+                    - string
+                    - "null"
+                weightKg:
+                  type:
+                    - number
+                    - "null"
+                measuredAt:
+                  type: "null"
+              required:
+                - preferredName
+                - weightKg
+                - measuredAt
+            source:
+              type: string
+              enum:
+                - strava
+            fetchedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+            retryAfterSeconds:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+            coverage:
+              type: string
+              enum:
+                - complete_returned_records
+                - partial
+                - unknown
+          required:
+            - state
+            - reason
+            - data
+            - source
+            - fetchedAt
+            - retryAfterSeconds
+            - coverage
+        heartRateZones:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+                - pending
+                - ready
+                - unavailable
+                - failed
+            reason:
+              type:
+                - string
+                - "null"
+              enum:
+                - scope_missing
+                - not_provided
+                - not_supported
+                - history_partial
+                - no_activities
+                - rate_limited
+                - provider_unavailable
+                - preview_expired
+                - invalid_value
+                - null
+            data:
+              type:
+                - object
+                - "null"
+              properties:
+                custom:
+                  type: boolean
+                ranges:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      minBpm:
+                        type: number
+                      maxBpm:
+                        type:
+                          - number
+                          - "null"
+                    required:
+                      - minBpm
+                      - maxBpm
+              required:
+                - custom
+                - ranges
+            source:
+              type: string
+              enum:
+                - strava
+            fetchedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+            retryAfterSeconds:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+            coverage:
+              type: string
+              enum:
+                - complete_returned_records
+                - partial
+                - unknown
+          required:
+            - state
+            - reason
+            - data
+            - source
+            - fetchedAt
+            - retryAfterSeconds
+            - coverage
+        runningHistory:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+                - pending
+                - ready
+                - unavailable
+                - failed
+            reason:
+              type:
+                - string
+                - "null"
+              enum:
+                - scope_missing
+                - not_provided
+                - not_supported
+                - history_partial
+                - no_activities
+                - rate_limited
+                - provider_unavailable
+                - preview_expired
+                - invalid_value
+                - null
+            data:
+              $ref: "#/components/schemas/StravaHistoryPreview"
+            source:
+              type: string
+              enum:
+                - strava
+            fetchedAt:
+              type:
+                - string
+                - "null"
+              format: date-time
+            retryAfterSeconds:
+              type:
+                - integer
+                - "null"
+              minimum: 0
+            coverage:
+              type: string
+              enum:
+                - complete_returned_records
+                - partial
+                - unknown
+          required:
+            - state
+            - reason
+            - data
+            - source
+            - fetchedAt
+            - retryAfterSeconds
+            - coverage
+      required:
+        - id
+        - revision
+        - generatedAt
+        - expiresAt
+        - profile
+        - heartRateZones
+        - runningHistory
   parameters: {}
 paths:
   /health/live:
@@ -7137,6 +8627,216 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/onboarding:
+    get:
+      operationId: getOnboarding
+      tags:
+        - Onboarding
+      security: *a3
+      responses:
+        "200":
+          description: Restore account-owned setup; call immediately after bootstrap. No membership required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingState"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/onboarding/draft:
+    put:
+      operationId: saveOnboardingDraft
+      tags:
+        - Onboarding
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveOnboardingDraft"
+      responses:
+        "200":
+          description: Full draft saved with optimistic concurrency. Replays return the original revision.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingDraftSaved"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/onboarding/complete:
+    post:
+      operationId: completeOnboarding
+      tags:
+        - Onboarding
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteOnboarding"
+      responses:
+        "200":
+          description: Setup and receipt committed atomically. No entitlement granted or plan activated.
+            latestSequence is a hint, never a replacement pull cursor.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingCompletionReceipt"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "422":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

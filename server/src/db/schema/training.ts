@@ -67,6 +67,7 @@ export const athleteTrainingPreferences = pgTable(
     }).notNull(),
     strengthObjective: text("strength_objective").notNull(),
     experienceLevel: text("experience_level"),
+    onboarding: jsonb("onboarding"),
     notes: text("notes"),
     ...mutable(),
   },
@@ -121,6 +122,7 @@ export const baselineSnapshots = pgTable(
     confidence: json("confidence").notNull(),
     source: text("source").notNull(),
     confirmedAt: instant("confirmed_at"),
+    provenance: jsonb("provenance").notNull().default([]),
     ...mutable(),
   },
   (t) => [

@@ -8,6 +8,7 @@ import { registerAuthContract } from "../auth/contract";
 import { registerBillingRoutes } from "../billing/routes";
 import { CatalogSchema } from "../domain/records";
 import { registerIntelligenceRoutes } from "../intelligence/routes";
+import { registerOnboardingRoutes } from "../onboarding/routes";
 import { registerProgressRoutes } from "../progress/routes";
 import { registerStravaRoutes } from "../strava/routes";
 import { registerSyncRoutes } from "../sync/routes";
@@ -139,6 +140,9 @@ export function createApp(
               : status === 400
                 ? "Malformed request."
                 : "The request could not be completed.",
+          ...(error instanceof ApiError && error.details
+            ? { details: error.details }
+            : {}),
           requestId: c.get("requestId"),
         },
       },
@@ -386,6 +390,7 @@ export function createApp(
       ),
   );
 
+  registerOnboardingRoutes(app, deps);
   registerSyncRoutes(app, deps);
   app.use("/v1/progress/*", compress());
   registerProgressRoutes(app, deps);

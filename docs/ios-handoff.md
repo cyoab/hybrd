@@ -1,10 +1,10 @@
 # iOS → backend integration handoff
 
-Reviewed against the implemented server and current native app on 23 September 2026. This is the working guide for replacing local-only screens with authenticated backend integration. The API is implemented and tested; real provider credentials and native adapters are still required. Swift changes remain with the iOS agent.
+Reviewed against the implemented server and current native app on 24 September 2026. This is the working guide for replacing local-only screens with authenticated backend integration. The API is implemented and tested; real provider credentials and native adapters are still required. Swift changes remain with the iOS agent.
 
 Use [contracts/openapi.yaml](../contracts/openapi.yaml) as the wire contract. Generate the Swift API client from it, keep transport/domain mapping separate from SwiftData models, and use the runtime `/openapi.json` to compare the backend you are testing. `make openapi` regenerates the checked-in contract; CI rejects drift. Detailed companion guides: [authentication](authentication.md), [sync/development](development.md), [Progress](progress-metrics-implementation.md), [Strava](strava-integration.md), and [deployment](deployment.md).
 
-The [onboarding → backend handoff](onboarding-backend-handoff.md) describes the next connected sign-up journey, including early Apple Health/Strava imports, source-aware auto-fill, rich-profile contract gaps, and proposed onboarding endpoints. Those additions are requirements, not part of the implemented contract described here.
+The [onboarding → backend handoff](onboarding-backend-handoff.md) describes the next connected sign-up journey, including early Apple Health/Strava imports, source-aware auto-fill, the rich-profile requirements, and onboarding endpoints. The backend additions are now implemented; follow [the onboarding API guide](onboarding-api.md) for draft/complete routes, independent import previews, full profile restore, and native mapping requirements. Call `GET /v1/onboarding` immediately after bootstrap and canonical restore.
 
 ## 1. Bring up the integration environment
 

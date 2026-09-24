@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { AthleteDetailsInput } from "../athlete/details";
 import {
   AvailabilityOverrideInput,
   AvailabilityRuleInput,
@@ -41,6 +42,7 @@ function variant<T extends string, S extends z.ZodType>(name: T, schema: S) {
 export const SyncMutationSchema = z
   .discriminatedUnion("entityType", [
     variant("athlete", ProfileInput),
+    variant("athlete_details", AthleteDetailsInput),
     variant("athlete_goal", GoalInput),
     variant("training_preferences", PreferencesInput),
     variant("availability_rule", AvailabilityRuleInput),
@@ -104,6 +106,7 @@ function change<T extends keyof typeof CanonicalSchemas>(entityType: T) {
 export const SyncChangeSchema = z
   .discriminatedUnion("entityType", [
     change("athlete"),
+    change("athlete_details"),
     change("athlete_goal"),
     change("training_preferences"),
     change("availability_rule"),

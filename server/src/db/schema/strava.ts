@@ -27,6 +27,7 @@ export const stravaConnections = pgTable("strava_connections", {
     .notNull()
     .defaultNow(),
   history: jsonb("history"),
+  onboardingPreview: jsonb("onboarding_preview"),
   historyExpiresAt: timestamp("history_expires_at", { withTimezone: true }),
 });
 export const stravaOauthStates = pgTable("strava_oauth_states", {

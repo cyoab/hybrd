@@ -15,7 +15,15 @@ export type HistoryState = {
   after: number;
   before: number;
   page: number;
-  phase: "zones" | "pages" | "bests";
+  phase: "profile" | "zones" | "pages" | "bests";
+  previewId: string;
+  revision: number;
+  profile: { preferredName: string | null; weightKg: number | null } | null;
+  profileFetchedAt: string | null;
+  zonesFetchedAt: string | null;
+  profileFailure: string | null;
+  zonesFailure: string | null;
+  historyFailure: string | null;
   activities: HistoryActivity[];
   zones: {
     custom: boolean;
@@ -33,7 +41,15 @@ export function newHistory(now = Date.now()): HistoryState {
     after: before - 365 * 86400,
     before,
     page: 1,
-    phase: "zones",
+    phase: "profile",
+    previewId: crypto.randomUUID(),
+    revision: 0,
+    profileFetchedAt: null,
+    zonesFetchedAt: null,
+    profile: null,
+    profileFailure: null,
+    zonesFailure: null,
+    historyFailure: null,
     activities: [],
     zones: null,
     candidates: [],
@@ -108,7 +124,7 @@ export function historyPreview(state: HistoryState, now = Date.now()) {
   return {
     source: "strava" as const,
     generatedAt: new Date(now).toISOString(),
-    expiresAt: new Date(now + 7 * 86400_000).toISOString(),
+    expiresAt: new Date((state.before + 7 * 86400) * 1000).toISOString(),
     periodStart: new Date(state.after * 1000).toISOString(),
     periodEnd: new Date(state.before * 1000).toISOString(),
     activityCount: state.activities.length,
@@ -116,6 +132,12 @@ export function historyPreview(state: HistoryState, now = Date.now()) {
     heartRateZones: state.zones,
     running: [7, 28, 365].map(summarize),
     strengthSessions: strength.length,
+    strengthWindows: [7, 28, 365].map((days) => {
+      const sessions = strength.filter(
+        (a) => Date.parse(a.start_date) >= (state.before - days * 86400) * 1000,
+      ).length;
+      return { days, sessions, averageSessionsPerWeek: (sessions * 7) / days };
+    }),
     longestRunM: running.length
       ? Math.round(Math.max(...running.map((r) => r.distance)))
       : null,

@@ -27,9 +27,7 @@ const server = Bun.serve({
   fetch: app.fetch,
 });
 log({ event: "server_started", port: server.port });
-const stopStrava = env.STRAVA_CLIENT_ID
-  ? startStravaWorker(database.client, env, stravaProvider(env))
-  : async () => {};
+const stopStrava = startStravaWorker(database.client, env, stravaProvider(env));
 
 let stopping = false;
 async function shutdown() {

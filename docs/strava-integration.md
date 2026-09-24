@@ -1,10 +1,12 @@
+> Onboarding extension (24 September 2026): status now includes independent `onboardingPreview` sections for profile, zones and history. The `/history` refresh route also supports profile-only grants. See [the implemented onboarding API guide](onboarding-api.md) for reviewed completion, snapshot revisions and retention.
+
 # Strava integration and iOS handoff
 
 The backend owns OAuth credentials, history retrieval, metric previews, token refresh, webhook handling and outbound publishing. iOS opens authorization, lets the athlete review onboarding suggestions, saves normal workout results, and shows connection/job status. No iOS implementation is included in this change.
 
 The product owner confirmed Strava approval for this use. The implemented history workflow is a bounded import for the connected athlete's onboarding and planning: it does not scrape pages, build a cross-user dataset or train a model. Imported previews are not automatically submitted to the AI providers.
 
-For the next onboarding phase, see the [onboarding → backend handoff](onboarding-backend-handoff.md). Apple Health and Strava should both prefill onboarding where data is available. Name/weight import and independently usable Strava profile-only previews are requested additions; the current implementation below imports zones and activity history. Strava does not provide documented height/age fields.
+The [onboarding API guide](onboarding-api.md) covers implemented name/weight import, independent profile/zones/history sections, and atomic reviewed setup. Apple Health reads remain on iOS. Strava does not provide documented height/age fields. The original [iOS brief](onboarding-backend-handoff.md) remains the native acceptance checklist.
 
 ## Implementation
 

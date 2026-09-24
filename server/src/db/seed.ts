@@ -14,13 +14,13 @@ try {
   await database.db
     .insert(trainingPolicyVersions)
     .values({
-      id: "00000000-0000-4000-8000-000000000002",
-      version: 2,
+      id: "00000000-0000-4000-8000-000000000003",
+      version: 3,
       schemaVersion: 1,
       status: "published",
       config: developmentPolicy,
       checksum: policyChecksum(developmentPolicy),
-      publishedAt: new Date("2026-09-21T00:00:00Z"),
+      publishedAt: new Date("2026-09-24T00:00:00Z"),
     })
     .onConflictDoNothing();
   await seedCatalog(database.client);

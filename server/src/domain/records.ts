@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { AthleteDetailsInput, Provenance } from "../athlete/details";
 import {
   AvailabilityOverrideInput,
   AvailabilityRuleInput,
@@ -25,6 +26,10 @@ const owned = { ...mutable, athleteId: Id };
 
 const json = z.record(z.string(), z.unknown());
 export const CanonicalSchemas = {
+  athlete_details: AthleteDetailsInput.safeExtend({
+    ...owned,
+    provenance: z.array(Provenance),
+  }).openapi("AthleteDetailsRecord"),
   athlete: ProfileInput.safeExtend(mutable).openapi("AthleteRecord"),
   athlete_goal: GoalInput.safeExtend(owned).openapi("GoalRecord"),
   training_preferences: PreferencesInput.safeExtend(owned).openapi(
@@ -36,7 +41,10 @@ export const CanonicalSchemas = {
   availability_override: AvailabilityOverrideInput.safeExtend(owned).openapi(
     "AvailabilityOverrideRecord",
   ),
-  baseline_snapshot: BaselineInput.safeExtend(owned).openapi("BaselineRecord"),
+  baseline_snapshot: BaselineInput.safeExtend({
+    ...owned,
+    provenance: z.array(Provenance),
+  }).openapi("BaselineRecord"),
   planning_context_snapshot: PlanningContextInput.safeExtend({
     ...owned,
     checksum: z.string(),

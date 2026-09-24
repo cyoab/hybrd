@@ -1,5 +1,6 @@
 import type { z } from "@hono/zod-openapi";
 import { ApiError } from "../api/errors";
+import { AthleteDetailsInput, type Provenance } from "../athlete/details";
 import {
   AvailabilityOverrideInput,
   AvailabilityRuleInput,
@@ -35,6 +36,7 @@ import {
 
 const inputs: Record<string, z.ZodType> = {
   athlete: ProfileInput,
+  athlete_details: AthleteDetailsInput,
   athlete_goal: GoalInput,
   training_preferences: PreferencesInput,
   availability_rule: AvailabilityRuleInput,
@@ -81,11 +83,14 @@ export async function applyMutation(sql: Tx, athlete: Row, mutation: Mutation) {
       "INVALID_OPERATION",
       "An athlete may only update their own profile.",
     );
-  if (mutation.entityType === "training_preferences" && id !== athleteId)
+  if (
+    ["training_preferences", "athlete_details"].includes(mutation.entityType) &&
+    id !== athleteId
+  )
     throw new ApiError(
       400,
       "INVALID_ENTITY_ID",
-      "Training preferences use the athlete ID.",
+      "Training preferences and athlete details use the athlete ID.",
     );
   if (mutation.operation === "activate_plan") {
     if (mutation.entityType !== "plan_version")
@@ -193,6 +198,29 @@ export async function applyMutation(sql: Tx, athlete: Row, mutation: Mutation) {
   if (!schema)
     throw new ApiError(400, "INVALID_OPERATION", "Unsupported mutation.");
   let data = schema.parse(mutation.payload) as Row;
+  if (mutation.entityType === "athlete_details") {
+    const details = AthleteDetailsInput.parse(data).details;
+    for (const record of details.strengthRecords)
+      await catalogReference(sql, "exercises", record.exerciseId);
+    // Imported provenance is server-managed. Preserve it only for unchanged facts.
+    const previous = (existing?.details ?? {}) as Row;
+    data.provenance = (
+      (existing?.provenance ?? []) as z.infer<typeof Provenance>[]
+    ).filter(
+      (p) =>
+        p.field in details &&
+        hash(previous[p.field] ?? null) ===
+          hash((details as Row)[p.field] ?? null),
+    );
+  }
+  if (mutation.entityType === "training_preferences") {
+    const preferences = PreferencesInput.parse(data);
+    for (const id of preferences.onboarding?.focusMuscleIds ?? []) {
+      const [muscle] = await sql`select id from muscle_groups where id=${id}`;
+      if (!muscle)
+        throw new ApiError(400, "INVALID_REFERENCE", "Unknown muscle group.");
+    }
+  }
   if (data.exerciseId)
     await catalogReference(sql, "exercises", String(data.exerciseId));
   if (data.equipmentId)
@@ -213,6 +241,9 @@ export async function applyMutation(sql: Tx, athlete: Row, mutation: Mutation) {
         "POLICY_UNAVAILABLE",
         "Reference a published policy version.",
       );
+    const snapshot = PlanningContextInput.parse(data).snapshot;
+    if (snapshot.athleteDetailsId)
+      await owned(sql, "athlete_details", snapshot.athleteDetailsId, athleteId);
     data.checksum = `sha256:${hash(data.snapshot)}`;
   }
   if (mutation.entityType === "training_block" && existing) {

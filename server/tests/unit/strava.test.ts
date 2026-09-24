@@ -262,3 +262,21 @@ test("an invalid refresh grant requires reauthentication instead of retrying for
     retryAfter: 0,
   });
 });
+
+test("profile adapter tolerates absent/invalid weight without discarding valid name or inventing body facts", async () => {
+  for (const weight of [null, 0, -1, 401, "72", undefined]) {
+    const p = providerWith(async (url) => {
+      expect(url).toBe("https://www.strava.com/api/v3/athlete");
+      return Response.json({
+        firstname: "  Sam  ",
+        weight,
+        height: 180,
+        birthday: "1990-01-01",
+      });
+    });
+    expect(await p.profile("token")).toEqual({
+      firstname: "Sam",
+      weight: null,
+    });
+  }
+});

@@ -2,6 +2,7 @@ export * from "./auth";
 export * from "./billing";
 export * from "./foundation";
 export * from "./intelligence";
+export * from "./onboarding";
 export * from "./progress";
 export * from "./strava";
 export * from "./sync";

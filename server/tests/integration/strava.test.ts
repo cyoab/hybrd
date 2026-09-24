@@ -23,6 +23,11 @@ let publishCalls = 0,
   revokeCalls = 0;
 let publicationError: StravaError | null = null;
 let refreshError: StravaError | null = null;
+let profileError: StravaError | null = null;
+let profileValue = {
+  firstname: "Sam" as string | null,
+  weight: 72.5 as number | null,
+};
 let nextRemote = 1000;
 const activity = (id = "501", distance = 5000, duration = 1500) =>
   Activity.parse({
@@ -60,6 +65,10 @@ const provider: StravaProvider = {
     revokeCalls++;
     revokedTokens.push(token);
   },
+  profile: async () => {
+    if (profileError) throw profileError;
+    return profileValue;
+  },
   zones: async () => ({
     heart_rate: {
       custom_zones: true,
@@ -94,6 +103,8 @@ beforeEach(async () => {
   revokeCalls = 0;
   publicationError = null;
   refreshError = null;
+  profileError = null;
+  profileValue = { firstname: "Sam", weight: 72.5 };
   duringPublish = undefined;
   duringRefresh = undefined;
   revokedTokens = [];
@@ -673,6 +684,7 @@ test("webhook invalidation during import prevents the previous job from restorin
   await connect(a, allScopes, true, remote);
   await tick();
   await tick();
+  await tick();
   const [prior] =
     await sql`select id from strava_jobs where athlete_id=${a.athleteId} and kind='history'`;
   detail = async (_token, id) => {
@@ -710,4 +722,180 @@ test("disconnect or account deletion during token refresh revokes the rotated to
     expect(revokedTokens.at(-1)).toBe("rotated-refresh");
     expect(publishCalls).toBe(0);
   }
+});
+
+test("profile-only grant returns name, optional weight and zones independently from activity access", async () => {
+  const a = await account();
+  profileValue = { firstname: "Sam", weight: null };
+  await connect(a, "read,profile:read_all", true);
+  let p = (await status(a)).onboardingPreview;
+  expect(p.profile.state).toBe("pending");
+  expect(p.runningHistory.reason).toBe("scope_missing");
+  await tick();
+  p = (await status(a)).onboardingPreview;
+  expect(p.profile).toMatchObject({
+    state: "ready",
+    data: { preferredName: "Sam", weightKg: null, measuredAt: null },
+  });
+  expect(p.heartRateZones.state).toBe("pending");
+  const revision = p.revision;
+  await tick();
+  p = (await status(a)).onboardingPreview;
+  expect(p.revision).not.toBe(revision);
+  expect(p.heartRateZones.state).toBe("ready");
+  expect((await status(a)).history).toBeNull();
+  expect((await a.send("/v1/integrations/strava/history", {})).status).toBe(
+    202,
+  );
+});
+
+test("activity-only grant, provider profile outage and missing grants leave independent sections usable", async () => {
+  for (const scopes of ["activity:read_all", allScopes, ""]) {
+    const a = await account();
+    profileError = new StravaError("STRAVA_NETWORK_ERROR", 60);
+    await connect(a, scopes, true);
+    for (let i = 0; i < 4; i++) await tick();
+    const p = (await status(a)).onboardingPreview;
+    expect(p.profile).toMatchObject(
+      scopes === allScopes
+        ? { state: "failed", reason: "provider_unavailable" }
+        : { state: "unavailable", reason: "scope_missing" },
+    );
+    expect(p.runningHistory.state).toBe(scopes ? "ready" : "unavailable");
+    if (scopes === allScopes) expect(p.heartRateZones.state).toBe("ready");
+  }
+});
+
+test("28-day history suggests 70km weekly and preserves 2.5 lifting sessions/week", async () => {
+  const a = await account();
+  pages = () => [
+    { ...activity("1", 280000, 84000), manual: true },
+    ...Array.from({ length: 10 }, (_, i) => ({
+      ...activity(String(i + 2), 0, 1800),
+      sport_type: "WeightTraining",
+    })),
+    {
+      ...activity("99", 0, 1800),
+      sport_type: "WeightTraining",
+      start_date: new Date(Date.now() - 90 * 86400_000).toISOString(),
+    },
+  ];
+  await connect(a, allScopes, true);
+  for (let i = 0; i < 3; i++) await tick();
+  const p = (await status(a)).onboardingPreview;
+  expect(p.runningHistory.data.running[1].averageWeeklyDistanceM).toBe(70000);
+  expect(p.runningHistory.data.strengthWindows[1]).toEqual({
+    days: 28,
+    sessions: 10,
+    averageSessionsPerWeek: 2.5,
+  });
+  expect(p.runningHistory.data.strengthSessions).toBe(11);
+  expect(p.runningHistory.coverage).toBe("complete_returned_records");
+});
+
+test("rate-limited onboarding preview exposes retry timing and disconnect clears its data", async () => {
+  const a = await account();
+  profileError = new StravaError("STRAVA_RATE_LIMITED", 120);
+  await connect(a, allScopes, true);
+  await tick();
+  expect((await status(a)).onboardingPreview.profile).toMatchObject({
+    state: "pending",
+    reason: "rate_limited",
+    retryAfterSeconds: 120,
+  });
+  await a.send("/v1/integrations/strava", undefined, "DELETE");
+  expect((await status(a)).onboardingPreview).toBeNull();
+  expect(
+    (
+      await sql`select onboarding_preview from strava_connections where athlete_id=${a.athleteId}`
+    )[0]?.onboarding_preview,
+  ).toBeNull();
+});
+
+test("reviewed Strava recent metrics complete onboarding through the coordinator with exact provenance", async () => {
+  const a = await account();
+  pages = () => [
+    { ...activity("1", 280000, 84000), manual: true },
+    ...Array.from({ length: 10 }, (_, i) => ({
+      ...activity(String(i + 2), 0, 1800),
+      sport_type: "WeightTraining",
+    })),
+  ];
+  await connect(a, allScopes, true);
+  for (let i = 0; i < 3; i++) await tick();
+  const p = (await status(a)).onboardingPreview;
+  const example = await Bun.file(
+    new URL(
+      "../../../contracts/examples/onboarding-draft.json",
+      import.meta.url,
+    ),
+  ).json();
+  const d = example.draft,
+    hist = p.runningHistory.data;
+  d.details.preferredName = "Sam";
+  d.details.weightKg = 72.5;
+  d.weeklyDistanceM = 70000;
+  d.currentStrengthSessionsPerWeek = 2.5;
+  d.baselinePeriod = {
+    start: new Date(Date.parse(hist.periodEnd) - 28 * 86400_000)
+      .toISOString()
+      .slice(0, 10),
+    end: hist.periodEnd.slice(0, 10),
+  };
+  // The rolling import is UTC; choose UTC for this fixture's calendar-date boundary.
+  d.profile.timezone = "UTC";
+  d.importDecisions = [
+    "preferredName",
+    "weightKg",
+    "weeklyDistanceM",
+    "currentStrengthSessionsPerWeek",
+  ].map((field) => ({
+    field,
+    source: "strava",
+    decision: "accept",
+    previewId: p.id,
+    previewRevision: p.revision,
+  }));
+  expect(await h.services.onboarding.save(a.userId, uuid(), example)).toEqual({
+    draftRevision: "1",
+  });
+  const { catalogVersion } = await import("../../src/catalog/data"),
+    { policyId } = await import("./helpers");
+  const result = await h.services.onboarding.complete(a.userId, uuid(), {
+    draftRevision: "1",
+    deviceId: a.deviceId,
+    catalogVersion,
+    policyVersionId: policyId,
+  });
+  const [baseline] =
+    await sql`select * from baseline_snapshots where id=${result.baseline.id}`;
+  expect(baseline?.metrics.weeklyDistanceM).toBe(70000);
+  expect(baseline?.source).toBe("strava");
+  expect(baseline?.provenance[0]).toMatchObject({
+    source: "strava",
+    verification: "server_preview",
+    observation: {
+      coverage: "complete_returned_records",
+      window: { timezone: "UTC" },
+    },
+  });
+});
+
+test("expired onboarding previews and temporary profile data are purged even with provider access disabled", async () => {
+  const a = await account();
+  await connect(a, allScopes, true);
+  await tick();
+  await sql`update strava_connections set history_expires_at=now()-interval '1 second' where athlete_id=${a.athleteId}`;
+  await sql`update strava_jobs set payload=jsonb_set(payload,'{before}',to_jsonb(extract(epoch from now()-interval '8 days')::bigint)) where athlete_id=${a.athleteId}`;
+  await processStravaJob(sql, env, { ...provider, available: false });
+  expect(
+    (
+      await sql`select onboarding_preview from strava_connections where athlete_id=${a.athleteId}`
+    )[0]?.onboarding_preview,
+  ).toBeNull();
+  expect(
+    (
+      await sql`select payload from strava_jobs where athlete_id=${a.athleteId}`
+    )[0]?.payload,
+  ).toBeNull();
 });

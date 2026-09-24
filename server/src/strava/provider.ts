@@ -143,6 +143,13 @@ export function stravaProvider(env: Env, fetcher: typeof fetch = fetch) {
         true,
       );
     },
+    profile: async (token: string) =>
+      z
+        .object({
+          firstname: z.string().trim().min(1).max(40).nullable().catch(null),
+          weight: z.number().min(20).max(400).nullable().catch(null),
+        })
+        .parse(await call("/api/v3/athlete", "GET", token)),
     zones: async (token: string) =>
       z
         .object({

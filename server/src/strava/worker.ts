@@ -7,8 +7,10 @@ import {
   bestCandidates,
   type HistoryState,
   historyPreview,
+  newHistory,
   summarizeActivity,
 } from "./history";
+import { onboardingPreview } from "./preview";
 import {
   type PublishActivity,
   StravaError,
@@ -56,13 +58,16 @@ export async function processStravaJob(
   env: Env,
   provider: StravaProvider,
 ) {
-  if (!provider.available) return false;
   const lock = await client.reserve();
   let locked = false;
   try {
     const [got] = await lock`select pg_try_advisory_lock(473920,1) as acquired`;
     locked = Boolean(got?.acquired);
     if (!locked) return false;
+    // Retention runs even when provider credentials are temporarily disabled.
+    await client`update strava_connections set history=null,onboarding_preview=null,history_expires_at=null where history_expires_at<=now()`;
+    await client`update strava_jobs set payload=null where kind='history' and (payload->>'before')::bigint < extract(epoch from now()-interval '7 days')`;
+    if (!provider.available) return false;
     // The session lock proves no other worker is active. A prior publishing
     // process may have died after Strava accepted it: never blindly POST again.
     await client`update strava_jobs set state=case when state='publishing' then 'needs_review' else 'retry' end,error_code=case when state='publishing' then 'STRAVA_DELIVERY_UNKNOWN' else 'WORKER_RESTARTED' end,available_at=now(),updated_at=now() where state in ('running','publishing')`;
@@ -90,8 +95,6 @@ export async function processStravaJob(
       }
       return true;
     }
-    await client`update strava_connections set history=null,history_expires_at=null where history_expires_at<=now()`;
-    await client`update strava_jobs set payload=null where kind='history' and (payload->>'before')::bigint < extract(epoch from now()-interval '7 days')`;
     const [job] = await client<
       Row[]
     >`update strava_jobs set state='running',attempts=attempts+1,updated_at=now()
@@ -129,7 +132,7 @@ export async function processStravaJob(
       if (job.kind === "revoke") {
         await reserveRequest(client);
         await provider.revoke(tokens.refresh_token);
-        await client`update strava_connections set tokens=null,status='disconnected',auto_publish=false,history=null,history_expires_at=null where athlete_id=${owner} and generation=${generation}`;
+        await client`update strava_connections set tokens=null,status='disconnected',auto_publish=false,history=null,onboarding_preview=null,history_expires_at=null where athlete_id=${owner} and generation=${generation}`;
         await finish("completed");
         return true;
       }
@@ -206,13 +209,44 @@ export async function processStravaJob(
           await finish("failed", "HISTORY_EXPIRED");
           return true;
         }
+        // In-flight jobs from an older deployment restart with the new preview identity.
+        if (!history.previewId) Object.assign(history, newHistory());
         const scopes = connection.scopes as string[];
-        if (history.phase === "zones") {
+        if (history.phase === "profile") {
+          if (scopes.some((s) => ["read", "profile:read_all"].includes(s))) {
+            try {
+              await reserveRequest(client);
+              const profile = await provider.profile(tokens.access_token);
+              history.profileFetchedAt = new Date().toISOString();
+              history.profile = {
+                preferredName: profile.firstname,
+                weightKg: scopes.includes("profile:read_all")
+                  ? profile.weight
+                  : null,
+              };
+            } catch (error) {
+              if (
+                error instanceof StravaError &&
+                [
+                  "STRAVA_RATE_LIMITED",
+                  "STRAVA_REAUTHENTICATION_REQUIRED",
+                ].includes(error.code)
+              )
+                throw error;
+              history.profileFailure =
+                error instanceof StravaError
+                  ? error.code
+                  : "STRAVA_INVALID_RESPONSE";
+            }
+          }
+          history.phase = "zones";
+        } else if (history.phase === "zones") {
           if (scopes.includes("profile:read_all")) {
             try {
               await reserveRequest(client);
               const zones = (await provider.zones(tokens.access_token))
                 .heart_rate;
+              history.zonesFetchedAt = new Date().toISOString();
               history.zones = zones
                 ? {
                     custom: zones.custom_zones,
@@ -226,13 +260,24 @@ export async function processStravaJob(
             } catch (error) {
               if (
                 error instanceof StravaError &&
-                error.code === "STRAVA_SCOPE_REQUIRED"
+                [
+                  "STRAVA_RATE_LIMITED",
+                  "STRAVA_REAUTHENTICATION_REQUIRED",
+                ].includes(error.code)
               )
-                history.zonesUnavailable = true;
-              else throw error;
+                throw error;
+              history.zonesUnavailable = true;
+              history.zonesFailure =
+                error instanceof StravaError
+                  ? error.code
+                  : "STRAVA_INVALID_RESPONSE";
             }
           } else history.zonesUnavailable = true;
-          history.phase = "pages";
+          history.phase = scopes.some((s) =>
+            ["activity:read", "activity:read_all"].includes(s),
+          )
+            ? "pages"
+            : "bests";
         } else if (history.phase === "pages") {
           await reserveRequest(client);
           const activities = await provider.activities(
@@ -301,6 +346,7 @@ export async function processStravaJob(
         const done =
           history.phase === "bests" &&
           history.detailIndex >= history.candidates.length;
+        history.revision++;
         await client.begin(async (sql) => {
           // Match webhook lock ordering so a deletion cannot restore stale data.
           const [current] =
@@ -309,8 +355,15 @@ export async function processStravaJob(
           const changed =
             await sql`update strava_jobs set state=${done ? "completed" : "queued"},payload=${done ? null : sql.json(history)},attempts=0,error_code=null,available_at=now()+interval '1 second',updated_at=now() where id=${id} and state='running' returning id`;
           if (!changed.length) return;
+          const onboarding = onboardingPreview(history, scopes);
+          await sql`update strava_connections set onboarding_preview=${sql.json(onboarding)},history_expires_at=${new Date(onboarding.expiresAt)} where athlete_id=${owner}`;
           // Volume/pace/zones are usable before optional PB detail requests finish.
-          if (history.phase === "bests") {
+          if (
+            history.phase === "bests" &&
+            scopes.some((s) =>
+              ["activity:read", "activity:read_all"].includes(s),
+            )
+          ) {
             const preview = historyPreview(history);
             await sql`update strava_connections set history=${sql.json(preview)},history_expires_at=${new Date(preview.expiresAt)} where athlete_id=${owner} and generation=${generation} and status='connected'`;
           }
@@ -322,7 +375,7 @@ export async function processStravaJob(
           ? error
           : new StravaError("STRAVA_REQUEST_FAILED", 60, publicationStarted);
       if (failure.code === "STRAVA_REAUTHENTICATION_REQUIRED")
-        await client`update strava_connections set status='reauthentication_required',auto_publish=false,history=null,history_expires_at=null where athlete_id=${owner} and generation=${generation} and status='connected'`;
+        await client`update strava_connections set status='reauthentication_required',auto_publish=false,history=null,onboarding_preview=null,history_expires_at=null where athlete_id=${owner} and generation=${generation} and status='connected'`;
       if (failure.code === "STRAVA_RATE_LIMITED")
         await client`update strava_budget set blocked_until=greatest(coalesce(blocked_until,now()),now()+${failure.retryAfter}*interval '1 second') where id=1`;
       const retry =
@@ -340,6 +393,33 @@ export async function processStravaJob(
         Math.max(failure.retryAfter, 2 ** Number(job.attempts) * 5),
       );
       await client`update strava_jobs set state=${state},error_code=${failure.code},available_at=now()+${delay}*interval '1 second',updated_at=now() where id=${id} and state in ('running','publishing')`;
+      if (job.kind === "history") {
+        await client.begin(async (sql) => {
+          const [c] =
+            await sql`select onboarding_preview from strava_connections where athlete_id=${owner} and generation=${generation} and status='connected' for update`;
+          const [j] = await sql`select state from strava_jobs where id=${id}`;
+          if (
+            !c?.onboarding_preview ||
+            !["retry", "failed"].includes(String(j?.state))
+          )
+            return;
+          const preview = c.onboarding_preview;
+          for (const section of [
+            preview.profile,
+            preview.heartRateZones,
+            preview.runningHistory,
+          ])
+            if (section.state === "pending") {
+              section.state = retry ? "pending" : "failed";
+              section.reason =
+                failure.code === "STRAVA_RATE_LIMITED"
+                  ? "rate_limited"
+                  : "provider_unavailable";
+              section.retryAfterSeconds = retry ? delay : null;
+            }
+          await sql`update strava_connections set onboarding_preview=${sql.json(preview)} where athlete_id=${owner}`;
+        });
+      }
     }
     return true;
   } finally {

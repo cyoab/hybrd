@@ -7,8 +7,10 @@ import {
   optionalId,
   optionalInstant,
   orderedRange,
+  Revision,
   Zone,
 } from "../domain/schemas";
+import { AthleteDetails, OnboardingPreferences } from "./details";
 
 export const ProfileInput = z
   .object({
@@ -16,7 +18,12 @@ export const ProfileInput = z
     locale: z.string().min(2).max(35),
     distanceUnit: z.enum(["km", "mi"]),
     loadUnit: z.enum(["kg", "lb"]),
-    weekStartsOn: z.number().int().min(1).max(7),
+    weekStartsOn: z
+      .number()
+      .int()
+      .min(1)
+      .max(7)
+      .describe("Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"),
     trainingDayBoundary: z
       .string()
       .regex(/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/)
@@ -42,6 +49,7 @@ export const PreferencesInput = z
       .nullable()
       .default(null),
     notes: Notes,
+    onboarding: OnboardingPreferences.nullable().optional(),
   })
   .strict()
   .refine(
@@ -77,7 +85,12 @@ export const GoalInput = z
   .openapi("AthleteGoalInput");
 export const AvailabilityRuleInput = z
   .object({
-    dayOfWeek: z.number().int().min(1).max(7),
+    dayOfWeek: z
+      .number()
+      .int()
+      .min(1)
+      .max(7)
+      .describe("Foundation weekday: Sunday=1, Monday=2, ... Saturday=7"),
     available: z.boolean(),
     maxSessions: z.number().int().min(0).max(3),
     minSessionMinutes: z
@@ -162,6 +175,11 @@ export const PlanningContextInput = z
         availabilityOverrides: z.array(AvailabilityOverrideInput).max(365),
         equipmentIds: z.array(Id).max(100),
         recentFeatures: Features,
+        athleteDetailsId: Id.nullable().optional(),
+        athleteDetailsSnapshot: z
+          .object({ revision: Revision, details: AthleteDetails })
+          .strict()
+          .optional(),
       })
       .strict(),
   })

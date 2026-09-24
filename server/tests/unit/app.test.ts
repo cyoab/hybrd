@@ -7,6 +7,17 @@ function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    onboarding: {
+      get: async () => {
+        throw new Error("unused");
+      },
+      save: async () => {
+        throw new Error("unused");
+      },
+      complete: async () => {
+        throw new Error("unused");
+      },
+    },
     strava: {
       status: async () => {
         throw new Error("Unexpected Strava");

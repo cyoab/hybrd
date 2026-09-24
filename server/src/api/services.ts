@@ -11,6 +11,7 @@ import {
   openRouterProvider,
 } from "../intelligence/provider";
 import { intelligenceServices } from "../intelligence/service";
+import { onboardingServices, readOnboarding } from "../onboarding/service";
 import { type ProgressOptions, progressServices } from "../progress/service";
 import { type StravaProvider, stravaProvider } from "../strava/provider";
 import { stravaServices } from "../strava/service";
@@ -40,6 +41,7 @@ export function createServices(
     return policy ? TrainingPolicySchema.parse(wire(policy)) : null;
   }
   return {
+    onboarding: onboardingServices(client),
     strava: stravaServices(client, env, options.strava ?? stravaProvider(env)),
     progress: progressServices(
       client,
@@ -51,7 +53,10 @@ export function createServices(
     intelligence: intelligenceServices(client, env, intelligence),
     catalog: () => readCatalog(client),
     exportAccount: (authUserId) =>
-      withAthlete(client, authUserId, exportTraining),
+      withAthlete(client, authUserId, async (sql, athlete) => ({
+        ...(await exportTraining(sql, athlete)),
+        onboarding: await readOnboarding(sql, athlete),
+      })),
     deleteAccount: async (authUserId, headers) => {
       const session = await auth.api.getSession({ headers });
       if (

@@ -20,7 +20,11 @@ import {
   SyncPushSchema,
 } from "./schemas";
 
-async function requireDevice(sql: Tx, athleteId: string, deviceId: string) {
+export async function requireDevice(
+  sql: Tx,
+  athleteId: string,
+  deviceId: string,
+) {
   const [device] =
     await sql`select id from device_installations where id=${deviceId} and athlete_id=${athleteId} and revoked_at is null`;
   if (!device)

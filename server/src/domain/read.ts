@@ -4,6 +4,7 @@ import { CanonicalSchemas } from "./records";
 
 export const entityTables = {
   athlete: "athletes",
+  athlete_details: "athlete_details",
   athlete_goal: "athlete_goals",
   training_preferences: "athlete_training_preferences",
   availability_rule: "athlete_availability_rules",

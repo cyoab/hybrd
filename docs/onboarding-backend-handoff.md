@@ -1,6 +1,6 @@
 # Onboarding → backend handoff
 
-Updated 23 September 2026. **Implementation brief; proposed additions below are not live endpoints or shipped app behavior.** Reviewed against `ios/App/Models/Onboarding`, the implemented Strava service, and the checked-in OpenAPI contract.
+Original iOS implementation brief, 23 September 2026. **Backend implementation delivered 24 September 2026:** draft/read/atomic-completion endpoints, typed athlete details, catalog mappings, independent Strava previews, restore and provider fixtures are implemented. See [the implemented API contract and native integration decisions](onboarding-api.md) and [OpenAPI](../contracts/openapi.yaml). The original requirements and “Backend today” assessment below describe the pre-implementation state; they are retained as the acceptance brief. Native connected onboarding is still to be integrated; this does not mark the disconnected iOS prototype as connected.
 
 ## Outcome and decisions
 
