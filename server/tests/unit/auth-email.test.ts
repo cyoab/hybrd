@@ -35,12 +35,56 @@ test("Google and email configuration fail closed when incomplete or unsafe", () 
   ).toBe("resend");
 });
 test("email has accessible HTML, plain text, clear expiry and no code in subject", () => {
-  const message = otpMessage("123456");
-  expect(message.subject).not.toContain("123456");
-  expect(message.text).toContain("123456");
+  const message = otpMessage("012345");
+  expect(message.subject).not.toContain("012345");
+  expect(message.html.match(/<title>(.*?)<\/title>/s)?.[1]).not.toContain(
+    "012345",
+  );
+  expect(message.html.match(/<div[^>]*>(.*?)<\/div>/s)?.[1]).not.toContain(
+    "012345",
+  );
+  expect(message.text).toContain("012345");
+  // Preserve leading zeroes and a single selectable code, not separate digit cells.
+  expect(message.html).toContain(">012345</p>");
   expect(message.text).toContain("10 minutes");
+  expect(message.text).toContain("Never share");
+  expect(message.text).toContain("ignore this email");
   expect(message.html).toContain('lang="en"');
-  expect(() => otpMessage("<script>")).toThrow();
+  expect(message.html.match(/<h1\b/g)).toHaveLength(1);
+  for (const table of message.html.matchAll(/<table\b[^>]*>/g)) {
+    expect(table[0]).toContain('role="presentation"');
+  }
+  expect(message.html).toContain('alt=""');
+});
+test("email rejects malformed codes before interpolating HTML", () => {
+  for (const code of [
+    "<script>",
+    "12345",
+    "1234567",
+    "123456\n",
+    "１２３４５６",
+  ])
+    expect(() => otpMessage(code)).toThrow("Invalid authentication code");
+});
+test("email embeds a packaged PNG with no remote image or stylesheet dependency", async () => {
+  const message = otpMessage("123456");
+  expect(message.attachments).toHaveLength(1);
+  const attachment = message.attachments[0];
+  if (!attachment) throw new Error("Missing inline logo");
+  expect(attachment.filename).toBe("hybrd-mark.png");
+  expect(attachment.content_type).toBe("image/png");
+  expect(message.html).toContain(`src="cid:${attachment.content_id}"`);
+  const png = Buffer.from(attachment.content, "base64");
+  expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+  expect(png).toEqual(
+    Buffer.from(
+      await Bun.file(
+        new URL("../../src/auth/emails/assets/hybrd-mark.png", import.meta.url),
+      ).arrayBuffer(),
+    ),
+  );
+  expect(message.html).not.toMatch(/(?:src|href)=["']https?:|url\(|@import/i);
+  expect(message.html).not.toContain("data:image");
 });
 test("Resend receives the authenticated sender, recipient and both email formats", async () => {
   const env = readEnv({
@@ -58,6 +102,10 @@ test("Resend receives the authenticated sender, recipient and both email formats
       expect(body.to).toEqual(["athlete@example.test"]);
       expect(body.text).toContain("123456");
       expect(body.html).toContain("123456");
+      expect(body.attachments).toEqual(otpMessage("123456").attachments);
+      expect(body.html).toContain(
+        `src="cid:${body.attachments[0].content_id}"`,
+      );
       expect(new Headers(init?.headers).get("authorization")).toBe(
         "Bearer test-key",
       );
@@ -73,6 +121,7 @@ test("Resend retries transient failures with the same idempotency key and bounde
     RESEND_API_KEY: "test-key",
   });
   const keys: string[] = [];
+  const bodies: string[] = [];
   await createOtpMailer(
     env,
     fake((url, init) => {
@@ -81,6 +130,7 @@ test("Resend retries transient failures with the same idempotency key and bounde
       const headers = new Headers(init?.headers);
       expect(headers.get("authorization")).toBe("Bearer test-key");
       keys.push(headers.get("Idempotency-Key") ?? "");
+      bodies.push(String(init?.body));
       expect(JSON.parse(String(init?.body)).from).toBe(
         "hybrd <signin@example.com>",
       );
@@ -92,6 +142,7 @@ test("Resend retries transient failures with the same idempotency key and bounde
   expect(keys).toHaveLength(2);
   expect(keys[0]).toBe(keys[1]);
   expect(keys[0]).toStartWith("auth-otp/");
+  expect(bodies[0]).toBe(bodies[1]);
 });
 test("permanent delivery failures are not retried or leaked, disabled transport never calls fetch", async () => {
   const env = readEnv({

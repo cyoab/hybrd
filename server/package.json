@@ -14,7 +14,8 @@
     "db:seed": "bun src/db/seed.ts",
     "openapi:generate": "bun openapi/generate.ts",
     "openapi:check": "bun openapi/generate.ts --check",
-    "ops": "bun src/ops/cli.ts"
+    "ops": "bun src/ops/cli.ts",
+    "email:preview": "bun scripts/preview-email.ts"
   },
   "dependencies": {
     "@apple/app-store-server-library": "3.1.0",

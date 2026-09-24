@@ -20,7 +20,8 @@
     "db:seed": "bun run --cwd server db:seed",
     "openapi:generate": "bun run --cwd server openapi:generate",
     "openapi:check": "bun run --cwd server openapi:check",
-    "ops": "bun run --cwd server ops"
+    "ops": "bun run --cwd server ops",
+    "email:preview": "bun run --cwd server email:preview"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",

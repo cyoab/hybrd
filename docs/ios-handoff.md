@@ -30,13 +30,15 @@ The sender must belong to a domain verified in Resend. Do not put these secrets 
 
 Keep the origin configurable per build/environment. Native clients never use Compose hostnames such as `api` or `postgres`. `/health/live` confirms a process is running; `/health/ready` confirms PostgreSQL connectivity. Neither proves external providers are configured or reachable. Do not expose the database for physical-device tests.
 
-At this handoff the local checkout has no configured Resend, Google, Apple, Strava, OpenRouter, StoreKit or APNs credentials. Enable at least one real sign-in option before authenticated device testing. At runtime use `/api/auth/methods`, bootstrap capabilities, entitlements and Strava status; do not hard-code this setup snapshot in the app. Provider configuration is independent: email OTP can be tested before Google/Apple, Strava or cloud AI are enabled.
+Provider availability depends on the environment's configured credentials. Enable at least one real sign-in option before authenticated device testing. At runtime use `/api/auth/methods`, bootstrap capabilities, entitlements and Strava status; do not hard-code provider availability in the app. Provider configuration is independent: email OTP can be tested before Google/Apple, Strava or cloud AI are enabled.
 
 ## 2. Auth and session security
 
 `GET /api/auth/methods` is public and returns Google/Apple/email availability plus OTP length/expiry/cooldown metadata. Show configured options and a useful unavailable state when none are enabled. The same successful sign-in registers a new account or restores an existing one; there is no separate passwordless signup endpoint.
 
 ### Email OTP
+
+Signup and returning sign-in share a branded email with the app colors, an embedded logo, a selectable six-digit code and a plain-text alternative. Run `bun run email:preview` to review it locally without sending; see [email design](email-design.md). No native endpoint or payload change is needed for the branded template.
 
 ```http
 POST /api/auth/email-otp/send-verification-otp
