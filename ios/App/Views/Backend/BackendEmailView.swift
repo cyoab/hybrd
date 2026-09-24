@@ -29,7 +29,7 @@ struct BackendEmailView: View {
               .onChange(of: code) { _, value in code = String(value.filter { $0.isASCII && $0.isNumber }.prefix(6)) }
             Button(L10n.text("Verify and continue")) { Task { await verify() } }
               .disabled(code.count != 6 || working || !backend.canAuthenticateDuringRun)
-            Button(L10n.text("Use a different email")) { backend.session.editEmail(); code = ""; message = nil; focused = .email }.disabled(working || recorder.recording != nil)
+            Button(L10n.text("Use a different email")) { backend.session.editEmail(); code = ""; message = nil; focused = .email }.disabled(working || backend.lockedRecordingEmail != nil)
             TimelineView(.periodic(from: .now, by: 1)) { timeline in
               let remaining = max(0, Int(ceil(backend.session.resendAt.timeIntervalSince(timeline.date))))
               Button(remaining > 0 ? L10n.text("Resend code") + " (\(remaining)s)" : L10n.text("Resend code")) {
@@ -38,7 +38,7 @@ struct BackendEmailView: View {
             }
           } else {
             TextField(L10n.text("Email address"), text: $email).textContentType(.emailAddress).keyboardType(.emailAddress)
-              .textInputAutocapitalization(.never).autocorrectionDisabled().focused($focused, equals: .email).disabled(recorder.recording != nil)
+              .textInputAutocapitalization(.never).autocorrectionDisabled().focused($focused, equals: .email).disabled(backend.lockedRecordingEmail != nil)
             Button(L10n.text("Continue with email")) { Task { await send(email) } }
               .disabled(backend.session.methods?.emailOtp != true || working || email.isEmpty)
             Button(L10n.text("I already have a code")) {
@@ -54,13 +54,13 @@ struct BackendEmailView: View {
           Button(L10n.text("Connection settings")) { settings = true }
           Button(L10n.text("Check connection again")) { Task { await discover() } }.disabled(working)
           if let environment = backend.session.environment { Text(environment.origin.absoluteString + " · " + environment.apiVersion).font(.caption).foregroundStyle(.secondary) }
-        } footer: { Text(L10n.text("Email testing only. Google, Apple, Strava, and AI connections are disabled.")) }
+        }
       }
       .navigationTitle(L10n.text("Sign in"))
       .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L10n.text("Cancel")) { dismiss() } } }
       .scrollDismissesKeyboard(.interactively)
       .sheet(isPresented: $settings, onDismiss: { Task { await discover() } }) { BackendConnectionView() }
-      .task { if recorder.recording != nil { email = backend.connectedEmail ?? "" }; await discover() }
+      .task { if let locked = backend.lockedRecordingEmail { email = locked }; await discover() }
       .tint(HybrdStyle.terraText)
     }
   }

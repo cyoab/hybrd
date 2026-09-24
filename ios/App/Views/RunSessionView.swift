@@ -47,7 +47,9 @@ struct RunSessionView: View {
               RunSummaryView(run: run)
               if !recorder.ending {
                 Button(L10n.text("Save run to hybrd"), systemImage: "checkmark") { save(run) }
-                  .buttonStyle(HybrdPrimaryButtonStyle()).disabled(!run.canSave)
+                  .buttonStyle(HybrdPrimaryButtonStyle()).disabled(!run.canSave || !store.isBackendConnected)
+                if !store.isBackendConnected { Text(L10n.text("Sign in to save your training.")).font(.subheadline).foregroundStyle(HybrdStyle.muted) }
+                if run.canSave { Button(L10n.text("Discard"), role: .destructive) { discard = true } }
                 if !run.canSave { Text(L10n.text("No measurable distance was captured. You can discard this empty recording and log your run manually.")).font(.subheadline).foregroundStyle(HybrdStyle.muted)
                   Button(L10n.text("Discard empty recording"), role: .destructive) { discard = true }
                 }

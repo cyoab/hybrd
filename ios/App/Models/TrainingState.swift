@@ -8,9 +8,12 @@ struct TrainingState: Codable {
   var drafts: [WorkoutDraft] = []
   var messages: [CoachMessage] = []
 
-  static func sample() -> TrainingState {
-    let profile = TrainingProfile()
-    return TrainingState(profile: profile, plans: [SampleTraining.makePlan(profile: profile)])
+  /// No account data is manufactured before authenticated hydration.
+  /// The empty plan only preserves the store's nonoptional plan invariant.
+  static func empty() -> TrainingState {
+    let profile = TrainingProfile(name: "", runningGoal: .fitness, availableDays: [], weeklyKilometers: 0,
+      strengthDays: 0, sessionMinutes: 45, isSample: false)
+    return TrainingState(profile: profile, plans: [TrainingPlan(reason: "", profile: profile, workouts: [])])
   }
 }
 

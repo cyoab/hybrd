@@ -231,7 +231,7 @@ struct OnboardingQuestionView: View {
       Text(L10n.text("Anything else we should understand?" )).font(.headline).padding(.top, 10)
       TextField(L10n.text("Optional · schedule, preferences, or movements to avoid"), text: draft.context, axis: .vertical)
         .lineLimit(3...6).padding(18).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 20))
-      Text(L10n.text("This note is saved for review. It doesn’t automatically change workout prescriptions in this preview."))
+      Text(L10n.text("This note is saved with your setup. It doesn’t automatically change workout prescriptions."))
         .font(.caption).foregroundStyle(HybrdStyle.muted)
     }
   }

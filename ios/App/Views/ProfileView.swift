@@ -9,7 +9,6 @@ struct ProfileView: View {
   @State private var confirmDiscard = false
   @State private var saveError: String?
   @State private var proposal: TrainingPlan?
-  @State private var showOnboarding = false
 
   var body: some View {
     NavigationStack {
@@ -44,10 +43,7 @@ struct ProfileView: View {
     }
     // Apply here as well because the profile is a separate sheet presentation.
     .preferredColorScheme(appearance.colorScheme)
-    .fullScreenCover(isPresented: $showOnboarding) {
-      OnboardingEntryView { showOnboarding = false }
-        .preferredColorScheme(appearance.colorScheme)
-    }
+
   }
 
   private func profileForm(_ editor: AthleteProfileEditor) -> some View {
@@ -94,13 +90,10 @@ struct ProfileView: View {
         }
       }
 
-      Section(L10n.text("Training & connections")) {
+      Section(L10n.text("Your training")) {
         NavigationLink { TrainingPreferencesView(editor: editor) } label: {
           ProfileMenuRow(title: L10n.text("Goals & weekly rhythm"), subtitle: L10n.text("Running, strength & availability"), symbol: "calendar", tone: .gold)
         }
-        if !backend.connected { NavigationLink { ProfileConnectionsView(editor: editor) } label: {
-          ProfileMenuRow(title: L10n.text("Health & connections"), subtitle: L10n.text("Apple Health, Strava & Watch"), symbol: "heart.text.clipboard", tone: .mint)
-        } }
       }
       Section {
         Button(L10n.text("Review a new starter block"), systemImage: "arrow.right") {
@@ -112,16 +105,10 @@ struct ProfileView: View {
         Text(L10n.text("Save your profile without changing your plan. Review a new block when you’re ready to apply your training preferences."))
       }
 
-      if !backend.connected { Section {
-        Button(L10n.text("Try sign-up & onboarding"), systemImage: "sparkles") { showOnboarding = true }
-      } footer: {
-        Text(L10n.text("Preview the new athlete journey and membership screen. No account changes or charges."))
-      } }
-
       Section {
-        Button(backend.connected ? L10n.text("Account & sync") : L10n.text("Connect with email")) {
+        Button(L10n.text("Account & sync")) {
           dismiss()
-          if backend.connected { backend.showAccount = true } else { backend.showAuthentication = true }
+          backend.showAccount = true
         }
       }
       ProfileUnitsSection(editor: editor)

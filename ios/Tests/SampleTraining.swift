@@ -50,3 +50,11 @@ enum SampleTraining {
     return TrainingPlan(reason: "Sample hybrid training block", profile: profile, workouts: workouts)
   }
 }
+
+// Legacy/demo fixtures belong to executable checks, never to an app target.
+extension TrainingState {
+  static func sample() -> TrainingState {
+    let profile = TrainingProfile()
+    return TrainingState(profile: profile, plans: [SampleTraining.makePlan(profile: profile)])
+  }
+}

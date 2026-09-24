@@ -30,7 +30,7 @@ struct PlanView: View {
   private var phase: String {
     if !isInBlock { return L10n.text("Calendar") }
     if weekNumber == weekCount { return L10n.text("Recovery") }
-    return store.profile.isSample ? L10n.text("Build") : L10n.text("Base")
+    return L10n.text("Base")
   }
   private var weekSummary: WeeklyTrainingSummary {
     WeeklyTrainingSummary(workouts: sessions, results: store.state.results)
@@ -55,7 +55,13 @@ struct PlanView: View {
           .padding(.top, 14)
 
           VStack(alignment: .leading, spacing: 24) {
-            if weekMode {
+            if store.workouts.isEmpty {
+              VStack(alignment: .leading, spacing: 12) {
+                Text(L10n.text("Your training setup is saved.")).font(.title3.bold())
+                Text(L10n.text("Review a starter block in your athlete profile to put your first sessions on the calendar.")).foregroundStyle(HybrdStyle.muted)
+                Button(L10n.text("Athlete profile")) { showProfile = true }.buttonStyle(HybrdPrimaryButtonStyle())
+              }.padding(20).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 24))
+            } else if weekMode {
               ForEach(0..<7) { offset in
                 let day = TrainingEngine.date(week, offset: offset)
                 let daySessions = sessions.filter { Calendar.current.isDate($0.date, inSameDayAs: day) }
@@ -83,13 +89,6 @@ struct PlanView: View {
                   trainingNote
                 }
               }
-            }
-            if store.isBackendConnected && store.workouts.isEmpty {
-              VStack(alignment: .leading, spacing: 12) {
-                Text(L10n.text("Your training setup is saved.")).font(.title3.bold())
-                Text(L10n.text("Review a starter block in your athlete profile to put your first sessions on the calendar.")).foregroundStyle(HybrdStyle.muted)
-                Button(L10n.text("Athlete profile")) { showProfile = true }.buttonStyle(HybrdPrimaryButtonStyle())
-              }.padding(20).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 24))
             }
             bottomActions
           }
@@ -130,7 +129,7 @@ struct PlanView: View {
       HybrdWordmark()
       Spacer(minLength: 8)
       if !dynamicType.isAccessibilitySize {
-        Text(store.profile.isSample ? L10n.text("SAMPLE · \(phase.uppercased())") : isInBlock ? L10n.text("\(phase.uppercased()) · WK \(weekNumber) OF \(weekCount)") : L10n.text("YOUR PLAN"))
+        Text(!store.workouts.isEmpty && isInBlock ? L10n.text("\(phase.uppercased()) · WK \(weekNumber) OF \(weekCount)") : L10n.text("YOUR PLAN"))
           .font(.caption2.weight(.medium)).tracking(0.8).foregroundStyle(HybrdStyle.muted)
           .lineLimit(2).multilineTextAlignment(.trailing)
       }
@@ -156,7 +155,7 @@ struct PlanView: View {
   private var weekHeading: some View {
     HStack(spacing: 12) {
       VStack(alignment: .leading, spacing: 6) {
-        Text(isInBlock ? L10n.text("Week \(weekNumber)") : L10n.text("Your calendar"))
+        Text(!store.workouts.isEmpty && isInBlock ? L10n.text("Week \(weekNumber)") : L10n.text("Your calendar"))
           .font(.system(.title2, design: .rounded, weight: .semibold))
         Text(weekRange)
           .font(.caption.weight(.medium)).foregroundStyle(HybrdStyle.terraText)
@@ -251,20 +250,6 @@ struct PlanView: View {
       }
       .buttonStyle(.plain)
 
-      if store.profile.isSample {
-        Button { showProfile = true } label: {
-          HStack {
-            VStack(alignment: .leading, spacing: 5) {
-              Text(L10n.text("Make this plan yours")).font(.subheadline.weight(.semibold))
-              Text(L10n.text("You’re exploring a sample block.")).font(.caption).foregroundStyle(HybrdStyle.muted)
-            }
-            Spacer()
-            Image(systemName: "arrow.up.right").font(.subheadline)
-          }
-          .padding(17).background(HybrdStyle.surface, in: RoundedRectangle(cornerRadius: 18))
-        }
-        .buttonStyle(.plain)
-      }
       HStack {
         Button(weekMode ? L10n.text("Show selected day") : L10n.text("See the full week"), systemImage: weekMode ? "calendar" : "list.bullet") { weekMode.toggle() }
           .frame(minHeight: 44)

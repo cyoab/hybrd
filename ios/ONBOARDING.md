@@ -1,9 +1,10 @@
-# Onboarding and preview
+# Onboarding
 
 **Create account** and **Sign in** now open the connected email flow. The manual journey saves to an account, resumes server drafts and completes real onboarding. Provider connections and paid membership are deferred for initial testing. See [BACKEND-INTEGRATION.md](BACKEND-INTEGRATION.md) and [BACKEND-ONBOARDING.md](BACKEND-ONBOARDING.md).
 
-The remainder of this document describes the separate **Preview onboarding without an account** journey. It remains local and resumable, ending in a membership preview. Its answers and completion flags do not create accounts, upload sample history or grant entitlements. The [backend handoff](../docs/onboarding-backend-handoff.md) still describes the later consent-based Health/Strava import phase.
+The signed-out welcome screen has only account creation and sign-in. It no longer offers anonymous exploration, onboarding preview or restart controls. A completed old preview cannot bypass authentication. The athlete profile also has no preview/test controls.
 
+The following sections are retained as the historical onboarding/paywall design reference. Anonymous preview routes described below are no longer exposed in the app. The connected manual journey described in the integration guide is the only active route; billing remains deferred.
 ## Try it
 
 - On the welcome screen, choose **Preview onboarding without an account**. **Explore the app** opens the existing app without completing setup.

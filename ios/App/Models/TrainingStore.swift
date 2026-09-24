@@ -5,7 +5,7 @@ import SwiftData
 @MainActor
 @Observable
 final class TrainingStore {
-  private(set) var state = TrainingState.sample()
+  private(set) var state = TrainingState.empty()
   private(set) var isLoaded = false
   var errorMessage: String?
   var loadError: String?
@@ -18,94 +18,58 @@ final class TrainingStore {
   @ObservationIgnored private var backendExerciseNames: Set<String>?
   @ObservationIgnored private var backendPersist: ((TrainingState, TrainingState) throws -> Void)?
   var isBackendConnected: Bool { backendPersist != nil }
-  func connectBackend(exerciseNames: Set<String>, _ persist: @escaping (TrainingState, TrainingState) throws -> Void) { backendExerciseNames = exerciseNames; backendPersist = persist }
+  @ObservationIgnored private var backendAthleteID: UUID?
+  private(set) var legacyArchives: [LegacyTrainingArchive] = []
+  private(set) var legacyArchiveError: String?
+  private var legacyContainer: ModelContainer?
+
+  func connectBackend(athleteID: UUID, exerciseNames: Set<String>, _ persist: @escaping (TrainingState, TrainingState) throws -> Void) {
+    backendAthleteID = athleteID; backendExerciseNames = exerciseNames; backendPersist = persist
+    shareWithWatch(); companion.retryTransfers()
+  }
   func restoreBackend(_ restored: TrainingState) {
     state = restored; isLoaded = true; progressRevision += 1; progressCache.removeAll(); shareWithWatch()
   }
-  func disconnectBackend() { backendPersist = nil; backendExerciseNames = nil; load() }
-
-  private var container: ModelContainer?
-  private var record: StoredTrainingState?
+  func disconnectBackend() {
+    // Clear only the displayed account, never its replica/outbox or the older local archive.
+    backendPersist = nil; backendExerciseNames = nil; backendAthleteID = nil
+    state = .empty(); isLoaded = false; errorMessage = nil; loadError = nil
+    progressRevision += 1; progressCache.removeAll()
+    progressCacheDay = nil; progressCacheZone = nil; progressCacheNextResult = nil
+    companion.publish(.signedOut())
+  }
 
   init() {
-    load()
+    loadLegacyArchive()
     companion.onRunReceived = { [weak self] run in self?.saveRecordedRun(run) ?? false }
-    companion.retryTransfers()
   }
 
   var plan: TrainingPlan { state.plans.last! }
   var profile: TrainingProfile { state.profile }
   var workouts: [TrainingWorkout] { plan.workouts.sorted { $0.date < $1.date } }
 
-  func load() {
+  func loadLegacyArchive() {
     do {
       let container = try ModelContainer(for: StoredTrainingState.self)
-      self.container = container
-      let records = try container.mainContext.fetch(FetchDescriptor<StoredTrainingState>())
-      if let saved = records.first {
-        let decoded = try JSONDecoder().decode(TrainingState.self, from: saved.payload)
-        guard decoded.schemaVersion == 1, !decoded.plans.isEmpty else {
-          throw CocoaError(.coderReadCorrupt)
-        }
-        record = saved
-        state = decoded
-      } else {
-        let saved = StoredTrainingState(payload: try JSONEncoder().encode(state))
-        container.mainContext.insert(saved)
-        try container.mainContext.save()
-        record = saved
-      }
-      // Upgrade only an untouched sample, retaining the original snapshot.
-      if state.profile.isSample, state.results.isEmpty, state.drafts.isEmpty,
-         state.plans.count == 1, state.plans[0].workouts.allSatisfy({ $0.scheduledMinutes == nil }) {
-        var sample = SampleTraining.makePlan(profile: state.profile)
-        sample.basePlanID = state.plans[0].id
-        state.plans.append(sample)
-        record?.payload = try JSONEncoder().encode(state)
-        try container.mainContext.save()
-      }
-      let protectedIDs = Set(state.results.map(\.logicalWorkoutID) + state.drafts.map(\.id))
-      if let upgraded = HeartRatePlanUpgrade.apply(to: plan, retaining: protectedIDs) {
-        var upgradedState = state
-        upgradedState.plans.append(upgraded)
-        record?.payload = try JSONEncoder().encode(upgradedState)
-        try container.mainContext.save()
-        state = upgradedState
-      }
-      progressRevision += 1
-      progressCache.removeAll()
-      isLoaded = true
-      loadError = nil
-      shareWithWatch()
+      legacyContainer = container
+      // Keep the existing schema and bytes. Never delete, overwrite or upload these records.
+      legacyArchives = try container.mainContext.fetch(FetchDescriptor<StoredTrainingState>())
+        .map { LegacyTrainingArchive(id: $0.key, payload: $0.payload) }.filter(\.containsUserContent)
+      legacyArchiveError = nil
     } catch {
-      loadError = L10n.text("Your training data could not be opened. It has not been reset. \(error.localizedDescription)")
+      legacyArchiveError = L10n.text("Your local training archive could not be opened. It has not been changed.")
     }
   }
 
   @discardableResult
   private func persist(_ next: TrainingState, share: Bool = true) -> Bool {
-    if let backendPersist {
-      do {
-        try backendPersist(state, next); state = next; progressRevision += 1; progressCache.removeAll()
-        if share { shareWithWatch() }; return true
-      } catch { errorMessage = BackendErrorMessage.text(error); return false }
+    guard let backendPersist else {
+      errorMessage = L10n.text("Sign in to save your training."); return false
     }
-    guard let container, let record else { return false }
     do {
-      record.payload = try JSONEncoder().encode(next)
-      try container.mainContext.save()
-      if state.results != next.results || state.plans.last?.id != next.plans.last?.id {
-        progressRevision += 1
-        progressCache.removeAll()
-      }
-      state = next
-      if share { shareWithWatch() }
-      return true
-    } catch {
-      container.mainContext.rollback()
-      errorMessage = L10n.text("Your changes could not be saved. Please try again. \(error.localizedDescription)")
-      return false
-    }
+      try backendPersist(state, next); state = next; progressRevision += 1; progressCache.removeAll()
+      if share { shareWithWatch() }; return true
+    } catch { errorMessage = BackendErrorMessage.text(error); return false }
   }
 
   func progress(for period: ProgressPeriod, now: Date = Date()) -> ProgressSnapshot {
@@ -281,7 +245,8 @@ final class TrainingStore {
 
   @discardableResult
   func saveRecordedRun(_ run: RunRecording, asSeparate: Bool = false) -> Bool {
-    if isBackendConnected && !asSeparate && !state.plans.flatMap(\.workouts).contains(where: { $0.id == run.workout.id }) { return false }
+    guard isBackendConnected else { return false }
+    if !asSeparate && !state.plans.flatMap(\.workouts).contains(where: { $0.id == run.workout.id }) { return false }
     guard run.isFinished, run.canSave else { errorMessage = L10n.text("This recording needs a positive distance and time before saving."); return false }
     if state.results.contains(where: { $0.id == run.id }) { return true }
     if !asSeparate && state.results.contains(where: { $0.logicalWorkoutID == run.workout.logicalID }) { return false }
@@ -301,7 +266,8 @@ final class TrainingStore {
   }
 
   func shareWithWatch() {
+    guard isBackendConnected, let backendAthleteID else { return }
     let pending = workouts.filter { result(for: $0) == nil && $0.date >= Calendar.current.startOfDay(for: Date()) }
-    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12)), heartRateZones: profile.athlete?.heartRateZones, units: profile.trainingUnits))
+    companion.publish(CompanionSnapshot(name: profile.name, isSample: profile.isSample, workouts: Array(pending.prefix(12)), heartRateZones: profile.athlete?.heartRateZones, units: profile.trainingUnits, athleteID: backendAthleteID))
   }
 }

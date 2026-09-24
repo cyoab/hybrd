@@ -19,7 +19,7 @@ import Observation
       draft = saved.draft; step = saved.step; started = saved.started; completed = saved.completed; enteredApp = saved.enteredApp; reviewing = saved.reviewing ?? false
     } else {
       draft = OnboardingDraft(); step = .identity; started = false; completed = false; enteredApp = false; reviewing = false
-      if defaults.data(forKey: key) != nil { storageMessage = L10n.text("The saved preview couldn’t be opened. Start again to save a new draft.") }
+      if defaults.data(forKey: key) != nil { storageMessage = L10n.text("Your saved setup could not be opened. Your account data has not been changed.") }
     }
   }
   func restoreConnected(_ value: OnboardingDraft, step: OnboardingStep) {
@@ -51,7 +51,7 @@ import Observation
     do {
       let snapshot = Snapshot(draft: draft, step: step, started: started, completed: completed, enteredApp: enteredApp, reviewing: reviewing)
       defaults.set(try JSONEncoder().encode(snapshot), forKey: key)
-    } catch { storageMessage = L10n.text("Your preview couldn’t be saved. Keep this screen open and try again.") }
+    } catch { storageMessage = L10n.text("Your setup couldn’t be saved. Keep this screen open and try again.") }
   }
   private struct Snapshot: Codable {
     var version = 1

@@ -1,6 +1,6 @@
 import Foundation
 
-/// An isolated research draft, deliberately separate from the live athlete and training plan.
+/// Reviewable onboarding answers, separate from the athlete’s accepted training plan.
 struct OnboardingDraft: Codable, Equatable {
   var name = ""
   var runningGoal: RunningGoal?

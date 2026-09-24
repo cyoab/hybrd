@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BackendAccountView: View {
+  @Environment(TrainingStore.self) private var training
   @Environment(BackendAppController.self) private var backend
   @Environment(\.dismiss) private var dismiss
   @State private var discard = false
@@ -30,6 +31,11 @@ struct BackendAccountView: View {
             NavigationLink(L10n.text("Review server answers")) { BackendDraftReviewView() }
           }
         } header: { Text(L10n.text("Sync")) } footer: { Text(L10n.text("Pending changes are kept on this device for this account. A sync conflict needs your review.")) }
+        if backend.session.authenticated && (!training.legacyArchives.isEmpty || training.legacyArchiveError != nil) {
+          Section {
+            NavigationLink(L10n.text("Local training archive")) { LegacyTrainingArchiveView() }
+          }
+        }
         Section {
           Button(L10n.text("Sign out"), role: .destructive) { Task { await backend.signOut() } }.disabled(backend.busy)
           Button(L10n.text("Sign out on this device"), role: .destructive) { localSignOut = true }.disabled(backend.busy)

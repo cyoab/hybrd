@@ -3,7 +3,7 @@ import SwiftUI
 struct PlanHistoryView: View {
   @Environment(TrainingStore.self) private var store
   var body: some View {
-    List(Array(store.state.plans.enumerated()).reversed(), id: \.element.id) { index, plan in
+    List(Array(store.state.plans.filter { !$0.workouts.isEmpty }.enumerated()).reversed(), id: \.element.id) { index, plan in
       VStack(alignment: .leading, spacing: 8) {
         HStack {
           Text(L10n.text("Version \(index + 1)")).font(.headline)

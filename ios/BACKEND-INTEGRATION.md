@@ -12,7 +12,7 @@ docker compose up --build --detach --wait
 
 The API and its readiness endpoint are available at `http://localhost:3000` and `/health/ready`. The normal Compose API disables development authentication; the native client uses real email OTP and an opaque bearer session. For inbox delivery, `.env` needs `AUTH_EMAIL_TRANSPORT=resend`, `RESEND_API_KEY` and an authorized `AUTH_EMAIL_FROM`, as described in [authentication](../docs/authentication.md). If email is disabled, the app reports that capability and does not fake sign-in. Never copy these credentials into Swift, Project.json, test fixtures or commits.
 
-Build/run using Bitrig. On the welcome screen, choose **Create account** or **Already have an account? Sign in**. From the existing local app, open **Athlete → Connect with email**. Open **Connection settings**, choose **Use local Docker backend**, then **Save and check connection**. Enter an email address and the six-digit code from the newest email. This either creates the account or restores it.
+Build/run using Bitrig. On the welcome screen, choose **Create account** or **Already have an account? Sign in**. Open **Connection settings**, choose **Use local Docker backend**, then **Save and check connection**. Enter an email address and the six-digit code from the newest email. This either creates the account or restores it.
 
 For an actual iPhone, localhost refers to that phone. Use a reachable HTTPS development endpoint and matching backend deployment configuration. The normal Compose port remains bound to Mac loopback; this change does not expose it on the network. DEBUG permits HTTP only for localhost/loopback; release builds require HTTPS. There is no production domain embedded in this change.
 
@@ -26,7 +26,7 @@ For an actual iPhone, localhost refers to that phone. Use a reachable HTTPS deve
 
 The connection check verifies readiness, the configured bootstrap path in `/openapi.json`, and advertised email availability. A version setting changes routing, not the compiled schema: an incompatible API still requires regeneration/mapping changes. The backend currently implements `v1`.
 
-Sign out before changing environment settings. Credentials are Keychain-scoped to origin, version and auth path. Account data, request journals, device IDs and outboxes are separately scoped to the environment and bootstrap athlete UUID. Switching users/servers never uploads the demo dataset or another account’s queued work. Settings remain available from the email screen after sign-out.
+Sign out before changing environment settings. Credentials are Keychain-scoped to origin, version and auth path. Account data, request journals, device IDs and outboxes are separately scoped to the environment and bootstrap athlete UUID. There is no anonymous app entry or seeded workout plan. Switching users/servers never uploads a legacy local archive or another account’s queued work. Settings remain available from the email screen after sign-out.
 
 ## Connected behavior
 
@@ -49,7 +49,7 @@ The outbox stores exact payloads and mutation UUIDs before upload. It sends depe
 
 The app attempts sync after edits, on foreground entry and through **Sync now**. It does not currently run a background network monitor or promise background delivery. If offline, pending edits remain account-scoped. Previously hydrated accounts can restore cached setup/data when the initial bootstrap transport is unavailable. Retry is explicit after other connection/setup failures.
 
-Active/recovered runs retain access to recording controls. An expired session during a connected run allows reauthentication only into that same account; account switching waits until the run is resolved. Credentials can be cleared locally if the server is unreachable; local sign-out does not revoke a server session. Pending data stays on this device for the original account.
+A signed-out launch shows the welcome page; saved preview/entered-app flags are ignored. Account restoration finishes before the training tabs can appear. Active/recovered runs retain access to recording controls through a separate recovery presentation, never an authentication bypass. An expired session during a connected run allows reauthentication only into that same account; account switching waits until the run is resolved. Credentials can be cleared locally if the server is unreachable; local sign-out does not revoke a server session. Pending data stays on this device for the original account.
 
 ## Measurement and contract boundaries
 
@@ -61,7 +61,7 @@ The backend baseline allows 0–250 km/week. The existing starter generator supp
 
 ## Intentionally outside this test slice
 
-Google and Apple sign-in, Strava, Apple Health profile/history import, AI consent/requests, remote coach and StoreKit billing are not invoked by connected screens. Existing local workout sensor recording is unchanged. Connected setup bypasses the membership preview and grants no paid entitlement. The local onboarding/paywall demo remains accessible through **Preview onboarding without an account** and uses separate persistence.
+Google and Apple sign-in, Strava, Apple Health profile/history import, AI consent/requests, remote coach and StoreKit billing are not invoked by connected screens. Existing local workout sensor recording is unchanged. Connected setup bypasses the membership preview and grants no paid entitlement. The welcome page and athlete profile no longer expose onboarding/paywall previews or test controls. Previous anonymous SwiftData records are retained without modification. When they contain actual recordings, drafts or edited profile data, **Account & sync → Local training archive** provides read-only review/export; these records never automatically enter an account’s plans or totals. Demo-only workouts are excluded, and sample fixtures live under Tests rather than either app target.
 
 Account export/deletion UI, push registration, provider consent/import/review UI, production purchase handling, historical demo-to-account migration, specialized result correction/deletion screens and independently authenticated Watch networking remain follow-up work. Existing canonical data is decoded/restored, but this does not claim a UI for every backend endpoint. No real-provider acceptance or production deployment was performed.
 
@@ -103,4 +103,4 @@ Native executable checks and real Docker-backed requests pass. Bitrig builds the
 
 ## Backend follow-up
 
-No new backend endpoint was required for this slice. Before broader rollout, align public-library exercise coverage with the server catalog; extend the workout contract if raw routes, distinct active duration and overlapping native lap kinds must sync losslessly. Zero/high-volume adaptive planning, advanced profile representation, account lifecycle, providers, AI and billing need their own integration/acceptance passes. Preserve the elapsed-duration, idempotency and historical-plan rules in the current [iOS handoff](../docs/ios-handoff.md).
+No new backend endpoint was required for this slice. Signed-out state also clears the paired Watch plan when connectivity resumes; older sample/unscoped snapshots are rejected on Watch. Recorded runs and transfer queues remain intact. Before broader rollout, align public-library exercise coverage with the server catalog; extend the workout contract if raw routes, distinct active duration and overlapping native lap kinds must sync losslessly. Zero/high-volume adaptive planning, advanced profile representation, account lifecycle, providers, AI and billing need their own integration/acceptance passes. Preserve the elapsed-duration, idempotency and historical-plan rules in the current [iOS handoff](../docs/ios-handoff.md).

@@ -5,7 +5,7 @@ The official source of truth is this repository's `ios/` directory.
 ## Layout
 
 - `Project.json`: Bitrig/XcodeGen project definition; separate iPhone and Apple Watch targets.
-- `App/`: SwiftUI iPhone shells, SwiftData persistence, draft logging, local sample plan, and deterministic coach fallback.
+- `App/`: SwiftUI account flow, backend replicas/outboxes, workout logging, and read-only access to legacy SwiftData recordings.
 - `Watch/`: standalone run recording within the paired companion, with cached prescriptions, live metrics, interval controls and durable result transfer.
 - `Shared/`: typed local models, starter-plan rules, and WatchConnectivity transport.
 - `Tests/`: executable checks for planning, profile validation, backward compatibility, and the bundled catalog.
@@ -14,7 +14,9 @@ The current Bitrig-managed workspace links its `App`, `Watch`, `Shared`, and `Pr
 
 ## Current scope
 
-This app now supports an email-authenticated backend testing mode alongside its separate local preview. See [BACKEND-INTEGRATION.md](BACKEND-INTEGRATION.md) for server/version settings, Docker setup, supported flows and acceptance checks. The preview includes sample data, editable goals, heart-rate-zone run targets, four-week starter prescriptions and a clearly labeled sample block, local SwiftData snapshots, draft run/strength entry, immutable local plan history, a deterministic on-device coach, the illustrated Progress journey, and a Watch-first run recorder.
+The app requires an account: signed-out launches show the welcome page, while signed-in launches restore onboarding or the athlete’s real training data. There are no seeded workout plans, anonymous exploration or profile preview controls. See [BACKEND-INTEGRATION.md](BACKEND-INTEGRATION.md) for server/version settings, Docker setup, supported flows and acceptance checks.
+
+Existing pre-account SwiftData recordings remain available as a read-only local archive under Account & sync, without mixing them into account data. Sample workout fixtures exist only in Tests. New accounts start with an empty plan; starter prescriptions require review and acceptance.
 
 The athlete profile includes optional birth date/age, height, weight, self-reported running and strength experience, editable personal BPM boundaries, running PRs, and strength records expressed as load × reps. Native illustrated selectors cover ten muscle groups and twenty equipment types. A bundled public-domain catalog contains 876 exercises as an internal data source. It is not a profile destination; strength PR entry uses a focused movement picker. Profile saves preserve plan snapshots, actual results, and unfinished logs. Applying training preferences to a new starter block still requires review and acceptance.
 
@@ -36,7 +38,7 @@ Follow `../docs/ios-handoff.md`; regenerate the scoped Swift wire models from `.
 
 ## Design implementation
 
-The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The Plan home keeps the weekly calendar with horizontal week paging and adds colorful logged-progress tiles and illustrated workout cards; workout flows use the same palette. See `DESIGN.md` for tokens, accessibility choices, and references from Runna, Hevy, Duolingo, Revolut, Headspace, and Lifesum. The local preview uses Plan, Progress, and Coach tabs (Coach is hidden in connected email testing); the previous Today tab has been removed.
+The user's supplied reference at `../docs/design.png` is the visual direction: a light neutral canvas, black primary controls, restrained orange accents, a week selector, day-specific workout cards, and three primary tabs: Plan, Progress, and Coach. The Plan home keeps the weekly calendar with horizontal week paging and adds colorful logged-progress tiles and illustrated workout cards; workout flows use the same palette. See `DESIGN.md` for tokens, accessibility choices, and references from Runna, Hevy, Duolingo, Revolut, Headspace, and Lifesum. The account app currently uses Plan and Progress tabs; the previous Today tab has been removed.
 
 ## Local checks
 

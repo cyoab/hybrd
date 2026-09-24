@@ -29,7 +29,6 @@ swiftc -DDEBUG -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/RunWorkoutType.swift \
   Shared/RunWorkoutTemplate.swift \
   Shared/RunningPersonalBest.swift \
-  Shared/SampleTraining.swift \
   Shared/SessionBreakdown.swift \
   Shared/StrengthPersonalBest.swift \
   Shared/StrengthStarterSelection.swift \
@@ -49,6 +48,7 @@ swiftc -DDEBUG -module-cache-path /tmp/hybrd-swift-module-cache \
   App/Models/Backend/Generated/*.swift \
   App/Models/AthleteProfileEditor.swift \
   App/Models/TrainingState.swift \
+  App/Models/LegacyTrainingArchive.swift \
   App/Models/LocalCoach.swift \
   App/Models/ExerciseCatalog.swift \
   Tests/*.swift -o /tmp/hybrd-core-checks

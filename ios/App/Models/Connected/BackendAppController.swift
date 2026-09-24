@@ -12,9 +12,11 @@ import CryptoKit
   private(set) var bootstrap: BackendWire.Bootstrap?
   private(set) var onboarding: OnboardingStore?
   private(set) var connected = false
+  private(set) var launching = true
   private(set) var connectedUserID: String?
   private(set) var connectedEmail: String?
-  var canAuthenticateDuringRun: Bool { RunRecorder.shared.recording == nil || (connected && connectedUserID != nil) }
+  var canAuthenticateDuringRun: Bool { RunRecorder.shared.recording == nil || !connected || connectedUserID != nil }
+  var lockedRecordingEmail: String? { RunRecorder.shared.recording == nil ? nil : connectedEmail }
   private(set) var onboardingPresented = false
   private(set) var onboardingConflict = false
   private(set) var busy = false
@@ -41,6 +43,7 @@ import CryptoKit
   func launch(training: TrainingStore) async {
     self.training = training
     guard !launchAttempted else { return }; launchAttempted = true
+    defer { launching = false; if !session.authenticated { training.disconnectBackend() } }
     do { try await session.restore(); if session.authenticated { await connect(training: training) } }
     catch {
       if error is URLError && session.authenticated { await connect(training: training) }
@@ -112,7 +115,7 @@ import CryptoKit
       try hydrate()
       error = offline ? L10n.text("Offline. Showing your saved account data.") : nil; lastSynced = offline ? cached?.savedAt : Date()
       if !offline { try saveManifest(Manifest(userID: user, bootstrap: bootstrap, catalog: catalog, policy: policy, savedAt: Date()), to: cacheURL) }
-      training.connectBackend(exerciseNames: Set(catalog.exercises.filter(\.active).map { $0.name.lowercased() } + catalog.aliases.map { $0.alias.lowercased() })) { [weak self] old, next in
+      training.connectBackend(athleteID: scope.athleteID, exerciseNames: Set(catalog.exercises.filter(\.active).map { $0.name.lowercased() } + catalog.aliases.map { $0.alias.lowercased() })) { [weak self] old, next in
         guard let self else { throw BackendContractError.accountChanged }; try assertAccount()
         let mutations = try BackendTrainingWrites.mutations(from: old, to: next, replica: replica, catalog: catalog, policy: policy)
         if mutations.isEmpty { try replica.saveLocal(next) }
@@ -245,6 +248,6 @@ import CryptoKit
     accountGeneration = UUID(); syncTask?.cancel(); connected = false
     connectedUserID = nil; connectedEmail = nil; progressResponses = [:]
     replica = nil; remote = nil; catalog = nil; policy = nil; bootstrap = nil; progress = nil; onboarding = nil
-    training?.disconnectBackend(); showAccount = false
+    training?.disconnectBackend(); showAccount = false; onboardingPresented = false; onboardingConflict = false; lastSynced = nil
   }
 }

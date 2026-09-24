@@ -18,7 +18,9 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     receivedRuns = RunArchive.load("inbox")
     queuedRunCount = RunArchive.load("outbox").count
     if let data = UserDefaults.standard.data(forKey: "companion.snapshot") {
-      snapshot = try? JSONDecoder().decode(CompanionSnapshot.self, from: data)
+      let cached = try? JSONDecoder().decode(CompanionSnapshot.self, from: data)
+      snapshot = cached?.hasAccountPlan == true ? cached : nil
+      if snapshot == nil { UserDefaults.standard.removeObject(forKey: "companion.snapshot") }
     }
     if WCSession.isSupported() {
       WCSession.default.delegate = self
@@ -27,7 +29,7 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
   }
 
   func publish(_ value: CompanionSnapshot) {
-    snapshot = value
+    snapshot = value.hasAccountPlan ? value : nil
     pending = try? JSONEncoder().encode(value)
     sendPending()
   }
@@ -63,9 +65,10 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
 
   private func receive(_ data: Data) {
     guard let decoded = try? JSONDecoder().decode(CompanionSnapshot.self, from: data) else { return }
-    snapshot = decoded
-    UserDefaults.standard.set(data, forKey: "companion.snapshot")
-    connectionMessage = L10n.text("Plan received")
+    snapshot = decoded.hasAccountPlan ? decoded : nil
+    if snapshot != nil { UserDefaults.standard.set(data, forKey: "companion.snapshot") }
+    else { UserDefaults.standard.removeObject(forKey: "companion.snapshot") }
+    connectionMessage = snapshot == nil ? L10n.text("Sign in on your iPhone to sync your training.") : L10n.text("Plan received")
   }
 
   /// The application-level receipt is sent only after the iPhone transaction is durable.

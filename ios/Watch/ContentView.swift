@@ -32,7 +32,7 @@ struct ContentView: View {
       }
       if let snapshot = companion.snapshot {
         Section {
-          Text(snapshot.isSample ? L10n.text("Sample plan") : L10n.text("\(snapshot.name)’s plan")).font(.caption)
+          Text(L10n.text("\(snapshot.name)’s plan")).font(.caption)
           Text(L10n.text("Updated \(snapshot.updatedAt.formatted(date: .abbreviated, time: .shortened))"))
             .font(.caption2).foregroundStyle(.secondary)
         }
@@ -43,12 +43,12 @@ struct ContentView: View {
           .listRowBackground(RoundedRectangle(cornerRadius: 20).fill(
             WatchRunStyle.workoutColor(workout).opacity(0.16).gradient))
         }
-        if snapshot.workouts.isEmpty { Text(L10n.text("No upcoming sessions. Choose a run on iPhone, then send your plan to Watch.")).font(.footnote) }
+        if snapshot.workouts.isEmpty { Text(L10n.text("No upcoming sessions. Add a run on your iPhone to sync it here.")).font(.footnote) }
       } else {
         Section {
           Image(systemName: "iphone.and.arrow.forward").font(.largeTitle).foregroundStyle(WatchRunStyle.terra)
           Text(L10n.text("Your run, on your wrist")).font(.headline)
-          Text(L10n.text("Open hybrd on your paired iPhone, then send your plan from Athlete. Once synced, you can run without your phone.")).font(.footnote).foregroundStyle(.secondary)
+          Text(L10n.text("Sign in to hybrd on your paired iPhone and set up your training. Your sessions sync here, ready to run without your phone.")).font(.footnote).foregroundStyle(.secondary)
         }
       }
     }.navigationTitle("hybrd")

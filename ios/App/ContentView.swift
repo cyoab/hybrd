@@ -15,7 +15,6 @@ struct ContentView: View {
         TabView {
           Tab(L10n.text("Plan"), systemImage: "calendar") { PlanView() }
           Tab(L10n.text("Progress"), systemImage: "square.3.layers.3d") { TrainingProgressView() }
-          if !backend.connected { Tab(L10n.text("Coach"), systemImage: "sparkles") { CoachView() } }
         }
         .tint(HybrdStyle.ink)
       } else {
@@ -24,7 +23,7 @@ struct ContentView: View {
         } description: {
           Text(store.loadError ?? L10n.text("Opening your training data…"))
         } actions: {
-          Button(L10n.text("Try again")) { store.load() }
+          Button(L10n.text("Try again")) { Task { await backend.connect(training: store) } }
         }
       }
     }

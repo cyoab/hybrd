@@ -39045,6 +39045,354 @@
           }
         }
       }
+    },
+    "Your training": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your training"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu entrenamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu treino"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre entraînement"
+          }
+        }
+      }
+    },
+    "Sign in to save your training.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to save your training."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia sesión para guardar tu entrenamiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entre para salvar seu treino."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous pour enregistrer votre entraînement."
+          }
+        }
+      }
+    },
+    "This note is saved with your setup. It doesn’t automatically change workout prescriptions.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This note is saved with your setup. It doesn’t automatically change workout prescriptions."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta nota se guarda con tu configuración. No cambia automáticamente los entrenamientos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta nota é salva com sua configuração. Ela não altera os treinos automaticamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette note est enregistrée avec votre configuration. Elle ne modifie pas automatiquement les séances."
+          }
+        }
+      }
+    },
+    "Sign in on your iPhone to sync your training.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in on your iPhone to sync your training."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia sesión en tu iPhone para sincronizar tu entrenamiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entre no iPhone para sincronizar seus treinos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous sur votre iPhone pour synchroniser vos entraînements."
+          }
+        }
+      }
+    },
+    "No upcoming sessions. Add a run on your iPhone to sync it here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No upcoming sessions. Add a run on your iPhone to sync it here."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay próximas sesiones. Añade una carrera en tu iPhone para sincronizarla aquí."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma sessão programada. Adicione uma corrida no iPhone para sincronizá-la aqui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune séance à venir. Ajoutez une course sur votre iPhone pour la synchroniser ici."
+          }
+        }
+      }
+    },
+    "Sign in to hybrd on your paired iPhone and set up your training. Your sessions sync here, ready to run without your phone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to hybrd on your paired iPhone and set up your training. Your sessions sync here, ready to run without your phone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia sesión en hybrd en tu iPhone enlazado y configura tu entrenamiento. Tus sesiones se sincronizan aquí para correr sin el teléfono."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entre no hybrd no iPhone emparelhado e configure seus treinos. Suas sessões são sincronizadas aqui para correr sem o celular."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous à hybrd sur votre iPhone jumelé et configurez votre entraînement. Vos séances se synchronisent ici pour courir sans votre téléphone."
+          }
+        }
+      }
+    },
+    "Your local training archive could not be opened. It has not been changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your local training archive could not be opened. It has not been changed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo abrir tu archivo local de entrenamientos. No se ha modificado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir seu arquivo local de treinos. Ele não foi alterado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’ouvrir vos archives locales d’entraînement. Elles n’ont pas été modifiées."
+          }
+        }
+      }
+    },
+    "Training recorded before sign-in stays on this device. You can review or export it here; it is not added to your account.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training recorded before sign-in stays on this device. You can review or export it here; it is not added to your account."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los entrenamientos registrados antes de iniciar sesión permanecen en este dispositivo. Puedes consultarlos o exportarlos aquí; no se añaden a tu cuenta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os treinos registrados antes de entrar ficam neste dispositivo. Você pode consultá-los ou exportá-los aqui; eles não são adicionados à sua conta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les entraînements enregistrés avant la connexion restent sur cet appareil. Vous pouvez les consulter ou les exporter ici ; ils ne sont pas ajoutés à votre compte."
+          }
+        }
+      }
+    },
+    "Export local training": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export local training"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar entrenamientos locales"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar treinos locais"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporter les entraînements locaux"
+          }
+        }
+      }
+    },
+    "Local training archive": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local training archive"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivo local de entrenamientos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivo local de treinos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archives locales d’entraînement"
+          }
+        }
+      }
+    },
+    "Your saved setup could not be opened. Your account data has not been changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your saved setup could not be opened. Your account data has not been changed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo abrir tu configuración guardada. Los datos de tu cuenta no se han modificado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir sua configuração salva. Os dados da sua conta não foram alterados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’ouvrir votre configuration enregistrée. Les données de votre compte n’ont pas été modifiées."
+          }
+        }
+      }
+    },
+    "Your setup couldn’t be saved. Keep this screen open and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your setup couldn’t be saved. Keep this screen open and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar tu configuración. Mantén esta pantalla abierta e inténtalo de nuevo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar sua configuração. Mantenha esta tela aberta e tente novamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer votre configuration. Gardez cet écran ouvert et réessayez."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
