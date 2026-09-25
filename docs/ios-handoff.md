@@ -1,5 +1,7 @@
 # iOS → backend integration handoff
 
+**Proposed AI expansion:** see the [AI agent implementation plan](ai-agent-implementation-plan.md) and [iOS harness contract review](ai-ios-harness-review.md) for server-generated plans, direct authorized edits, detailed analysis, memory and replayable progress events. Those contracts are proposals awaiting joint implementation; the intelligence endpoints documented below remain the current API.
+
 Reviewed against the implemented server and current native app on 24 September 2026. This is the working guide for replacing local-only screens with authenticated backend integration. The API is implemented and tested; real provider credentials and native adapters are still required. Swift changes remain with the iOS agent.
 
 Use [contracts/openapi.yaml](../contracts/openapi.yaml) as the wire contract. Generate the Swift API client from it, keep transport/domain mapping separate from SwiftData models, and use the runtime `/openapi.json` to compare the backend you are testing. `make openapi` regenerates the checked-in contract; CI rejects drift. Detailed companion guides: [authentication](authentication.md), [sync/development](development.md), [Progress](progress-metrics-implementation.md), [Strava](strava-integration.md), and [deployment](deployment.md).

@@ -95,3 +95,5 @@ railway.json                 Deployment configuration; nothing deployed yet
 ```
 
 Start with the [iOS handoff](docs/ios-handoff.md), [implementation status](docs/implementation.md), and [deployment guide](docs/deployment.md).
+
+The proposed next AI phase is documented in the [AI agent implementation plan](docs/ai-agent-implementation-plan.md) and [iOS harness contract review](docs/ai-ios-harness-review.md). These describe planned capabilities, not currently available endpoints.
