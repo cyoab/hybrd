@@ -79,8 +79,8 @@ enum BackendTrainingMapping {
     }
     profile.athlete?.equipment = try ConnectedDraftMapping.equipment(equipmentIDs, catalog: catalog)
     var nativePlans = try plans.sorted { $0.createdAt.date < $1.createdAt.date }.map { p in
-      if var cached = old?.plans.first(where: { $0.id == p.id }) { cached.profile = profile; return cached }
-      return TrainingPlan(id: p.id, basePlanID: p.basePlanVersionId, createdAt: p.createdAt.date, reason: p.summary ?? "", profile: profile, workouts: try p.workouts.map { try workout($0, catalog: catalog, zones: profile.athlete?.heartRateZones) })
+      // Rebuild canonical projections; retain only actual recordings and active drafts below.
+      return TrainingPlan(id: p.id, basePlanID: p.basePlanVersionId, createdAt: p.createdAt.date, reason: p.summary ?? "", profile: profile, workouts: try p.workouts.map { try workout($0, catalog: catalog, zones: profile.athlete?.heartRateZones, planVersionID: p.id) }, projectionVersion: 2)
     }
     let active = nativePlans.filter { activePlans.contains($0.id) }.last
     // Draft/rejected candidates never become the visible active plan just because they're newest.
@@ -89,29 +89,41 @@ enum BackendTrainingMapping {
     return TrainingState(profile: profile, plans: nativePlans, results: results, drafts: old?.drafts ?? [])
   }
   static let recordDistances: [RunRecordDistance: Double] = [.mile: 1609.344, .fiveK: 5000, .tenK: 10000, .half: 21097, .marathon: 42195]
-  static func workout(_ value: BackendWire.PlannedWorkoutInput, catalog: BackendWire.ExerciseCatalog, zones: PersonalHeartRateZones? = nil) throws -> TrainingWorkout {
+  static func workout(_ value: BackendWire.PlannedWorkoutInput, catalog: BackendWire.ExerciseCatalog, zones: PersonalHeartRateZones? = nil, planVersionID: UUID? = nil) throws -> TrainingWorkout {
+    func scheduled(_ start: BackendInstant?, zone: String) -> Int? {
+      guard let start, let timezone = TimeZone(identifier: zone) else { return nil }
+      var calendar = Calendar(identifier: .gregorian); calendar.timeZone = timezone
+      return calendar.component(.hour, from: start.date) * 60 + calendar.component(.minute, from: start.date)
+    }
     switch value {
     case .running(let v):
+      // Bound every decoded collection before multiplying or expanding repeats.
+      guard !v.run.blocks.isEmpty, v.run.blocks.count <= 50,
+        v.run.blocks.allSatisfy({ (1...100).contains($0.repeatCount) && (1...50).contains($0.steps.count) }) else { throw BackendContractError.invalidResponse }
+      guard v.run.blocks.reduce(0, { $0 + $1.repeatCount * $1.steps.count }) <= 2_000 else { throw BackendContractError.invalidResponse }
       var segments: [RunSegment] = []
       for block in v.run.blocks.sorted(by: { $0.sequence < $1.sequence }) {
-        // Expand grouped repeats in their original order: work/recovery/work/recovery.
         for iteration in 0..<block.repeatCount {
-          for s in block.steps.sorted(by: { $0.sequence < $1.sequence }) {
-            let phase: RunSegmentPhase = s.stepKind == .warmup ? .warmUp : s.stepKind == .cooldown ? .coolDown : s.stepKind == .recovery ? .recovery : s.stepKind == .steady ? .easy : .work
-            let target = [s.paceMinSPerKm.map { String(format: "%.0f s/km", $0) }, s.hrMinBpm.map { "\($0)–\(s.hrMaxBpm ?? $0) bpm" }].compactMap { $0 }.joined(separator: " · ")
+          for step in block.steps.sorted(by: { $0.sequence < $1.sequence }) {
+            let phase: RunSegmentPhase = step.stepKind == .warmup ? .warmUp : step.stepKind == .cooldown ? .coolDown : step.stepKind == .recovery ? .recovery : step.stepKind == .steady ? .easy : step.stepKind == .stride ? .stride : .work
+            let targets: RunStepTargets = try convert(step)
+            let reference = RunStepReference(blockID: block.id, stepID: step.id, blockSequence: block.sequence, stepSequence: step.sequence, iteration: iteration, repeatCount: block.repeatCount)
             let zoneStarts = zones.map { [20] + $0.starts }
-            let targetZone = zoneStarts.flatMap { starts in starts.indices.first { index in s.hrMinBpm == starts[index] && s.hrMaxBpm == (index == 4 ? 250 : starts[index + 1] - 1) } }.flatMap { HeartRateZone(rawValue: $0 + 1) }
-            segments.append(RunSegment(id: iteration == 0 ? s.id : UUID(), title: block.label ?? s.stepKind.rawValue, seconds: s.durationS ?? 0, cue: s.notes ?? target, phase: phase, target: target.isEmpty ? nil : target, heartRateZone: targetZone))
+            let zone = zoneStarts.flatMap { starts in starts.indices.first { index in step.hrMinBpm == starts[index] && step.hrMaxBpm == (index == 4 ? 250 : starts[index + 1] - 1) } }.flatMap { HeartRateZone(rawValue: $0 + 1) }
+            segments.append(RunSegment(id: reference.executionID, title: block.label ?? step.stepKind.rawValue,
+              seconds: step.durationS ?? 0, cue: step.notes ?? "", phase: phase, heartRateZone: zone, targets: targets, reference: reference))
           }
         }
       }
-      return TrainingWorkout(id: v.id, logicalID: v.logicalWorkoutId, date: try ConnectedDraftMapping.date(v.scheduledDate, zone: v.timezone), timeZoneID: v.timezone, kind: .run, title: v.title, purpose: v.purpose ?? "", minutes: (v.estimatedDurationS ?? 0) / 60, distanceMeters: v.plannedDistanceM ?? 0, effort: v.instructions ?? "", isKey: v.priority == .key, segments: segments, isOptional: v.priority == .optional, runType: RunWorkoutType(rawValue: v.workoutType))
+      return TrainingWorkout(id: v.id, logicalID: v.logicalWorkoutId, date: try ConnectedDraftMapping.date(v.scheduledDate, zone: v.timezone), timeZoneID: v.timezone, kind: .run, title: v.title, purpose: v.purpose ?? "", minutes: (v.estimatedDurationS ?? 0) / 60, distanceMeters: v.plannedDistanceM ?? 0, effort: v.instructions ?? "", isKey: v.priority == .key, segments: segments,
+        scheduledMinutes: scheduled(v.scheduledStartAt, zone: v.timezone), isOptional: v.priority == .optional, runType: RunWorkoutType(rawValue: v.workoutType), planVersionID: planVersionID, executableVersion: 2, estimatedDurationSeconds: v.estimatedDurationS, instructions: v.instructions, prescriptionNotes: v.run.notes, primaryTargetType: v.run.primaryTargetType.rawValue)
     case .strength(let v):
       return TrainingWorkout(id: v.id, logicalID: v.logicalWorkoutId, date: try ConnectedDraftMapping.date(v.scheduledDate, zone: v.timezone), timeZoneID: v.timezone, kind: .strength, title: v.title, purpose: v.purpose ?? "", minutes: (v.estimatedDurationS ?? 0) / 60, isKey: v.priority == .key,
         exercises: try v.strength.exercises.sorted { $0.sequence < $1.sequence }.map { e in
           ExercisePrescription(id: e.id, name: try exerciseName(e.exerciseId, catalog: catalog), note: e.notes ?? "", restSeconds: e.sets.first?.restS ?? 90,
-            sets: e.sets.sorted { $0.setNumber < $1.setNumber }.map { SetPrescription(id: $0.id, reps: $0.repsMin ?? 0, targetRIR: Int($0.rirMin ?? 0)) })
-        }, isOptional: v.priority == .optional)
+            sets: try e.sets.sorted { $0.setNumber < $1.setNumber }.map { SetPrescription(id: $0.id, reps: $0.repsMin ?? 0, targetRIR: Int($0.rirMin ?? 0), targets: try convert($0)) },
+            canonicalExerciseID: e.exerciseId, supersetGroupID: e.supersetGroupId, substitutionAllowed: e.substitutionAllowed, substitutions: try e.substitutions.map { try convert($0) })
+        }, scheduledMinutes: scheduled(v.scheduledStartAt, zone: v.timezone), isOptional: v.priority == .optional, planVersionID: planVersionID, executableVersion: 2, estimatedDurationSeconds: v.estimatedDurationS, instructions: v.instructions, prescriptionNotes: v.strength.notes, sessionFocus: v.strength.sessionFocus)
     }
   }
   static func result(_ value: BackendWire.WorkoutResultRecord, catalog: BackendWire.ExerciseCatalog) throws -> WorkoutResult {
@@ -127,7 +139,7 @@ enum BackendTrainingMapping {
         status: v.completionStatus == .skipped ? .skipped : v.completionStatus == .completed ? .completed : .partial,
         durationSeconds: v.durationS ?? 0, effort: Int(v.sessionRpe ?? 0), notes: v.notes ?? "",
         sets: try v.exercises.flatMap { e in try e.sets.map { s in
-          LoggedSet(id: s.id, prescriptionID: s.prescribedSetId, exerciseName: try exerciseName(e.exerciseId, catalog: catalog), reps: s.reps ?? 0, kilograms: s.loadKg ?? 0, isComplete: s.status == .completed, rir: s.rir.map(Int.init))
+          LoggedSet(id: s.id, prescriptionID: s.prescribedSetId, exerciseName: try exerciseName(e.exerciseId, catalog: catalog), reps: s.reps ?? 0, kilograms: s.loadKg ?? 0, isComplete: s.status == .completed, rir: nil, canonicalExerciseID: e.exerciseId, exercisePrescriptionID: e.prescribedExerciseId, setKind: StrengthSetTargets.Kind(rawValue: s.setKind.rawValue), fractionalRIR: s.rir, rpe: s.rpe, loadConvention: s.loadConvention.flatMap { LoggedSet.LoadConvention(rawValue: $0.rawValue) }, completedAt: s.completedAt?.date)
         } }, performedStartedAt: v.startedAt?.date, performedEndedAt: v.endedAt?.date, performedTimeZoneID: v.timezone, canonicalTrainingDate: v.trainingDate.rawValue, canonicalElapsedDuration: true)
     }
   }
@@ -157,14 +169,26 @@ enum BackendTrainingMapping {
         run: r.status == .skipped ? nil : .init(distanceM: r.distanceMeters ?? 0, durationS: elapsed ?? r.durationSeconds, avgHrBpm: bpm(r.run?.averageHeartRate), maxHrBpm: bpm(r.run?.maximumHeartRate)))
       return try BackendMutation(.result, id: r.id, operation: .create, revision: nil, payload: payload)
     }
-    let names = r.sets.map(\.exerciseName).reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }
-    let exercises = try names.enumerated().map { index, name in
-      let e = workout?.exercises.first { $0.name == name }
-      return BackendWire.WorkoutResultInputStrengthExercisesItem(id: UUID(), prescribedExerciseId: planned ? e?.id : nil,
-        exerciseId: try exerciseID(name, catalog: catalog), sequence: index,
-        sets: r.sets.filter { $0.exerciseName == name }.enumerated().map { i, s in
-          .init(id: s.id, prescribedSetId: planned ? s.prescriptionID : nil, setNumber: i + 1, setKind: .working, reps: s.reps, loadKg: s.kilograms,
-            loadConvention: .external, rir: s.rir.map(Double.init), status: s.isComplete ? .completed : .skipped)
+    // Keep duplicate exercise instances separate, and preserve catalog identity across renames.
+    let groups = r.sets.reduce(into: [[LoggedSet]]()) { groups, set in
+      if let i = groups.firstIndex(where: { group in
+        guard let first = group.first else { return false }
+        if let id = set.exercisePrescriptionID { return first.exercisePrescriptionID == id }
+        if let id = set.canonicalExerciseID { return first.canonicalExerciseID == id && first.exercisePrescriptionID == nil }
+        return first.canonicalExerciseID == nil && first.exerciseName == set.exerciseName
+      }) { groups[i].append(set) } else { groups.append([set]) }
+    }
+    let exercises = try groups.enumerated().map { index, sets in
+      let first = sets[0]
+      let exercise = workout?.exercises.first { first.belongs(to: $0) }
+      let canonicalID = try first.canonicalExerciseID ?? exerciseID(first.exerciseName, catalog: catalog)
+      return BackendWire.WorkoutResultInputStrengthExercisesItem(id: UUID(), prescribedExerciseId: planned ? (first.exercisePrescriptionID ?? exercise?.id) : nil,
+        exerciseId: canonicalID, sequence: index,
+        sets: try sets.enumerated().map { i, set in
+          .init(id: set.id, prescribedSetId: planned ? set.prescriptionID : nil, setNumber: i + 1,
+            setKind: .init(rawValue: (set.setKind ?? .working).rawValue)!, reps: set.reps, loadKg: set.kilograms,
+            loadConvention: .init(rawValue: (set.loadConvention ?? .external).rawValue), rpe: set.rpe, rir: set.measuredRIR,
+            status: set.isComplete ? .completed : .skipped, completedAt: try set.completedAt.map { try BackendInstant(ISO8601DateFormatter().string(from: $0)) })
         })
     }
     return try BackendMutation(.result, id: r.id, operation: .create, revision: nil, payload: BackendWire.WorkoutResultInputStrength(

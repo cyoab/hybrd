@@ -30,7 +30,8 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
 
   func publish(_ value: CompanionSnapshot) {
     snapshot = value.hasAccountPlan ? value : nil
-    pending = try? JSONEncoder().encode(value)
+    var versioned = value; versioned.executableVersion = 2
+    pending = try? JSONEncoder().encode(versioned)
     sendPending()
   }
 
@@ -43,7 +44,14 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     }
     #endif
     do {
-      try WCSession.default.updateApplicationContext(["snapshot": pending])
+      var context: [String: Any] = ["executableSnapshotV2": pending]
+      // Older Watch builds must not decode a rich workout as an incomplete legacy workout.
+      if var legacy = try? JSONDecoder().decode(CompanionSnapshot.self, from: pending) {
+        legacy.workouts.removeAll { ($0.executableVersion ?? 1) > 1 }
+        legacy.executableVersion = nil
+        context["snapshot"] = try JSONEncoder().encode(legacy)
+      }
+      try WCSession.default.updateApplicationContext(context)
       connectionMessage = L10n.text("Plan queued for Apple Watch")
     } catch {
       connectionMessage = L10n.text("Watch transfer will retry when connected")
@@ -54,12 +62,12 @@ final class CompanionBridge: NSObject, WCSessionDelegate {
     Task { @MainActor in
       if let error { self.connectionMessage = error.localizedDescription }
       else { self.sendPending(); self.retryTransfers() }
-      if let data = session.receivedApplicationContext["snapshot"] as? Data { self.receive(data) }
+      if let data = (session.receivedApplicationContext["executableSnapshotV2"] ?? session.receivedApplicationContext["snapshot"]) as? Data { self.receive(data) }
     }
   }
 
   nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-    guard let data = applicationContext["snapshot"] as? Data else { return }
+    guard let data = (applicationContext["executableSnapshotV2"] ?? applicationContext["snapshot"]) as? Data else { return }
     Task { @MainActor in self.receive(data) }
   }
 

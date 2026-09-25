@@ -25,9 +25,10 @@ struct RunLiveMetrics {
     zone = heartRate.flatMap(run.zone)
     remainingMeters = run.workout.distanceMeters > 0
       ? max(0, Double(run.workout.distanceMeters) - run.meters) : nil
-    let sequence = RunTimeline(segments: run.workout.segments).totalSeconds
+    let timeline = RunTimeline(segments: run.workout.segments)
+    let sequence = timeline.totalSeconds
     let duration = sequence > 0 ? Double(sequence) : Double(max(0, run.workout.minutes)) * 60
-    remainingSeconds = remainingMeters == nil && duration > 0
+    remainingSeconds = remainingMeters == nil && duration > 0 && !timeline.usesDistance
       ? max(0, duration - active - run.intervalOffset) : nil
   }
 }

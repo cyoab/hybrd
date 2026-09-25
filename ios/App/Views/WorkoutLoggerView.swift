@@ -49,7 +49,7 @@ struct WorkoutLoggerView: View {
       }
       .onAppear {
         if let index = draft.workout.exercises.firstIndex(where: { exercise in
-          draft.sets.contains { $0.exerciseName == exercise.name && !$0.isComplete }
+          draft.sets.contains { $0.belongs(to: exercise) && !$0.isComplete }
         }) { exerciseIndex = index }
         draft.resume()
         store.saveDraft(draft)
@@ -152,7 +152,7 @@ struct WorkoutLoggerView: View {
   }
 
   private var volume: Double {
-    draft.sets.filter(\.isComplete).reduce(0) { $0 + $1.kilograms * Double($1.reps) }
+    draft.sets.filter { $0.isComplete && ($0.loadConvention == nil || $0.loadConvention == .external) }.reduce(0) { $0 + $1.kilograms * Double($1.reps) }
   }
 
   private func smallMetric(value: String, label: String) -> some View {
@@ -163,7 +163,7 @@ struct WorkoutLoggerView: View {
   }
 
   private func exerciseCard(_ exercise: ExercisePrescription) -> some View {
-    let sets = draft.sets.filter { $0.exerciseName == exercise.name }
+    let sets = draft.sets.filter { $0.belongs(to: exercise) }
     let previous = store.previousSets(for: exercise.name)
     return VStack(alignment: .leading, spacing: 13) {
       HStack(alignment: .top, spacing: 12) {
@@ -171,10 +171,13 @@ struct WorkoutLoggerView: View {
           .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 5) {
           Text(exercise.localizedName).font(.system(.title2, design: .rounded, weight: .semibold)).foregroundStyle(SessionPalette.ink(.violet))
-          Text(L10n.text("\(exercise.sets.count) prescribed sets · \(exercise.sets.first?.reps ?? 0) reps · \(exercise.sets.first?.targetRIR ?? 3) target RIR"))
+          Text(L10n.text("\(exercise.sets.count) sets"))
             .font(.caption).foregroundStyle(HybrdStyle.muted)
         }
         Spacer(minLength: 0)
+      }
+      if let group = exercise.supersetGroupID {
+        Text(L10n.text("Superset") + " · " + draft.workout.exercises.filter { $0.supersetGroupID == group }.map(\.localizedName).joined(separator: " + ")).font(.caption.weight(.semibold))
       }
       Text(exercise.localizedNote).font(.caption).foregroundStyle(HybrdStyle.muted)
       Button(L10n.text("Rest timer: \(exercise.restSeconds) sec"), systemImage: "timer") {
@@ -195,13 +198,21 @@ struct WorkoutLoggerView: View {
       VStack(spacing: 2) {
         ForEach(Array(sets.enumerated()), id: \.element.id) { position, set in
           StrengthSetRow(loggedSet: binding(for: set), number: position + 1,
-            previous: previous.indices.contains(position) ? previous[position] : nil) {
+            previous: previous.indices.contains(position) ? previous[position] : nil, prescription: exercise.sets.first { $0.id == set.prescriptionID }) {
               draft.sets.removeAll { $0.id == set.id }
             }
             .onChange(of: set.isComplete) { _, complete in
               if complete {
                 completionFeedback += 1
-                beginRest(exercise)
+                if let index = draft.sets.firstIndex(where: { $0.id == set.id }) { draft.sets[index].completedAt = Date() }
+                beginRest(exercise, set: set)
+                if let group = exercise.supersetGroupID {
+                  let indices = draft.workout.exercises.indices.filter { draft.workout.exercises[$0].supersetGroupID == group }
+                  if let current = indices.firstIndex(of: exerciseIndex), !indices.isEmpty {
+                    let ordered = Array(indices.dropFirst(current + 1)) + Array(indices.prefix(current + 1))
+                    if let next = ordered.first(where: { candidate in draft.sets.contains { $0.belongs(to: draft.workout.exercises[candidate]) && !$0.isComplete } }) { exerciseIndex = next }
+                  }
+                }
               }
             }
         }
@@ -227,9 +238,12 @@ struct WorkoutLoggerView: View {
     })
   }
 
-  private func beginRest(_ exercise: ExercisePrescription) {
-    draft.rest = StrengthRestTimer(duration: Double(exercise.restSeconds),
-      endsAt: Date().addingTimeInterval(Double(exercise.restSeconds)), exerciseName: exercise.name)
+  private func beginRest(_ exercise: ExercisePrescription, set: LoggedSet? = nil) {
+    let prescription = set.flatMap { logged in exercise.sets.first { $0.id == logged.prescriptionID } }
+    let duration = prescription?.targets.map { $0.restS ?? 0 } ?? exercise.restSeconds
+    guard duration > 0 else { draft.rest = nil; return }
+    draft.rest = StrengthRestTimer(duration: Double(duration),
+      endsAt: Date().addingTimeInterval(Double(duration)), exerciseName: exercise.name)
   }
 
   private var restBar: some View {

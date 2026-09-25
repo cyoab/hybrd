@@ -3,6 +3,8 @@ import Foundation
 @main
 enum TrainingEngineChecks {
   @MainActor static func main() async throws {
+    try ExecutablePrescriptionChecks.run()
+    try await AgentIntegrationChecks.run()
     try AccountEntryChecks.run()
     try await BackendConnectionChecks.run()
     try await BackendLiveChecks.run()

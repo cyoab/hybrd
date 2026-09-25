@@ -4,6 +4,7 @@ import Foundation
 struct RunTimeline {
   var steps: [Step] = []
 
+  var usesDistance: Bool { steps.contains { $0.segment.targets?.distanceM != nil } }
   var totalSeconds: Int { steps.last?.endSeconds ?? 0 }
 
   init(segments: [RunSegment]) {

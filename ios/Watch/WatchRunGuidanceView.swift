@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchRunGuidanceView: View {
+  @Environment(\.trainingUnits) private var units
   var run: RunRecording
   var now: Date
   var canAdvance: Bool
@@ -14,10 +15,10 @@ struct WatchRunGuidanceView: View {
           HStack(alignment: .firstTextBaseline) {
             Text(step.segment.localizedTitle).font(.caption.weight(.semibold))
             Spacer(minLength: 3)
-            Text(RunRecording.clock(guidance.remaining)).font(.system(.headline, design: .rounded, weight: .bold)).monospacedDigit()
+            Text(guidance.remainingLabel(units: units)).font(.system(.headline, design: .rounded, weight: .bold)).monospacedDigit()
               .foregroundStyle(WatchRunStyle.terra)
           }.accessibilityElement(children: .combine)
-            .accessibilityLabel(L10n.text("\(step.segment.localizedTitle), \(RunRecording.clock(guidance.remaining)) remaining"))
+            .accessibilityLabel(L10n.text("\(step.segment.localizedTitle), \(guidance.remainingLabel(units: units)) remaining"))
           ProgressView(value: guidance.fraction).tint(WatchRunStyle.terra)
             .accessibilityLabel(L10n.text("Current interval progress"))
           if let next = guidance.next {
@@ -28,7 +29,7 @@ struct WatchRunGuidanceView: View {
                 Text("\(next.id + 1)/\(guidance.steps.count)").foregroundStyle(.secondary)
               }.font(.caption2.weight(.bold))
               Text(next.segment.localizedTitle).font(.title3.bold())
-              Text(next.segment.targetSummary).font(.caption2)
+              Text(next.segment.targets?.summary(units: units) ?? next.segment.targetSummary).font(.caption2)
               if let repetitions = next.segment.repetitions, repetitions > 1 {
                 Text(L10n.text("Repeat \(next.repetition) of \(repetitions)")).font(.caption2).foregroundStyle(.secondary)
               }
@@ -38,6 +39,7 @@ struct WatchRunGuidanceView: View {
           } else {
             Label(L10n.text("Final interval"), systemImage: "flag.checkered").font(.headline).foregroundStyle(WatchRunStyle.mint)
             target(step)
+            if let targets = step.segment.targets { Text(targets.summary(units: units)).font(.caption2) }
             Text(step.segment.localizedCue).font(.caption2).foregroundStyle(.secondary)
           }
           Button(L10n.text("Next interval"), systemImage: "forward.end") { advance() }.disabled(!canAdvance)
@@ -59,7 +61,7 @@ struct WatchRunGuidanceView: View {
               Capsule().fill(segment.heartRateZone.map(WatchRunStyle.zoneColor) ?? .gray).frame(width: 3, height: 25)
               VStack(alignment: .leading, spacing: 2) {
                 Text(segment.displayTitle).font(.caption.weight(.semibold))
-                Text(segment.targetSummary).font(.caption2).foregroundStyle(.secondary)
+                Text(segment.targets?.summary(units: units) ?? segment.targetSummary).font(.caption2).foregroundStyle(.secondary)
               }
             }.accessibilityElement(children: .combine)
           }

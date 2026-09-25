@@ -118,9 +118,9 @@ import Observation
     guard var value = credential, let environment else { throw BackendContractError.accountChanged }
     value.token = token; try saveCredential(value, environment); credential = value
   }
-  func domain<T: Decodable>(_ path: String, method: String = "GET", body: Data? = nil, query: [URLQueryItem] = []) async throws -> T {
+  func domain<T: Decodable>(_ path: String, method: String = "GET", body: Data? = nil, query: [URLQueryItem] = [], headers: [String: String] = [:]) async throws -> T {
     guard let environment else { throw BackendContractError.invalidOrigin }
-    return try await perform(environment.domainURL(path, query: query), method: method, body: body, authorized: true)
+    return try await perform(environment.domainURL(path, query: query), method: method, body: body, authorized: true, headers: headers)
   }
   func request<T: Decodable>(_ url: URL, method: String, authorized: Bool = true) async throws -> T {
     try await perform(url, method: method, body: nil, authorized: authorized)
@@ -144,16 +144,49 @@ import Observation
     }
     return ProgressResponse(key: key, value: try JSONDecoder().decode(BackendWire.ProgressSummary.self, from: data), etag: response.value(forHTTPHeaderField: "ETag"))
   }
-  private func perform<T: Decodable>(_ url: URL, method: String, body: Data?, authorized: Bool) async throws -> T {
-    let (data, response) = try await exchange(url, method: method, body: body, authorized: authorized)
+  /// Streams only this authenticated origin. Re-check identity before every delivered frame.
+  func agentEvents(runID: UUID, after cursor: BackendRevision, receive: @MainActor (AgentStreamEvent) throws -> Void) async throws {
+    guard let environment, let credential else { throw BackendContractError.restoreRequired }
+    let expected = generation
+    var request = URLRequest(url: environment.domainURL("agent/runs/" + runID.uuidString.lowercased() + "/events"))
+    request.setValue("Bearer " + credential.token, forHTTPHeaderField: "Authorization")
+    request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+    request.setValue(cursor.rawValue, forHTTPHeaderField: "Last-Event-ID")
+    let (bytes, response) = try await OnboardingHTTPTransport.shared.bytes(request)
+    defer { bytes.task.cancel() }
+    guard expected == generation else { throw BackendContractError.accountChanged }
+    if response.statusCode == 401 { try clear(); throw BackendContractError.restoreRequired }
+    guard response.statusCode == 200,
+      response.value(forHTTPHeaderField: "Content-Type")?.lowercased().hasPrefix("text/event-stream") == true else {
+      throw BackendAPIError.from(response, data: Data())
+    }
+    if let token = response.value(forHTTPHeaderField: "set-auth-token"), !token.isEmpty { try rotate(token) }
+    var parser = AgentSSEParser(), total = 0
+    for try await byte in bytes {
+      try Task.checkCancellation()
+      guard expected == generation else { throw BackendContractError.accountChanged }
+      total += 1
+      guard total <= 4_000_000 else { throw BackendContractError.invalidResponse }
+      if let frame = try parser.consume(byte) {
+        if frame.event == "error" { throw BackendContractError.invalidResponse }
+        guard let id = frame.id, frame.event != "heartbeat" else { continue }
+        let event = try JSONDecoder().decode(AgentStreamEvent.self, from: Data(frame.data.utf8))
+        guard event.id.rawValue == id, event.runId == runID, event.type.rawValue == frame.event else { throw BackendContractError.invalidResponse }
+        try receive(event)
+      }
+    }
+  }
+  private func perform<T: Decodable>(_ url: URL, method: String, body: Data?, authorized: Bool, headers: [String: String] = [:]) async throws -> T {
+    let (data, response) = try await exchange(url, method: method, body: body, authorized: authorized, headers: headers)
     return try JSONDecoder().decode(T.self, from: response.statusCode == 204 ? Data("{}".utf8) : data)
   }
-  private func exchange(_ url: URL, method: String, body: Data?, authorized: Bool, etag: String? = nil) async throws -> (Data, HTTPURLResponse) {
+  private func exchange(_ url: URL, method: String, body: Data?, authorized: Bool, etag: String? = nil, headers: [String: String] = [:]) async throws -> (Data, HTTPURLResponse) {
     let expected = generation
     guard url.host == environment?.origin.host, url.port == environment?.origin.port,
           url.scheme == environment?.origin.scheme else { throw BackendContractError.invalidOrigin }
     var r = URLRequest(url: url); r.httpMethod = method; r.httpBody = body
     r.setValue("application/json", forHTTPHeaderField: "Accept")
+    for (key, value) in headers { r.setValue(value, forHTTPHeaderField: key) }
     if let etag { r.setValue(etag, forHTTPHeaderField: "If-None-Match") }
     if body != nil { r.setValue("application/json", forHTTPHeaderField: "Content-Type") }
     if authorized {

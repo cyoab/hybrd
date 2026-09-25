@@ -17,13 +17,23 @@ struct StrengthPrescriptionView: View {
       ForEach(Array(exercises.enumerated()), id: \.element.id) { index, exercise in
         DisclosureGroup {
           VStack(alignment: .leading, spacing: 14) {
+            if let group = exercise.supersetGroupID {
+              Text(L10n.text("Superset") + " · " + exercises.filter { $0.supersetGroupID == group }.map(\.localizedName).joined(separator: " + ")).font(.subheadline.weight(.semibold))
+            }
             Text(exercise.localizedNote).font(.subheadline).foregroundStyle(HybrdStyle.muted)
             ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { setIndex, set in
               HStack {
                 Text(L10n.text("Set \(setIndex + 1)")).foregroundStyle(HybrdStyle.muted)
                 Spacer()
-                Text(L10n.text("\(set.reps) reps"))
-                Text(L10n.text("· \(set.targetRIR) RIR")).foregroundStyle(HybrdStyle.muted)
+                if let targets = set.targets {
+                  VStack(alignment: .trailing, spacing: 4) {
+                    Text(targets.summary(units: units))
+                    if let notes = targets.notes { Text(notes).foregroundStyle(HybrdStyle.muted) }
+                  }
+                } else {
+                  Text(L10n.text("\(set.reps) reps"))
+                  Text(L10n.text("· \(set.targetRIR) RIR")).foregroundStyle(HybrdStyle.muted)
+                }
               }.font(.subheadline).monospacedDigit()
                 .accessibilityElement(children: .combine)
             }
@@ -51,7 +61,7 @@ struct StrengthPrescriptionView: View {
                   }
                 }.accessibilityHidden(true)
                 Text("·")
-                Label(L10n.text("\(exercise.restSeconds)s rest"), systemImage: "timer")
+                Label(exercise.sets.contains { $0.targets != nil } ? L10n.text("Rest by set") : L10n.text("\(exercise.restSeconds)s rest"), systemImage: "timer")
               }.font(.caption).foregroundStyle(HybrdStyle.muted)
             }.frame(maxWidth: .infinity, alignment: .leading)
           }.padding(.vertical, 14)
@@ -63,6 +73,7 @@ struct StrengthPrescriptionView: View {
   }
 
   private func setSummary(_ exercise: ExercisePrescription) -> String {
+    if exercise.sets.contains(where: { $0.targets != nil }) { return L10n.text("\(exercise.sets.count) sets · tap for targets") }
     let reps = Set(exercise.sets.map(\.reps))
     if reps.count == 1, let count = reps.first {
       return L10n.text("\(exercise.sets.count) sets × \(count) reps")

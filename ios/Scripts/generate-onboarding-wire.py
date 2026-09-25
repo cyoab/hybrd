@@ -15,7 +15,7 @@ spec = json.loads(subprocess.check_output(['ruby', '-rjson', '-ryaml', '-e',
     'puts JSON.generate(YAML.load_file(ARGV[0]))', str(SOURCE)], text=True))
 schemas = spec['components']['schemas']
 roots = ['OnboardingState', 'SaveOnboardingDraft', 'CompleteOnboarding',
-         'OnboardingDraftSaved', 'StravaConnectionStatus', 'ExerciseCatalog', 'Bootstrap', 'DeviceRegistration', 'RegisteredDevice', 'TrainingPolicy', 'SyncPullResponse', 'SyncPushResponse', 'SyncAcknowledgement', 'ProgressSummary', 'AthleteDetailsInput', 'TrainingPreferencesInput', 'AthleteGoalInput', 'AvailabilityRuleInput', 'AthleteEquipmentInput', 'TrainingBlockInput', 'PlanVersionInput', 'ActivatePlanInput', 'BaselineInput', 'PlanningContextInput']
+         'OnboardingDraftSaved', 'StravaConnectionStatus', 'ExerciseCatalog', 'Bootstrap', 'DeviceRegistration', 'RegisteredDevice', 'TrainingPolicy', 'SyncPullResponse', 'SyncPushResponse', 'SyncAcknowledgement', 'ProgressSummary', 'AthleteDetailsInput', 'TrainingPreferencesInput', 'AthleteGoalInput', 'AvailabilityRuleInput', 'AthleteEquipmentInput', 'TrainingBlockInput', 'PlanVersionInput', 'ActivatePlanInput', 'BaselineInput', 'PlanningContextInput', 'AgentRunInput', 'AgentRun', 'AgentCapabilities', 'AgentMemoryInput', 'AgentMemory', 'AgentArtifact']
 # Result write variants share the record schema but omit server-owned fields.
 record_fields = {'id','createdAt','updatedAt','revision','deletedAt','athleteId'}
 for variant in schemas['WorkoutResultRecord']['anyOf']:
@@ -48,12 +48,14 @@ def ident(s):
     return '`' + n + '`'
 def nullable(s):
     if '$ref' in s: return nullable(schemas[s['$ref'].split('/')[-1]])
-    return 'null' in (s.get('type') if isinstance(s.get('type'), list) else [s.get('type')]) or any(nullable(v) for v in s.get('anyOf', []))
+    return 'null' in (s.get('type') if isinstance(s.get('type'), list) else [s.get('type')]) or any(nullable(v) for v in s.get('anyOf', []) + s.get('allOf', []))
 def base_type(s, name):
     if '$ref' in s:
         target = s['$ref'].split('/')[-1]; queue.append(target); return target
     kind = s.get('type')
     if isinstance(kind, list): kind = next(k for k in kind if k != 'null')
+    if 'allOf' in s and any('$ref' in x for x in s['allOf']) and all('properties' not in (schemas[x['$ref'].split('/')[-1]] if '$ref' in x else x) for x in s['allOf']):
+        return base_type(next(x for x in s['allOf'] if '$ref' in x), name)
     if 'allOf' in s:
         parts = [schemas[x['$ref'].split('/')[-1]] if '$ref' in x else x for x in s['allOf']]
         s = {'type':'object', 'properties':{k:v for x in parts for k,v in x['properties'].items()}, 'required':[k for x in parts for k in x.get('required',[])]}

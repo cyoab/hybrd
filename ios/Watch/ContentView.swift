@@ -65,10 +65,11 @@ private struct WatchSessionReadyView: View {
         WatchWorkoutCardView(workout: workout)
           .padding(10)
           .background(WatchRunStyle.workoutColor(workout).opacity(0.14), in: RoundedRectangle(cornerRadius: 18))
+        if let issue = workout.executionIssue { Text(issue).font(.footnote).foregroundStyle(.orange) }
         if workout.kind == .run {
           Button(recorder.preparing ? L10n.text("Preparing…") : L10n.text("Start run"), systemImage: "play.fill") {
             Task { await recorder.start(workout, zones: companion.snapshot?.heartRateZones, units: companion.snapshot?.units ?? .metric) }
-          }.buttonStyle(.borderedProminent).disabled(recorder.preparing)
+          }.buttonStyle(.borderedProminent).disabled(recorder.preparing || workout.executionIssue != nil)
           if let error = recorder.errorMessage {
             Text(error).font(.caption2).foregroundStyle(.orange)
           }

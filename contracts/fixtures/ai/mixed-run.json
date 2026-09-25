@@ -1,0 +1,101 @@
+{
+  "id": "30000000-0000-4000-8000-000000000001",
+  "logicalWorkoutId": "30000000-0000-4000-8000-000000000002",
+  "workoutType": "intervals",
+  "scheduledDate": "2026-11-01",
+  "scheduledStartAt": "2026-11-01T06:30:00Z",
+  "timezone": "America/New_York",
+  "title": "Mixed intervals",
+  "purpose": "Contract parity fixture",
+  "priority": "key",
+  "estimatedDurationS": 1837,
+  "plannedDistanceM": 3000,
+  "instructions": "Follow measured step completion.",
+  "discipline": "running",
+  "run": {
+    "primaryTargetType": "mixed",
+    "notes": "No estimated distance completion.",
+    "blocks": [
+      {
+        "id": "30000000-0000-4000-8000-000000000010",
+        "sequence": 0,
+        "repeatCount": 1,
+        "label": "Warm-up",
+        "steps": [
+          {
+            "id": "30000000-0000-4000-8000-000000000011",
+            "sequence": 1,
+            "stepKind": "warmup",
+            "distanceM": null,
+            "durationS": 60,
+            "paceMinSPerKm": null,
+            "paceMaxSPerKm": null,
+            "hrMinBpm": 110,
+            "hrMaxBpm": 135,
+            "rpeMin": null,
+            "rpeMax": null,
+            "notes": "Numeric targets retained"
+          }
+        ]
+      },
+      {
+        "id": "30000000-0000-4000-8000-000000000020",
+        "sequence": 1,
+        "repeatCount": 3,
+        "label": "Intervals",
+        "steps": [
+          {
+            "id": "30000000-0000-4000-8000-000000000021",
+            "sequence": 1,
+            "stepKind": "work",
+            "distanceM": 400,
+            "durationS": null,
+            "paceMinSPerKm": 251.5,
+            "paceMaxSPerKm": 273.75,
+            "hrMinBpm": 150,
+            "hrMaxBpm": 172,
+            "rpeMin": 6.5,
+            "rpeMax": 8,
+            "notes": "Numeric targets retained"
+          },
+          {
+            "id": "30000000-0000-4000-8000-000000000022",
+            "sequence": 2,
+            "stepKind": "recovery",
+            "distanceM": null,
+            "durationS": 30,
+            "paceMinSPerKm": null,
+            "paceMaxSPerKm": null,
+            "hrMinBpm": null,
+            "hrMaxBpm": null,
+            "rpeMin": null,
+            "rpeMax": null,
+            "notes": "Numeric targets retained"
+          }
+        ]
+      },
+      {
+        "id": "30000000-0000-4000-8000-000000000030",
+        "sequence": 2,
+        "repeatCount": 1,
+        "label": "Stride",
+        "steps": [
+          {
+            "id": "30000000-0000-4000-8000-000000000031",
+            "sequence": 1,
+            "stepKind": "stride",
+            "distanceM": 100,
+            "durationS": null,
+            "paceMinSPerKm": null,
+            "paceMaxSPerKm": null,
+            "hrMinBpm": null,
+            "hrMaxBpm": null,
+            "rpeMin": null,
+            "rpeMax": null,
+            "notes": "Numeric targets retained"
+          }
+        ]
+      }
+    ]
+  }
+}

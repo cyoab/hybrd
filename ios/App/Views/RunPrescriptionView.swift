@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RunPrescriptionView: View {
+  @Environment(\.trainingUnits) private var units
   var workout: TrainingWorkout
   private var timeline: RunTimeline { RunTimeline(segments: workout.segments) }
 
@@ -12,11 +13,11 @@ struct RunPrescriptionView: View {
         HStack {
           Text("0")
           Spacer()
-          Text(L10n.text("\(timeline.totalSeconds / 60) min"))
+          Text(timeline.usesDistance ? L10n.text("\(timeline.steps.count) steps") : RunRecording.clock(Double(timeline.totalSeconds)))
         }
         .font(.caption2).monospacedDigit().foregroundStyle(HybrdStyle.muted)
         .accessibilityHidden(true)
-        Text(L10n.text("Planned sequence · bar width shows time"))
+        Text(timeline.usesDistance ? L10n.text("Planned sequence · one bar per step") : L10n.text("Planned sequence · bar width shows time"))
           .font(.caption).foregroundStyle(HybrdStyle.muted)
       }
 
@@ -32,14 +33,14 @@ struct RunPrescriptionView: View {
 
   private var rhythm: some View {
     GeometryReader { geometry in
-      let total = max(1, timeline.totalSeconds)
+      let total = max(1, timeline.usesDistance ? timeline.steps.count : timeline.totalSeconds)
       let gap: CGFloat = 3
       let width = max(1, geometry.size.width - CGFloat(max(0, timeline.steps.count - 1)) * gap)
       HStack(alignment: .bottom, spacing: gap) {
         ForEach(timeline.steps) { step in
           RoundedRectangle(cornerRadius: 3)
             .fill(SessionPalette.color(SessionBreakdown.tone(for: step.segment.heartRateZone)))
-            .frame(width: width * CGFloat(step.seconds) / CGFloat(total),
+            .frame(width: width * CGFloat(timeline.usesDistance ? 1 : step.seconds) / CGFloat(total),
               height: 16)
         }
       }
@@ -49,7 +50,7 @@ struct RunPrescriptionView: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(L10n.text("Planned running sequence"))
     .accessibilityValue(timeline.steps.map { step in
-      step.segment.localizedTitle + ", " + step.segment.targetSummary
+      step.segment.localizedTitle + ", " + (step.segment.targets?.summary(units: units) ?? step.segment.targetSummary)
     }.joined(separator: ". "))
   }
 
@@ -77,7 +78,7 @@ struct RunPrescriptionView: View {
               .foregroundStyle(HybrdStyle.terraText)
           }
         }
-        Text(segment.durationTargetSummary).font(.title3.weight(.medium)).monospacedDigit()
+        Text(segment.targets?.summary(units: units) ?? segment.durationTargetSummary).font(.title3.weight(.medium)).monospacedDigit()
         if let zone = segment.heartRateZone { RunZoneBadge(zone: zone) }
         Text(segment.localizedCue).font(.subheadline).foregroundStyle(HybrdStyle.muted)
         if let recovery {

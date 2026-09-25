@@ -17,7 +17,7 @@ enum HeartRatePlanUpgrade {
           part.phase = phase
           switch phase {
           case .warmUp, .easy: part.heartRateZone = .two
-          case .work: part.heartRateZone = .four
+          case .work, .stride: part.heartRateZone = .four
           case .recovery, .coolDown: part.heartRateZone = .one
           case nil: break
           }

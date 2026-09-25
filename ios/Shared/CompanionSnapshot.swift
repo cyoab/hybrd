@@ -9,6 +9,7 @@ struct CompanionSnapshot: Codable {
   var units: TrainingUnits?
   var athleteID: UUID?
   var accountSignedOut: Bool?
+  var executableVersion: Int?
   var hasAccountPlan: Bool { athleteID != nil && !isSample && accountSignedOut != true }
   static func signedOut() -> CompanionSnapshot {
     CompanionSnapshot(name: "", isSample: false, workouts: [], accountSignedOut: true)

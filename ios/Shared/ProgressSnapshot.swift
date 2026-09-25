@@ -147,7 +147,7 @@ struct ProgressSnapshot {
         let key = RunKey(meters: meters, type: prescriptions[result.plannedWorkoutID]?.resolvedRunType ?? .custom)
         runs[key, default: []].append(.init(resultID: result.id, date: result.completedAt, value: Double(result.durationSeconds) * 1_000 / Double(meters)))
       } else if result.kind == .strength {
-        let grouped = Dictionary(grouping: validSets(result), by: { LiftKey(name: $0.exerciseName, reps: $0.reps) })
+        let grouped = Dictionary(grouping: validSets(result).filter { $0.loadConvention == nil || $0.loadConvention == .external }, by: { LiftKey(name: $0.exerciseName, reps: $0.reps) })
         for (key, sets) in grouped {
           lifts[key, default: []].append(.init(resultID: result.id, date: result.completedAt, value: sets.map(\.kilograms).max() ?? 0))
         }

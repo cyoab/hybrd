@@ -47,6 +47,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
 
   func start(_ workout: TrainingWorkout, zones: PersonalHeartRateZones?, units: TrainingUnits = .metric) async {
     guard recording == nil, !preparing, !RunArchive.hasCheckpoint else { return }
+    if let issue = workout.executionIssue { errorMessage = issue; return }
     preparing = true; errorMessage = nil
     defer { preparing = false }
     do {
@@ -200,6 +201,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
     timer?.invalidate(); timer = nil
   }
   private func tick() {
+    recording?.observeExecution(at: Date())
     guard let value = recording, !value.isPaused, !value.isFinished else { return }
     let step = value.step(at: Date())?.id
     if step != previousStep { previousStep = step; feedback() }
@@ -324,6 +326,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       #if os(iOS)
       let before = value.kilometerMark
       value.updateDistance(value.meters + accepted.meters, at: value.seconds(at: fix.timestamp))
+      value.observeExecution(at: fix.timestamp)
       if value.kilometerMark > before { feedback() }
       #endif
       let speed = fix.speed >= 0 ? fix.speed : accepted.seconds > 0 ? accepted.meters / accepted.seconds : 0
@@ -378,6 +381,7 @@ final class RunRecorder: NSObject, CLLocationManagerDelegate, HKWorkoutSessionDe
       if let meters = workoutBuilder.statistics(for: HKQuantityType(.distanceWalkingRunning))?.sumQuantity()?.doubleValue(for: .meter()), !value.isPaused {
         let before = value.kilometerMark
         value.updateDistance(meters, at: value.seconds())
+        value.observeExecution(at: Date())
         if value.kilometerMark > before { self.feedback() }
       }
       #endif

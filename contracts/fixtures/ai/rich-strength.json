@@ -1,0 +1,83 @@
+{
+  "id": "30000000-0000-4000-8000-000000000003",
+  "logicalWorkoutId": "30000000-0000-4000-8000-000000000004",
+  "workoutType": "upper",
+  "scheduledDate": "2026-11-01",
+  "scheduledStartAt": "2026-11-01T06:30:00Z",
+  "timezone": "America/New_York",
+  "title": "Strength fidelity",
+  "purpose": "Contract parity fixture",
+  "priority": "key",
+  "estimatedDurationS": 1837,
+  "plannedDistanceM": null,
+  "instructions": "Follow measured step completion.",
+  "discipline": "strength",
+  "strength": {
+    "sessionFocus": "upper",
+    "notes": "Keep the superset and per-set rest.",
+    "exercises": [
+      {
+        "id": "30000000-0000-4000-8000-000000000041",
+        "exerciseId": "30000000-0000-4000-8000-000000000091",
+        "sequence": 0,
+        "supersetGroupId": "30000000-0000-4000-8000-000000000092",
+        "substitutionAllowed": true,
+        "notes": "Controlled eccentric",
+        "substitutions": [
+          {
+            "exerciseId": "30000000-0000-4000-8000-000000000093",
+            "priority": 0,
+            "rationale": "Equipment alternative"
+          }
+        ],
+        "sets": [
+          {
+            "id": "30000000-0000-4000-8000-000000000051",
+            "setNumber": 1,
+            "setKind": "warmup",
+            "repsMin": 12,
+            "repsMax": 15,
+            "loadKg": 20,
+            "loadPercentE1rm": null,
+            "rpeMin": null,
+            "rpeMax": null,
+            "rirMin": 4,
+            "rirMax": 5,
+            "restS": 30,
+            "notes": null
+          },
+          {
+            "id": "30000000-0000-4000-8000-000000000052",
+            "setNumber": 2,
+            "setKind": "working",
+            "repsMin": 5,
+            "repsMax": 8,
+            "loadKg": null,
+            "loadPercentE1rm": 72.5,
+            "rpeMin": 7.5,
+            "rpeMax": 8.5,
+            "rirMin": 1.5,
+            "rirMax": 2.5,
+            "restS": 120,
+            "notes": "Leave 1.5\u20132.5 reps"
+          },
+          {
+            "id": "30000000-0000-4000-8000-000000000053",
+            "setNumber": 3,
+            "setKind": "backoff",
+            "repsMin": 10,
+            "repsMax": 12,
+            "loadKg": 27.5,
+            "loadPercentE1rm": null,
+            "rpeMin": null,
+            "rpeMax": null,
+            "rirMin": null,
+            "rirMax": null,
+            "restS": 75,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  }
+}

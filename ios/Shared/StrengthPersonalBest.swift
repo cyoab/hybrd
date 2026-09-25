@@ -20,7 +20,7 @@ enum RecordSource: String, Codable { case manual, logged }
 enum LoggedStrengthRecords {
   static func candidates(from results: [WorkoutResult]) -> [StrengthPersonalBest] {
     let sets = results.filter { $0.kind == .strength && $0.status != .skipped }.flatMap(\.sets)
-      .filter { $0.isComplete && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && (1...100).contains($0.reps) }
+      .filter { ($0.loadConvention == nil || $0.loadConvention == .external) && $0.isComplete && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && (1...100).contains($0.reps) }
     return Dictionary(grouping: sets, by: \.exerciseName).compactMap { name, sets in
       guard let best = sets.max(by: {
         $0.kilograms == $1.kilograms ? $0.reps < $1.reps : $0.kilograms < $1.kilograms

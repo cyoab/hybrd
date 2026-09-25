@@ -7,6 +7,7 @@ struct RunLiveMetricsView: View {
   var pace: Double?
   var gps: String
   @Environment(\.dynamicTypeSize) private var typeSize
+  private var guidance: RunGuidance { RunGuidance(run: run, at: now) }
   private var step: RunTimeline.Step? { run.step(at: now) }
 
   var body: some View {
@@ -22,11 +23,12 @@ struct RunLiveMetricsView: View {
           HStack {
             Text(step.segment.heartRateZone?.title ?? L10n.text("Your own effort")).font(.headline)
             Spacer()
-            Text(L10n.text("\(RunRecording.clock(max(0, Double(step.endSeconds) - run.seconds(at: now) - run.intervalOffset))) left"))
+            Text(L10n.text("\(guidance.remainingLabel(units: units)) left"))
               .font(.headline.monospacedDigit())
           }
-          ProgressView(value: min(Double(step.seconds), max(0, run.seconds(at: now) + run.intervalOffset - Double(step.startSeconds))), total: Double(max(1, step.seconds)))
+          ProgressView(value: guidance.fraction)
             .tint(HybrdStyle.terraText).accessibilityLabel(L10n.text("Current interval progress"))
+          if let targets = step.segment.targets { Text(targets.summary(units: units)).font(.caption.weight(.semibold)) }
           Text(step.segment.localizedCue).font(.subheadline)
           if let zone = step.segment.heartRateZone, let zones = run.zones, zones.isValid { Text(L10n.text("Target · ") + zones.label(for: zone)).font(.caption.weight(.semibold)) }
         }

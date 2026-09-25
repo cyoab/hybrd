@@ -19,6 +19,7 @@ struct WorkoutDetailView: View {
         SessionHeroView(workout: current)
         VStack(alignment: .leading, spacing: 26) {
           if let result { resultCard(result) }
+          if let issue = current.executionIssue { Text(issue).foregroundStyle(HybrdStyle.terraText) }
 
           HStack(alignment: .top, spacing: 14) {
             Image(systemName: "scope").font(.title3).foregroundStyle(HybrdStyle.terraText)
@@ -61,7 +62,7 @@ struct WorkoutDetailView: View {
           Label(store.hasDraft(for: current) ? L10n.text("Continue session") : (current.kind == .strength ? L10n.text("Start workout") : L10n.text("Start run")),
             systemImage: "play.fill")
         }
-        .buttonStyle(HybrdPrimaryButtonStyle())
+        .buttonStyle(HybrdPrimaryButtonStyle()).disabled(current.executionIssue != nil)
         .padding(.horizontal, 20).padding(.vertical, 12)
         .background(HybrdStyle.surface)
         .overlay(alignment: .top) { Rectangle().fill(HybrdStyle.line).frame(height: 0.5) }

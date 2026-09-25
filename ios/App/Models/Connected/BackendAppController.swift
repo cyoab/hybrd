@@ -5,6 +5,7 @@ import CryptoKit
 
 @MainActor @Observable final class BackendAppController {
   var session = BackendSession()
+  private(set) var coach: AgentRunStore?
   private(set) var replica: BackendReplica?
   private(set) var remote: RemoteOnboardingStore?
   private(set) var catalog: BackendWire.ExerciseCatalog?
@@ -123,6 +124,12 @@ import CryptoKit
       }
       connectedUserID = user; connectedEmail = session.credential?.user.email
       connected = true; showAuthentication = false
+      coach?.suspend()
+      coach = try AgentRunStore(directory: directory.appendingPathComponent("coach"), scope: scope,
+        deviceID: replica.snapshot.deviceID, session: session, assertAccount: assertAccount, beforeSend: { [weak self] in
+          guard let self else { throw BackendContractError.accountChanged }
+          try assertAccount(); try await self.prepareCoach()
+        })
     } catch { self.error = BackendErrorMessage.text(error) }
   }
   func verifyEmail(_ code: String, training: TrainingStore) async throws {
@@ -135,6 +142,7 @@ import CryptoKit
     await connect(training: training)
   }
   func sessionEnded() {
+    coach?.suspend()
     if RunRecorder.shared.recording != nil, connected {
       // Keep the current account and recorder visible. Reauthentication must use this same user.
       error = L10n.text("Your session expired. Sign in again to continue.")
@@ -154,6 +162,39 @@ import CryptoKit
       catch let api as BackendAPIError where api.code == "DEVICE_UNAVAILABLE" { try await registerDevice(); try await replica.sync(session: session) }
       try hydrate(); error = nil; lastSynced = Date()
       if !conflicts.isEmpty { error = L10n.text("Some changes need review. Open Account & sync for details.") }
+    } catch { self.error = BackendErrorMessage.text(error) }
+  }
+  var cloudAIConsent: Bool {
+    replica?.records.compactMap { change -> Bool? in
+      if case .athlete(let value) = change { return value.payload?.cloudAiConsent }; return nil
+    }.first ?? bootstrap?.athlete.cloudAiConsent ?? false
+  }
+  private func prepareCoach() async throws {
+    guard !busy, let replica else { throw BackendContractError.requestInFlight }
+    busy = true; defer { busy = false }
+    try await replica.sync(session: session)
+    guard replica.snapshot.outbox.isEmpty, replica.snapshot.outcomes.isEmpty else { throw BackendContractError.pendingRequestNeedsReview }
+    try hydrate()
+    guard cloudAIConsent else { throw BackendAPIError(status: 403, code: "AI_CONSENT_REQUIRED") }
+  }
+  func setCloudAIConsent(_ enabled: Bool) async {
+    guard !busy, let replica, let training else { return }
+    busy = true; defer { busy = false }
+    do {
+      coach?.suspend()
+      try await replica.sync(session: session)
+      guard replica.snapshot.outbox.isEmpty, replica.snapshot.outcomes.isEmpty else { throw BackendContractError.pendingRequestNeedsReview }
+      guard let source = replica.records.compactMap({ change -> BackendWire.AthleteRecord? in
+        if case .athlete(let value) = change { return value.payload }; return nil
+      }).first else { throw BackendContractError.restoreRequired }
+      var input: BackendWire.AthleteProfileInput = try BackendTrainingMapping.convert(source)
+      input.cloudAiConsent = enabled
+      try replica.enqueue([try BackendMutation(.athlete, id: source.id, operation: .update, revision: source.revision, payload: input)], local: training.state)
+      try await replica.sync(session: session)
+      guard replica.snapshot.outbox.isEmpty else { throw BackendContractError.pendingRequestNeedsReview }
+      try hydrate(); error = nil
+      await coach?.refresh()
+      if enabled { coach?.resume() }
     } catch { self.error = BackendErrorMessage.text(error) }
   }
   func fetchProgress(days: Int) async {
@@ -245,6 +286,7 @@ import CryptoKit
     } catch { self.error = BackendErrorMessage.text(error) }
   }
   func disconnect() {
+    coach?.suspend(); coach = nil
     accountGeneration = UUID(); syncTask?.cancel(); connected = false
     connectedUserID = nil; connectedEmail = nil; progressResponses = [:]
     replica = nil; remote = nil; catalog = nil; policy = nil; bootstrap = nil; progress = nil; onboarding = nil

@@ -14,6 +14,11 @@ final class OnboardingHTTPTransport: NSObject, URLSessionTaskDelegate, @unchecke
     guard let http = response as? HTTPURLResponse else { throw BackendContractError.invalidResponse }
     return (data, http)
   }
+  @MainActor func bytes(_ request: URLRequest) async throws -> (URLSession.AsyncBytes, HTTPURLResponse) {
+    let (bytes, response) = try await session.bytes(for: request)
+    guard let http = response as? HTTPURLResponse else { bytes.task.cancel(); throw BackendContractError.invalidResponse }
+    return (bytes, http)
+  }
   func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
                   newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) { completionHandler(nil) }
 }

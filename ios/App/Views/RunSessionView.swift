@@ -77,13 +77,14 @@ struct RunSessionView: View {
       Text(L10n.text("Find your rhythm.")).font(.system(.largeTitle, design: .rounded, weight: .semibold))
       Text(L10n.text("Pace, distance, laps, and your next interval. Keep your run in view on iPhone or take it with you on Apple Watch."))
         .foregroundStyle(HybrdStyle.muted)
+      if let issue = workout.executionIssue { Text(issue).foregroundStyle(HybrdStyle.terraText) }
       RunRhythmView(segments: workout.segments, type: workout.resolvedRunType)
       Label(workout.prescriptionTarget, systemImage: "heart.fill").foregroundStyle(HybrdStyle.terraText)
       Button { Task { await recorder.start(workout, zones: store.profile.athlete?.heartRateZones, units: units) } } label: {
         Label(recorder.preparing ? L10n.text("Preparing…") : L10n.text("Record on iPhone"), systemImage: "play.fill")
-      }.buttonStyle(HybrdPrimaryButtonStyle()).disabled(recorder.preparing)
+      }.buttonStyle(HybrdPrimaryButtonStyle()).disabled(recorder.preparing || workout.executionIssue != nil)
       Button(L10n.text("Use Apple Watch"), systemImage: "applewatch") { store.shareWithWatch(); watchHelp = true }
-        .buttonStyle(.bordered).frame(maxWidth: .infinity).disabled(recorder.preparing)
+        .buttonStyle(.bordered).frame(maxWidth: .infinity).disabled(recorder.preparing || workout.executionIssue != nil)
       Text(L10n.text("Outdoor GPS recording. Heart rate on iPhone requires a supported heart-rate sensor; Apple Watch measures it from your wrist. Permissions are requested when you start."))
         .font(.caption).foregroundStyle(HybrdStyle.muted)
       Divider()

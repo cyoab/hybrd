@@ -6,11 +6,20 @@ struct StrengthSetRow: View {
   @Binding var loggedSet: LoggedSet
   var number: Int
   var previous: LoggedSet?
+  var prescription: SetPrescription? = nil
   var remove: () -> Void
-  private var valid: Bool { loggedSet.reps > 0 && loggedSet.reps <= 100 && loggedSet.kilograms.isFinite && (0...1_000).contains(loggedSet.kilograms) && (loggedSet.rir.map { (0...10).contains($0) } ?? true) }
+  private var valid: Bool { loggedSet.reps > 0 && loggedSet.reps <= 100 && loggedSet.kilograms.isFinite && (0...1_000).contains(loggedSet.kilograms) && (loggedSet.measuredRIR.map { $0.isFinite && (0...10).contains($0) } ?? true) }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 5) {
+      if let targets = prescription?.targets {
+        Text(targets.summary(units: units)).font(.caption).foregroundStyle(HybrdStyle.muted)
+        if let note = targets.notes { Text(note).font(.caption2).foregroundStyle(HybrdStyle.muted) }
+      }
+      Picker(L10n.text("Load type"), selection: Binding(get: { loggedSet.loadConvention ?? .external }, set: { loggedSet.loadConvention = $0; if $0 == .bodyweight { loggedSet.kilograms = 0 } })) {
+        ForEach(LoggedSet.LoadConvention.allCases, id: \.self) { Text($0.title).tag($0) }
+      }.pickerStyle(.menu).font(.caption)
+
       if dynamicType.isAccessibilitySize {
         HStack { Text(L10n.text("Set \(number)")).font(.headline); Spacer(); completionToggle }
         VStack(spacing: 10) {
@@ -25,7 +34,7 @@ struct StrengthSetRow: View {
         }
       }
       if let previous {
-        Text(L10n.text("Last time · ") + units.weightText(previous.kilograms) + " × \(previous.reps)" + (previous.rir.map { L10n.text(" · \($0) RIR") } ?? ""))
+        Text(L10n.text("Last time · ") + units.weightText(previous.kilograms) + " × \(previous.reps)" + (previous.measuredRIR.map { " · " + $0.formatted() + " RIR" } ?? ""))
           .font(.caption2).foregroundStyle(HybrdStyle.muted).padding(.leading, dynamicType.isAccessibilitySize ? 0 : 29)
       }
     }
@@ -36,6 +45,7 @@ struct StrengthSetRow: View {
   }
   private var weightField: some View {
     TextField("0", value: Binding(get: { units.weight.value(fromKilograms: loggedSet.kilograms) }, set: { loggedSet.kilograms = units.weight.kilograms(from: $0) }), format: .number.precision(.fractionLength(0...1)))
+      .disabled(loggedSet.loadConvention == .bodyweight)
       .keyboardType(.decimalPad).accessibilityLabel(L10n.text("\(loggedSet.localizedExerciseName), set \(number), \(units.weight.title.lowercased())"))
       .multilineTextAlignment(.center).font(.body.monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
@@ -47,9 +57,9 @@ struct StrengthSetRow: View {
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
   }
   private var rirField: some View {
-    Picker(L10n.text("Set \(number), reps in reserve"), selection: $loggedSet.rir) {
-      Text("—").tag(Int?.none)
-      ForEach(0...10, id: \.self) { Text($0 == 10 ? "10+" : "\($0)").tag(Int?.some($0)) }
+    Picker(L10n.text("Set \(number), reps in reserve"), selection: Binding(get: { loggedSet.measuredRIR }, set: { loggedSet.fractionalRIR = $0; loggedSet.rir = nil })) {
+      Text("—").tag(Double?.none)
+      ForEach(0...20, id: \.self) { value in Text((Double(value) / 2).formatted()).tag(Double?.some(Double(value) / 2)) }
     }.pickerStyle(.menu).labelsHidden().frame(maxWidth: .infinity, minHeight: 44)
       .background(HybrdStyle.field, in: RoundedRectangle(cornerRadius: 9))
   }

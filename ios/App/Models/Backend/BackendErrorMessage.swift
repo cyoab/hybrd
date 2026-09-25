@@ -3,6 +3,17 @@ import Foundation
 enum BackendErrorMessage {
   static func text(_ error: Error) -> String {
     if let api = error as? BackendAPIError {
+      switch api.code {
+      case "ENTITLEMENT_REQUIRED": return L10n.text("Cloud coaching needs an active coaching membership.")
+      case "AI_CONSENT_REQUIRED": return L10n.text("Allow cloud AI coaching?")
+      case "AGENT_DISABLED", "INTELLIGENCE_NOT_CONFIGURED", "FEATURE_DISABLED": return L10n.text("Cloud coaching is not available on this server yet.")
+      case "WORKOUT_REVISION_CONFLICT": return L10n.text("This workout changed. Sync and select it again before requesting an analysis.")
+      case "THREAD_BUSY": return L10n.text("Your coach is already working on this conversation. Try again after it finishes.")
+      case "AI_QUOTA_EXCEEDED": return L10n.text("You’ve reached the coaching limit. Please try again later.")
+      case "MEMORY_REVISION_CONFLICT": return L10n.text("This memory changed. Reload your saved memories before editing it again.")
+      case "MEMORY_BUDGET_EXCEEDED": return L10n.text("Keep at most 20 memories and 5,000 characters in total.")
+      default: break
+      }
       let guidance: String
       switch api.status {
       case 401: guidance = L10n.text("Your session expired. Sign in again to continue.")

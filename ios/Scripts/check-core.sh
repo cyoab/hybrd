@@ -24,8 +24,12 @@ swiftc -DDEBUG -module-cache-path /tmp/hybrd-swift-module-cache \
   Shared/RunLiveMetrics.swift \
   Shared/RunGuidance.swift \
   Shared/RunRecording.swift \
+  Shared/RunExecutionState.swift \
   Shared/StrengthRestTimer.swift \
   Shared/RunTimeline.swift \
+  Shared/RunStepTargets.swift \
+  Shared/RunStepReference.swift \
+  Shared/StrengthSetTargets.swift \
   Shared/RunWorkoutType.swift \
   Shared/RunWorkoutTemplate.swift \
   Shared/RunningPersonalBest.swift \

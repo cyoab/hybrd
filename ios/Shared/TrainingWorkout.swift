@@ -17,6 +17,23 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   var scheduledMinutes: Int?
   var isOptional: Bool?
   var runType: RunWorkoutType?
+  var planVersionID: UUID?
+  var executableVersion: Int?
+  var estimatedDurationSeconds: Int?
+  var instructions: String?
+  var prescriptionNotes: String?
+  var primaryTargetType: String?
+  var sessionFocus: String?
+  var requiresCanonicalSync: Bool?
+
+  var executionIssue: String? {
+    if requiresCanonicalSync == true { return L10n.text("Sync this updated workout before starting.") }
+    if let executableVersion, executableVersion > 2 { return L10n.text("Update hybrd to perform this prescription.") }
+    if kind == .run && (segments.count > 2_000 || segments.contains { $0.targets != nil && $0.targets?.completion == nil }) {
+      return L10n.text("This run uses completion rules that this version of hybrd cannot execute. Review it with your coach before starting.")
+    }
+    return nil
+  }
 
   var localizedTitle: String { L10n.content(title) }
   var localizedPurpose: String { L10n.content(purpose) }
@@ -60,6 +77,7 @@ struct TrainingWorkout: Codable, Identifiable, Equatable {
   func reidentified() -> TrainingWorkout {
     var copy = self
     copy.id = UUID()
+    if executableVersion == 2 { copy.requiresCanonicalSync = true; copy.planVersionID = nil }
     copy.exercises = exercises.map { exercise in
       var item = exercise
       item.id = UUID()
@@ -95,12 +113,17 @@ struct ExercisePrescription: Codable, Identifiable, Equatable {
   var localizedNote: String { L10n.content(note) }
   var restSeconds = 90
   var sets: [SetPrescription]
+  var canonicalExerciseID: UUID?
+  var supersetGroupID: UUID?
+  var substitutionAllowed: Bool?
+  var substitutions: [ExerciseSubstitution]?
 }
 
 struct SetPrescription: Codable, Identifiable, Equatable {
   var id = UUID()
   var reps: Int
   var targetRIR = 3
+  var targets: StrengthSetTargets?
 }
 
 struct RunSegment: Codable, Identifiable, Equatable {
@@ -112,6 +135,8 @@ struct RunSegment: Codable, Identifiable, Equatable {
   var repetitions: Int?
   var target: String?
   var heartRateZone: HeartRateZone?
+  var targets: RunStepTargets?
+  var reference: RunStepReference?
 
   var localizedTitle: String { L10n.content(title) }
   var localizedCue: String { L10n.content(cue) }
@@ -125,6 +150,7 @@ struct RunSegment: Codable, Identifiable, Equatable {
   }
 
   var durationTargetSummary: String {
+    if let targets { return targets.summary(units: .metric) }
     let duration = seconds.isMultiple(of: 60) ? L10n.text("\(seconds / 60) min") : L10n.text("\(seconds / 60):\(String(format: "%02d", seconds % 60)) min")
     return duration + (target.map { " " + L10n.content($0) } ?? "")
   }
@@ -133,7 +159,7 @@ struct RunSegment: Codable, Identifiable, Equatable {
 }
 
 enum RunSegmentPhase: String, Codable {
-  case warmUp, work, recovery, coolDown, easy
+  case warmUp, work, recovery, coolDown, easy, stride
 }
 
 extension String.StringInterpolation {

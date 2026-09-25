@@ -24,4 +24,5 @@ struct TrainingPlan: Codable, Identifiable {
   }
   var profile: TrainingProfile
   var workouts: [TrainingWorkout]
+  var projectionVersion: Int?
 }

@@ -15,6 +15,7 @@ struct ContentView: View {
         TabView {
           Tab(L10n.text("Plan"), systemImage: "calendar") { PlanView() }
           Tab(L10n.text("Progress"), systemImage: "square.3.layers.3d") { TrainingProgressView() }
+          Tab(L10n.text("Coach"), systemImage: "sparkles") { CoachView() }
         }
         .tint(HybrdStyle.ink)
       } else {

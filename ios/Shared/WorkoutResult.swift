@@ -36,6 +36,30 @@ struct LoggedSet: Codable, Identifiable, Equatable {
   var kilograms: Double
   var isComplete = false
   var rir: Int?
+  var canonicalExerciseID: UUID?
+  var exercisePrescriptionID: UUID?
+  var setKind: StrengthSetTargets.Kind?
+  var fractionalRIR: Double?
+  var rpe: Double?
+  var loadConvention: LoadConvention?
+  var completedAt: Date?
+
+  enum LoadConvention: String, Codable, CaseIterable {
+    case external, bodyweight, assistance
+    var title: String {
+      switch self {
+      case .external: L10n.text("External weight")
+      case .bodyweight: L10n.text("Bodyweight")
+      case .assistance: L10n.text("Assistance")
+      }
+    }
+  }
+  var measuredRIR: Double? { fractionalRIR ?? rir.map(Double.init) }
+  func belongs(to exercise: ExercisePrescription) -> Bool {
+    if let exercisePrescriptionID { return exercisePrescriptionID == exercise.id }
+    if let canonicalExerciseID, let expected = exercise.canonicalExerciseID { return canonicalExerciseID == expected }
+    return exerciseName == exercise.name
+  }
 }
 
 struct WorkoutDraft: Codable, Identifiable, Equatable {
@@ -63,7 +87,7 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
     } else {
       let completed = sets.filter(\.isComplete)
       guard !completed.isEmpty else { return L10n.text("Check at least one completed set.") }
-      guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && ($0.rir.map { (0...10).contains($0) } ?? true) }) else {
+      guard completed.allSatisfy({ $0.reps > 0 && $0.reps <= 100 && $0.kilograms.isFinite && (0...1_000).contains($0.kilograms) && ($0.measuredRIR.map { $0.isFinite && (0...10).contains($0) } ?? true) }) else {
         return L10n.text("Completed sets need 1–100 reps and a load between 0 and \(units.weightText(1_000)), with RIR from 0 to 10 when entered.")
       }
     }
@@ -95,10 +119,10 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
   }
 
   mutating func addSet(for exercise: ExercisePrescription) {
-    let previous = sets.last { $0.exerciseName == exercise.name }
+    let previous = sets.last { $0.belongs(to: exercise) }
     sets.append(LoggedSet(prescriptionID: nil, exerciseName: exercise.name,
       reps: previous?.reps ?? exercise.sets.first?.reps ?? 6,
-      kilograms: previous?.kilograms ?? 0))
+      kilograms: previous?.kilograms ?? 0, canonicalExerciseID: exercise.canonicalExerciseID, exercisePrescriptionID: exercise.id, setKind: .working, loadConvention: previous?.loadConvention))
   }
 
   init(workout: TrainingWorkout) {
@@ -107,7 +131,7 @@ struct WorkoutDraft: Codable, Identifiable, Equatable {
     // Actual run values start empty; prescriptions are never recorded as performed work.
     sets = workout.exercises.flatMap { exercise in
       exercise.sets.map { set in
-        LoggedSet(prescriptionID: set.id, exerciseName: exercise.name, reps: set.reps, kilograms: 0)
+        LoggedSet(prescriptionID: set.id, exerciseName: exercise.name, reps: set.reps, kilograms: 0, canonicalExerciseID: exercise.canonicalExerciseID, exercisePrescriptionID: exercise.id, setKind: set.targets?.setKind)
       }
     }
   }

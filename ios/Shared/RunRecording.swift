@@ -32,6 +32,7 @@ struct RunRecording: Codable, Identifiable, Equatable {
   var manualLapMeters: Double = 0
   var manualLapTime: Double = 0
   var distanceSampleTime: Double = 0
+  var execution: RunExecutionState?
 
   var isPaused: Bool { runningSince == nil && endedAt == nil }
   var isFinished: Bool { endedAt != nil }
@@ -48,6 +49,7 @@ struct RunRecording: Codable, Identifiable, Equatable {
     lastPace = reading
   }
   mutating func pause(at date: Date) {
+    observeExecution(at: date)
     elapsed = seconds(at: date); runningSince = nil; checkpointAt = date
   }
   mutating func resume(at date: Date) {
@@ -55,14 +57,35 @@ struct RunRecording: Codable, Identifiable, Equatable {
     runningSince = date; checkpointAt = date
   }
   mutating func finish(at date: Date) {
-    pause(at: date); endedAt = date
+    pause(at: date)
+    if var execution {
+      execution.advance(steps: RunTimeline(segments: workout.segments).steps, activeSeconds: elapsed, meters: meters, reason: .workoutFinished)
+      self.execution = execution
+    }
+    endedAt = date
+  }
+  mutating func observeExecution(at date: Date) {
+    guard workout.executableVersion == 2, !isPaused, !isFinished else { return }
+    if execution == nil { execution = RunExecutionState() }
+    let active = seconds(at: date)
+    execution?.observe(steps: RunTimeline(segments: workout.segments).steps, activeSeconds: active, meters: meters)
   }
   func step(at date: Date) -> RunTimeline.Step? {
+    if workout.executableVersion == 2 {
+      let steps = RunTimeline(segments: workout.segments).steps
+      let index = execution?.index ?? 0
+      return steps.indices.contains(index) ? steps[index] : nil
+    }
     let time = seconds(at: date) + intervalOffset
     return RunTimeline(segments: workout.segments).steps.first { Double($0.endSeconds) > time }
   }
   mutating func advanceStep(at date: Date) {
     guard let current = step(at: date), !isPaused, !isFinished else { return }
+    if workout.executableVersion == 2 {
+      var state = execution ?? RunExecutionState()
+      state.advance(steps: RunTimeline(segments: workout.segments).steps, activeSeconds: seconds(at: date), meters: meters, reason: .manualAdvance)
+      execution = state; return
+    }
     intervalOffset += max(0, Double(current.endSeconds) - seconds(at: date) - intervalOffset)
   }
   mutating func updateDistance(_ total: Double, at seconds: Double) {
