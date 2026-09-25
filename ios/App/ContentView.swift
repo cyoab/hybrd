@@ -28,15 +28,6 @@ struct ContentView: View {
       }
     }
     .safeAreaInset(edge: .top, spacing: 0) {
-      if backend.connected {
-        Button { backend.showAccount = true } label: {
-          HStack {
-            Text(backend.busy ? L10n.text("Syncing…") : backend.pendingCount > 0 ? L10n.text("Changes waiting to sync") : L10n.text("Account & sync"))
-            Spacer()
-            if backend.error != nil { Text(L10n.text("Needs attention")).foregroundStyle(HybrdStyle.terraText) }
-          }.font(.caption).padding(.horizontal, 20).padding(.vertical, 8).frame(maxWidth: .infinity).background(HybrdStyle.surface)
-        }.buttonStyle(.plain)
-      }
       if let run = recorder.recording {
         Button { showingRun = true } label: {
           HStack { Label(run.isFinished ? L10n.text("Review your recorded run") : L10n.text("Return to active run"), systemImage: "figure.run"); Spacer(); Image(systemName: "chevron.right") }
