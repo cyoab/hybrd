@@ -1,5 +1,7 @@
 # iOS contract review for the training agent
 
+Follow-up: [iOS integration review](ai-ios-integration-review.md) records the native implementation assessment, migration details and remaining contract decisions after reviewing both planning documents.
+
 Research and proposed implementation contract, 2026-09-25. Reviewed the repository at `d8e7e39`; no application code was changed. This is an independent review of the iOS implementation, not approval from the agent that owns the iOS work. The related server architecture is in [AI implementation plan](ai-agent-implementation-plan.md).
 
 ## Decision

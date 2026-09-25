@@ -1,5 +1,7 @@
 # hybrd AI agent: research and implementation plan
 
+Follow-up: [iOS integration review](ai-ios-integration-review.md) records the native implementation assessment, migration details and remaining contract decisions after reviewing both planning documents.
+
 **Status:** proposed architecture, 25 September 2026. This task adds research and planning documents only. It does not enable cloud AI, deploy services, or change the current API. Repository inspected at `d8e7e39`.
 
 **Product decision:** the new request supersedes the earlier requirement that plan generation remain exclusively on iOS. The backend will orchestrate AI plan creation, analysis and changes. iPhone/Watch will execute workouts, collect measurements and preserve offline operation. Both use one versioned training contract and the same validation fixtures.
