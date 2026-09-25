@@ -13,7 +13,7 @@ struct BackendConnectionView: View {
     NavigationStack {
       Form {
         Section(L10n.text("Backend connection")) {
-          TextField(L10n.text("Server address"), text: $origin, prompt: Text("https://api.example.com"))
+          TextField(L10n.text("Server address"), text: $origin, prompt: Text(verbatim: "https://api.example.com"))
             .textContentType(.URL).keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
           TextField(L10n.text("API version"), text: $version).textInputAutocapitalization(.never).autocorrectionDisabled()
           TextField(L10n.text("Authentication path"), text: $authPath).textInputAutocapitalization(.never).autocorrectionDisabled()

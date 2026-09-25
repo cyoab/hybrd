@@ -39393,6 +39393,366 @@
           }
         }
       }
+    },
+    "Stronger starts here.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stronger starts here."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aquí empieza tu mejor versión."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua evolução começa aqui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre progression commence ici."
+          }
+        }
+      }
+    },
+    "Sign in or create an account for your running and strength journey.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in or create an account for your running and strength journey."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia sesión o crea una cuenta para avanzar en tu entrenamiento de carrera y fuerza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entre ou crie uma conta para evoluir na corrida e na musculação."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous ou créez un compte pour progresser en course et en musculation."
+          }
+        }
+      }
+    },
+    "We sent a six-digit code to": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We sent a six-digit code to"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviamos un código de seis dígitos a"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviamos um código de seis dígitos para"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous avons envoyé un code à six chiffres à"
+          }
+        }
+      }
+    },
+    "No password needed. We’ll email you a sign-in code.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password needed. We’ll email you a sign-in code."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No necesitas contraseña. Te enviaremos un código por correo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem senha. Enviaremos um código de acesso por e-mail."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas besoin de mot de passe. Nous vous enverrons un code par e-mail."
+          }
+        }
+      }
+    },
+    "Only the newest code works.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the newest code works."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo funciona el código más reciente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Somente o código mais recente funciona."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seul le code le plus récent fonctionne."
+          }
+        }
+      }
+    },
+    "Resend code in %lld s": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resend code in %lld s"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reenviar código en %lld s"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reenviar código em %lld s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renvoyer le code dans %lld s"
+          }
+        }
+      }
+    },
+    "More ways to sign in": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More ways to sign in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más formas de iniciar sesión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outras formas de entrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres modes de connexion"
+          }
+        }
+      }
+    },
+    "Continue with Apple": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Apple"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con Apple"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com a Apple"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec Apple"
+          }
+        }
+      }
+    },
+    "Continue with Google": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Google"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con Google"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com o Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec Google"
+          }
+        }
+      }
+    },
+    "Apple and Google sign-in are coming soon.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple and Google sign-in are coming soon."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximamente podrás iniciar sesión con Apple y Google."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em breve, você poderá entrar com Apple e Google."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion avec Apple et Google sera bientôt disponible."
+          }
+        }
+      }
+    },
+    "Apple sign-in is coming soon. Use email to get started today.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple sign-in is coming soon. Use email to get started today."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El inicio de sesión con Apple estará disponible pronto. Usa tu correo para empezar hoy."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O acesso com a Apple estará disponível em breve. Use seu e-mail para começar hoje."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion avec Apple sera bientôt disponible. Utilisez votre e-mail pour commencer dès aujourd’hui."
+          }
+        }
+      }
+    },
+    "Google sign-in is coming soon. Use email to get started today.": {
+      "extractionState": "manual",
+      "comment": "Email sign-in and verification; social providers are unavailable placeholders.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google sign-in is coming soon. Use email to get started today."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El inicio de sesión con Google estará disponible pronto. Usa tu correo para empezar hoy."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O acesso com o Google estará disponível em breve. Use seu e-mail para começar hoje."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion avec Google sera bientôt disponible. Utilisez votre e-mail pour commencer dès aujourd’hui."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
