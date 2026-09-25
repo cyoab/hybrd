@@ -1,19 +1,19 @@
 import SwiftUI
 
-/// Displays the original supplied artwork without modifying its source pixels.
+/// Uses the original lettering as an alpha mask, independent of its background or container.
 struct HybrdWordmark: View {
-  @Environment(\.colorScheme) private var colorScheme
-  private let scale: CGFloat = 92 / 572
+  // Crop ends before the separate TM mark on the source sheet.
+  private let scale: CGFloat = 92 / 565
 
   var body: some View {
     HStack(alignment: .bottom, spacing: 3) {
-      Group {
-        if colorScheme == .dark {
-          artwork.colorInvert().blendMode(.screen)
-        } else {
-          artwork.blendMode(.multiply)
+      HybrdStyle.ink
+        .frame(width: 92, height: 224 * scale)
+        .mask {
+          artwork
+            // Remove the sheet's faint paper texture while retaining antialiased edges.
+            .grayscale(1).contrast(2).colorInvert().luminanceToAlpha()
         }
-      }
       Circle().fill(HybrdStyle.terra).frame(width: 5, height: 5).padding(.bottom, 9)
     }
     .fixedSize()

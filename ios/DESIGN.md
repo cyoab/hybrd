@@ -28,7 +28,7 @@ The sample block is explicitly labeled. Demo prescriptions never create actual r
 - [Hevy active workout](https://mobbin.com/screens/8bde1e5b-2e6a-4ff9-8079-40ac9b93d2b1): compact set/previous/kg/reps/completion table and exercise-local rest controls.
 - [Hevy weight entry](https://mobbin.com/screens/fa1b4fe1-5d63-4e97-ac9a-ccdf41b86d7c): direct numeric entry while keeping the workout context visible.
 
-Reference screenshots are not bundled into the app. The wordmark displays the original supplied artwork from an unmodified bundled brand sheet. SwiftUI clips to the wordmark region; dark appearance inverts and blends the artwork for contrast. The app icon is a vector rendering of the supplied h-and-dot mark, with a reproducible renderer in `Scripts/RenderBrandIcon.swift`.
+Reference screenshots are not bundled into the app. The wordmark displays the original supplied artwork from an unmodified bundled brand sheet. SwiftUI clips to the wordmark region and converts the high-contrast, inverted lettering into an alpha mask, filled with adaptive ink. The paper background is transparent in both appearances, including separately composited navigation toolbars; no screen or multiply blend mode is required. The app icon is a vector rendering of the supplied h-and-dot mark, with a reproducible renderer in `Scripts/RenderBrandIcon.swift`.
 
 ## Workout interactions
 
@@ -228,3 +228,7 @@ Apple and Google buttons are explicitly marked coming soon and only present expl
 QA: check compact and large phones, keyboard-visible scrolling, light/dark, accessibility text sizes, long French/Portuguese strings, VoiceOver labels, social stub alerts, offline retry/settings, invalid email, code paste/AutoFill, incorrect/expired codes, resend timing and successful existing/new account entry against a configured backend.
 
 Validation for this change: Bitrig iPhone/Watch build passed with no diagnostics; `ios/Scripts/check-core.sh` passed, including email OTP and cooldown regression checks; compiler-extracted localization audit passed for 1,284 keys in all four languages. Interactive visual QA remains unverified because Bitrig simulator inspection returned “Failed to read the simulator state.” No live email was sent during this UI change.
+
+## Wordmark transparency fix — September 25, 2026
+
+The shared wordmark now masks adaptive ink with the original lettering rather than blending the brand sheet into its parent. This prevents a black paper rectangle when a dark-mode toolbar composites the logo separately. The crop excludes the adjacent TM fragment and retains the Terra dot. Validation: offscreen SwiftUI renders on light and dark colored surfaces confirmed transparent paper pixels and visible lettering; Bitrig iPhone/Watch builds passed without diagnostics. These render checks do not substitute for interactive iPhone toolbar testing.
