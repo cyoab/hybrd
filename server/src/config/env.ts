@@ -38,6 +38,19 @@ const envSchema = z
     OPENROUTER_API_KEY: optionalString,
     OPENROUTER_JEV_MODEL: z.string().default("~typesafe/jev-latest"),
     OPENROUTER_LLM_MODEL: optionalString,
+    AGENT_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+    AGENT_MODEL: optionalString,
+    AGENT_CACHE_MODE: z.enum(["automatic", "ephemeral"]).default("automatic"),
+    AGENT_SCOPE_CONFIDENCE: z.coerce.number().min(0.5).max(1).default(0.8),
+    AGENT_MAX_GENERATIVE_CALLS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(4)
+      .default(4),
     AI_REQUIRED_ENTITLEMENT: z.string().min(1).max(64).default("pro"),
     AI_DECISIONS_PER_DAY: z.coerce
       .number()

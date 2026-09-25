@@ -7,6 +7,32 @@ function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    agent: {
+      capabilities: async () => {
+        throw new Error("unused");
+      },
+      create: async () => {
+        throw new Error("unused");
+      },
+      get: async () => {
+        throw new Error("unused");
+      },
+      events: async () => {
+        throw new Error("unused");
+      },
+      cancel: async () => {
+        throw new Error("unused");
+      },
+      memories: async () => {
+        throw new Error("unused");
+      },
+      putMemory: async () => {
+        throw new Error("unused");
+      },
+      forgetMemory: async () => {
+        throw new Error("unused");
+      },
+    },
     onboarding: {
       get: async () => {
         throw new Error("unused");
@@ -118,6 +144,10 @@ describe("API foundation", () => {
     const app = appWith();
     for (const [method, path] of [
       ["GET", "/v1/bootstrap"],
+      ["GET", "/v1/agent/capabilities"],
+      ["POST", "/v1/agent/runs"],
+      ["GET", `/v1/agent/runs/${crypto.randomUUID()}/events`],
+      ["PUT", `/v1/agent/memories/${crypto.randomUUID()}`],
       ["GET", "/v1/progress/summary"],
       ["GET", "/v1/progress/activity"],
       ["GET", `/v1/progress/comparisons/${"a".repeat(64)}`],

@@ -50,6 +50,13 @@
       "when": 1790265743818,
       "tag": "0006_damp_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790373316421,
+      "tag": "0007_massive_ares",
+      "breakpoints": true
     }
   ]
 }

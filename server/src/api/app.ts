@@ -4,6 +4,7 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { secureHeaders } from "hono/secure-headers";
+import { registerAgentRoutes } from "../agent/routes";
 import { registerAuthContract } from "../auth/contract";
 import { registerBillingRoutes } from "../billing/routes";
 import { CatalogSchema } from "../domain/records";
@@ -459,6 +460,7 @@ export function createApp(
     async (c) => c.json(await deps.exportAccount(c.get("authUserId")), 200),
   );
   registerStravaRoutes(app, deps);
+  registerAgentRoutes(app, deps);
   app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
     type: "http",
     scheme: "bearer",

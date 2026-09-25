@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "deviceId": "20000000-0000-4000-8000-000000000001",
+  "threadId": null,
+  "task": "analyze_workout",
+  "message": "Review my pacing and explain what the recorded data can tell us.",
+  "workoutResultId": "20000000-0000-4000-8000-000000000002",
+  "expectedWorkoutRevision": "1"
+}

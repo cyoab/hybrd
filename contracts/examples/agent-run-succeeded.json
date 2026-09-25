@@ -1,0 +1,28 @@
+{
+  "id": "20000000-0000-4000-8000-000000000003",
+  "threadId": "20000000-0000-4000-8000-000000000004",
+  "schemaVersion": 1,
+  "task": "analyze_workout",
+  "status": "succeeded",
+  "lastEventId": "6",
+  "artifactStale": false,
+  "artifact": {
+    "schemaVersion": 1,
+    "kind": "workout_analysis",
+    "content": "Your recorded 5 km took 30 minutes, giving an elapsed average pace of 6:00/km.",
+    "observations": [
+      {
+        "text": "Elapsed average pace was 360 seconds per kilometer.",
+        "metricRefs": ["20000000-0000-4000-8000-000000000002@1:run.meanPace"]
+      }
+    ],
+    "interpretations": [],
+    "limitations": ["Moving time and a full heart-rate trace were not supplied."],
+    "recommendations": [],
+    "citations": [],
+    "analyzedResult": { "id": "20000000-0000-4000-8000-000000000002", "revision": "1" }
+  },
+  "errorCode": null,
+  "createdAt": "2026-09-25T15:00:00.000Z",
+  "updatedAt": "2026-09-25T15:00:05.000Z"
+}

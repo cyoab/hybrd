@@ -1,3 +1,5 @@
+import { type AgentProvider, openRouterAgent } from "../agent/provider";
+import { agentServices, exportAgent } from "../agent/service";
 import type { createAuth } from "../auth";
 import { effectiveEntitlements } from "../billing/entitlements";
 import { billingServices } from "../billing/service";
@@ -26,6 +28,7 @@ export function createServices(
   options: {
     env?: Env;
     intelligence?: IntelligenceProvider;
+    agent?: AgentProvider;
     apple?: AppleVerifier;
     progress?: ProgressOptions;
     strava?: StravaProvider;
@@ -41,6 +44,7 @@ export function createServices(
     return policy ? TrainingPolicySchema.parse(wire(policy)) : null;
   }
   return {
+    agent: agentServices(client, env, options.agent ?? openRouterAgent(env)),
     onboarding: onboardingServices(client),
     strava: stravaServices(client, env, options.strava ?? stravaProvider(env)),
     progress: progressServices(
@@ -56,6 +60,7 @@ export function createServices(
       withAthlete(client, authUserId, async (sql, athlete) => ({
         ...(await exportTraining(sql, athlete)),
         onboarding: await readOnboarding(sql, athlete),
+        agent: await exportAgent(sql, String(athlete.id)),
       })),
     deleteAccount: async (authUserId, headers) => {
       const session = await auth.api.getSession({ headers });

@@ -1,5 +1,7 @@
 # iOS → backend integration handoff
 
+**Implemented AI foundation:** use [the agent API guide](agent-api.md) for the new durable read-only chat/analysis run endpoints, replayable SSE, typed artifacts and user-managed memory. Plan generation/mutation remain disabled capability flags. Existing intelligence endpoints below remain supported.
+
 **Proposed AI expansion:** see the [AI agent implementation plan](ai-agent-implementation-plan.md) and [iOS harness contract review](ai-ios-harness-review.md) for server-generated plans, direct authorized edits, detailed analysis, memory and replayable progress events. Those contracts are proposals awaiting joint implementation; the intelligence endpoints documented below remain the current API.
 
 Reviewed against the implemented server and current native app on 24 September 2026. This is the working guide for replacing local-only screens with authenticated backend integration. The API is implemented and tested; real provider credentials and native adapters are still required. Swift changes remain with the iOS agent.

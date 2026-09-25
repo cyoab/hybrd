@@ -158,7 +158,7 @@ export function intelligenceServices(
           const chat = request as ChatRequest;
           await owned(sql, "coach_threads", chat.threadId, athleteId);
           const [pending] =
-            await sql`select id from ai_invocations where athlete_id=${athleteId} and scope_id=${chat.threadId} and status='pending' and created_at>now()-interval '1 minute'`;
+            await sql`select id from ai_invocations where athlete_id=${athleteId} and scope_id=${chat.threadId} and status='pending' and created_at>now()-interval '1 minute' union all select id from agent_runs where athlete_id=${athleteId} and thread_id=${chat.threadId} and status in ('queued','running')`;
           if (pending)
             throw new ApiError(
               409,
@@ -200,7 +200,7 @@ export function intelligenceServices(
               "Send fewer relevant workouts.",
             );
           const historyRows =
-            await sql`select role,content from coach_messages where thread_id=${chat.threadId} and athlete_id=${athleteId} and deleted_at is null order by created_at desc,id desc limit 12`;
+            await sql`select role,content from coach_messages where thread_id=${chat.threadId} and athlete_id=${athleteId} and deleted_at is null and created_at>=greatest(coalesce((select reset_at from agent_context_epochs where athlete_id=${athleteId}),'-infinity'::timestamptz),coalesce((select max(expires_at) from athlete_memories where athlete_id=${athleteId} and expires_at<=now()),'-infinity'::timestamptz)) order by created_at desc,id desc limit 12`;
           let remaining = 16000;
           const history: CoachContext["history"] = [];
           for (const row of historyRows) {

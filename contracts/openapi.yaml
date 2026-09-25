@@ -7829,6 +7829,374 @@ components:
         - profile
         - heartRateZones
         - runningHistory
+    AgentCapabilities:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        enabled:
+          type: boolean
+        configured:
+          type: boolean
+        tasks:
+          type: object
+          properties:
+            chat:
+              type: boolean
+            analyze_workout:
+              type: boolean
+            create_plan:
+              type: boolean
+              enum:
+                - false
+            modify_plan:
+              type: boolean
+              enum:
+                - false
+          required:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+        transport:
+          type: string
+          enum:
+            - sse
+        memory:
+          type: string
+          enum:
+            - manual
+        requiresConsent:
+          type: boolean
+          enum:
+            - true
+        requiredEntitlement:
+          type: string
+        maxGenerativeCalls:
+          type: integer
+        eventRetentionDays:
+          type: number
+          enum:
+            - 7
+      required:
+        - schemaVersion
+        - enabled
+        - configured
+        - tasks
+        - transport
+        - memory
+        - requiresConsent
+        - requiredEntitlement
+        - maxGenerativeCalls
+        - eventRetentionDays
+    AgentRun:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        threadId:
+          type: string
+          format: uuid
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        task:
+          type: string
+          enum:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+        status:
+          type: string
+          enum:
+            - queued
+            - running
+            - succeeded
+            - failed
+            - cancelled
+            - indeterminate
+        lastEventId:
+          $ref: "#/components/schemas/SyncCursor"
+        artifact:
+          $ref: "#/components/schemas/AgentArtifact"
+        errorCode:
+          type:
+            - string
+            - "null"
+        artifactStale:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - threadId
+        - schemaVersion
+        - task
+        - status
+        - lastEventId
+        - artifact
+        - errorCode
+        - artifactStale
+        - createdAt
+        - updatedAt
+    AgentArtifact:
+      type:
+        - object
+        - "null"
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 6000
+        observations:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                minLength: 1
+                maxLength: 1000
+              metricRefs:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                minItems: 1
+                maxItems: 12
+            required:
+              - text
+              - metricRefs
+            additionalProperties: false
+          maxItems: 15
+        interpretations:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                minLength: 1
+                maxLength: 1000
+              evidenceIds:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 80
+                maxItems: 4
+            required:
+              - text
+              - evidenceIds
+            additionalProperties: false
+          maxItems: 10
+        limitations:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+          maxItems: 12
+        recommendations:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1000
+          maxItems: 8
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        kind:
+          type: string
+          enum:
+            - answer
+            - workout_analysis
+            - scope_redirect
+            - clarification
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentCitation"
+        analyzedResult:
+          type:
+            - object
+            - "null"
+          properties:
+            id:
+              type: string
+              format: uuid
+            revision:
+              $ref: "#/components/schemas/SyncCursor"
+          required:
+            - id
+            - revision
+      required:
+        - content
+        - observations
+        - interpretations
+        - limitations
+        - recommendations
+        - schemaVersion
+        - kind
+        - citations
+        - analyzedResult
+      additionalProperties: false
+    AgentCitation:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: number
+          enum:
+            - 1
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        claim:
+          type: string
+        limitations:
+          type: string
+      required:
+        - id
+        - version
+        - title
+        - url
+        - claim
+        - limitations
+      additionalProperties: false
+    AgentRunInput:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        deviceId:
+          type: string
+          format: uuid
+        threadId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        task:
+          type: string
+          enum:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        workoutResultId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        expectedWorkoutRevision:
+          allOf:
+            - $ref: "#/components/schemas/SyncCursor"
+            - type:
+                - string
+                - "null"
+      required:
+        - schemaVersion
+        - deviceId
+        - task
+        - message
+      additionalProperties: false
+    AgentMemory:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - training_preference
+            - communication
+            - temporary_constraint
+        content:
+          type: string
+          minLength: 1
+          maxLength: 500
+        expiresAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        id:
+          type: string
+          format: uuid
+        revision:
+          $ref: "#/components/schemas/SyncCursor"
+        source:
+          type: string
+          enum:
+            - athlete
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - category
+        - content
+        - expiresAt
+        - id
+        - revision
+        - source
+        - createdAt
+        - updatedAt
+      additionalProperties: false
+    AgentMemoryInput:
+      type: object
+      properties:
+        expectedRevision:
+          allOf:
+            - $ref: "#/components/schemas/SyncCursor"
+            - type:
+                - string
+                - "null"
+        category:
+          type: string
+          enum:
+            - training_preference
+            - communication
+            - temporary_constraint
+        content:
+          type: string
+          minLength: 1
+          maxLength: 500
+        expiresAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+      required:
+        - expectedRevision
+        - category
+        - content
+        - expiresAt
+      additionalProperties: false
   parameters: {}
 paths:
   /health/live:
@@ -10452,6 +10820,610 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/capabilities:
+    get:
+      operationId: getAgentCapabilities
+      tags: &a4
+        - Agent
+      security: *a3
+      responses:
+        "200":
+          description: Environment availability, separate from athlete consent and entitlement. Plan mutations
+            are not enabled in this version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentCapabilities"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/runs:
+    post:
+      operationId: createAgentRun
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentRunInput"
+      responses:
+        "202":
+          description: Durable run accepted, or the existing run for an exact retry. No provider call occurs
+            on the request path.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRun"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/runs/{id}:
+    get:
+      operationId: getAgentRun
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Canonical run status and validated final artifact. artifactStale indicates a
+            corrected/deleted analyzed result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRun"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/runs/{id}/cancel:
+    post:
+      operationId: cancelAgentRun
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Idempotent cancellation. A provider call already in flight may still incur usage; its
+            answer cannot publish after cancellation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRun"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/runs/{id}/events:
+    get:
+      operationId: streamAgentRunEvents
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            $ref: "#/components/schemas/SyncCursor"
+          required: false
+          name: last-event-id
+          in: header
+      responses:
+        "200":
+          description: Replayable SSE with decimal sequence IDs. Status/tool/artifact/completion events are
+            durable; heartbeat/error events have no ID. Connection rotates after 25 seconds;
+            reconnect with Last-Event-ID. Replay expires after seven days; restore with GET status.
+            Events contain no unvalidated model prose.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/memories:
+    get:
+      operationId: listAgentMemories
+      tags: *a4
+      security: *a3
+      responses:
+        "200":
+          description: User-managed memory, limited to 20 entries. Automatic learning is not enabled yet.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentMemory"
+                required:
+                  - memories
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/memories/{id}:
+    put:
+      operationId: putAgentMemory
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentMemoryInput"
+      responses:
+        "200":
+          description: Create with null expectedRevision or replace with the current revision. Resets cached
+            conversation context and cancels pending runs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentMemory"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: forgetAgentMemory
+      tags: *a4
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            $ref: "#/components/schemas/SyncCursor"
+          required: true
+          name: if-match
+          in: header
+      responses:
+        "204":
+          description: Memory removed; pending runs cancelled and old conversation context excluded from
+            future prompts. Workout history remains intact.
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

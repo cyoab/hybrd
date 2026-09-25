@@ -1,3 +1,5 @@
+import { openRouterAgent } from "./agent/provider";
+import { startAgentWorker } from "./agent/runner";
 import { createApp } from "./api/app";
 import { createServices } from "./api/services";
 import { createAuth } from "./auth";
@@ -28,6 +30,7 @@ const server = Bun.serve({
 });
 log({ event: "server_started", port: server.port });
 const stopStrava = startStravaWorker(database.client, env, stravaProvider(env));
+const stopAgent = startAgentWorker(database.client, env, openRouterAgent(env));
 
 let stopping = false;
 async function shutdown() {
@@ -36,7 +39,7 @@ async function shutdown() {
   const deadline = setTimeout(() => process.exit(1), 35000);
   deadline.unref();
   await server.stop();
-  await stopStrava();
+  await Promise.all([stopStrava(), stopAgent()]);
   await database.close();
   clearTimeout(deadline);
 }
