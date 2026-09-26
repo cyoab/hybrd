@@ -1,0 +1,140 @@
+{
+  "configs": {
+    "Debug": "debug",
+    "Release": "release"
+  },
+  "name": "hybrd",
+  "options": {
+    "groupSortPosition": "bottom",
+    "transitivelyLinkDependencies": false,
+    "deploymentTarget": {
+      "iOS": "26.0",
+      "watchOS": "26.0"
+    },
+    "developmentLanguage": "en"
+  },
+  "settings": {
+    "CODE_SIGN_IDENTITY": "-",
+    "SWIFT_EMIT_LOC_STRINGS": "YES"
+  },
+  "targets": {
+    "hybrd": {
+      "dependencies": [
+        {
+          "embed": true,
+          "target": "hybrd Watch"
+        }
+      ],
+      "info": {
+        "path": "App/Info.plist",
+        "properties": {
+          "CFBundleDisplayName": "hybrd",
+          "CFBundleShortVersionString": "1.0",
+          "CFBundleVersion": "1",
+          "ITSAppUsesNonExemptEncryption": false,
+          "UILaunchScreen": {},
+          "UISupportedInterfaceOrientations": [
+            "UIInterfaceOrientationPortrait",
+            "UIInterfaceOrientationPortraitUpsideDown",
+            "UIInterfaceOrientationLandscapeLeft",
+            "UIInterfaceOrientationLandscapeRight"
+          ],
+          "NSHealthShareUsageDescription": "hybrd reads heart rate and running distance during your workouts. On iPhone, you can also review and import your birth date, height, and weight into your athlete profile.",
+          "NSHealthUpdateUsageDescription": "hybrd saves the runs you record, including their distance and route, to Apple Health.",
+          "NSLocationWhenInUseUsageDescription": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.",
+          "UIBackgroundModes": [
+            "location"
+          ],
+          "CFBundleLocalizations": [
+            "en",
+            "es",
+            "pt-BR",
+            "fr"
+          ],
+          "CFBundleDevelopmentRegion": "en"
+        }
+      },
+      "platform": "iOS",
+      "settings": {
+        "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+        "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+        "CURRENT_PROJECT_VERSION": "1",
+        "MARKETING_VERSION": "1.0",
+        "PRODUCT_BUNDLE_IDENTIFIER": "app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SWIFT_VERSION": "5.0",
+        "TARGETED_DEVICE_FAMILY": "1"
+      },
+      "sources": [
+        {
+          "path": "App"
+        },
+        {
+          "path": "Shared"
+        }
+      ],
+      "type": "application",
+      "entitlements": {
+        "path": "App/hybrd.entitlements",
+        "properties": {
+          "com.apple.developer.healthkit": true
+        }
+      }
+    },
+    "hybrd Watch": {
+      "info": {
+        "path": "Watch/Info.plist",
+        "properties": {
+          "CFBundleDisplayName": "hybrd",
+          "CFBundleShortVersionString": "1.0",
+          "CFBundleVersion": "1",
+          "ITSAppUsesNonExemptEncryption": false,
+          "WKApplication": true,
+          "WKCompanionAppBundleIdentifier": "app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b",
+          "NSHealthShareUsageDescription": "hybrd reads your heart rate and running distance during the workouts you start on Apple Watch.",
+          "NSHealthUpdateUsageDescription": "hybrd saves the runs you record, including their distance and route, to Apple Health.",
+          "NSLocationWhenInUseUsageDescription": "hybrd uses your precise location during a run to measure pace, distance, and your route, including while the screen is locked.",
+          "WKBackgroundModes": [
+            "workout-processing",
+            "location"
+          ],
+          "CFBundleLocalizations": [
+            "en",
+            "es",
+            "pt-BR",
+            "fr"
+          ],
+          "CFBundleDevelopmentRegion": "en"
+        }
+      },
+      "platform": "watchOS",
+      "settings": {
+        "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+        "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+        "CURRENT_PROJECT_VERSION": "1",
+        "MARKETING_VERSION": "1.0",
+        "PRODUCT_BUNDLE_IDENTIFIER": "app.bitrig.new.a3335f86-4ac7-4c8c-89aa-89b3d6c0d90b.watchkitapp",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SWIFT_VERSION": "5.0"
+      },
+      "sources": [
+        {
+          "path": "Watch"
+        },
+        {
+          "path": "App/Assets.xcassets"
+        },
+        {
+          "path": "Shared"
+        }
+      ],
+      "type": "application",
+      "entitlements": {
+        "path": "Watch/hybrd.entitlements",
+        "properties": {
+          "com.apple.developer.healthkit": true
+        }
+      }
+    }
+  }
+}

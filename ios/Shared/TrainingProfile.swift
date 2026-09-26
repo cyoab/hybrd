@@ -1,0 +1,77 @@
+import Foundation
+
+struct TrainingProfile: Codable, Equatable {
+  var name = "Athlete"
+  var runningGoal: RunningGoal = .halfMarathon
+  var strengthGoal: StrengthGoal = .build
+  var priority: TrainingPriority = .balanced
+  var availableDays: Set<Int> = [2, 3, 4, 5, 6, 7]
+  var weeklyKilometers = 24.0
+  var strengthDays = 3
+  var sessionMinutes = 60
+  var isSample = true
+  var athlete: AthleteDetails?
+  var units: TrainingUnits?
+  var backendProfile: Bool?
+  var baselineRange: ClosedRange<Double> { backendProfile == true ? 0...250 : 3...150 }
+  var supportsStarterPlan: Bool { weeklyKilometers.isFinite && (3...150).contains(weeklyKilometers) }
+  var trainingUnits: TrainingUnits { units ?? .metric }
+
+  var validationMessage: String? {
+    guard weeklyKilometers.isFinite, baselineRange.contains(weeklyKilometers) else {
+      return L10n.text("Enter a weekly distance from \(trainingUnits.distanceText(baselineRange.lowerBound * 1000)) to \(trainingUnits.distanceText(baselineRange.upperBound * 1000)).")
+    }
+    guard availableDays.count >= 2, availableDays.isSubset(of: Set(1...7)) else {
+      return L10n.text("Choose at least two valid training days.")
+    }
+    guard (1...4).contains(strengthDays), [30, 45, 60, 75, 90].contains(sessionMinutes) else {
+      return L10n.text("Choose a strength frequency and session length from the available options.")
+    }
+    return athlete?.validationMessage
+  }
+
+  static func parseWeeklyKilometers(_ text: String, locale: Locale = .current) -> Double? {
+    parseDecimal(text, range: 3...150, locale: locale)
+  }
+
+  static func parseDecimal(_ text: String, range: ClosedRange<Double>, locale: Locale = .current) -> Double? {
+    let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    let formatter = NumberFormatter()
+    formatter.locale = locale
+    formatter.numberStyle = .decimal
+    formatter.isLenient = false
+    let separator = formatter.decimalSeparator ?? "."
+    let parts = input.components(separatedBy: separator)
+    guard parts.count <= 2, input.contains(where: { $0.isNumber }),
+          parts.allSatisfy({ $0.allSatisfy(\.isNumber) }),
+          let number = formatter.number(from: input)?.doubleValue,
+          number.isFinite, range.contains(number) else { return nil }
+    return number
+  }
+}
+
+enum RunningGoal: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
+  case fitness = "General fitness"
+  case fiveK = "5K"
+  case tenK = "10K"
+  case halfMarathon = "Half marathon"
+  case marathon = "Marathon"
+  var id: String { rawValue }
+}
+
+enum StrengthGoal: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
+  case build = "Build strength"
+  case muscle = "Build muscle"
+  case maintain = "Maintain strength"
+  var id: String { rawValue }
+}
+
+enum TrainingPriority: String, CaseIterable, Codable, Identifiable {
+  var displayName: String { L10n.content(rawValue) }
+  case balanced = "Balanced"
+  case running = "Running first"
+  case strength = "Strength first"
+  var id: String { rawValue }
+}

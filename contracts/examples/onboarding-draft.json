@@ -1,0 +1,48 @@
+{
+  "baseRevision": null,
+  "step": "review",
+  "draft": {
+    "schemaVersion": 1,
+    "profile": {
+      "timezone": "America/Monterrey",
+      "locale": "en",
+      "distanceUnit": "km",
+      "loadUnit": "kg",
+      "weekStartsOn": 2,
+      "trainingDayBoundary": null,
+      "cloudAiConsent": false
+    },
+    "details": {
+      "preferredName": "Sam",
+      "heightUnit": "cm",
+      "dateOfBirth": null,
+      "age": null,
+      "weightKg": null,
+      "heightCm": null,
+      "heartRateZones": null,
+      "runningRecords": [],
+      "strengthRecords": []
+    },
+    "runningGoal": "fitness",
+    "strengthGoal": "strength",
+    "raceDate": null,
+    "priority": "balanced",
+    "runningLevel": "beginner",
+    "strengthLevel": "beginner",
+    "weeklyDistanceM": 24000,
+    "currentStrengthSessionsPerWeek": 2,
+    "baselinePeriod": { "start": "2026-08-24", "end": "2026-09-21" },
+    "availableDays": [2, 4, 6, 7],
+    "desiredStrengthSessionsPerWeek": 2,
+    "sessionMinutes": 45,
+    "equipmentIds": [],
+    "equipmentConfirmed": true,
+    "focusMuscleIds": [],
+    "readiness": "ready",
+    "context": null,
+    "wantsHealth": false,
+    "wantsStrava": false,
+    "membership": "annual",
+    "importDecisions": []
+  }
+}

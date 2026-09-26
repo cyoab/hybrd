@@ -5,16 +5,9 @@ export class ApiError extends Error {
     public readonly status: ContentfulStatusCode,
     public readonly code: string,
     message: string,
+    public readonly details?: { fields: string[] },
   ) {
     super(message);
     this.name = "ApiError";
   }
-}
-
-export function notImplemented(feature: string): never {
-  throw new ApiError(
-    501,
-    "NOT_IMPLEMENTED",
-    `${feature} is scaffolded and is not available yet.`,
-  );
 }

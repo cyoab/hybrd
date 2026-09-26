@@ -1,11 +1,162 @@
 import { describe, expect, test } from "bun:test";
 import { createApp, openApiInfo } from "../../src/api/app";
 import type { AppDependencies } from "../../src/api/dependencies";
+import { developmentPolicy } from "../../src/config/policy";
 
 function dependencies(
   overrides: Partial<AppDependencies> = {},
 ): AppDependencies {
   return {
+    agent: {
+      claimChallengeV2: async () => {
+        throw new Error("unused");
+      },
+      removeRuleV2: async () => {
+        throw new Error("unused");
+      },
+      cancelChallengeV2: async () => {
+        throw new Error("unused");
+      },
+      applyV2: async () => {
+        throw new Error("unused");
+      },
+      capabilitiesV2: async () => {
+        throw new Error("unused");
+      },
+      createV2: async () => {
+        throw new Error("unused");
+      },
+      getV2: async () => {
+        throw new Error("unused");
+      },
+      lookupV2: async () => {
+        throw new Error("unused");
+      },
+      listV2: async () => {
+        throw new Error("unused");
+      },
+      contextV2: async () => {
+        throw new Error("unused");
+      },
+      putManifest: async () => {
+        throw new Error("unused");
+      },
+      undoV2: async () => {
+        throw new Error("unused");
+      },
+      packetV2: async () => {
+        throw new Error("unused");
+      },
+      ackV2: async () => {
+        throw new Error("unused");
+      },
+      settingsV2: async () => {
+        throw new Error("unused");
+      },
+      memoriesV2: async () => {
+        throw new Error("unused");
+      },
+
+      capabilities: async () => {
+        throw new Error("unused");
+      },
+      create: async () => {
+        throw new Error("unused");
+      },
+      get: async () => {
+        throw new Error("unused");
+      },
+      events: async () => {
+        throw new Error("unused");
+      },
+      cancel: async () => {
+        throw new Error("unused");
+      },
+      memories: async () => {
+        throw new Error("unused");
+      },
+      putMemory: async () => {
+        throw new Error("unused");
+      },
+      forgetMemory: async () => {
+        throw new Error("unused");
+      },
+    },
+    onboarding: {
+      get: async () => {
+        throw new Error("unused");
+      },
+      save: async () => {
+        throw new Error("unused");
+      },
+      complete: async () => {
+        throw new Error("unused");
+      },
+    },
+    strava: {
+      status: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      connect: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      complete: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      refreshHistory: async () => {
+        throw new Error("Unexpected Strava");
+      },
+      settings: async () => {},
+      disconnect: async () => {},
+      retry: async () => {},
+      reconcile: async () => {},
+      callback: async () => "",
+      verifyWebhook: () => {},
+      webhook: async () => {},
+    },
+    progress: {
+      summary: async () => {
+        throw new Error("Unexpected progress");
+      },
+      comparison: async () => {
+        throw new Error("Unexpected progress");
+      },
+      activity: async () => {
+        throw new Error("Unexpected progress");
+      },
+    },
+    billing: {
+      submit: async () => ({ entitlements: [] }),
+      notification: async () => {},
+    },
+    intelligence: {
+      decision: async () => {
+        throw new Error("Unexpected decision");
+      },
+      chat: async () => {
+        throw new Error("Unexpected chat");
+      },
+    },
+    sync: {
+      push: async () => {
+        throw new Error("Unexpected sync");
+      },
+      pull: async () => {
+        throw new Error("Unexpected sync");
+      },
+      acknowledge: async () => {},
+    },
+    catalog: async () => ({
+      version: 1,
+      exercises: [],
+      equipment: [],
+      muscleGroups: [],
+      aliases: [],
+      exerciseMuscles: [],
+      exerciseEquipment: [],
+    }),
+    deleteAccount: async () => {},
+    exportAccount: async () => ({}),
     checkDatabase: async () => {},
     authenticate: async () => null,
     handleAuth: async () => new Response(null, { status: 404 }),
@@ -42,6 +193,13 @@ describe("API foundation", () => {
     const app = appWith();
     for (const [method, path] of [
       ["GET", "/v1/bootstrap"],
+      ["GET", "/v1/agent/capabilities"],
+      ["POST", "/v1/agent/runs"],
+      ["GET", `/v1/agent/runs/${crypto.randomUUID()}/events`],
+      ["PUT", `/v1/agent/memories/${crypto.randomUUID()}`],
+      ["GET", "/v1/progress/summary"],
+      ["GET", "/v1/progress/activity"],
+      ["GET", `/v1/progress/comparisons/${"a".repeat(64)}`],
       ["GET", "/v1/config/training-policy"],
       ["GET", "/v1/sync/pull"],
       ["POST", "/v1/sync/push"],
@@ -53,30 +211,6 @@ describe("API foundation", () => {
       ["DELETE", "/v1/account"],
     ] as const)
       expect((await app.request(path, { method })).status).toBe(401);
-  });
-
-  test("authenticated placeholders never acknowledge mutations", async () => {
-    const app = appWith({ authenticate: async () => "user" });
-    const response = await app.request("/v1/sync/push", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        deviceId: crypto.randomUUID(),
-        mutations: [
-          {
-            id: crypto.randomUUID(),
-            entityId: crypto.randomUUID(),
-            entityType: "athlete_goal",
-            operation: "create",
-            baseRevision: null,
-            payload: {},
-          },
-        ],
-      }),
-    });
-    expect(response.status).toBe(501);
-    expect((await response.json()).error.code).toBe("NOT_IMPLEMENTED");
-    expect((await app.request("/v1/sync/pull")).status).toBe(501);
   });
 
   test("invalid inputs fail before the persistence service", async () => {
@@ -107,10 +241,11 @@ describe("API foundation", () => {
     const app = appWith({
       authenticate: async () => "user",
       trainingPolicy: async () => ({
+        id: "00000000-0000-4000-8000-000000000001",
         version: 1,
         schemaVersion: 1,
         checksum: "sha256:abc",
-        config: {},
+        config: developmentPolicy,
         minimumAppVersion: null,
       }),
     });
@@ -159,14 +294,14 @@ describe("API foundation", () => {
     expect(await response.text()).not.toContain("private athlete");
   });
 
-  test("OpenAPI is available offline and placeholders have no success response", () => {
+  test("OpenAPI is available offline with sync success responses", () => {
     const spec = appWith().getOpenAPI31Document(openApiInfo);
     expect(spec.openapi).toBe("3.1.0");
     expect(
       spec.paths?.["/v1/sync/push"]?.post?.responses?.["200"],
-    ).toBeUndefined();
+    ).toBeDefined();
     expect(
       spec.paths?.["/v1/sync/push"]?.post?.responses?.["501"],
-    ).toBeDefined();
+    ).toBeUndefined();
   });
 });

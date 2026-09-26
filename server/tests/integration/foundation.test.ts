@@ -87,7 +87,7 @@ describe("PostgreSQL and Better Auth integration", () => {
     const body = await response.json();
     expect(body.athlete.id).toBe(accounts[0]?.athleteId);
     expect(body.athlete.revision).toBe("1");
-    expect(body.sync.available).toBe(false);
+    expect(body.sync.available).toBe(true);
     expect(body.entitlements).toEqual([]);
     expect(body.device.registered).toBe(false);
     expect(
@@ -159,7 +159,7 @@ describe("PostgreSQL and Better Auth integration", () => {
       headers: headers(),
     });
     expect(response.status).toBe(200);
-    expect((await response.json()).config.features.sync).toBe(false);
+    expect((await response.json()).config.features.sync).toBe(true);
     const cached = await app.request("/v1/config/training-policy", {
       headers: {
         ...headers(),

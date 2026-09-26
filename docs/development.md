@@ -2,7 +2,7 @@
 
 ## Docker workflow
 
-Run `make up` from the repository root. Only two long-running development services are started: `api` and `postgres`. `migrate` runs once per Compose startup and exits successfully before the API starts. It uses a frozen Bun lockfile, applies reviewed SQL, and inserts the development policy if missing.
+Run `make up` from the repository root. Two long-running development services are started: `api` and `postgres`. Mailpit has been removed; Resend sends real OTP email when configured. Set `AUTH_EMAIL_TRANSPORT=resend`, `RESEND_API_KEY` and `AUTH_EMAIL_FROM` on your verified domain in the ignored `.env`. Without credentials leave the transport `disabled`; the API starts but email sign-in is unavailable. `migrate` runs once per Compose startup and exits successfully before the API starts. It uses a frozen Bun lockfile, applies reviewed SQL, and inserts the development policy and exercise catalog if missing.
 
 Source is bind-mounted, so `server/src` edits restart Bun automatically. `node_modules` lives in a named Linux container volume rather than using host dependencies. The hoisted workspace layout is explicitly configured in `bunfig.toml`. PostgreSQL data lives in the project's `postgres_data` volume and survives `make down`.
 
@@ -19,7 +19,7 @@ docker compose exec api bun add --dev --exact PACKAGE_NAME
 
 Commit both package manifests and `bun.lock`. Rebuild with `make up` after dependency or Dockerfile changes. Dependency installation is serialized through the migration service at development startup.
 
-`make check` runs the same checks as CI in the `test` container, using `postgres-test`. That database is separate, has no exposed host port, and stores data in tmpfs. Test setup refuses to use a database whose name does not end in `_test`. The test suite creates and removes only its own test users and registrations. `make down` also stops the test database.
+`make check` runs the same checks as CI in the `test` container, using `postgres-test`. That database is separate, has no exposed host port, and stores data in tmpfs. Test setup refuses to use a database whose name does not end in `_test`. The test suite creates and removes its own test users and all associated domain records. `make down` also stops the test database.
 
 With Bun 1.4.2 installed locally, fast checks need no containers:
 
@@ -35,7 +35,7 @@ bun run check
 3. Run `make migrate`, then `make check`.
 4. Commit schema, migration, and metadata together. Do not rewrite applied migrations or use `drizzle-kit push` for shared databases.
 
-Migrations also run as the Railway pre-deploy command; production startup itself never changes schema. `make seed` is development/test only and never creates default users or training records. The fixture policy contains disabled feature flags and no unreviewed training thresholds. Production policy publication is a separate implementation task.
+Migrations also run as the Railway pre-deploy command; production startup itself never changes schema. `make seed` is development/test only and never creates default users or training records. The version 2 fixture enables implemented features and supplies example policy thresholds. External features still require configured providers, consent and entitlements. These example thresholds require product review before production. Publish an immutable production policy through `bun run ops publish-policy /path/to/policy.json`.
 
 ## Native Bun with PostgreSQL in Docker
 
@@ -50,7 +50,7 @@ bun --env-file=.env run db:seed
 bun --env-file=.env run dev
 ```
 
-The host process reads `DATABASE_URL` from `.env`. If `POSTGRES_PORT` changes, update that URL too. `API_PORT` controls Docker's published port; host Bun reads `PORT` instead.
+The host process reads `DATABASE_URL` from `.env`. If `POSTGRES_PORT` changes, update that URL too. For OTP email, use the same Resend key/verified sender and `AUTH_EMAIL_TRANSPORT=resend` configuration. `API_PORT` controls Docker's published port; host Bun reads `PORT` instead.
 
 ## iOS Simulator and physical iPhone
 
@@ -65,7 +65,7 @@ services:
       - "0.0.0.0:3000:3000"
 ```
 
-Use Compose 2.24.4+ for `!override`, set `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` to the Mac's reachable development origin, restart Compose, and use that origin on the phone. Keep PostgreSQL on loopback. Restore the loopback API binding after testing. Apple browser OAuth callbacks require a registered HTTPS domain; native ID-token exchange and local email/password sessions are described in the handoff.
+Use Compose 2.24.4+ for `!override`, set `BETTER_AUTH_URL` and `TRUSTED_ORIGINS` to the Mac's reachable development origin, restart Compose, and use that origin on the phone. Keep PostgreSQL on loopback. Restore the loopback API binding after testing. Apple browser OAuth callbacks require a registered HTTPS domain; native Google/Apple exchange and local email OTP sessions are described in [authentication.md](authentication.md).
 
 ## Troubleshooting
 
@@ -77,3 +77,13 @@ Use Compose 2.24.4+ for `!override`, set `BETTER_AUTH_URL` and `TRUSTED_ORIGINS`
 - Stale API contract: run `make openapi` and inspect the diff.
 
 `make down` preserves data. `docker compose --profile test down --volumes` also deletes the development database and dependency volumes; use it only when you deliberately want to discard local data.
+
+## Test cloud intelligence locally
+
+Set your OpenRouter key/model in the ignored `.env`, restart with `make up`, and grant an explicitly chosen test athlete seven days of access:
+
+```sh
+docker compose exec api bun run ops grant-dev-entitlement ATHLETE_UUID pro
+```
+
+This command refuses production. Update the athlete profile consent through sync before making requests. The automated tests use injected providers and incur no provider charges. StoreKit/APNs require real app identifiers and keys for live sandbox tests; absent configuration is reported in bootstrap capabilities and returns explicit unavailable errors.

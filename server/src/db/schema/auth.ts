@@ -1,4 +1,12 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
 // Better Auth's core schema. Keep model exports singular for the adapter.
 // Reconcile this file with `bunx auth generate` after changing auth plugins.
@@ -64,7 +72,13 @@ export const account = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("auth_account_user_idx").on(table.userId)],
+  (table) => [
+    index("auth_account_user_idx").on(table.userId),
+    uniqueIndex("auth_account_provider_identity_idx").on(
+      table.providerId,
+      table.accountId,
+    ),
+  ],
 );
 
 export const verification = pgTable(
@@ -81,5 +95,19 @@ export const verification = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("auth_verification_identifier_idx").on(table.identifier)],
+  (table) => [
+    uniqueIndex("auth_verification_identifier_idx").on(table.identifier),
+  ],
+);
+
+// Atomic, cross-instance email send limits. Keys are HMACs, never raw emails.
+export const otpThrottle = pgTable(
+  "auth_otp_throttle",
+  {
+    key: text("key").primaryKey(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    lastSentAt: timestamp("last_sent_at", { withTimezone: true }).notNull(),
+    sendCount: integer("send_count").notNull(),
+  },
+  (table) => [index("auth_otp_throttle_window_idx").on(table.windowStart)],
 );

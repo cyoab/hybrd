@@ -1,0 +1,23 @@
+{
+  "deviceId": "20000000-0000-4000-8000-000000000001",
+  "surface": "phone",
+  "pairedDeviceId": "20000000-0000-4000-8000-000000000020",
+  "appBuild": "2.0(100)",
+  "executableVersion": 2,
+  "prescriptionSchemaVersion": 1,
+  "maxExpandedSteps": 2000,
+  "maxResultSegments": 500,
+  "completion": [
+    "duration",
+    "distance",
+    "manual"
+  ],
+  "richStrength": true,
+  "deviceActions": [
+    "start",
+    "pause",
+    "resume",
+    "lap",
+    "finish"
+  ]
+}

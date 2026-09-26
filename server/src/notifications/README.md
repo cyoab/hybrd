@@ -1,5 +1,5 @@
-# Notifications
+# Push notifications
 
-Device registration/revocation is implemented in the foundation API; tokens are stored only for the owning athlete and cleared on revocation. No APNs request is sent yet.
+The APNs adapter signs ES256 provider tokens, uses HTTP/2 and targets each opted-in installation's environment. Operator sends accept an idempotency UUID and one of two data-minimizing payloads: sync hint or generic coach-ready alert. Delivery metadata is retained, and invalid-token responses clear only the token actually attempted. A pending or uncertain delivery is never silently retried.
 
-Add a server-only APNs adapter when there is an actual remote notification use case. Read signing keys from runtime secrets, separate sandbox/production tokens, handle invalid-token feedback, and never log tokens. Predictable workout reminders belong to local iOS notifications; no queue or worker is provisioned.
+Local scheduled training reminders remain an iOS responsibility. No public send endpoint, job queue or background worker is introduced.

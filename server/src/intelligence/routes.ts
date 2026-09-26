@@ -1,26 +1,26 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
-import type { AppEnv } from "../api/dependencies";
-import { notImplemented } from "../api/errors";
+import type { AppDependencies, AppEnv } from "../api/dependencies";
 import { errorResponse, protectedErrors, security } from "../api/schemas";
 import { DecisionRequestSchema } from "./jev/decision-registry";
+import {
+  ChatRequestSchema,
+  ChatResponseSchema,
+  DecisionResponseSchema,
+} from "./schemas";
 
-const ChatRequestSchema = z
-  .object({
-    threadId: z.string().uuid(),
-    message: z.string().min(1).max(8000),
-    context: z
-      .object({
-        schemaVersion: z.literal(1),
-        activePlanVersionId: z.string().uuid().nullable(),
-        summary: z.string().max(12000),
-      })
-      .strict(),
-  })
-  .strict()
-  .openapi("CoachRequest");
-
-export function registerIntelligenceRoutes(app: OpenAPIHono<AppEnv>) {
-  const idempotencyHeaders = z.object({ "idempotency-key": z.string().uuid() });
+const headers = z.object({ "idempotency-key": z.string().uuid() });
+const errors = {
+  ...protectedErrors,
+  403: errorResponse,
+  409: errorResponse,
+  429: errorResponse,
+  502: errorResponse,
+  503: errorResponse,
+};
+export function registerIntelligenceRoutes(
+  app: OpenAPIHono<AppEnv>,
+  deps: AppDependencies,
+) {
   app.openapi(
     createRoute({
       method: "post",
@@ -28,17 +28,30 @@ export function registerIntelligenceRoutes(app: OpenAPIHono<AppEnv>) {
       operationId: "requestDecision",
       tags: ["Intelligence"],
       security,
-      summary: "Scaffold: structured decision gateway. No provider is called.",
       request: {
-        headers: idempotencyHeaders,
+        headers,
         body: {
           required: true,
           content: { "application/json": { schema: DecisionRequestSchema } },
         },
       },
-      responses: { 501: errorResponse, ...protectedErrors },
+      responses: {
+        200: {
+          description: "Validated advisory choice; never changes a plan.",
+          content: { "application/json": { schema: DecisionResponseSchema } },
+        },
+        ...errors,
+      },
     }),
-    () => notImplemented("Structured decisions"),
+    async (c) =>
+      c.json(
+        await deps.intelligence.decision(
+          c.get("authUserId"),
+          c.req.valid("header")["idempotency-key"],
+          c.req.valid("json"),
+        ),
+        200,
+      ),
   );
   app.openapi(
     createRoute({
@@ -47,17 +60,41 @@ export function registerIntelligenceRoutes(app: OpenAPIHono<AppEnv>) {
       operationId: "sendCoachMessage",
       tags: ["Intelligence"],
       security,
-      summary:
-        "Scaffold: coach gateway. Streaming and proposal contracts are not implemented.",
       request: {
-        headers: idempotencyHeaders,
+        headers,
         body: {
           required: true,
           content: { "application/json": { schema: ChatRequestSchema } },
         },
       },
-      responses: { 501: errorResponse, ...protectedErrors },
+      responses: {
+        200: {
+          description:
+            "Persisted, validated response. Accept text/event-stream for a single complete event after validation; no unvalidated model tokens are emitted.",
+          content: {
+            "application/json": { schema: ChatResponseSchema },
+            "text/event-stream": { schema: z.string() },
+          },
+        },
+        ...errors,
+      },
     }),
-    () => notImplemented("AI coaching"),
+    async (c) => {
+      const result = await deps.intelligence.chat(
+        c.get("authUserId"),
+        c.req.valid("header")["idempotency-key"],
+        c.req.valid("json"),
+      );
+      if (c.req.header("Accept")?.includes("text/event-stream"))
+        return c.body(
+          `event: complete\ndata: ${JSON.stringify({ type: "complete", ...result })}\n\n`,
+          200,
+          {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "private, no-store",
+          },
+        );
+      return c.json(result, 200);
+    },
   );
 }

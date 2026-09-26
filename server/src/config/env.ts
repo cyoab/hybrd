@@ -23,11 +23,97 @@ const envSchema = z
     APPLE_CLIENT_ID: optionalString,
     APPLE_CLIENT_SECRET: optionalString,
     APPLE_APP_BUNDLE_IDENTIFIER: optionalString,
+    GOOGLE_CLIENT_ID: optionalString,
+    GOOGLE_CLIENT_SECRET: optionalString,
+    GOOGLE_IOS_CLIENT_ID: optionalString,
+    AUTH_EMAIL_TRANSPORT: z.enum(["disabled", "resend"]).default("disabled"),
+    AUTH_EMAIL_FROM: z.email().default("signin@hybrd.test"),
+    RESEND_API_KEY: optionalString,
+    STRAVA_CLIENT_ID: optionalString,
+    STRAVA_CLIENT_SECRET: optionalString,
+    STRAVA_APP_RETURN_URL: z.url().default("hybrd://integrations/strava"),
+    STRAVA_WEBHOOK_VERIFY_TOKEN: optionalString,
+    STRAVA_WEBHOOK_SECRET: optionalString,
+    STRAVA_WEBHOOK_SUBSCRIPTION_ID: optionalString,
     OPENROUTER_API_KEY: optionalString,
     OPENROUTER_JEV_MODEL: z.string().default("~typesafe/jev-latest"),
     OPENROUTER_LLM_MODEL: optionalString,
+    AGENT_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+    AGENT_MODEL: optionalString,
+    AGENT_CACHE_MODE: z.enum(["automatic", "ephemeral"]).default("automatic"),
+    AGENT_SCOPE_CONFIDENCE: z.coerce.number().min(0.5).max(1).default(0.8),
+    AGENT_MAX_GENERATIVE_CALLS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(4)
+      .default(4),
+    AI_REQUIRED_ENTITLEMENT: z.string().min(1).max(64).default("pro"),
+    AI_DECISIONS_PER_DAY: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(10000)
+      .default(100),
+    AI_CHATS_PER_DAY: z.coerce.number().int().min(1).max(1000).default(30),
+    AI_REQUESTS_PER_MINUTE: z.coerce.number().int().min(1).max(100).default(10),
+    STOREKIT_BUNDLE_ID: optionalString,
+    STOREKIT_APP_APPLE_ID: z.preprocess(
+      (v) => (v === "" ? undefined : v),
+      z.coerce.number().int().positive().optional(),
+    ),
+    STOREKIT_ENVIRONMENT: z.enum(["Sandbox", "Production"]).default("Sandbox"),
+    STOREKIT_ROOT_CERTIFICATES: optionalString,
+    STOREKIT_PRODUCTS: z.string().default("{}"),
+    APNS_KEY_ID: optionalString,
+    APNS_TEAM_ID: optionalString,
+    APNS_PRIVATE_KEY_PATH: optionalString,
+    APNS_TOPIC: optionalString,
   })
   .superRefine((env, ctx) => {
+    if (Boolean(env.STRAVA_CLIENT_ID) !== Boolean(env.STRAVA_CLIENT_SECRET))
+      ctx.addIssue({
+        code: "custom",
+        path: ["STRAVA_CLIENT_ID"],
+        message: "Set Strava client ID and secret together.",
+      });
+    if (env.STRAVA_CLIENT_ID && !/^\d+$/.test(env.STRAVA_CLIENT_ID))
+      ctx.addIssue({
+        code: "custom",
+        path: ["STRAVA_CLIENT_ID"],
+        message: "Expected a numeric Strava application ID.",
+      });
+    if (
+      !["https:", "hybrd:"].includes(
+        new URL(env.STRAVA_APP_RETURN_URL).protocol,
+      )
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["STRAVA_APP_RETURN_URL"],
+        message: "Use an HTTPS universal link or hybrd app URL.",
+      });
+    const webhook = [
+      env.STRAVA_WEBHOOK_VERIFY_TOKEN,
+      env.STRAVA_WEBHOOK_SECRET,
+      env.STRAVA_WEBHOOK_SUBSCRIPTION_ID,
+    ];
+    if (
+      webhook.some(Boolean) &&
+      (!env.STRAVA_WEBHOOK_VERIFY_TOKEN ||
+        !env.STRAVA_WEBHOOK_SECRET ||
+        !env.STRAVA_CLIENT_ID ||
+        (env.STRAVA_WEBHOOK_SECRET?.length ?? 0) < 32)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["STRAVA_WEBHOOK_SECRET"],
+        message:
+          "Configure Strava webhook verification and a path secret of at least 32 characters with an enabled Strava provider. Add the subscription ID after verification.",
+      });
     if (env.NODE_ENV === "production") {
       if (env.DEV_AUTH_ENABLED)
         ctx.addIssue({
@@ -51,6 +137,75 @@ const envSchema = z
           message: "Set a unique production secret.",
         });
     }
+    if (
+      (env.GOOGLE_CLIENT_ID ||
+        env.GOOGLE_CLIENT_SECRET ||
+        env.GOOGLE_IOS_CLIENT_ID) &&
+      !(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["GOOGLE_CLIENT_ID"],
+        message:
+          "Set Google client ID and secret together; the iOS client ID is optional.",
+      });
+    if (
+      env.AUTH_EMAIL_TRANSPORT === "resend" &&
+      (!env.RESEND_API_KEY || env.AUTH_EMAIL_FROM.endsWith(".test"))
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["AUTH_EMAIL_TRANSPORT"],
+        message:
+          "Resend requires RESEND_API_KEY and a sender on your verified domain.",
+      });
+    try {
+      const products = JSON.parse(env.STOREKIT_PRODUCTS);
+      if (
+        !products ||
+        Array.isArray(products) ||
+        typeof products !== "object" ||
+        !Object.values(products).every(
+          (v) => typeof v === "string" && v.length > 0 && v.length <= 64,
+        )
+      )
+        throw new Error();
+    } catch {
+      ctx.addIssue({
+        code: "custom",
+        path: ["STOREKIT_PRODUCTS"],
+        message: "Expected an object mapping product IDs to entitlement keys.",
+      });
+    }
+    for (const [name, fields] of [
+      ["STOREKIT", [env.STOREKIT_BUNDLE_ID, env.STOREKIT_ROOT_CERTIFICATES]],
+      [
+        "APNS",
+        [
+          env.APNS_KEY_ID,
+          env.APNS_TEAM_ID,
+          env.APNS_PRIVATE_KEY_PATH,
+          env.APNS_TOPIC,
+        ],
+      ],
+    ] as const) {
+      if (fields.some(Boolean) && !fields.every(Boolean))
+        ctx.addIssue({
+          code: "custom",
+          path: [name],
+          message: `Set all ${name} integration fields together.`,
+        });
+    }
+    if (
+      env.STOREKIT_BUNDLE_ID &&
+      env.STOREKIT_ENVIRONMENT === "Production" &&
+      !env.STOREKIT_APP_APPLE_ID
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["STOREKIT_APP_APPLE_ID"],
+        message: "Production verification requires the numeric app ID.",
+      });
     const apple = [
       env.APPLE_CLIENT_ID,
       env.APPLE_CLIENT_SECRET,

@@ -45,6 +45,10 @@ services:
 
   api:
     <<: *development
+    environment:
+      <<: *development-env
+      DEV_AUTH_ENABLED: "false"
+      AUTH_EMAIL_TRANSPORT: ${AUTH_EMAIL_TRANSPORT:-disabled}
     command: ["bun", "run", "dev"]
     ports:
       - "127.0.0.1:${API_PORT:-3000}:3000"
@@ -59,7 +63,7 @@ services:
       timeout: 5s
       retries: 20
       start_period: 10s
-    stop_grace_period: 15s
+    stop_grace_period: 40s
     restart: unless-stopped
 
   postgres-test:

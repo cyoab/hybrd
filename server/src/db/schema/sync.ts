@@ -12,15 +12,14 @@ import {
 } from "drizzle-orm/pg-core";
 import { athletes, deviceInstallations } from "./foundation";
 
-// Storage foundations only. No mutation may be acknowledged until its domain
-// handler, ledger entry and change-feed entry commit in the same transaction.
+// Every mutation and its acknowledgement commit with the domain change.
 export const syncMutations = pgTable(
   "sync_mutations",
   {
     clientMutationId: uuid("client_mutation_id").primaryKey(),
     athleteId: uuid("athlete_id")
       .notNull()
-      .references(() => athletes.id),
+      .references(() => athletes.id, { onDelete: "cascade" }),
     deviceId: uuid("device_id").notNull(),
     entityType: text("entity_type").notNull(),
     entityId: uuid("entity_id").notNull(),
@@ -37,7 +36,7 @@ export const syncMutations = pgTable(
     foreignKey({
       columns: [t.deviceId, t.athleteId],
       foreignColumns: [deviceInstallations.id, deviceInstallations.athleteId],
-    }),
+    }).onDelete("cascade"),
     check(
       "sync_mutations_status",
       sql`${t.status} in ('applied', 'conflict', 'rejected')`,
@@ -57,7 +56,7 @@ export const syncChangeLog = pgTable(
       .generatedAlwaysAsIdentity(),
     athleteId: uuid("athlete_id")
       .notNull()
-      .references(() => athletes.id),
+      .references(() => athletes.id, { onDelete: "cascade" }),
     entityType: text("entity_type").notNull(),
     entityId: uuid("entity_id").notNull(),
     operation: text("operation").notNull(),
@@ -78,7 +77,7 @@ export const deviceSyncState = pgTable(
     deviceId: uuid("device_id").primaryKey(),
     athleteId: uuid("athlete_id")
       .notNull()
-      .references(() => athletes.id),
+      .references(() => athletes.id, { onDelete: "cascade" }),
     lastPulledSequence: bigint("last_pulled_sequence", { mode: "bigint" })
       .notNull()
       .default(sql`0`),
@@ -91,6 +90,6 @@ export const deviceSyncState = pgTable(
     foreignKey({
       columns: [t.deviceId, t.athleteId],
       foreignColumns: [deviceInstallations.id, deviceInstallations.athleteId],
-    }),
+    }).onDelete("cascade"),
   ],
 );

@@ -8,6 +8,69 @@
       "when": 1790026704291,
       "tag": "0000_shallow_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790029272042,
+      "tag": "0001_backend_mvp",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790029996059,
+      "tag": "0002_intelligence_request_scope",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790110550993,
+      "tag": "0003_daffy_reptil",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790121384418,
+      "tag": "0004_sweet_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790169946264,
+      "tag": "0005_lean_silhouette",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790265743818,
+      "tag": "0006_damp_menace",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790373316421,
+      "tag": "0007_massive_ares",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790385164003,
+      "tag": "0008_abnormal_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790385616119,
+      "tag": "0009_broken_shatterstar",
+      "breakpoints": true
     }
   ]
 }

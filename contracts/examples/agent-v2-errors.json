@@ -1,0 +1,30 @@
+{
+  "conflict": {
+    "error": {
+      "code": "PLAN_HEAD_CONFLICT",
+      "message": "The active plan changed. Sync and refresh context.",
+      "requestId": "20000000-0000-4000-8000-000000000025"
+    }
+  },
+  "unsupported": {
+    "error": {
+      "code": "DEVICE_EXECUTION_LIMIT",
+      "message": "Expanded intervals exceed this device execution/result limits.",
+      "requestId": "20000000-0000-4000-8000-000000000025"
+    }
+  },
+  "expired": {
+    "error": {
+      "code": "DEVICE_CHALLENGE_EXPIRED",
+      "message": "The command expired before execution.",
+      "requestId": "20000000-0000-4000-8000-000000000025"
+    }
+  },
+  "replayConflict": {
+    "error": {
+      "code": "IDEMPOTENCY_KEY_REUSED",
+      "message": "Use a new key for different content.",
+      "requestId": "20000000-0000-4000-8000-000000000025"
+    }
+  }
+}

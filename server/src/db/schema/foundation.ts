@@ -24,13 +24,14 @@ export const athletes = pgTable(
     authUserId: text("auth_user_id")
       .notNull()
       .unique()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: "cascade" }),
     timezone: text("timezone").notNull().default("UTC"),
     locale: text("locale").notNull().default("en"),
     distanceUnit: text("distance_unit").notNull().default("km"),
     loadUnit: text("load_unit").notNull().default("kg"),
     weekStartsOn: smallint("week_starts_on").notNull().default(1),
     trainingDayBoundary: time("training_day_boundary"),
+    cloudAiConsent: boolean("cloud_ai_consent").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -81,11 +82,12 @@ export const deviceInstallations = pgTable(
     id: uuid("id").primaryKey(),
     athleteId: uuid("athlete_id")
       .notNull()
-      .references(() => athletes.id),
+      .references(() => athletes.id, { onDelete: "cascade" }),
     platform: text("platform").notNull().default("ios"),
     appVersion: text("app_version").notNull(),
     osVersion: text("os_version"),
     pushToken: text("push_token"),
+    pushEnvironment: text("push_environment").notNull().default("sandbox"),
     pushEnabled: boolean("push_enabled").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -105,9 +107,10 @@ export const deviceInstallations = pgTable(
 export const entitlements = pgTable(
   "entitlements",
   {
+    id: uuid("id").notNull().defaultRandom().unique(),
     athleteId: uuid("athlete_id")
       .notNull()
-      .references(() => athletes.id),
+      .references(() => athletes.id, { onDelete: "cascade" }),
     entitlementKey: text("entitlement_key").notNull(),
     status: text("status").notNull(),
     validUntil: timestamp("valid_until", { withTimezone: true }),

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "deviceId": "20000000-0000-4000-8000-000000000001",
+  "threadId": null,
+  "task": "modify_plan",
+  "message": "Always use incline bench press for my remaining horizontal barbell presses.",
+  "workoutResultId": null,
+  "expectedWorkoutRevision": null,
+  "mutation": {
+    "contextToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "trainingBlockId": "20000000-0000-4000-8000-000000000005",
+    "expectedActivePlanVersionId": "20000000-0000-4000-8000-000000000006",
+    "expectedProfileRevision": "7",
+    "outboxDrained": true,
+    "protectedLogicalWorkoutIds": [],
+    "mode": "apply",
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-14",
+    "operations": [
+      "replace_exercise"
+    ],
+    "allowRecurringPreference": true
+  },
+  "native": null
+}

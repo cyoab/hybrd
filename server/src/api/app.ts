@@ -1,14 +1,22 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { bodyLimit } from "hono/body-limit";
+import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { secureHeaders } from "hono/secure-headers";
+import { registerAgentRoutes } from "../agent/routes";
+import { registerAuthContract } from "../auth/contract";
 import { registerBillingRoutes } from "../billing/routes";
+import { CatalogSchema } from "../domain/records";
 import { registerIntelligenceRoutes } from "../intelligence/routes";
+import { registerOnboardingRoutes } from "../onboarding/routes";
+import { registerProgressRoutes } from "../progress/routes";
+import { registerStravaRoutes } from "../strava/routes";
 import { registerSyncRoutes } from "../sync/routes";
 import { log } from "../telemetry/logger";
 import type { AppDependencies, AppEnv } from "./dependencies";
-import { ApiError, notImplemented } from "./errors";
+import { ApiError } from "./errors";
+import { rateLimiter } from "./rate-limit";
 import {
   BootstrapSchema,
   DeviceInputSchema,
@@ -26,7 +34,7 @@ export const openApiInfo = {
     title: "hybrd API",
     version: "0.1.0",
     description:
-      "Local-first training control plane. Operations marked scaffold return 501 and do not persist or acknowledge work. Better Auth endpoints live under /api/auth and use the provider's contract.",
+      "Local-first training control plane with versioned aggregate sync. Better Auth endpoints live under /api/auth and use the provider's contract.",
   },
   servers: [
     {
@@ -39,8 +47,14 @@ export const openApiInfo = {
 
 export function createApp(
   deps: AppDependencies,
-  options: { trustedOrigins?: string[]; logging?: boolean } = {},
+  options: {
+    trustedOrigins?: string[];
+    logging?: boolean;
+    peerAddress?: (request: Request) => string | undefined;
+  } = {},
 ) {
+  const domainLimit = rateLimiter(240),
+    webhookLimit = rateLimiter(300);
   const app = new OpenAPIHono<AppEnv>({
     defaultHook: (result, c) => {
       if (!result.success)
@@ -83,7 +97,7 @@ export function createApp(
     cors({
       origin: options.trustedOrigins ?? [],
       credentials: true,
-      exposeHeaders: ["X-Request-Id", "ETag", "set-auth-token"],
+      exposeHeaders: ["X-Request-Id", "ETag", "set-auth-token", "Retry-After"],
     }),
   );
   app.use(
@@ -110,7 +124,7 @@ export function createApp(
         : status === 400
           ? "BAD_REQUEST"
           : "INTERNAL_ERROR";
-    if (status >= 500 && status !== 501 && options.logging !== false)
+    if (status >= 500 && options.logging !== false)
       log({
         event: "request_error",
         requestId: c.get("requestId"),
@@ -127,6 +141,9 @@ export function createApp(
               : status === 400
                 ? "Malformed request."
                 : "The request could not be completed.",
+          ...(error instanceof ApiError && error.details
+            ? { details: error.details }
+            : {}),
           requestId: c.get("requestId"),
         },
       },
@@ -197,12 +214,18 @@ export function createApp(
     },
   );
 
+  app.use("/webhooks/*", async (c, next) => {
+    webhookLimit(options.peerAddress?.(c.req.raw) ?? "local");
+    await next();
+  });
+  registerAuthContract(app);
   app.all("/api/auth/*", (c) => deps.handleAuth(c.req.raw));
   app.use("/v1/*", async (c, next) => {
     c.header("Cache-Control", "private, no-store");
     const authUserId = await deps.authenticate(c.req.raw.headers);
     if (!authUserId)
       throw new ApiError(401, "UNAUTHORIZED", "A valid session is required.");
+    domainLimit(authUserId);
     c.set("authUserId", authUserId);
     await next();
   });
@@ -217,8 +240,7 @@ export function createApp(
       request: { query: z.object({ deviceId: z.string().uuid().optional() }) },
       responses: {
         200: {
-          description:
-            "Account state and capabilities. Sync is unavailable in this scaffold.",
+          description: "Account state and sync capabilities.",
           content: { "application/json": { schema: BootstrapSchema } },
         },
         ...protectedErrors,
@@ -369,9 +391,12 @@ export function createApp(
       ),
   );
 
-  registerSyncRoutes(app);
-  registerIntelligenceRoutes(app);
-  registerBillingRoutes(app);
+  registerOnboardingRoutes(app, deps);
+  registerSyncRoutes(app, deps);
+  app.use("/v1/progress/*", compress());
+  registerProgressRoutes(app, deps);
+  registerIntelligenceRoutes(app, deps);
+  registerBillingRoutes(app, deps);
   app.openapi(
     createRoute({
       method: "delete",
@@ -379,12 +404,63 @@ export function createApp(
       operationId: "deleteAccount",
       tags: ["Account"],
       security,
-      summary: "Scaffold: account deletion is pending a retention policy.",
-      responses: { 501: errorResponse, ...protectedErrors },
+      summary:
+        "Permanently delete the account and its data; requires a session created in the last 10 minutes.",
+      responses: {
+        204: {
+          description:
+            "Account, sessions, training data and provider records purged.",
+        },
+        403: errorResponse,
+        ...protectedErrors,
+      },
     }),
-    () => notImplemented("Account deletion"),
+    async (c) => {
+      await deps.deleteAccount(c.get("authUserId"), c.req.raw.headers);
+      return c.body(null, 204);
+    },
   );
 
+  app.openapi(
+    createRoute({
+      method: "get",
+      path: "/v1/catalog",
+      operationId: "getCatalog",
+      tags: ["Catalog"],
+      security,
+      responses: {
+        200: {
+          description:
+            "Versioned exercise, muscle and equipment reference catalog.",
+          content: { "application/json": { schema: CatalogSchema } },
+        },
+        ...protectedErrors,
+      },
+    }),
+    async (c) => c.json(await deps.catalog(), 200),
+  );
+  app.openapi(
+    createRoute({
+      method: "get",
+      path: "/v1/account/export",
+      operationId: "exportAccount",
+      tags: ["Account"],
+      security,
+      responses: {
+        200: {
+          description:
+            "Canonical training and coaching data export. Excludes credentials and operational logs.",
+          content: {
+            "application/json": { schema: z.record(z.string(), z.unknown()) },
+          },
+        },
+        ...protectedErrors,
+      },
+    }),
+    async (c) => c.json(await deps.exportAccount(c.get("authUserId")), 200),
+  );
+  registerStravaRoutes(app, deps);
+  registerAgentRoutes(app, deps);
   app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
     type: "http",
     scheme: "bearer",

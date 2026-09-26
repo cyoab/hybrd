@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "name": "Easy aerobic block",
+  "phase": "maintain",
+  "rationale": "Use individually comfortable effort and preserve recovery days; no universal intensity distribution is assumed.",
+  "evidenceIds": [
+    "endurance-distribution-2025"
+  ],
+  "templates": [
+    {
+      "key": "easy",
+      "title": "Comfortable run",
+      "workoutType": "easy",
+      "purpose": "Maintain aerobic practice",
+      "priority": "supporting",
+      "estimatedDurationS": 1800,
+      "instructions": "Adjust effort to conditions.",
+      "discipline": "running",
+      "run": {
+        "primaryTargetType": "rpe",
+        "notes": null,
+        "blocks": [
+          {
+            "repeatCount": 1,
+            "label": "Easy effort",
+            "steps": [
+              {
+                "stepKind": "steady",
+                "distanceM": null,
+                "durationS": 1800,
+                "paceMinSPerKm": null,
+                "paceMaxSPerKm": null,
+                "hrMinBpm": null,
+                "hrMaxBpm": null,
+                "rpeMin": 3,
+                "rpeMax": 4,
+                "notes": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "templateKey": "easy",
+      "date": "2026-10-02"
+    },
+    {
+      "templateKey": "easy",
+      "date": "2026-10-05"
+    },
+    {
+      "templateKey": "easy",
+      "date": "2026-10-09"
+    },
+    {
+      "templateKey": "easy",
+      "date": "2026-10-12"
+    }
+  ]
+}
