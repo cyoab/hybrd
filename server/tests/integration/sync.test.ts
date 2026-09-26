@@ -157,7 +157,7 @@ describe("canonical sync and plan history", () => {
                 sequence: 0,
                 durationS: 1800,
                 distanceM: 5000,
-                repeatIteration: 1,
+                repeatIteration: 0, // Native execution identities use zero-based repeats.
               },
             ],
           },

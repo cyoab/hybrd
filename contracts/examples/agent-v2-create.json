@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "deviceId": "20000000-0000-4000-8000-000000000001",
+  "threadId": null,
+  "task": "create_plan",
+  "message": "Create a two-week easy running plan for review.",
+  "workoutResultId": null,
+  "expectedWorkoutRevision": null,
+  "mutation": {
+    "contextToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "trainingBlockId": null,
+    "expectedActivePlanVersionId": null,
+    "expectedProfileRevision": "7",
+    "outboxDrained": true,
+    "protectedLogicalWorkoutIds": [],
+    "mode": "draft",
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-14",
+    "operations": [],
+    "allowRecurringPreference": false
+  },
+  "native": null
+}

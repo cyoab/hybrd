@@ -8,6 +8,23 @@ const unused = async (): Promise<never> => {
 };
 const dependencies: AppDependencies = {
   agent: {
+    claimChallengeV2: unused,
+    removeRuleV2: unused,
+    cancelChallengeV2: unused,
+    applyV2: unused,
+    capabilitiesV2: unused,
+    createV2: unused,
+    getV2: unused,
+    lookupV2: unused,
+    listV2: unused,
+    contextV2: unused,
+    putManifest: unused,
+    undoV2: unused,
+    packetV2: unused,
+    ackV2: unused,
+    settingsV2: unused,
+    memoriesV2: unused,
+
     capabilities: unused,
     create: unused,
     get: unused,

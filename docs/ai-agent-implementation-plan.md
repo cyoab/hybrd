@@ -4,7 +4,7 @@ Follow-up: [iOS integration review](ai-ios-integration-review.md) records the na
 
 **Status:** proposed architecture, 25 September 2026. This task adds research and planning documents only. It does not enable cloud AI, deploy services, or change the current API. Repository inspected at `d8e7e39`.
 
-**Implementation update:** the first backend delivery now implements the durable read-only agent foundation. Follow [agent-api.md](agent-api.md) for the actual endpoints and remaining phases; the route table below remains the broader proposed target. The initial research itself made no application changes.
+**Implementation update:** the backend now implements negotiated v2 structured plan generation, scoped edits/draft activation/Undo, rich analysis packets, opted-in memory learning and typed native command challenges, building on the durable read-only foundation. Follow [agent-api.md](agent-api.md) for the authoritative implemented contract and rollout limits; the proposed route table below is historical research. Native v2 integration and live model/scientific-quality evaluations remain separate verification work. The initial research itself made no application changes.
 
 **Product decision:** the new request supersedes the earlier requirement that plan generation remain exclusively on iOS. The backend will orchestrate AI plan creation, analysis and changes. iPhone/Watch will execute workouts, collect measurements and preserve offline operation. Both use one versioned training contract and the same validation fixtures.
 

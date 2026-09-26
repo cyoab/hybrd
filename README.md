@@ -96,6 +96,6 @@ railway.json                 Deployment configuration; nothing deployed yet
 
 Start with the [iOS handoff](docs/ios-handoff.md), [implementation status](docs/implementation.md), and [deployment guide](docs/deployment.md).
 
-The proposed next AI phase is documented in the [AI agent implementation plan](docs/ai-agent-implementation-plan.md) and [iOS harness contract review](docs/ai-ios-harness-review.md). These describe planned capabilities, not currently available endpoints.
+The [AI agent implementation plan](docs/ai-agent-implementation-plan.md) and [iOS harness contract review](docs/ai-ios-harness-review.md) record the architecture and native integration requirements.
 
-The first implementation is described in [the agent API guide](docs/agent-api.md): durable read-only coaching/analysis runs, replayable SSE, training-data tools, citations and user-managed memory. It defaults off via `AGENT_ENABLED`; generation and plan edits are separate future phases.
+The implemented [agent API guide](docs/agent-api.md) covers explicit v2 structured plan generation, direct edits/draft acceptance/Undo, detailed analysis, opt-in memory learning and native command receipts. V1 remains compatible and read-only. Docker still runs API + PostgreSQL; apply migrations and catalog v3 before enabling `AGENT_ENABLED` with tested server-side OpenRouter models. Native v2 adapters and live model evaluations are separate rollout requirements.

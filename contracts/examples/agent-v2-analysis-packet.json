@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "algorithmVersion": "ios-analysis-1",
+  "deviceId": "20000000-0000-4000-8000-000000000001",
+  "resultId": "20000000-0000-4000-8000-000000000022",
+  "resultRevision": "1",
+  "plannedWorkoutId": "20000000-0000-4000-8000-000000000008",
+  "recordingId": "20000000-0000-4000-8000-000000000021",
+  "source": "iphone",
+  "startedAt": "2026-09-25T17:00:00.000Z",
+  "endedAt": "2026-09-25T17:30:00.000Z",
+  "elapsedDurationS": 1800,
+  "activeDurationS": 1780,
+  "movingDurationS": 1750,
+  "consentVersion": 1,
+  "units": "seconds_meters_bpm",
+  "coverage": {
+    "heartRate": "summary_only",
+    "omissions": [
+      "Full HR samples were not retained."
+    ]
+  },
+  "heartRate": [],
+  "boundaries": [
+    {
+      "series": "manual_lap",
+      "blockId": null,
+      "stepId": null,
+      "repeatIteration": null,
+      "activeSeconds": 600,
+      "cumulativeMeters": 1500,
+      "reason": "manualAdvance"
+    }
+  ],
+  "checksum": "535c9827097b22bb32bfcbc9f045b8a46821d48ba0011c9e3319c10b4c71710d"
+}

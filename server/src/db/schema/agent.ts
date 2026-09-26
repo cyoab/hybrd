@@ -32,6 +32,8 @@ export const agentRuns = pgTable(
     idempotencyKey: uuid("idempotency_key").notNull(),
     requestHash: text("request_hash").notNull(),
     task: text("task").notNull(),
+    apiVersion: integer("api_version").notNull().default(1),
+    userMessageId: uuid("user_message_id"),
     request: jsonb("request"),
     status: text("status").notNull().default("queued"),
     checkpoint: jsonb("checkpoint"),
@@ -75,6 +77,10 @@ export const athleteMemories = pgTable(
     category: text("category").notNull(),
     content: text("content").notNull(),
     source: text("source").notNull().default("athlete"),
+    sourceRunId: uuid("source_run_id"),
+    sourceMessageId: uuid("source_message_id"),
+    sourceQuote: text("source_quote"),
+    confidence: jsonb("confidence"),
     expiresAt: instant("expires_at"),
     revision: bigint("revision", { mode: "bigint" }).notNull().default(sql`1`),
     createdAt: instant("created_at").notNull().defaultNow(),
@@ -85,4 +91,65 @@ export const athleteMemories = pgTable(
 export const agentContextEpochs = pgTable("agent_context_epochs", {
   athleteId: owner().primaryKey(),
   resetAt: instant("reset_at").notNull().defaultNow(),
+});
+
+export const agentActions = pgTable("agent_actions", {
+  id: uuid("id").primaryKey(),
+  athleteId: owner(),
+  runId: uuid("run_id")
+    .notNull()
+    .unique()
+    .references(() => agentRuns.id, { onDelete: "cascade" }),
+  receipt: jsonb("receipt").notNull(),
+  before: jsonb("before").notNull(),
+  after: jsonb("after").notNull(),
+  preferenceBefore: jsonb("preference_before"),
+  preferenceAfter: jsonb("preference_after"),
+  applyKey: uuid("apply_key"),
+  applyHash: text("apply_hash"),
+  authorization: jsonb("authorization"),
+  undoKey: uuid("undo_key"),
+  undoHash: text("undo_hash"),
+  createdAt: instant("created_at").notNull().defaultNow(),
+});
+export const agentExerciseRules = pgTable(
+  "agent_exercise_rules",
+  {
+    athleteId: owner(),
+    fromExerciseId: uuid("from_exercise_id").notNull(),
+    toExerciseId: uuid("to_exercise_id").notNull(),
+    actionId: uuid("action_id").notNull(),
+    revision: bigint("revision", { mode: "bigint" }).notNull().default(sql`1`),
+  },
+  (t) => [primaryKey({ columns: [t.athleteId, t.fromExerciseId] })],
+);
+export const agentDeviceManifests = pgTable("agent_device_manifests", {
+  deviceId: uuid("device_id").primaryKey(),
+  athleteId: owner(),
+  manifest: jsonb("manifest").notNull(),
+  updatedAt: instant("updated_at").notNull().defaultNow(),
+});
+export const agentDeviceChallenges = pgTable("agent_device_challenges", {
+  id: uuid("id").primaryKey(),
+  athleteId: owner(),
+  runId: uuid("run_id")
+    .notNull()
+    .unique()
+    .references(() => agentRuns.id, { onDelete: "cascade" }),
+  deviceId: uuid("device_id").notNull(),
+  challenge: jsonb("challenge").notNull(),
+  ackKey: uuid("ack_key"),
+  ackHash: text("ack_hash"),
+});
+export const agentMemorySettings = pgTable("agent_memory_settings", {
+  athleteId: owner().primaryKey(),
+  enabled: boolean("enabled").notNull().default(false),
+  revision: bigint("revision", { mode: "bigint" }).notNull().default(sql`1`),
+});
+export const agentAnalysisPackets = pgTable("agent_analysis_packets", {
+  resultId: uuid("result_id").primaryKey(),
+  athleteId: owner(),
+  resultRevision: bigint("result_revision", { mode: "bigint" }).notNull(),
+  packet: jsonb("packet").notNull(),
+  createdAt: instant("created_at").notNull().defaultNow(),
 });

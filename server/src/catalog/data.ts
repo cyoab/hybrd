@@ -1,5 +1,5 @@
 // Stable, versioned reference IDs; never change an existing ID's meaning.
-export const catalogVersion = 2;
+export const catalogVersion = 3;
 export const catalogId = (group: number, index: number) =>
   `10000000-0000-4000-8${String(group).padStart(3, "0")}-${String(index).padStart(12, "0")}`;
 export const equipmentNames = [
@@ -24,6 +24,7 @@ export const equipmentNames = [
   "Medicine ball",
   "Stability ball",
   "Foam roller",
+  "Adjustable bench",
 ];
 export const muscleNames = [
   "Quadriceps",
@@ -74,6 +75,15 @@ export const exerciseData: [
   ["Side plank", "core", [9], [], [9], true],
   ["Dead bug", "core", [9], [], [9], false],
   ["Kettlebell swing", "hinge", [2, 1], [9], [7], false],
+  ["Incline bench press", "horizontal_push", [4], [6, 8], [0, 3, 21], false],
+  [
+    "Incline dumbbell bench press",
+    "horizontal_push",
+    [4],
+    [6, 8],
+    [1, 21],
+    false,
+  ],
 ];
 export const slug = (name: string) =>
   name

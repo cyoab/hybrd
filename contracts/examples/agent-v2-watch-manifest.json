@@ -1,0 +1,16 @@
+{
+  "deviceId": "20000000-0000-4000-8000-000000000020",
+  "surface": "watch",
+  "pairedDeviceId": "20000000-0000-4000-8000-000000000001",
+  "appBuild": "1.9(90)",
+  "executableVersion": 2,
+  "prescriptionSchemaVersion": 1,
+  "maxExpandedSteps": 100,
+  "maxResultSegments": 100,
+  "completion": [
+    "duration",
+    "manual"
+  ],
+  "richStrength": true,
+  "deviceActions": []
+}

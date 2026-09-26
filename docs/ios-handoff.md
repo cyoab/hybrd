@@ -1,6 +1,6 @@
 # iOS → backend integration handoff
 
-**Implemented AI foundation:** use [the agent API guide](agent-api.md) for the new durable read-only chat/analysis run endpoints, replayable SSE, typed artifacts and user-managed memory. Plan generation/mutation remain disabled capability flags. Existing intelligence endpoints below remain supported.
+**Implemented AI v2 backend:** follow [the agent API guide](agent-api.md) for explicit v2 negotiation, complete structured plans, direct edits/draft acceptance/Undo, replayable SSE, analysis packets, opt-in memory learning, and native command claim/receipt protocols. Unnegotiated v1 remains read-only for existing decoders. Native v2 adapters must advertise actual phone/Watch capabilities and preserve pinned historical prescriptions. Existing intelligence endpoints below remain supported.
 
 **Proposed AI expansion:** see the [AI agent implementation plan](ai-agent-implementation-plan.md) and [iOS harness contract review](ai-ios-harness-review.md) for server-generated plans, direct authorized edits, detailed analysis, memory and replayable progress events. Those contracts are proposals awaiting joint implementation; the intelligence endpoints documented below remain the current API.
 

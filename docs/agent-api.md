@@ -1,18 +1,18 @@
-# Training agent API — first backend delivery
+# Training agent API
 
-Implemented contract, 25 September 2026. This guide supersedes the **proposed** run/memory API where the routes below differ. The [architecture plan](ai-agent-implementation-plan.md) remains the roadmap. The backend owns `server/`, migrations, OpenAPI and these examples; the parallel iOS task owns native implementation.
+Implemented backend contract, 25 September 2026. This document and [OpenAPI](../contracts/openapi.yaml) supersede the proposed endpoints in the [architecture plan](ai-agent-implementation-plan.md). Native implementation remains owned by the parallel iOS task. No Swift files are changed by this backend delivery.
 
-## Available now and next phases
+## Versions and availability
 
-This delivery implements durable **read-only training chat and workout analysis**, typed server data tools, Jev input/output scope checks, curated citation objects, bounded prompt context, cache/usage accounting, cancellation, recoverable SSE, and user-managed memory. Plan generation, plan mutations/Undo, automatic memory extraction, native recording commands and additional sensor-packet upload are **not enabled or implemented by this delivery**. `create_plan` and `modify_plan` are reserved task values and return `409 AGENT_TASK_NOT_ENABLED` without model work. Do not implement UI success states for those tasks yet.
+The API URL remains `/v1`. **Agent schema v2 is explicitly selected using `/v1/agent/v2/*`**. These are distinct from canonical prescription schema version **1** and native executable version **2**. Unnegotiated `GET /v1/agent/capabilities` still returns schemaVersion 1 with `create_plan:false`, `modify_plan:false`, and `memory:"manual"`. Existing v1 chat, analysis, memory editing and SSE continue to work. Reserved v1 mutation requests still fail without a model call.
 
-The next backend phase is the complete plan blueprint/compiler and draft persistence, followed by authorized edits and Undo. iOS prescription fidelity and capability negotiation remain activation requirements; they do not prevent backend development in parallel.
+V2 supports structured complete plan creation, draft acceptance, direct scoped edits, recurring exercise choices, compensating Undo, detailed workout analysis, opt-in memory learning and typed native action challenges. Capability flags indicate backend environment availability; consent, entitlement, device support and current revisions are checked independently. Never enable native UI based solely on a v2 endpoint existing.
 
-## Enabling development
+Canonical plans, changes, threads and messages use the existing sync entities. Agent runs, receipts, memories, packets, device manifests and challenges **do not introduce unknown entities into the legacy sync feed**. A v2 run wraps the existing schemaVersion 1 textual/citation artifact and adds typed `action`, `deviceChallenge` and `learnedMemoryIds` fields. These fields are the authority for applied actions, not assistant prose.
 
-Apply the checked-in migration with `make migrate`. The worker runs inside the existing API process; Docker Compose still needs only API and PostgreSQL as persistent dev services. Existing `/v1/intelligence/*` behavior is preserved.
+## Development and rollout
 
-Set the following environment values, then recreate the API container to apply them:
+Apply migrations through `0009` and reseed the catalog (`make migrate`, or `bun run db:migrate && bun run db:seed` inside the dev API container). Catalog v3 appends incline barbell/dumbbell presses and an adjustable bench; existing catalog IDs retain their meanings. The worker still runs within the API process. Persistent Docker dev services remain **API + PostgreSQL**; no additional queue, vector store or mail container is required.
 
 ```dotenv
 AGENT_ENABLED=true
@@ -24,69 +24,110 @@ AGENT_SCOPE_CONFIDENCE=0.8
 AGENT_MAX_GENERATIVE_CALLS=4
 ```
 
-`AGENT_MODEL` falls back to `OPENROUTER_LLM_MODEL` if omitted. `automatic` targets endpoints with automatic prompt caching; use `ephemeral` only with an endpoint tested to support `cache_control`. Stable prefixes and an opaque conversation session ID are sent consistently. Provider fallback is disabled for this path. Cold starts, cache expiry and provider thresholds still cause misses; the usage ledger preserves unknown values when the provider omits cache/cost information. [OpenRouter caching contract](https://openrouter.ai/docs/guides/best-practices/prompt-caching).
+`AGENT_MODEL` falls back to `OPENROUTER_LLM_MODEL`. Recreate the API container after changing environment configuration. Agent defaults off; use a published policy with `remoteCoach`, registered installation, `cloudAiConsent:true` and active/grace coaching entitlement (`pro` by default). Tests inject providers and do not send athlete data to a live model. This delivery does not publish a clinically qualified dosing policy or claim live provider/model calibration. The development policy's example load percentages/interference hours are not enforced as established scientific safety rules.
 
-The agent defaults off. Live rollout also requires configured model/classifier, published policy enabling `remoteCoach`, `cloudAiConsent:true`, a registered installation and an active/grace coaching entitlement (`pro` by default). Scope thresholds and model quality require live evaluation before production enablement. The implementation tests inject providers and do not send athlete data to a live model.
+All endpoints require the existing bearer session, return the existing private/no-store error envelope and enforce account ownership. Model API keys remain server-only. UUID idempotency keys are headers. The model has neither arbitrary SQL/code execution nor a tool for accepting its own authorization scope.
 
-## Endpoints
+## V2 endpoints
 
-All routes require the usual bearer session and return the existing error envelope. Responses are private/no-store. UUID idempotency keys belong in the header, not the JSON body.
+All paths in this table are prefixed with `/v1/agent/v2`.
 
-| Route | Contract |
+| Method and path | Behavior |
 | --- | --- |
-| `GET /v1/agent/capabilities` | Environment/policy/provider availability and supported task flags. Consent and entitlement remain separate checks. |
-| `POST /v1/agent/runs` | Requires `Idempotency-Key: UUID`. Returns `202 AgentRun` after durable reservation, before any provider call. |
-| `GET /v1/agent/runs/{id}` | Recover current status and final structured artifact. |
-| `GET /v1/agent/runs/{id}/events` | SSE with optional `Last-Event-ID: decimal-string`. |
-| `POST /v1/agent/runs/{id}/cancel` | Idempotent cancellation; returns current run. A completed run stays completed. |
-| `GET /v1/agent/memories` | Up to 20 user-managed entries, including expiry and revisions. |
-| `PUT /v1/agent/memories/{id}` | Create with `expectedRevision:null`; replace with the current revision. The caller allocates the memory UUID. |
-| `DELETE /v1/agent/memories/{id}` | Requires `If-Match: revision` as an unquoted decimal string. |
+| `GET /capabilities` | Negotiated versions, task availability, consent/entitlement requirements and budgets. |
+| `PUT /device-manifest` | Register this installation's executable features/limits; expires after 24 hours. Phone and Watch manifests are independent. |
+| `GET /planning-context?trainingBlockId=UUID` | Current profile revision, context token, blocks, explicit exercise rules, and optional full current block prescriptions. |
+| `POST /runs` | `Idempotency-Key`; durable `202 AgentRunV2`, no provider call on the HTTP request path. |
+| `GET /runs/{id}` | Restore status, typed receipt, challenge and memory IDs. |
+| `GET /runs?before=UUID` | Up to 20 owned runs per page; `nextBefore` supports recovery across installations. |
+| `GET /requests/{idempotencyKey}` | Lookup the original request without replaying POST or starting paid work. |
+| `POST /requests/{idempotencyKey}/cancel` | Cancel an existing run only. A missing key creates nothing; committed actions remain committed. |
+| `POST /actions/{id}/apply` | `Idempotency-Key`; explicitly accept a validated draft using fresh context/head and local protections, without another AI call. |
+| `POST /actions/{id}/undo` | `Idempotency-Key`; compensate an action within seven days, preserving unrelated later edits. |
+| `DELETE /exercise-rules/{fromExerciseId}?expectedRevision=decimal` | Remove a recurring choice for future generation; existing plans are unchanged. |
+| `PUT /analysis-packet` | Upload one immutable detailed packet per owned result revision; exact checksum replay deduplicates. |
+| `GET /memory-settings` | Learning defaults off; returns revision. |
+| `PUT /memory-settings` | `{enabled,expectedRevision}`; separate explicit opt-in/revocation. |
+| `GET /memories` | Visible entries with provenance, exact quote, confidence, revision and expiry. |
+| `POST /device-challenges/{id}/claim` | `Idempotency-Key`; atomically claim a pending command immediately before native execution. |
+| `POST /device-challenges/{id}/ack` | `Idempotency-Key`; submit exact device/recording/digest/claimToken and local execution result. |
+| `POST /device-challenges/{id}/cancel` | Cancel pending commands. Claimed/acknowledged commands are returned unchanged. |
 
-No `/continue`, `/undo`, native-command or analysis-input upload route exists yet. Clarification currently ends a run with a `clarification` artifact; send a new run in the same thread for the answer.
+Continue using the existing `GET /v1/agent/runs/{id}/events` SSE and `POST /v1/agent/runs/{id}/cancel`. Existing `PUT /v1/agent/memories/{id}` and `DELETE /v1/agent/memories/{id}` provide edit/forget; DELETE requires `If-Match` with the unquoted revision. V1 memory listing shows manual entries; v2 listing also exposes learned provenance.
 
-Schemas are generated in [OpenAPI](../contracts/openapi.yaml). Shared examples use synthetic IDs:
+## Plan creation and modification
 
-- [Chat request](../contracts/examples/agent-run.json)
-- [Analysis request](../contracts/examples/agent-analysis.json)
-- [Completed analysis](../contracts/examples/agent-run-succeeded.json)
+1. Register a fresh manifest for the **initiating device**. Distinguish phone/Watch, app build, paired installation, executable version, maximum expanded steps/result segments, supported completion conditions, rich strength and native actions. A phone's capabilities never imply its Watch's capabilities.
+2. Drain the local sync outbox, pull/apply canonical changes, then fetch planning context. Send `outboxDrained:true`, the returned `contextToken`, profile revision, expected active head and every logical workout pinned by an active local recording. A context token fingerprints profile, training preferences, goals, availability, overrides, equipment, exclusions, rules, block heads, results, baseline, reviewed details and policy. The server rechecks it throughout the run and immediately before commit.
+3. For `create_plan`, specify a new block with null block/head IDs, explicit dates (maximum 16 weeks), and `mode:"draft"` or `mode:"apply"`. Default the UI to draft unless the athlete explicitly asked to create and start. Creation never silently replaces another block. To modify an existing block, send its current IDs, a bounded date range and the precise allowed operations: `move`, `replace_exercise`, `replace_workout`, `remove`, `add`. Enable `allowRecurringPreference` only for an explicit lasting preference. Ambiguous scope must be clarified, not enlarged by the model.
+4. The model returns a strict `AgentPlanBlueprint` with reusable complete templates and dated instances. The backend allocates UUIDs, expands every session, validates canonical inputs and produces a real immutable draft/version. Complete-horizon checks reject missing weeks. This is not a prose plan or an instruction for iOS to invent activities.
+5. Final output and proposed changes undergo Jev scope/intent review, followed by deterministic authorization/context checks. A savepoint makes plan/context/block writes, preferences, activation, receipt, canonical sync events and assistant publication atomic. Failed completion cannot leave a partly applied plan.
+6. Read the typed action receipt. It contains lifecycle (`draft`, `applied`, `undone`), canonical block/plan IDs, resulting plan revision, concrete added/removed/moved/prescription-change IDs, reasons, resolved citations, validation issues, compatibility versions and Undo expiry. `syncRequired:true` is an invalidation hint, **never a new sync cursor**. Pull canonical plan/workout data before rendering executable activities.
+7. To accept a draft, submit fresh context/head, device ID, `outboxDrained:true` and protected logical IDs to `/actions/{id}/apply`. A verified server action authorization permits coach-origin activation. No fabricated accepted proposal or client-controlled acceptance bypass is used. Existing proposal-based activation remains supported.
 
-For analysis, send the canonical `workoutResultId` and exact `expectedWorkoutRevision` after normal sync. The server rereads owned data. Other tasks must omit/null both fields. The result's original prescription, segments and actual strength sets are available to the agent; precise GPS and nonexistent sensor traces are not. Measurements carry stable references of the form `resultId@revision:metricKey`. `artifactStale:true` means the analyzed result has since changed or been deleted; label that explanation as historical and offer a new analysis.
+The compiler preserves fractional pace/RPE/load targets, sets, supersets, substitutions, repeated run blocks and discipline. It rejects unavailable equipment, excluded exercises, incompatible movement families, recorded/protected session changes, availability/session-duration violations, invalid ranges and unsupported execution. It requires reviewed preferences and all seven availability days. Exercise substitutions clear transferred absolute loads and prescribe effort instead. Unsupported percentage-of-E1RM generation is rejected until a verified E1RM path exists; recent recorded external loads bound generated absolute loads. Recurring incline choices affect matching horizontal presses, including future generation; overhead presses retain their movement family.
 
-## iOS request and recovery flow
+Current native completion semantics are **one positive duration OR distance** per generated run step. Combined first-of/all-of conditions are rejected. Expanded run steps must fit both manifest limits (currently at most 2,000 executable steps and 500 v1 result segments). Prescriptions are bounded to 300 sessions and 20,000 nested rows. Native substitutions remain stored alternatives; backend validation does not claim the app can execute interactive substitutions.
 
-1. Fetch capabilities after authentication/bootstrap. Persist the request JSON and a fresh UUID idempotency key before sending. Use `threadId:null` for a new conversation; the first run atomically creates a canonical coach thread/user message.
-2. Store the returned `id` and `threadId`. If the POST response is lost, resend the **same body and key**; it returns the original run, including terminal status. Changing the body with that key returns `IDEMPOTENCY_KEY_REUSED`. One active run is allowed per conversation, across new and legacy coaching APIs.
-3. Open the events endpoint with bearer authorization. Store the event cursor separately from the canonical sync cursor. Events have `id`, `runId`, `type`, `data` and `createdAt`; SSE `id` is the same decimal sequence. Deduplicate durably by `(runId,id)`.
-4. `status` and `tool_status` describe progress. On `artifact_ready`/`completed`, GET the run and render the typed artifact. SSE contains no provisional model prose or executable prescriptions. Canonical threads/messages restore through normal sync; agent artifacts are deliberately excluded from that feed to preserve older decoders.
-5. The connection rotates after at most 25 seconds, with periodic `heartbeat` events carrying no ID. Reconnect using the last durable ID; a normal end-of-stream is not a failed task. A terminal run closes its stream after replay. Use GET status after suspension/relaunch rather than creating another run.
-6. Event history lasts seven days. `AGENT_EVENT_REPLAY_EXPIRED` requires restoring GET status; do not keep retrying an old cursor. `AGENT_EVENT_CURSOR_AHEAD` means the cursor belongs to different/incorrect local state. Midstream `error` events have no ID and carry only `errorCode`; refresh auth or reconnect as appropriate.
-7. Cancel through the dedicated route and display its returned status. A request already sent to a provider may still incur usage; cancellation prevents its late answer from publishing. Stop listeners and clear account-scoped in-memory state on sign-out/account switch.
+Every version receives new physical prescription IDs; unchanged sessions retain logical IDs and all targets. Recorded history and active native snapshots stay pinned to their original physical block/step/exercise/set IDs. Repeat iteration is zero-based. Late actuals against superseded accepted versions remain valid; an unrelated later plan edit preserves the accepted head while leaving that historical execution intact. The backend cannot discover a recording started on another device while offline. iOS must never remap its results to a newer prescription.
 
-Run statuses are `queued`, `running`, `succeeded`, `failed`, `cancelled`, `indeterminate`. **Indeterminate is terminal:** a worker lost an in-flight provider response or the provider transport outcome is uncertain. Never automatically create a new billable attempt. Display the condition and allow an explicit retry with a new idempotency key.
+Relative training dates use the athlete's timezone and optional training-day boundary. Blueprint dates are explicit calendar dates; generation leaves `scheduledStartAt:null` rather than inventing UTC instants around DST. A move clears an obsolete scheduled instant. Native scheduling remains responsible for explicit local time choices.
 
-## Artifacts, science and scope
+Undo compares affected sessions and recurring-rule revisions with the committed action. It creates a compensating version while keeping unrelated later changes. Later edits to the same session, a new recorded result, changed recurring rule, pinned recording, stale context/head or expiry produce an explicit conflict. Undo never rewinds the sync cursor or reactivates a superseded version. Undoing an untouched newly created plan cancels that new block; undoing a draft marks it rejected. Cancellation never means Undo.
 
-Render `content`, `observations`, `interpretations`, `limitations`, `recommendations` and resolved `citations` separately where useful. Observations cite actual metric references. Interpretations may cite evidence IDs resolved in the artifact's citation array. Citation URLs/titles/claim summaries come from a server-owned registry; the model cannot supply arbitrary citation URLs. Citation identity validation does not prove scientific entailment; that requires the planned model/evidence evaluation.
+## Analysis packets and data tools
 
-Artifacts have kind `answer`, `workout_analysis`, `scope_redirect` or `clarification`. These are successful responses, not network errors. Input classification can restrict a mixed request to its training portion; output classification blocks unrelated answers. Deterministic authorization, tool allowlists, input schemas and ownership apply independently of Jev confidence. No data tool can write a plan or perform a native action.
+Sync a result first and request analysis with its exact ID/revision. Original prescriptions, actual per-set/per-segment values and coverage are available through bounded tools. Observations reference deterministic `resultId@revision:metricKey` identifiers. Corrected/deleted results make old artifacts `artifactStale:true`.
 
-## Memory behavior
+Optional packets additionally bind device, result/revision, original planned workout, recording ID, source (`iphone`, `watch`, `healthkit`, `manual`), recording times, units, schema/algorithm version and `consentVersion:1`. Consent represents a client disclosure for uploading these details; it does not replace cloud AI consent or native Health permissions. Source labels describe client-provided provenance, not independent proof of sensor accuracy.
 
-Memory is explicitly athlete-managed in this phase. There is no automatic extraction, inferred medical state or hidden preference mutation. The combined limit is 20 entries/5,000 characters; active entries form a stable prompt snapshot. Temporary constraints can expire. Training preferences remain canonical in the normal profile; a memory note does not itself change those records or workouts.
+Limits: **256 KiB**, 1,000 HR samples, 2,000 boundaries. Upload the whole packet, with SHA-256 over recursively key-sorted canonical JSON excluding `checksum`. There is no chunk endpoint. If native data exceeds these limits, provide an explicitly aggregated packet and coverage/omission reasons; never silently truncate or relabel a summary as a complete trace. A differing packet for the same revision conflicts; correct the canonical result before replacing it.
 
-Editing/forgetting memory cancels pending runs with `MEMORY_CONTEXT_CHANGED`, clears persisted prompt checkpoints and establishes a new conversation-context boundary. Older transcript text is excluded from subsequent model prompts so a removed fact is not silently recalled from history. Historical conversation/analysis records remain viewable; forgetting a memory is not deletion of those records or of workout history. Account export/deletion includes agent runs and memory; account deletion cascades and delayed provider responses cannot recreate them.
+Elapsed, active and moving durations are separate and validated against the result. HR samples use increasing elapsed offsets. Interval boundaries use cumulative **active seconds and meters**, not wall-clock offsets. Prescription intervals, automatic splits and manual laps are separate potentially overlapping series. Original block/step IDs and zero-based repeat indices are checked, including duplicate interval rejection. Exact GPS fields are rejected.
 
-## Limits and operational behavior
+Tools compute elapsed/moving pace, actual completed-set metrics, active/elapsed/moving durations and time-weighted HR over observed adjacent sample intervals of at most 30 seconds. Missing HR is not imputed; no drift or zone-time estimate is invented from summary HR. Broad detail reads explicitly report omitted counts; paged tools retrieve actuals, original prescriptions and packet boundaries as needed. Limits are part of the answer's interpretation. Packets expire after 90 days and stale/deleted-result packets are pruned; canonical actuals remain subject to normal account retention.
 
-- At most four generative calls per run (configurable downward), eight read-tool calls, bounded model output and a 96 KiB checkpoint. Jev input and final-output checks are separate bounded calls.
-- Per-athlete daily/minute run quotas use existing AI chat/minute settings; at most two pending runs per athlete. API rate limiting also applies.
-- Every paid step reserves an invocation before dispatch. Successful steps checkpoint atomically with events. Expired in-flight leases terminate as indeterminate rather than reissuing the request.
-- Usage records include total input, cached reads, cache writes, output/reasoning tokens, latency and reported cost. No raw provider error body is exposed or logged.
-- Expired event records are pruned automatically; operational request/checkpoint payloads expire after 30 days for terminal runs. Final conversation/analysis artifacts remain account data until account deletion.
+## Memory and recurring choices
 
-Stable errors worth representing: `AGENT_DISABLED`, `AGENT_TASK_NOT_ENABLED`, `INTELLIGENCE_NOT_CONFIGURED`, `AI_CONSENT_REQUIRED`, `ENTITLEMENT_REQUIRED`, `DEVICE_UNAVAILABLE`, `THREAD_BUSY`, `AI_QUOTA_EXCEEDED`, `AGENT_CONTEXT_CHANGED`, `WORKOUT_REVISION_CONFLICT`, `AGENT_BUDGET_EXHAUSTED`, `AGENT_PROVIDER_OUTCOME_UNKNOWN`, `MEMORY_REVISION_CONFLICT` and `MEMORY_BUDGET_EXCEEDED`.
+Automatic learning is **off by default**, independent of coaching/HealthKit consent. With opt-in, the model can stage at most three exact current-athlete quotes about training/communication preferences. Only matching quotes are saved; inferred diagnoses, instructions and secrets are excluded. Entries record source run/message, confidence, exact quote, revision and optional expiry. Learned IDs are deterministic for run/quote/category, making retries harmless. Temporary constraints require an expiry within 30 days.
 
-## Parallel iOS work
+The combined memory budget is 20 entries/5,000 characters. The run uses a frozen bounded memory prefix. An on-demand owned session search retrieves at most four recent matching excerpts after the memory-reset/expiry boundary. Retrieved history cannot authorize learning. This adopts bounded curated memory and selective history retrieval rather than unbounded transcript replay.
 
-Integrate the connected Coach/run adapter and typed read-only artifact cards against this contract now. Continue the [native prescription work](ai-ios-harness-review.md): deterministic repeat identities, distance-ended runs, full strength targets, canonical catalog IDs, offline outbox reconciliation and pinned active-session snapshots. Keep plan-create/edit UI gated by task capabilities until the next backend contract is available. Do not infer plan success from assistant prose.
+Edit/forget cancels pending runs with `MEMORY_CONTEXT_CHANGED`, clears prompt checkpoints and excludes older history from future prompts/search. Revoking learning also deletes learned entries; manually entered notes remain available for explicit edit/forget. Historical messages remain visible to the athlete, but are not silently fed back into subsequent prompts across that boundary. Provider-side cache retention follows the configured provider contract; the application does not claim remote physical cache erasure.
+
+Memory never changes canonical training preferences. Explicit recurring exercise rules are separately typed, revisioned and committed with the requested plan change. Inspect them through planning context, remove them with the rule endpoint, or change them through another authorized plan edit. Account export includes runs, memory/settings, receipts, exercise rules, detailed packets and device challenges; account deletion cascades through all these records.
+
+## Native actions
+
+A `device_action` run contains an exact `native` scope: registered target device, allowlisted action (`start`, `pause`, `resume`, `lap`, `finish`), recording ID, optional canonical workout and expected local state. A successful run only creates a **pending** 120-second challenge. It does not start a sensor or confirm execution.
+
+Native must check its own installation, digest, exact recording, permissions, foreground confirmation and local state. Immediately before execution, claim with the same device/recording/digest and a persisted idempotency key. The backend atomically changes pending to claimed and returns a claim token. Persist the claim locally, perform the command at most once, then acknowledge using that token and another persisted idempotency key. An uncertain claim/ack response is looked up/retried with the same key; never repeat a physical effect simply because a network response was lost.
+
+Pending cancellation prevents a later claim. A claimed command cannot be remotely recalled; cancellation returns its current state honestly. An unclaimed challenge expires; an expired claimed challenge is `indeterminate` because the backend lacks an execution receipt. Acknowledgments validate final local state and cannot affect a different recording. The Watch can be asleep/offline: show pending/expired/unavailable/indeterminate, never inferred success. Poll the owning v2 run to restore command status; no arbitrary code, UI coordinates, filesystem or sensor access is exposed to the model.
+
+## Streaming, recovery and cost
+
+SSE retains the existing `status`, `tool_status`, `artifact_ready`, `completed`, `failed`, `cancelled` event names; `AgentEvent` is now explicitly exported in OpenAPI. Staging/validation appears as typed tool progress. On artifact/completion, GET the **v2** run for its receipt/challenge. No partial model JSON or reasoning becomes executable. There is no WebSocket requirement and no new event variants for old native decoders to reject.
+
+Persist request body/key before POST. An exact retry returns the same reserved or terminal run. After a lost response, use request-key lookup; cancellation-by-key must not replay create. List pagination restores rich history alongside canonical messages. Keep decimal SSE event IDs separate from sync cursors, deduplicate by `(runId,id)`, and reconnect after the 25-second stream rotation with `Last-Event-ID`. Heartbeats/error frames have no cursor. Seven-day replay expiry requires GET recovery.
+
+Runs terminate as succeeded/failed/cancelled/indeterminate. Worker leases and fencing prevent two workers executing a step. Every provider call is reserved before dispatch. Unknown paid-call outcomes are terminal indeterminate and are **never automatically retried**. Explicit user retry uses a new run key. Final action/run publication is atomic, so lost responses are recoverable without ambiguous backend mutation outcomes.
+
+Budgets: at most four generative calls, eight tool calls, one plan-validation repair, 192 KiB of conversation messages, 3 MB persisted checkpoint and 96 KiB deduplicated plan-review context. Ordinary output is capped at 3,000 tokens; plan-tool turns at 10,000. Reused templates avoid paying for repeated full prescriptions in review. Per-athlete daily/minute quotas and two-pending-run cap still apply. Operational run requests/checkpoints expire after 30 days; final receipts/artifacts remain account data.
+
+Stable prefixes, provider-supported cache hints and opaque conversation routing support reuse; [OpenRouter's caching contract](https://openrouter.ai/docs/guides/best-practices/prompt-caching) does not guarantee hits. Provider fallback is disabled. Ledger fields distinguish total input, cache reads/writes, output/reasoning tokens, latency and reported cost; absent provider usage stays unknown.
+
+Scientific citations resolve through a server-owned registry, with claim summaries and applicability limitations. Identifier validation does not prove scientific entailment. Jev scope/intent classification is an additional check; deterministic ownership, tool scope, revisions and executable constraints enforce authority independently. Live model quality, safety-language calibration and scientific claim evaluation remain rollout work, not properties established by mocked-provider tests.
+
+## Shared examples and iOS next step
+
+Examples use synthetic IDs and fingerprints; fetch real context and manifests rather than posting them unchanged.
+
+- [Create request](../contracts/examples/agent-v2-create.json), [direct edit](../contracts/examples/agent-v2-edit.json), [structured blueprint](../contracts/examples/agent-v2-blueprint.json).
+- [Validated draft](../contracts/examples/agent-v2-run-draft.json), [applied action](../contracts/examples/agent-v2-run-applied.json), [Undo receipt](../contracts/examples/agent-v2-action-undone.json).
+- [Phone manifest](../contracts/examples/agent-v2-device-manifest.json), [different Watch capabilities](../contracts/examples/agent-v2-watch-manifest.json).
+- [Pending challenge](../contracts/examples/agent-v2-device-challenge.json), [claimed](../contracts/examples/agent-v2-device-claimed.json), [executed](../contracts/examples/agent-v2-device-executed.json), [expired](../contracts/examples/agent-v2-device-expired.json).
+- [Detailed analysis packet](../contracts/examples/agent-v2-analysis-packet.json), [conflict/unsupported/expiry/replay errors](../contracts/examples/agent-v2-errors.json).
+- Existing [v1 request](../contracts/examples/agent-run.json) and [v1 analysis](../contracts/examples/agent-run-succeeded.json) remain supported.
+
+The iOS task can regenerate wire types, implement explicit v2 negotiation, receipt/diff/Undo UI, separate memory consent and packet upload against these schemas. Keep native execution adapters gated until their manifest honestly advertises each capability. Existing pinned-history, DST and repeated-step fixtures remain authoritative. Do not present provider configuration, model calibration or unfinished native v2 adapters as already tested end to end.

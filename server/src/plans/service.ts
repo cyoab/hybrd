@@ -155,7 +155,7 @@ const structuralKeys = new Set([
   "blockId",
   "exercisePrescriptionId",
 ]);
-function semantic(value: unknown): unknown {
+export function semantic(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(semantic);
   if (value && typeof value === "object")
     return Object.fromEntries(
@@ -218,6 +218,7 @@ export async function activatePlan(
   athleteId: string,
   id: string,
   body: unknown,
+  authorization?: { actionId: string },
 ) {
   const input = ActivatePlanInput.parse(body);
   const plan = await owned(sql, "plan_versions", id, athleteId);
@@ -268,7 +269,16 @@ export async function activatePlan(
     const current = after.find(
       (w) => w.logicalWorkoutId === historical.logicalWorkoutId,
     );
-    if (!current || hash(semantic(current)) !== hash(semantic(historical)))
+    // A device may upload against a superseded prescription after an offline
+    // recording. Preserve that historical result and freeze the accepted head;
+    // unrelated future edits must not rewrite or resurrect its logical session.
+    const protectedPrescription = input.expectedActivePlanVersionId
+      ? before.find((w) => w.logicalWorkoutId === historical.logicalWorkoutId)
+      : historical;
+    if (
+      hash(semantic(current ?? null)) !==
+      hash(semantic(protectedPrescription ?? null))
+    )
       throw new ApiError(
         409,
         "COMPLETED_WORKOUT_IMMUTABLE",
@@ -337,6 +347,15 @@ export async function activatePlan(
       "upsert",
       String(BigInt(String(proposal.revision)) + 1n),
     );
+  } else if (plan.origin === "coach" && authorization) {
+    const [receipt] =
+      await sql`select a.id from agent_actions a join agent_runs r on r.id=a.run_id where a.id=${authorization.actionId} and a.athlete_id=${athleteId} and a.receipt->>'planVersionId'=${id} and a.receipt->>'lifecycle'='applied' and r.api_version=2 and ((a.authorization->>'source'='run' and r.request->'mutation'->>'mode'='apply' and r.status='running') or (a.authorization->>'source'='draft_acceptance' and r.status='succeeded'))`;
+    if (!receipt)
+      throw new ApiError(
+        403,
+        "AGENT_AUTHORIZATION_REQUIRED",
+        "A verified server action receipt is required.",
+      );
   } else if (plan.origin === "coach")
     throw new ApiError(
       400,

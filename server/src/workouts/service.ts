@@ -40,7 +40,7 @@ export async function writeWorkoutChildren(
         if (
           !step ||
           (segment.repeatIteration !== null &&
-            segment.repeatIteration > Number(step.repeat_count))
+            segment.repeatIteration >= Number(step.repeat_count))
         )
           throw new ApiError(
             400,

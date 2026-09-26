@@ -1,0 +1,85 @@
+{
+  "id": "20000000-0000-4000-8000-000000000002",
+  "threadId": "20000000-0000-4000-8000-000000000003",
+  "schemaVersion": 2,
+  "task": "create_plan",
+  "status": "succeeded",
+  "lastEventId": "8",
+  "artifact": {
+    "content": "Your plan is active.",
+    "observations": [],
+    "interpretations": [],
+    "limitations": [],
+    "recommendations": [],
+    "schemaVersion": 1,
+    "kind": "answer",
+    "citations": [
+      {
+        "id": "endurance-distribution-2025",
+        "version": 1,
+        "title": "Endurance Training Intensity Distribution: Systematic Review and Meta-analysis (2025)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/39888556/",
+        "claim": "The reported overall comparisons did not establish a polarized-versus-pyramidal advantage for main outcomes; training level may matter.",
+        "limitations": "Study three-zone definitions must not be equated with an athlete's five heart-rate zones. This does not establish a universal 80/20 prescription."
+      }
+    ],
+    "analyzedResult": null
+  },
+  "errorCode": null,
+  "artifactStale": false,
+  "createdAt": "2026-09-25T18:00:00.000Z",
+  "updatedAt": "2026-09-25T18:00:00.000Z",
+  "action": {
+    "id": "20000000-0000-4000-8000-000000000004",
+    "runId": "20000000-0000-4000-8000-000000000002",
+    "lifecycle": "applied",
+    "trainingBlockId": "20000000-0000-4000-8000-000000000005",
+    "planVersionId": "20000000-0000-4000-8000-000000000006",
+    "planRevision": "2",
+    "previousPlanVersionId": null,
+    "policyVersionId": "00000000-0000-4000-8000-000000000003",
+    "validationVersion": "agent-plan-validator-1",
+    "citations": [
+      {
+        "id": "endurance-distribution-2025",
+        "version": 1,
+        "title": "Endurance Training Intensity Distribution: Systematic Review and Meta-analysis (2025)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/39888556/",
+        "claim": "The reported overall comparisons did not establish a polarized-versus-pyramidal advantage for main outcomes; training level may matter.",
+        "limitations": "Study three-zone definitions must not be equated with an athlete's five heart-rate zones. This does not establish a universal 80/20 prescription."
+      }
+    ],
+    "changes": [
+      {
+        "logicalWorkoutId": "20000000-0000-4000-8000-000000000007",
+        "kind": "added",
+        "beforePlannedWorkoutId": null,
+        "afterPlannedWorkoutId": "20000000-0000-4000-8000-000000000008"
+      }
+    ],
+    "changedLogicalWorkoutIds": [
+      "20000000-0000-4000-8000-000000000007"
+    ],
+    "rationale": "Comfortable effort matched to reviewed availability.",
+    "evidenceIds": [
+      "endurance-distribution-2025"
+    ],
+    "validationIssues": [
+      {
+        "code": "COACHING_LIMITS",
+        "message": "Dose is an individualized coaching estimate, not a guarantee of safety."
+      }
+    ],
+    "compatibility": {
+      "executableVersion": 2,
+      "prescriptionSchemaVersion": 1
+    },
+    "syncRequired": true,
+    "undoAvailable": true,
+    "undoExpiresAt": "2026-10-02T18:00:00.000Z",
+    "undoneByPlanVersionId": null,
+    "createdAt": "2026-09-25T18:00:00.000Z"
+  },
+  "deviceChallenge": null,
+  "learnedMemoryIds": []
+}

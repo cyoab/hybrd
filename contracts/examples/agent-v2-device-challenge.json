@@ -1,0 +1,16 @@
+{
+  "id": "20000000-0000-4000-8000-000000000009",
+  "runId": "20000000-0000-4000-8000-000000000002",
+  "scope": {
+    "deviceId": "20000000-0000-4000-8000-000000000001",
+    "action": "pause",
+    "recordingId": "20000000-0000-4000-8000-000000000021",
+    "plannedWorkoutId": "20000000-0000-4000-8000-000000000008",
+    "expectedLocalState": "recording"
+  },
+  "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "claimToken": null,
+  "status": "pending",
+  "expiresAt": "2026-09-25T18:02:00.000Z",
+  "result": null
+}

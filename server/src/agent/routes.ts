@@ -16,6 +16,7 @@ import {
   MemoryInput,
   terminal,
 } from "./schemas";
+import { registerAgentV2Routes } from "./v2-routes";
 
 const errors = {
   ...protectedErrors,
@@ -30,6 +31,7 @@ export function registerAgentRoutes(
   app: OpenAPIHono<AppEnv>,
   deps: AppDependencies,
 ) {
+  registerAgentV2Routes(app, deps);
   app.openapi(
     createRoute({
       method: "get",

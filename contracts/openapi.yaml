@@ -15,6 +15,54 @@ components:
       scheme: bearer
       description: Better Auth session token. Store it in the iOS Keychain.
   schemas:
+    AgentEvent:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/SyncCursor"
+        runId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - status
+            - tool_status
+            - artifact_ready
+            - completed
+            - failed
+            - cancelled
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum:
+                - queued
+                - running
+                - succeeded
+                - failed
+                - cancelled
+                - indeterminate
+            tool:
+              type: string
+            errorCode:
+              type: string
+          additionalProperties: false
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - runId
+        - type
+        - data
+        - createdAt
+    SyncCursor:
+      type: string
+      maxLength: 19
+      pattern: ^(0|[1-9][0-9]*)$
+      example: "0"
     ApiError:
       type: object
       properties:
@@ -140,11 +188,6 @@ components:
         - loadUnit
         - weekStartsOn
         - revision
-    SyncCursor:
-      type: string
-      maxLength: 19
-      pattern: ^(0|[1-9][0-9]*)$
-      example: "0"
     Entitlement:
       type: object
       properties:
@@ -7829,13 +7872,135 @@ components:
         - profile
         - heartRateZones
         - runningHistory
-    AgentCapabilities:
+    AgentDeviceChallenge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        runId:
+          type: string
+          format: uuid
+        scope:
+          $ref: "#/components/schemas/AgentNativeScope"
+        digest:
+          type: string
+        claimToken:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        status:
+          type: string
+          enum:
+            - pending
+            - claimed
+            - indeterminate
+            - executed
+            - rejected
+            - unavailable
+            - expired
+        expiresAt:
+          type: string
+          format: date-time
+        result:
+          type:
+            - object
+            - "null"
+          properties:
+            localState:
+              type: string
+              enum:
+                - idle
+                - recording
+                - paused
+                - finished
+            reason:
+              type:
+                - string
+                - "null"
+              maxLength: 500
+          required:
+            - localState
+            - reason
+      required:
+        - id
+        - runId
+        - scope
+        - digest
+        - status
+        - expiresAt
+        - result
+    AgentNativeScope:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        action:
+          type: string
+          enum:
+            - start
+            - pause
+            - resume
+            - lap
+            - finish
+        recordingId:
+          type: string
+          format: uuid
+        plannedWorkoutId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        expectedLocalState:
+          type: string
+          enum:
+            - idle
+            - recording
+            - paused
+      required:
+        - deviceId
+        - action
+        - recordingId
+        - plannedWorkoutId
+        - expectedLocalState
+      additionalProperties: false
+    AgentDeviceClaim:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        digest:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        recordingId:
+          type: string
+          format: uuid
+      required:
+        - deviceId
+        - digest
+        - recordingId
+      additionalProperties: false
+    AgentCapabilitiesV2:
       type: object
       properties:
         schemaVersion:
           type: number
           enum:
-            - 1
+            - 2
+        supportedSchemaVersions:
+          type: array
+          items:
+            anyOf:
+              - type: number
+                enum:
+                  - 1
+              - type: number
+                enum:
+                  - 2
         enabled:
           type: boolean
         configured:
@@ -7849,17 +8014,16 @@ components:
               type: boolean
             create_plan:
               type: boolean
-              enum:
-                - false
             modify_plan:
               type: boolean
-              enum:
-                - false
+            device_action:
+              type: boolean
           required:
             - chat
             - analyze_workout
             - create_plan
             - modify_plan
+            - device_action
         transport:
           type: string
           enum:
@@ -7867,7 +8031,7 @@ components:
         memory:
           type: string
           enum:
-            - manual
+            - opt_in_learning
         requiresConsent:
           type: boolean
           enum:
@@ -7880,8 +8044,17 @@ components:
           type: number
           enum:
             - 7
+        executableVersion:
+          type: number
+          enum:
+            - 2
+        prescriptionSchemaVersion:
+          type: number
+          enum:
+            - 1
       required:
         - schemaVersion
+        - supportedSchemaVersions
         - enabled
         - configured
         - tasks
@@ -7891,63 +8064,198 @@ components:
         - requiredEntitlement
         - maxGenerativeCalls
         - eventRetentionDays
-    AgentRun:
+        - executableVersion
+        - prescriptionSchemaVersion
+    AgentManifestReceipt:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        threadId:
-          type: string
-          format: uuid
-        schemaVersion:
-          type: number
-          enum:
-            - 1
-        task:
-          type: string
-          enum:
-            - chat
-            - analyze_workout
-            - create_plan
-            - modify_plan
-        status:
-          type: string
-          enum:
-            - queued
-            - running
-            - succeeded
-            - failed
-            - cancelled
-            - indeterminate
-        lastEventId:
-          $ref: "#/components/schemas/SyncCursor"
-        artifact:
-          $ref: "#/components/schemas/AgentArtifact"
-        errorCode:
-          type:
-            - string
-            - "null"
-        artifactStale:
-          type: boolean
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
+        manifest:
+          $ref: "#/components/schemas/AgentDeviceManifest"
+        expiresAt:
           type: string
           format: date-time
       required:
-        - id
-        - threadId
-        - schemaVersion
-        - task
-        - status
-        - lastEventId
-        - artifact
-        - errorCode
-        - artifactStale
-        - createdAt
-        - updatedAt
+        - manifest
+        - expiresAt
+    AgentDeviceManifest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        surface:
+          type: string
+          enum:
+            - phone
+            - watch
+        pairedDeviceId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        appBuild:
+          type: string
+          minLength: 1
+          maxLength: 80
+        executableVersion:
+          type: number
+          enum:
+            - 2
+        prescriptionSchemaVersion:
+          type: number
+          enum:
+            - 1
+        maxExpandedSteps:
+          type: integer
+          minimum: 1
+          maximum: 2000
+        maxResultSegments:
+          type: integer
+          minimum: 1
+          maximum: 500
+        completion:
+          type: array
+          items:
+            type: string
+            enum:
+              - duration
+              - distance
+              - manual
+          minItems: 1
+          maxItems: 3
+        richStrength:
+          type: boolean
+        deviceActions:
+          type: array
+          items:
+            type: string
+            enum:
+              - start
+              - pause
+              - resume
+              - lap
+              - finish
+          maxItems: 5
+      required:
+        - deviceId
+        - surface
+        - pairedDeviceId
+        - appBuild
+        - executableVersion
+        - prescriptionSchemaVersion
+        - maxExpandedSteps
+        - maxResultSegments
+        - completion
+        - richStrength
+        - deviceActions
+      additionalProperties: false
+    AgentPlanningContext:
+      type: object
+      properties:
+        contextToken:
+          type: string
+        profileRevision:
+          $ref: "#/components/schemas/SyncCursor"
+        timezone:
+          type: string
+        trainingDayBoundary:
+          type: string
+        blocks:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              activePlanVersionId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              revision:
+                $ref: "#/components/schemas/SyncCursor"
+              startDate:
+                type: string
+              endDate:
+                type: string
+            required:
+              - id
+              - activePlanVersionId
+              - revision
+              - startDate
+              - endDate
+        exerciseRules:
+          type: array
+          items:
+            type: object
+            properties:
+              athleteId:
+                type: string
+                format: uuid
+              fromExerciseId:
+                type: string
+                format: uuid
+              toExerciseId:
+                type: string
+                format: uuid
+              actionId:
+                type: string
+                format: uuid
+              revision:
+                $ref: "#/components/schemas/SyncCursor"
+            required:
+              - athleteId
+              - fromExerciseId
+              - toExerciseId
+              - actionId
+              - revision
+        workouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannedWorkoutInput"
+      required:
+        - contextToken
+        - profileRevision
+        - timezone
+        - trainingDayBoundary
+        - blocks
+        - exerciseRules
+        - workouts
+    AgentRunV2:
+      allOf:
+        - $ref: "#/components/schemas/AgentRun"
+        - type: object
+          properties:
+            schemaVersion:
+              type: number
+              enum:
+                - 2
+            task:
+              type: string
+              enum:
+                - chat
+                - analyze_workout
+                - create_plan
+                - modify_plan
+                - device_action
+            action:
+              $ref: "#/components/schemas/AgentActionReceipt"
+            deviceChallenge:
+              allOf:
+                - $ref: "#/components/schemas/AgentDeviceChallenge"
+                - type:
+                    - object
+                    - "null"
+            learnedMemoryIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+          required:
+            - action
+            - deviceChallenge
+            - learnedMemoryIds
     AgentArtifact:
       type:
         - object
@@ -8079,6 +8387,715 @@ components:
         - claim
         - limitations
       additionalProperties: false
+    AgentActionReceipt:
+      type:
+        - object
+        - "null"
+      properties:
+        id:
+          type: string
+          format: uuid
+        runId:
+          type: string
+          format: uuid
+        lifecycle:
+          type: string
+          enum:
+            - draft
+            - applied
+            - undone
+        trainingBlockId:
+          type: string
+          format: uuid
+        planVersionId:
+          type: string
+          format: uuid
+        planRevision:
+          $ref: "#/components/schemas/SyncCursor"
+        previousPlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        policyVersionId:
+          type: string
+          format: uuid
+        validationVersion:
+          type: string
+          enum:
+            - agent-plan-validator-1
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentCitation"
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              logicalWorkoutId:
+                type: string
+                format: uuid
+              kind:
+                type: string
+                enum:
+                  - added
+                  - removed
+                  - moved
+                  - prescription_changed
+              beforePlannedWorkoutId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              afterPlannedWorkoutId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+            required:
+              - logicalWorkoutId
+              - kind
+              - beforePlannedWorkoutId
+              - afterPlannedWorkoutId
+        changedLogicalWorkoutIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        rationale:
+          type: string
+        evidenceIds:
+          type: array
+          items:
+            type: string
+        validationIssues:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+            required:
+              - code
+              - message
+        compatibility:
+          type: object
+          properties:
+            executableVersion:
+              type: number
+              enum:
+                - 2
+            prescriptionSchemaVersion:
+              type: number
+              enum:
+                - 1
+          required:
+            - executableVersion
+            - prescriptionSchemaVersion
+        syncRequired:
+          type: boolean
+          enum:
+            - true
+        undoAvailable:
+          type: boolean
+        undoExpiresAt:
+          type: string
+          format: date-time
+        undoneByPlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - runId
+        - lifecycle
+        - trainingBlockId
+        - planVersionId
+        - planRevision
+        - previousPlanVersionId
+        - policyVersionId
+        - validationVersion
+        - citations
+        - changes
+        - changedLogicalWorkoutIds
+        - rationale
+        - evidenceIds
+        - validationIssues
+        - compatibility
+        - syncRequired
+        - undoAvailable
+        - undoExpiresAt
+        - undoneByPlanVersionId
+        - createdAt
+    AgentRun:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        threadId:
+          type: string
+          format: uuid
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        task:
+          type: string
+          enum:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+        status:
+          type: string
+          enum:
+            - queued
+            - running
+            - succeeded
+            - failed
+            - cancelled
+            - indeterminate
+        lastEventId:
+          $ref: "#/components/schemas/SyncCursor"
+        artifact:
+          $ref: "#/components/schemas/AgentArtifact"
+        errorCode:
+          type:
+            - string
+            - "null"
+        artifactStale:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - threadId
+        - schemaVersion
+        - task
+        - status
+        - lastEventId
+        - artifact
+        - errorCode
+        - artifactStale
+        - createdAt
+        - updatedAt
+    AgentRunInputV2:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 2
+        deviceId:
+          type: string
+          format: uuid
+        threadId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        task:
+          type: string
+          enum:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+            - device_action
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        workoutResultId:
+          type:
+            - string
+            - "null"
+          format: uuid
+          default: null
+        expectedWorkoutRevision:
+          allOf:
+            - $ref: "#/components/schemas/SyncCursor"
+            - type:
+                - string
+                - "null"
+        mutation:
+          $ref: "#/components/schemas/AgentMutationScope"
+        native:
+          allOf:
+            - $ref: "#/components/schemas/AgentNativeScope"
+            - type:
+                - object
+                - "null"
+      required:
+        - schemaVersion
+        - deviceId
+        - task
+        - message
+      additionalProperties: false
+    AgentMutationScope:
+      type:
+        - object
+        - "null"
+      properties:
+        contextToken:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        trainingBlockId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        expectedActivePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        expectedProfileRevision:
+          $ref: "#/components/schemas/SyncCursor"
+        outboxDrained:
+          type: boolean
+          enum:
+            - true
+        protectedLogicalWorkoutIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 300
+        mode:
+          type: string
+          enum:
+            - draft
+            - apply
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        operations:
+          type: array
+          items:
+            type: string
+            enum:
+              - move
+              - replace_exercise
+              - replace_workout
+              - remove
+              - add
+          maxItems: 5
+        allowRecurringPreference:
+          type: boolean
+      default: null
+      required:
+        - contextToken
+        - trainingBlockId
+        - expectedActivePlanVersionId
+        - expectedProfileRevision
+        - outboxDrained
+        - protectedLogicalWorkoutIds
+        - mode
+        - startDate
+        - endDate
+        - operations
+        - allowRecurringPreference
+      additionalProperties: false
+    AgentUndoInput:
+      type: object
+      properties:
+        expectedActivePlanVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        outboxDrained:
+          type: boolean
+          enum:
+            - true
+        protectedLogicalWorkoutIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 300
+        contextToken:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        deviceId:
+          type: string
+          format: uuid
+      required:
+        - expectedActivePlanVersionId
+        - outboxDrained
+        - protectedLogicalWorkoutIds
+        - contextToken
+        - deviceId
+      additionalProperties: false
+    AgentAnalysisPacket:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        algorithmVersion:
+          type: string
+          minLength: 1
+          maxLength: 80
+        deviceId:
+          type: string
+          format: uuid
+        resultId:
+          type: string
+          format: uuid
+        resultRevision:
+          $ref: "#/components/schemas/SyncCursor"
+        plannedWorkoutId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        recordingId:
+          type: string
+          format: uuid
+        source:
+          type: string
+          enum:
+            - iphone
+            - watch
+            - healthkit
+            - manual
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+        elapsedDurationS:
+          type: number
+          minimum: 0
+          maximum: 604800
+        activeDurationS:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 604800
+        movingDurationS:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          maximum: 604800
+        consentVersion:
+          type: number
+          enum:
+            - 1
+        units:
+          type: string
+          enum:
+            - seconds_meters_bpm
+        coverage:
+          type: object
+          properties:
+            heartRate:
+              type: string
+              enum:
+                - none
+                - summary_only
+                - partial
+                - complete
+            omissions:
+              type: array
+              items:
+                type: string
+                maxLength: 200
+              maxItems: 20
+          required:
+            - heartRate
+            - omissions
+          additionalProperties: false
+        heartRate:
+          type: array
+          items:
+            type: object
+            properties:
+              elapsedS:
+                type: number
+                minimum: 0
+              bpm:
+                type: number
+                minimum: 20
+                maximum: 250
+            required:
+              - elapsedS
+              - bpm
+            additionalProperties: false
+          maxItems: 1000
+        boundaries:
+          type: array
+          items:
+            type: object
+            properties:
+              series:
+                type: string
+                enum:
+                  - prescription_interval
+                  - automatic_split
+                  - manual_lap
+              blockId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              stepId:
+                type:
+                  - string
+                  - "null"
+                format: uuid
+              repeatIteration:
+                type:
+                  - integer
+                  - "null"
+                minimum: 0
+                maximum: 99
+              activeSeconds:
+                type: number
+                minimum: 0
+              cumulativeMeters:
+                type: number
+                minimum: 0
+              reason:
+                type: string
+                enum:
+                  - targetReached
+                  - manualAdvance
+                  - workoutFinished
+            required:
+              - series
+              - blockId
+              - stepId
+              - repeatIteration
+              - activeSeconds
+              - cumulativeMeters
+              - reason
+            additionalProperties: false
+          maxItems: 2000
+        checksum:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+        - schemaVersion
+        - algorithmVersion
+        - deviceId
+        - resultId
+        - resultRevision
+        - plannedWorkoutId
+        - recordingId
+        - source
+        - startedAt
+        - endedAt
+        - elapsedDurationS
+        - activeDurationS
+        - movingDurationS
+        - consentVersion
+        - units
+        - coverage
+        - heartRate
+        - boundaries
+        - checksum
+      additionalProperties: false
+    AgentMemorySettingsInput:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        expectedRevision:
+          $ref: "#/components/schemas/SyncCursor"
+      required:
+        - enabled
+        - expectedRevision
+      additionalProperties: false
+    AgentMemoryV2:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        revision:
+          $ref: "#/components/schemas/SyncCursor"
+        category:
+          type: string
+          enum:
+            - training_preference
+            - communication
+            - temporary_constraint
+        content:
+          type: string
+        expiresAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        source:
+          type: string
+          enum:
+            - athlete
+            - learned
+        sourceRunId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        sourceMessageId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        confidence:
+          type:
+            - number
+            - "null"
+        sourceQuote:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - revision
+        - category
+        - content
+        - expiresAt
+        - source
+        - sourceRunId
+        - sourceMessageId
+        - confidence
+        - sourceQuote
+        - createdAt
+        - updatedAt
+    AgentDeviceAcknowledgment:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        digest:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        claimToken:
+          type: string
+          format: uuid
+        recordingId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - executed
+            - rejected
+            - unavailable
+        localState:
+          type: string
+          enum:
+            - idle
+            - recording
+            - paused
+            - finished
+        reason:
+          type:
+            - string
+            - "null"
+          maxLength: 500
+      required:
+        - deviceId
+        - digest
+        - claimToken
+        - recordingId
+        - status
+        - localState
+        - reason
+      additionalProperties: false
+    AgentCapabilities:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          enum:
+            - 1
+        enabled:
+          type: boolean
+        configured:
+          type: boolean
+        tasks:
+          type: object
+          properties:
+            chat:
+              type: boolean
+            analyze_workout:
+              type: boolean
+            create_plan:
+              type: boolean
+              enum:
+                - false
+            modify_plan:
+              type: boolean
+              enum:
+                - false
+          required:
+            - chat
+            - analyze_workout
+            - create_plan
+            - modify_plan
+        transport:
+          type: string
+          enum:
+            - sse
+        memory:
+          type: string
+          enum:
+            - manual
+        requiresConsent:
+          type: boolean
+          enum:
+            - true
+        requiredEntitlement:
+          type: string
+        maxGenerativeCalls:
+          type: integer
+        eventRetentionDays:
+          type: number
+          enum:
+            - 7
+      required:
+        - schemaVersion
+        - enabled
+        - configured
+        - tasks
+        - transport
+        - memory
+        - requiresConsent
+        - requiredEntitlement
+        - maxGenerativeCalls
+        - eventRetentionDays
     AgentRunInput:
       type: object
       properties:
@@ -10820,6 +11837,1444 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
         "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/device-challenges/{id}/claim:
+    post:
+      operationId: claimAgentDeviceChallenge
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentDeviceClaim"
+      responses:
+        "200":
+          description: Immediately before local execution, atomically claim the pending command using its
+            exact device/recording/digest. A claimed action cannot be cancelled remotely; retry only
+            with the same key and never execute a claimed action twice.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentDeviceChallenge"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/device-challenges/{id}/cancel:
+    post:
+      operationId: cancelAgentDeviceChallenge
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Cancel a pending native challenge. Claimed or acknowledged commands remain unchanged. A
+            cancelled pending challenge cannot subsequently be claimed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentDeviceChallenge"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/exercise-rules/{id}:
+    delete:
+      operationId: removeAgentExerciseRule
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            pattern: ^[1-9][0-9]*$
+          required: true
+          name: expectedRevision
+          in: query
+      responses:
+        "200":
+          description: Remove an explicit recurring exercise rule with its current revision. Existing
+            prescriptions remain immutable; future generation stops applying the rule.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  removed:
+                    type: boolean
+                    enum:
+                      - true
+                required:
+                  - removed
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/capabilities:
+    get:
+      operationId: getAgentCapabilitiesV2
+      tags:
+        - AgentV2
+      security: *a3
+      responses:
+        "200":
+          description: Explicit v2 negotiation; unnegotiated v1 capabilities stay unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentCapabilitiesV2"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/device-manifest:
+    put:
+      operationId: putAgentDeviceManifest
+      tags:
+        - AgentV2
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentDeviceManifest"
+      responses:
+        "200":
+          description: Registers distinct phone/Watch capabilities for 24 hours. Each installation must belong
+            to this athlete.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentManifestReceipt"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/planning-context:
+    get:
+      operationId: getAgentPlanningContext
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: false
+          name: trainingBlockId
+          in: query
+      responses:
+        "200":
+          description: After draining the local outbox, fetch current revisions/token. Token includes profile,
+            preferences, availability, equipment, results, baseline, rules, blocks and policy.
+            Relative dates use the athlete timezone/training day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentPlanningContext"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/runs:
+    post:
+      operationId: createAgentRunV2
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentRunInputV2"
+      responses:
+        "202":
+          description: Durable idempotent v2 run. Mutation scope and device capabilities are required for
+            writes; no provider call occurs on the request path.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRunV2"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    get:
+      operationId: listAgentRunsV2
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: false
+          name: before
+          in: query
+      responses:
+        "200":
+          description: Restore rich history across installations. Pages contain at most 20 runs; nextBefore is
+            an owned run ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentRunV2"
+                  nextBefore:
+                    type:
+                      - string
+                      - "null"
+                    format: uuid
+                required:
+                  - runs
+                  - nextBefore
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/runs/{id}:
+    get:
+      operationId: getAgentRunV2
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Canonical action receipt, Undo status, learned memory IDs and device challenge. Use
+            existing /v1/agent/runs/{id}/events SSE for durable progress then refetch here.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRunV2"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/requests/{id}:
+    get:
+      operationId: lookupAgentRequestV2
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Lookup by original Idempotency-Key without starting or replaying provider work.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRunV2"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/requests/{id}/cancel:
+    post:
+      operationId: cancelAgentRequestV2
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Cancel by original key, never create missing work. A committed action remains
+            committed; use Undo separately.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRunV2"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/actions/{id}/apply:
+    post:
+      operationId: applyAgentDraft
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentUndoInput"
+      responses:
+        "200":
+          description: Accept a validated draft after sync and fresh context checks. No additional model call;
+            idempotent activation with a verified action receipt.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentActionReceipt"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/actions/{id}/undo:
+    post:
+      operationId: undoAgentAction
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentUndoInput"
+      responses:
+        "200":
+          description: Idempotent compensating edit, valid seven days. Requires fresh context/current head;
+            rejects conflicting later edits or recorded sessions. Preserves unrelated changes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentActionReceipt"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/analysis-packet:
+    put:
+      operationId: putAgentAnalysisPacket
+      tags:
+        - AgentV2
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentAnalysisPacket"
+      responses:
+        "200":
+          description: "Whole immutable packet per owned result revision; 256 KiB, 1000 HR samples, 2000
+            interval/split/lap boundaries. Exact retries deduplicate by canonical SHA-256. No GPS.
+            No chunk uploads: aggregate explicitly with coverage omissions."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checksum:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - stored
+                required:
+                  - checksum
+                  - status
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/memory-settings:
+    get:
+      operationId: getAgentMemorySettings
+      tags:
+        - AgentV2
+      security: *a3
+      responses:
+        "200":
+          description: Automatic learning defaults off independently of cloud coaching consent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  revision:
+                    type: string
+                required:
+                  - enabled
+                  - revision
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: putAgentMemorySettings
+      tags:
+        - AgentV2
+      security: *a3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentMemorySettingsInput"
+      responses:
+        "200":
+          description: Explicit opt-in/revocation with revision check. Revocation erases learned memories and
+            invalidates pending prompt context.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  revision:
+                    type: string
+                required:
+                  - enabled
+                  - revision
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/memories:
+    get:
+      operationId: listAgentMemoriesV2
+      tags:
+        - AgentV2
+      security: *a3
+      responses:
+        "200":
+          description: Visible memory with source run/message, exact quote, confidence, revision and expiry.
+            Existing PUT/DELETE memory endpoints edit/forget and invalidate pending context.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentMemoryV2"
+                required:
+                  - memories
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/agent/v2/device-challenges/{id}/ack:
+    post:
+      operationId: acknowledgeAgentDeviceAction
+      tags:
+        - AgentV2
+      security: *a3
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: idempotency-key
+          in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentDeviceAcknowledgment"
+      responses:
+        "200":
+          description: Acknowledge exact device/recording/action digest within 120 seconds. Native must verify
+            local state, permission and foreground consent before executing. Idempotent result;
+            pending does not mean executed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentDeviceChallenge"
+        "400":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Request failed. Use the stable error code for client behavior.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
           description: Request failed. Use the stable error code for client behavior.
           content:
             application/json:

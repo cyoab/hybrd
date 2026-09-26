@@ -13,6 +13,7 @@ import {
   wire,
   withAthlete,
 } from "../db/store";
+import type { StagedPlan } from "./planning";
 import type { AgentProvider, Message } from "./provider";
 import {
   AgentArtifact,
@@ -20,15 +21,19 @@ import {
   AgentEvent,
   AgentMemory,
   AgentRun,
-  AgentRunInput,
   type Answer,
   MemoryInput,
-  type RunInput,
   terminal,
 } from "./schemas";
+import { type AnyInput, AnyRunInput } from "./v2-schemas";
+import { v2Services, validateV2Request } from "./v2-service";
 
 export type Checkpoint = {
   stage: "classify" | "turn" | "review";
+  stagedPlan?: StagedPlan;
+  memories?: unknown[];
+  deviceAction?: boolean;
+  repairCount?: number;
   messages: Message[];
   memoryHash: string;
   athleteRevision: string;
@@ -42,6 +47,14 @@ export type Checkpoint = {
 function memoryView(row: Row) {
   const data = wire(row);
   delete data.athleteId;
+  for (const key of [
+    "sourceRunId",
+    "sourceMessageId",
+    "sourceQuote",
+    "confidence",
+  ])
+    delete data[key];
+  data.source = "athlete";
   return AgentMemory.parse(data);
 }
 export async function event(sql: Tx, id: string, type: string, data: Row) {
@@ -123,6 +136,7 @@ export async function runView(sql: Tx, run: Row) {
   return AgentRun.parse({
     ...wire(run),
     schemaVersion: 1,
+    task: run.task === "device_action" ? "chat" : run.task,
     lastEventId: String(run.event_sequence),
     artifactStale,
   });
@@ -142,7 +156,7 @@ export async function closeRun(
     { status, errorCode: code },
   );
 }
-async function resetMemoryContext(sql: Tx, athleteId: string) {
+export async function resetMemoryContext(sql: Tx, athleteId: string) {
   await sql`insert into agent_context_epochs(athlete_id) values(${athleteId}) on conflict(athlete_id) do update set reset_at=now()`;
   const pending = await sql<
     Row[]
@@ -157,7 +171,7 @@ export function agentServices(
   env: Env,
   provider: AgentProvider,
 ) {
-  return {
+  const service = {
     capabilities: async (authUserId: string) =>
       withAthlete(client, authUserId, async (sql) => {
         const [policy] =
@@ -183,9 +197,9 @@ export function agentServices(
           eventRetentionDays: 7,
         });
       }),
-    create: async (authUserId: string, key: string, body: RunInput) =>
+    create: async (authUserId: string, key: string, body: AnyInput) =>
       withAthlete(client, authUserId, async (sql, athlete) => {
-        const input = AgentRunInput.parse(body),
+        const input = AnyRunInput.parse(body),
           athleteId = String(athlete.id),
           fingerprint = hash(input);
         await device(sql, athleteId, input.deviceId);
@@ -201,13 +215,17 @@ export function agentServices(
             );
           return runView(sql, prior);
         }
-        if (!["chat", "analyze_workout"].includes(input.task))
+        if (
+          input.schemaVersion === 1 &&
+          !["chat", "analyze_workout"].includes(input.task)
+        )
           throw new ApiError(
             409,
             "AGENT_TASK_NOT_ENABLED",
             "Plan creation and mutation are not enabled yet; check agent capabilities.",
           );
         await gate(sql, athlete, env, provider);
+        await validateV2Request(sql, athlete, input);
         const [quota] =
           await sql`select count(*) filter(where created_at >= date_trunc('day',now() at time zone 'UTC') at time zone 'UTC')::int as daily,count(*) filter(where created_at>now()-interval '1 minute')::int as recent,count(*) filter(where status in ('queued','running'))::int as pending from agent_runs where athlete_id=${athleteId}`;
         if (
@@ -253,7 +271,8 @@ export function agentServices(
             "THREAD_BUSY",
             "Wait for the current conversation run to finish.",
           );
-        const id = crypto.randomUUID();
+        const id = crypto.randomUUID(),
+          messageId = crypto.randomUUID();
         await insertRow(sql, "agent_runs", {
           id,
           athleteId,
@@ -262,9 +281,11 @@ export function agentServices(
           idempotencyKey: key,
           requestHash: fingerprint,
           task: input.task,
+          apiVersion: input.schemaVersion,
+          userMessageId: messageId,
           request: input,
         });
-        const messageId = crypto.randomUUID();
+
         await insertRow(sql, "coach_messages", {
           id: messageId,
           athleteId,
@@ -324,7 +345,7 @@ export function agentServices(
         memories: (
           await sql<
             Row[]
-          >`select * from athlete_memories where athlete_id=${String(athlete.id)} order by id`
+          >`select * from athlete_memories where athlete_id=${String(athlete.id)} and source='athlete' order by id`
         ).map(memoryView),
       })),
     putMemory: async (authUserId: string, id: string, body: unknown) =>
@@ -363,7 +384,7 @@ export function agentServices(
             "MEMORY_BUDGET_EXCEEDED",
             "Keep at most 20 memories and 5000 characters in total.",
           );
-        await sql`insert into athlete_memories(id,athlete_id,category,content,expires_at) values(${id},${athleteId},${input.category},${input.content},${input.expiresAt}) on conflict(id) do update set category=excluded.category,content=excluded.content,expires_at=excluded.expires_at,revision=athlete_memories.revision+1,updated_at=now()`;
+        await sql`insert into athlete_memories(id,athlete_id,category,content,expires_at) values(${id},${athleteId},${input.category},${input.content},${input.expiresAt}) on conflict(id) do update set category=excluded.category,content=excluded.content,expires_at=excluded.expires_at,source='athlete',source_run_id=null,source_message_id=null,source_quote=null,confidence=null,revision=athlete_memories.revision+1,updated_at=now()`;
         await resetMemoryContext(sql, athleteId);
         return memoryView(await owned(sql, "athlete_memories", id, athleteId));
       }),
@@ -385,9 +406,35 @@ export function agentServices(
         await resetMemoryContext(sql, String(athlete.id));
       }),
   };
+  return { ...service, ...v2Services(client, env, provider, service) };
 }
 export async function exportAgent(sql: Tx, athleteId: string) {
   return {
+    actions: (
+      await sql<
+        Row[]
+      >`select * from agent_actions where athlete_id=${athleteId} order by created_at,id`
+    ).map(wire),
+    exerciseRules: (
+      await sql<
+        Row[]
+      >`select * from agent_exercise_rules where athlete_id=${athleteId} order by from_exercise_id`
+    ).map(wire),
+    analysisPackets: (
+      await sql<
+        Row[]
+      >`select p.* from agent_analysis_packets p join workout_results r on r.id=p.result_id and r.revision=p.result_revision where p.athlete_id=${athleteId} and r.deleted_at is null order by p.result_id`
+    ).map(wire),
+    deviceChallenges: (
+      await sql<
+        Row[]
+      >`select * from agent_device_challenges where athlete_id=${athleteId} order by id`
+    ).map(wire),
+    memorySettings: (
+      await sql<
+        Row[]
+      >`select * from agent_memory_settings where athlete_id=${athleteId}`
+    ).map(wire),
     runs: (
       await sql<
         Row[]

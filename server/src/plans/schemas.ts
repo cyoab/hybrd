@@ -36,7 +36,7 @@ const targets = {
   rpeMin: Effort.nullable().default(null),
   rpeMax: Effort.nullable().default(null),
 };
-const step = z
+export const step = z
   .object({
     id: Id,
     sequence: Count,
@@ -60,7 +60,7 @@ const step = z
       (Boolean(v.distanceM) || Boolean(v.durationS)),
     "Invalid running step targets",
   );
-const runBlock = z
+export const runBlock = z
   .object({
     id: Id,
     sequence: Count,
@@ -86,7 +86,7 @@ export const RunPrescriptionInput = z
       uniqueBy(v.blocks, (b) => b.id) && uniqueBy(v.blocks, (b) => b.sequence),
     "Duplicate run block",
   );
-const set = z
+export const set = z
   .object({
     id: Id,
     setNumber: Count,
@@ -110,7 +110,7 @@ const set = z
       orderedRange(v.rirMin, v.rirMax),
     "Invalid strength set range",
   );
-const exercise = z
+export const exercise = z
   .object({
     id: Id,
     exerciseId: Id,

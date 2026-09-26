@@ -8,6 +8,55 @@ function dependencies(
 ): AppDependencies {
   return {
     agent: {
+      claimChallengeV2: async () => {
+        throw new Error("unused");
+      },
+      removeRuleV2: async () => {
+        throw new Error("unused");
+      },
+      cancelChallengeV2: async () => {
+        throw new Error("unused");
+      },
+      applyV2: async () => {
+        throw new Error("unused");
+      },
+      capabilitiesV2: async () => {
+        throw new Error("unused");
+      },
+      createV2: async () => {
+        throw new Error("unused");
+      },
+      getV2: async () => {
+        throw new Error("unused");
+      },
+      lookupV2: async () => {
+        throw new Error("unused");
+      },
+      listV2: async () => {
+        throw new Error("unused");
+      },
+      contextV2: async () => {
+        throw new Error("unused");
+      },
+      putManifest: async () => {
+        throw new Error("unused");
+      },
+      undoV2: async () => {
+        throw new Error("unused");
+      },
+      packetV2: async () => {
+        throw new Error("unused");
+      },
+      ackV2: async () => {
+        throw new Error("unused");
+      },
+      settingsV2: async () => {
+        throw new Error("unused");
+      },
+      memoriesV2: async () => {
+        throw new Error("unused");
+      },
+
       capabilities: async () => {
         throw new Error("unused");
       },
